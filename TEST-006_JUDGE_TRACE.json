@@ -1,0 +1,344 @@
+{
+  "kind": "narrow submission-only input classification test; not legal adjudication engine",
+  "submitted": {
+    "docs": [
+      "M3a",
+      "M1"
+    ],
+    "claims": [
+      "conditional"
+    ]
+  },
+  "variants": [
+    {
+      "hidden": {
+        "ap": "C3-GAP",
+        "strategy": "A",
+        "self": "낙관"
+      },
+      "judgment": [
+        {
+          "target": "문구 존재",
+          "status": "수용",
+          "cause": [
+            "M3a"
+          ],
+          "limit": "사용 가치·진실성 확정 아님"
+        },
+        {
+          "target": "조건부 관련성",
+          "status": "한정 수용",
+          "cause": [
+            "제출 조건부 분석",
+            "QR2"
+          ],
+          "limit": "가치 전제 충족 아님"
+        },
+        {
+          "target": "실제 가치 인정",
+          "status": "판단 유보",
+          "cause": [
+            "상세 가치 근거 없음"
+          ],
+          "stop": "[상세 수용 기준 미정]"
+        }
+      ]
+    },
+    {
+      "hidden": {
+        "ap": "C3-GAP",
+        "strategy": "A",
+        "self": "신중"
+      },
+      "judgment": [
+        {
+          "target": "문구 존재",
+          "status": "수용",
+          "cause": [
+            "M3a"
+          ],
+          "limit": "사용 가치·진실성 확정 아님"
+        },
+        {
+          "target": "조건부 관련성",
+          "status": "한정 수용",
+          "cause": [
+            "제출 조건부 분석",
+            "QR2"
+          ],
+          "limit": "가치 전제 충족 아님"
+        },
+        {
+          "target": "실제 가치 인정",
+          "status": "판단 유보",
+          "cause": [
+            "상세 가치 근거 없음"
+          ],
+          "stop": "[상세 수용 기준 미정]"
+        }
+      ]
+    },
+    {
+      "hidden": {
+        "ap": "C3-GAP",
+        "strategy": "B",
+        "self": "낙관"
+      },
+      "judgment": [
+        {
+          "target": "문구 존재",
+          "status": "수용",
+          "cause": [
+            "M3a"
+          ],
+          "limit": "사용 가치·진실성 확정 아님"
+        },
+        {
+          "target": "조건부 관련성",
+          "status": "한정 수용",
+          "cause": [
+            "제출 조건부 분석",
+            "QR2"
+          ],
+          "limit": "가치 전제 충족 아님"
+        },
+        {
+          "target": "실제 가치 인정",
+          "status": "판단 유보",
+          "cause": [
+            "상세 가치 근거 없음"
+          ],
+          "stop": "[상세 수용 기준 미정]"
+        }
+      ]
+    },
+    {
+      "hidden": {
+        "ap": "C3-GAP",
+        "strategy": "B",
+        "self": "신중"
+      },
+      "judgment": [
+        {
+          "target": "문구 존재",
+          "status": "수용",
+          "cause": [
+            "M3a"
+          ],
+          "limit": "사용 가치·진실성 확정 아님"
+        },
+        {
+          "target": "조건부 관련성",
+          "status": "한정 수용",
+          "cause": [
+            "제출 조건부 분석",
+            "QR2"
+          ],
+          "limit": "가치 전제 충족 아님"
+        },
+        {
+          "target": "실제 가치 인정",
+          "status": "판단 유보",
+          "cause": [
+            "상세 가치 근거 없음"
+          ],
+          "stop": "[상세 수용 기준 미정]"
+        }
+      ]
+    },
+    {
+      "hidden": {
+        "ap": "C3-LIMIT",
+        "strategy": "A",
+        "self": "낙관"
+      },
+      "judgment": [
+        {
+          "target": "문구 존재",
+          "status": "수용",
+          "cause": [
+            "M3a"
+          ],
+          "limit": "사용 가치·진실성 확정 아님"
+        },
+        {
+          "target": "조건부 관련성",
+          "status": "한정 수용",
+          "cause": [
+            "제출 조건부 분석",
+            "QR2"
+          ],
+          "limit": "가치 전제 충족 아님"
+        },
+        {
+          "target": "실제 가치 인정",
+          "status": "판단 유보",
+          "cause": [
+            "상세 가치 근거 없음"
+          ],
+          "stop": "[상세 수용 기준 미정]"
+        }
+      ]
+    },
+    {
+      "hidden": {
+        "ap": "C3-LIMIT",
+        "strategy": "A",
+        "self": "신중"
+      },
+      "judgment": [
+        {
+          "target": "문구 존재",
+          "status": "수용",
+          "cause": [
+            "M3a"
+          ],
+          "limit": "사용 가치·진실성 확정 아님"
+        },
+        {
+          "target": "조건부 관련성",
+          "status": "한정 수용",
+          "cause": [
+            "제출 조건부 분석",
+            "QR2"
+          ],
+          "limit": "가치 전제 충족 아님"
+        },
+        {
+          "target": "실제 가치 인정",
+          "status": "판단 유보",
+          "cause": [
+            "상세 가치 근거 없음"
+          ],
+          "stop": "[상세 수용 기준 미정]"
+        }
+      ]
+    },
+    {
+      "hidden": {
+        "ap": "C3-LIMIT",
+        "strategy": "B",
+        "self": "낙관"
+      },
+      "judgment": [
+        {
+          "target": "문구 존재",
+          "status": "수용",
+          "cause": [
+            "M3a"
+          ],
+          "limit": "사용 가치·진실성 확정 아님"
+        },
+        {
+          "target": "조건부 관련성",
+          "status": "한정 수용",
+          "cause": [
+            "제출 조건부 분석",
+            "QR2"
+          ],
+          "limit": "가치 전제 충족 아님"
+        },
+        {
+          "target": "실제 가치 인정",
+          "status": "판단 유보",
+          "cause": [
+            "상세 가치 근거 없음"
+          ],
+          "stop": "[상세 수용 기준 미정]"
+        }
+      ]
+    },
+    {
+      "hidden": {
+        "ap": "C3-LIMIT",
+        "strategy": "B",
+        "self": "신중"
+      },
+      "judgment": [
+        {
+          "target": "문구 존재",
+          "status": "수용",
+          "cause": [
+            "M3a"
+          ],
+          "limit": "사용 가치·진실성 확정 아님"
+        },
+        {
+          "target": "조건부 관련성",
+          "status": "한정 수용",
+          "cause": [
+            "제출 조건부 분석",
+            "QR2"
+          ],
+          "limit": "가치 전제 충족 아님"
+        },
+        {
+          "target": "실제 가치 인정",
+          "status": "판단 유보",
+          "cause": [
+            "상세 가치 근거 없음"
+          ],
+          "stop": "[상세 수용 기준 미정]"
+        }
+      ]
+    }
+  ],
+  "checks": {
+    "allEqual": true,
+    "count": 8
+  },
+  "conditional": [
+    {
+      "target": "문구 존재",
+      "status": "수용",
+      "cause": [
+        "M3a"
+      ],
+      "limit": "사용 가치·진실성 확정 아님"
+    },
+    {
+      "target": "조건부 관련성",
+      "status": "한정 수용",
+      "cause": [
+        "제출 조건부 분석",
+        "QR2"
+      ],
+      "limit": "가치 전제 충족 아님"
+    },
+    {
+      "target": "실제 가치 인정",
+      "status": "판단 유보",
+      "cause": [
+        "상세 가치 근거 없음"
+      ],
+      "stop": "[상세 수용 기준 미정]"
+    }
+  ],
+  "absolute": [
+    {
+      "target": "문구 존재",
+      "status": "수용",
+      "cause": [
+        "M3a"
+      ],
+      "limit": "사용 가치·진실성 확정 아님"
+    },
+    {
+      "target": "무조건 반환 배제",
+      "status": "현 근거로 배척",
+      "cause": [
+        "제출 단정",
+        "QR2"
+      ],
+      "limit": "반대 청구 승리 아님"
+    },
+    {
+      "target": "실제 가치 인정",
+      "status": "판단 유보",
+      "cause": [
+        "상세 가치 근거 없음"
+      ],
+      "stop": "[상세 수용 기준 미정]"
+    }
+  ]
+}

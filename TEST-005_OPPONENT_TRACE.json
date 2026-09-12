@@ -1,0 +1,271 @@
+{
+  "kind": "TEST-005 input-processing fixture; no autonomous action policy",
+  "base": {
+    "goal": "전액 반환 요구의 근거 준비",
+    "docs": [
+      "M1",
+      "M2",
+      "M3a"
+    ],
+    "received": [],
+    "assessment": {
+      "purpose": "검토 필요",
+      "value": "검토 필요",
+      "precedent": "전문 미확보"
+    },
+    "resources": {
+      "workers": [
+        "O-E"
+      ],
+      "budget": "유한",
+      "time": "유한"
+    },
+    "reviewed": []
+  },
+  "hiddenVariants": [
+    {
+      "hidden": {
+        "ap": "C3-GAP",
+        "strategy": "A"
+      },
+      "candidates": [
+        {
+          "id": "K1",
+          "why": [
+            "목표",
+            "M1",
+            "M2"
+          ],
+          "work": "목적·불이행 연결 준비"
+        },
+        {
+          "id": "K2",
+          "why": [
+            "M3a",
+            "자기 반환 주장"
+          ],
+          "work": "사용 가치·목적의 경쟁 관계 검토"
+        },
+        {
+          "id": "K3",
+          "why": [
+            "M2 인용",
+            "전문 미확보"
+          ],
+          "work": "P1 전문 접근 가능성 확인"
+        }
+      ]
+    },
+    {
+      "hidden": {
+        "ap": "C3-GAP",
+        "strategy": "B"
+      },
+      "candidates": [
+        {
+          "id": "K1",
+          "why": [
+            "목표",
+            "M1",
+            "M2"
+          ],
+          "work": "목적·불이행 연결 준비"
+        },
+        {
+          "id": "K2",
+          "why": [
+            "M3a",
+            "자기 반환 주장"
+          ],
+          "work": "사용 가치·목적의 경쟁 관계 검토"
+        },
+        {
+          "id": "K3",
+          "why": [
+            "M2 인용",
+            "전문 미확보"
+          ],
+          "work": "P1 전문 접근 가능성 확인"
+        }
+      ]
+    },
+    {
+      "hidden": {
+        "ap": "C3-LIMIT",
+        "strategy": "A"
+      },
+      "candidates": [
+        {
+          "id": "K1",
+          "why": [
+            "목표",
+            "M1",
+            "M2"
+          ],
+          "work": "목적·불이행 연결 준비"
+        },
+        {
+          "id": "K2",
+          "why": [
+            "M3a",
+            "자기 반환 주장"
+          ],
+          "work": "사용 가치·목적의 경쟁 관계 검토"
+        },
+        {
+          "id": "K3",
+          "why": [
+            "M2 인용",
+            "전문 미확보"
+          ],
+          "work": "P1 전문 접근 가능성 확인"
+        }
+      ]
+    },
+    {
+      "hidden": {
+        "ap": "C3-LIMIT",
+        "strategy": "B"
+      },
+      "candidates": [
+        {
+          "id": "K1",
+          "why": [
+            "목표",
+            "M1",
+            "M2"
+          ],
+          "work": "목적·불이행 연결 준비"
+        },
+        {
+          "id": "K2",
+          "why": [
+            "M3a",
+            "자기 반환 주장"
+          ],
+          "work": "사용 가치·목적의 경쟁 관계 검토"
+        },
+        {
+          "id": "K3",
+          "why": [
+            "M2 인용",
+            "전문 미확보"
+          ],
+          "work": "P1 전문 접근 가능성 확인"
+        }
+      ]
+    }
+  ],
+  "before": [
+    {
+      "id": "K1",
+      "why": [
+        "목표",
+        "M1",
+        "M2"
+      ],
+      "work": "목적·불이행 연결 준비"
+    },
+    {
+      "id": "K2",
+      "why": [
+        "M3a",
+        "자기 반환 주장"
+      ],
+      "work": "사용 가치·목적의 경쟁 관계 검토"
+    },
+    {
+      "id": "K3",
+      "why": [
+        "M2 인용",
+        "전문 미확보"
+      ],
+      "work": "P1 전문 접근 가능성 확인"
+    }
+  ],
+  "receivedNotReviewed": [
+    {
+      "id": "K1",
+      "why": [
+        "목표",
+        "M1",
+        "M2"
+      ],
+      "work": "목적·불이행 연결 준비"
+    },
+    {
+      "id": "K2",
+      "why": [
+        "M3a",
+        "자기 반환 주장"
+      ],
+      "work": "사용 가치·목적의 경쟁 관계 검토"
+    },
+    {
+      "id": "K3",
+      "why": [
+        "M2 인용",
+        "전문 미확보"
+      ],
+      "work": "P1 전문 접근 가능성 확인"
+    },
+    {
+      "id": "K4:S1",
+      "why": [
+        "S1",
+        "수신한 문장"
+      ],
+      "work": "제출 문장 분석"
+    }
+  ],
+  "reviewedInjected": [
+    {
+      "id": "K1",
+      "why": [
+        "목표",
+        "M1",
+        "M2"
+      ],
+      "work": "목적·불이행 연결 준비"
+    },
+    {
+      "id": "K2",
+      "why": [
+        "M3a",
+        "자기 반환 주장"
+      ],
+      "work": "사용 가치·목적의 경쟁 관계 검토"
+    },
+    {
+      "id": "K3",
+      "why": [
+        "M2 인용",
+        "전문 미확보"
+      ],
+      "work": "P1 전문 접근 가능성 확인"
+    },
+    {
+      "id": "K4:S1",
+      "why": [
+        "S1",
+        "수신한 문장"
+      ],
+      "work": "제출 문장 분석"
+    },
+    {
+      "id": "K5:S1",
+      "why": [
+        "S1",
+        "실제 검토 기록"
+      ],
+      "work": "검토로 인식한 적용 공백에 대한 대응 준비"
+    }
+  ],
+  "checks": {
+    "hiddenVariantsEqual": true,
+    "noSubmissionBeforeReceipt": true,
+    "noCounterOnReceipt": true,
+    "afterInjectedReview": true,
+    "nameOnlyEqual": true
+  }
+}

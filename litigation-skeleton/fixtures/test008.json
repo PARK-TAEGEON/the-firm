@@ -1,0 +1,474 @@
+{
+  "schema_version": 1,
+  "seed": 809,
+  "source": "TEST008 fixed-input subset; outcomes injected",
+  "events": [
+    {
+      "op": "case",
+      "id": "Q2-AP",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "payload": {
+        "M1": "opening promotion purpose; refund condition",
+        "M3a": "partial store guidance use; not whole campaign",
+        "P1": "citation only; full text absent",
+        "U": "pre-existing client mail; stage-7 access; no valuation"
+      }
+    },
+    {
+      "op": "stage",
+      "id": "TRIAL",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "level": "trial"
+    },
+    {
+      "op": "assignment",
+      "id": "AS-N",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "stage": "TRIAL",
+      "lawyer": "N"
+    },
+    {
+      "op": "assignment",
+      "id": "AS-O",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 explicit assignment",
+      "stage": "TRIAL",
+      "lawyer": "O"
+    },
+    {
+      "op": "assignment",
+      "id": "AS-beta",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 explicit assignment",
+      "stage": "TRIAL",
+      "lawyer": "beta"
+    },
+    {
+      "op": "submission",
+      "id": "S0",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "stage": "TRIAL",
+      "payload": {
+        "claim": "refund",
+        "sources": [
+          "M1",
+          "M3a",
+          "P1 citation"
+        ]
+      }
+    },
+    {
+      "op": "deliver",
+      "id": "D-S0-opponent",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "record": "S0",
+      "recipient": "opponent",
+      "stage": "TRIAL"
+    },
+    {
+      "op": "deliver",
+      "id": "D-S0-trial_court",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "record": "S0",
+      "recipient": "trial_court",
+      "stage": "TRIAL"
+    },
+    {
+      "op": "commitment",
+      "id": "C0",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "stage": "TRIAL",
+      "lawyer": "N",
+      "slot": "tau0",
+      "work": "TEST-008 T0 injected performed work"
+    },
+    {
+      "op": "complete",
+      "id": "T0",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "commitment": "C0"
+    },
+    {
+      "op": "commitment",
+      "id": "C1",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "stage": "TRIAL",
+      "lawyer": "N",
+      "slot": "tau1",
+      "work": "TEST-008 T1 injected performed work"
+    },
+    {
+      "op": "complete",
+      "id": "T1",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "commitment": "C1"
+    },
+    {
+      "op": "work_product",
+      "id": "W1",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "stage": "TRIAL",
+      "team": "firm",
+      "payload": {
+        "text_key": "W1",
+        "hidden_ap": "C3-GAP",
+        "not_submitted": "internal only"
+      }
+    },
+    {
+      "op": "commitment",
+      "id": "C2",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "stage": "TRIAL",
+      "lawyer": "N",
+      "slot": "tau2",
+      "work": "TEST-008 T2 injected performed work"
+    },
+    {
+      "op": "complete",
+      "id": "T2",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "commitment": "C2"
+    },
+    {
+      "op": "submission",
+      "id": "S1",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "stage": "TRIAL",
+      "payload": {
+        "claim": "conditional residual value; value unknown"
+      }
+    },
+    {
+      "op": "deliver",
+      "id": "D-S1-opponent",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "record": "S1",
+      "recipient": "opponent",
+      "stage": "TRIAL"
+    },
+    {
+      "op": "deliver",
+      "id": "D-S1-trial_court",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "record": "S1",
+      "recipient": "trial_court",
+      "stage": "TRIAL"
+    },
+    {
+      "op": "commitment",
+      "id": "C3",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "stage": "TRIAL",
+      "lawyer": "N",
+      "slot": "tau3",
+      "work": "TEST-008 T3 injected performed work"
+    },
+    {
+      "op": "complete",
+      "id": "T3",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "commitment": "C3"
+    },
+    {
+      "op": "reason",
+      "id": "J1",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "stage": "TRIAL",
+      "sources": [
+        "S0",
+        "S1"
+      ],
+      "injected": true,
+      "payload": {
+        "wording": "accepted",
+        "value": "deferred",
+        "P1": "full text absent"
+      }
+    },
+    {
+      "op": "commitment",
+      "id": "C4",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "stage": "TRIAL",
+      "lawyer": "O",
+      "slot": "tau4",
+      "work": "TEST-008 T4 injected performed work"
+    },
+    {
+      "op": "complete",
+      "id": "T4",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "commitment": "C4"
+    },
+    {
+      "op": "submission",
+      "id": "S2",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "stage": "TRIAL",
+      "payload": {
+        "claim": "partial use does not prove purpose fulfilled"
+      }
+    },
+    {
+      "op": "deliver",
+      "id": "D-S2-opponent",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "record": "S2",
+      "recipient": "opponent",
+      "stage": "TRIAL"
+    },
+    {
+      "op": "deliver",
+      "id": "D-S2-trial_court",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "record": "S2",
+      "recipient": "trial_court",
+      "stage": "TRIAL"
+    },
+    {
+      "op": "commitment",
+      "id": "C5",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "stage": "TRIAL",
+      "lawyer": "N",
+      "slot": "tau5",
+      "work": "TEST-008 T5 injected performed work"
+    },
+    {
+      "op": "complete",
+      "id": "T5",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "commitment": "C5"
+    },
+    {
+      "op": "work_product",
+      "id": "W2",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "stage": "TRIAL",
+      "team": "firm",
+      "payload": {
+        "text_key": "W2",
+        "hidden_ap": "C3-GAP",
+        "not_submitted": "internal only"
+      }
+    },
+    {
+      "op": "commitment",
+      "id": "C6",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "stage": "TRIAL",
+      "lawyer": "N",
+      "slot": "tau6",
+      "work": "TEST-008 T6 injected performed work"
+    },
+    {
+      "op": "complete",
+      "id": "T6",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "commitment": "C6"
+    },
+    {
+      "op": "commitment",
+      "id": "C7",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "stage": "TRIAL",
+      "lawyer": "N",
+      "slot": "tau7",
+      "work": "TEST-008 T7 injected performed work"
+    },
+    {
+      "op": "complete",
+      "id": "T7",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "commitment": "C7"
+    },
+    {
+      "op": "commitment",
+      "id": "C8",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "stage": "TRIAL",
+      "lawyer": "beta",
+      "slot": "tau8",
+      "work": "TEST-008 T8 injected performed work"
+    },
+    {
+      "op": "complete",
+      "id": "T8",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "commitment": "C8"
+    },
+    {
+      "op": "work_product",
+      "id": "Wbeta",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "stage": "TRIAL",
+      "team": "firm",
+      "payload": {
+        "text_key": "Wbeta",
+        "hidden_ap": "C3-GAP",
+        "not_submitted": "internal only"
+      }
+    },
+    {
+      "op": "commitment",
+      "id": "C9",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "stage": "TRIAL",
+      "lawyer": "N",
+      "slot": "tau9",
+      "work": "TEST-008 T9 injected performed work"
+    },
+    {
+      "op": "complete",
+      "id": "T9",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "commitment": "C9"
+    },
+    {
+      "op": "submission",
+      "id": "S3",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "stage": "TRIAL",
+      "payload": {
+        "source": "U",
+        "claim": "store sign wording; no value proof"
+      }
+    },
+    {
+      "op": "deliver",
+      "id": "D-S3-opponent",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "record": "S3",
+      "recipient": "opponent",
+      "stage": "TRIAL"
+    },
+    {
+      "op": "deliver",
+      "id": "D-S3-trial_court",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "record": "S3",
+      "recipient": "trial_court",
+      "stage": "TRIAL"
+    },
+    {
+      "op": "commitment",
+      "id": "C10",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "stage": "TRIAL",
+      "lawyer": "O",
+      "slot": "tau10",
+      "work": "TEST-008 T10 injected performed work"
+    },
+    {
+      "op": "complete",
+      "id": "T10",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "commitment": "C10"
+    },
+    {
+      "op": "submission",
+      "id": "S4",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "stage": "TRIAL",
+      "payload": {
+        "claim": "period and value remain unknown"
+      }
+    },
+    {
+      "op": "deliver",
+      "id": "D-S4-opponent",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "record": "S4",
+      "recipient": "opponent",
+      "stage": "TRIAL"
+    },
+    {
+      "op": "deliver",
+      "id": "D-S4-trial_court",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "record": "S4",
+      "recipient": "trial_court",
+      "stage": "TRIAL"
+    },
+    {
+      "op": "commitment",
+      "id": "C11",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "stage": "TRIAL",
+      "lawyer": "N",
+      "slot": "tau11",
+      "work": "TEST-008 T11 injected performed work"
+    },
+    {
+      "op": "complete",
+      "id": "T11",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "commitment": "C11"
+    },
+    {
+      "op": "reason",
+      "id": "J2",
+      "case_id": "Q2-AP",
+      "cause": "TEST-008 fixed input",
+      "stage": "TRIAL",
+      "sources": [
+        "J1",
+        "S3",
+        "S4"
+      ],
+      "injected": true,
+      "payload": {
+        "changed_scope": "U wording only",
+        "value": "deferred",
+        "P1": "full text absent"
+      }
+    }
+  ]
+}

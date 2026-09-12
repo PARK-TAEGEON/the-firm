@@ -1,0 +1,573 @@
+{
+  "schema_version": 1,
+  "seed": 809,
+  "source": "TEST009 fixed-input subset; outcomes injected",
+  "events": [
+    {
+      "op": "reason",
+      "id": "J0-RF",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "TRIAL",
+      "sources": [
+        "S3"
+      ],
+      "injected": true,
+      "payload": {
+        "fact": "F f1 accepted; f2 not accepted"
+      }
+    },
+    {
+      "op": "reason",
+      "id": "J0-RL",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "TRIAL",
+      "sources": [
+        "S0",
+        "S1"
+      ],
+      "injected": true,
+      "payload": {
+        "legal": "L supports A; B missing separate link"
+      }
+    },
+    {
+      "op": "reason",
+      "id": "J0-RC",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "TRIAL",
+      "sources": [
+        "S0",
+        "S4"
+      ],
+      "injected": true,
+      "payload": {
+        "scope": "C c1 accepted; c2 lacks condition"
+      }
+    },
+    {
+      "op": "judgment",
+      "id": "J0",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "TRIAL",
+      "reasons": [
+        "J0-RF",
+        "J0-RL",
+        "J0-RC"
+      ],
+      "injected": true,
+      "payload": {
+        "A": "accepted",
+        "B": "rejected",
+        "C": "partial"
+      }
+    },
+    {
+      "op": "stage",
+      "id": "APPEAL",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "level": "appeal",
+      "prior_judgment": "J0"
+    },
+    {
+      "op": "assignment",
+      "id": "AS-N-APPEAL",
+      "case_id": "Q2-AP",
+      "cause": "explicit stage assignment",
+      "stage": "APPEAL",
+      "lawyer": "N"
+    },
+    {
+      "op": "import",
+      "id": "IMP-S0",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "record": "S0",
+      "stage": "APPEAL"
+    },
+    {
+      "op": "import",
+      "id": "IMP-S1",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "record": "S1",
+      "stage": "APPEAL"
+    },
+    {
+      "op": "import",
+      "id": "IMP-S2",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "record": "S2",
+      "stage": "APPEAL"
+    },
+    {
+      "op": "import",
+      "id": "IMP-S3",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "record": "S3",
+      "stage": "APPEAL"
+    },
+    {
+      "op": "import",
+      "id": "IMP-S4",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "record": "S4",
+      "stage": "APPEAL"
+    },
+    {
+      "op": "import",
+      "id": "IMP-J0",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "record": "J0",
+      "stage": "APPEAL"
+    },
+    {
+      "op": "import",
+      "id": "IMP-J0-RF",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "record": "J0-RF",
+      "stage": "APPEAL"
+    },
+    {
+      "op": "import",
+      "id": "IMP-J0-RL",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "record": "J0-RL",
+      "stage": "APPEAL"
+    },
+    {
+      "op": "import",
+      "id": "IMP-J0-RC",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "record": "J0-RC",
+      "stage": "APPEAL"
+    },
+    {
+      "op": "appeal_target",
+      "id": "AP-P-B",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "APPEAL",
+      "reasons": [
+        "J0-RL"
+      ],
+      "scope": [
+        "b1"
+      ],
+      "injected": true,
+      "payload": {
+        "party": "plaintiff",
+        "requested_effect": "review selected scope"
+      }
+    },
+    {
+      "op": "appeal_target",
+      "id": "AP-P-C",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "APPEAL",
+      "reasons": [
+        "J0-RC"
+      ],
+      "scope": [
+        "c2"
+      ],
+      "injected": true,
+      "payload": {
+        "party": "plaintiff",
+        "requested_effect": "review selected scope"
+      }
+    },
+    {
+      "op": "appeal_target",
+      "id": "AP-D-A",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "APPEAL",
+      "reasons": [
+        "J0-RF",
+        "J0-RL"
+      ],
+      "scope": [
+        "a1"
+      ],
+      "injected": true,
+      "payload": {
+        "party": "defendant",
+        "requested_effect": "review selected scope"
+      }
+    },
+    {
+      "op": "appeal_target",
+      "id": "AP-D-C",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "APPEAL",
+      "reasons": [
+        "J0-RC"
+      ],
+      "scope": [
+        "c1"
+      ],
+      "injected": true,
+      "payload": {
+        "party": "defendant",
+        "requested_effect": "review selected scope"
+      }
+    },
+    {
+      "op": "assignment",
+      "id": "AS-beta-APPEAL",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "APPEAL",
+      "lawyer": "beta"
+    },
+    {
+      "op": "commitment",
+      "id": "C12",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "APPEAL",
+      "lawyer": "N",
+      "slot": "tau12",
+      "work": "TEST-009 T12"
+    },
+    {
+      "op": "complete",
+      "id": "T12",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "commitment": "C12"
+    },
+    {
+      "op": "commitment",
+      "id": "C13",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "APPEAL",
+      "lawyer": "N",
+      "slot": "tau13",
+      "work": "TEST-009 T13"
+    },
+    {
+      "op": "complete",
+      "id": "T13",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "commitment": "C13"
+    },
+    {
+      "op": "commitment",
+      "id": "C14",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "APPEAL",
+      "lawyer": "beta",
+      "slot": "tau14",
+      "work": "TEST-009 T14"
+    },
+    {
+      "op": "complete",
+      "id": "T14",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "commitment": "C14"
+    },
+    {
+      "op": "commitment",
+      "id": "C15",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "APPEAL",
+      "lawyer": "beta",
+      "slot": "tau15",
+      "work": "TEST-009 T15"
+    },
+    {
+      "op": "complete",
+      "id": "T15",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "commitment": "C15"
+    },
+    {
+      "op": "commitment",
+      "id": "C16",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "APPEAL",
+      "lawyer": "N",
+      "slot": "tau16",
+      "work": "TEST-009 T16"
+    },
+    {
+      "op": "complete",
+      "id": "T16",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "commitment": "C16"
+    },
+    {
+      "op": "commitment",
+      "id": "C17",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "APPEAL",
+      "lawyer": "N",
+      "slot": "tau17",
+      "work": "TEST-009 T17"
+    },
+    {
+      "op": "complete",
+      "id": "T17",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "commitment": "C17"
+    },
+    {
+      "op": "review",
+      "id": "REVIEW-beta",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "APPEAL",
+      "lawyer": "beta",
+      "time_id": "T14",
+      "scope": [
+        "AP-D-A"
+      ]
+    },
+    {
+      "op": "reason",
+      "id": "JA-LS",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "APPEAL",
+      "sources": [
+        "J0-RL",
+        "J0-RC"
+      ],
+      "scope": [
+        "a1",
+        "b1",
+        "c1",
+        "c2"
+      ],
+      "injected": true,
+      "payload": {
+        "B_b1": "maintained",
+        "C_c1": "maintained",
+        "C_c2": "changed",
+        "A_a1": "changed",
+        "legal": "LS"
+      }
+    },
+    {
+      "op": "judgment",
+      "id": "JA",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "APPEAL",
+      "reasons": [
+        "JA-LS"
+      ],
+      "scope": [
+        "a1",
+        "b1",
+        "c1",
+        "c2"
+      ],
+      "injected": true,
+      "payload": {
+        "result": "partial change"
+      }
+    },
+    {
+      "op": "stage",
+      "id": "SUPREME",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "level": "supreme",
+      "prior_judgment": "JA"
+    },
+    {
+      "op": "assignment",
+      "id": "AS-N-SUPREME",
+      "case_id": "Q2-AP",
+      "cause": "explicit stage assignment",
+      "stage": "SUPREME",
+      "lawyer": "N"
+    },
+    {
+      "op": "commitment",
+      "id": "C18",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "SUPREME",
+      "lawyer": "N",
+      "slot": "tau18",
+      "work": "TEST-009 T18"
+    },
+    {
+      "op": "complete",
+      "id": "T18",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "commitment": "C18"
+    },
+    {
+      "op": "commitment",
+      "id": "C19",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "SUPREME",
+      "lawyer": "N",
+      "slot": "tau19",
+      "work": "TEST-009 T19"
+    },
+    {
+      "op": "complete",
+      "id": "T19",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "commitment": "C19"
+    },
+    {
+      "op": "import",
+      "id": "SUP-JA",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "record": "JA",
+      "stage": "SUPREME"
+    },
+    {
+      "op": "import",
+      "id": "SUP-JA-LS",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "record": "JA-LS",
+      "stage": "SUPREME"
+    },
+    {
+      "op": "appeal_target",
+      "id": "SUP-P",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "SUPREME",
+      "reasons": [
+        "JA-LS"
+      ],
+      "scope": [
+        "c2"
+      ],
+      "injected": true,
+      "payload": {
+        "party": "plaintiff",
+        "target": "legal LS; no fact reroll"
+      }
+    },
+    {
+      "op": "reason",
+      "id": "JS-R-REASON",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "SUPREME",
+      "sources": [
+        "JA-LS"
+      ],
+      "scope": [
+        "c2"
+      ],
+      "injected": true,
+      "payload": {
+        "legal": "LS connection requires remand",
+        "scope": "r1"
+      }
+    },
+    {
+      "op": "judgment",
+      "id": "JS-R",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "SUPREME",
+      "reasons": [
+        "JS-R-REASON"
+      ],
+      "scope": [
+        "c2"
+      ],
+      "injected": true,
+      "payload": {
+        "result": "remand r1"
+      }
+    },
+    {
+      "op": "remand_scope",
+      "id": "RM-SCOPE",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "SUPREME",
+      "reasons": [
+        "JS-R-REASON"
+      ],
+      "scope": [
+        "r1"
+      ],
+      "injected": true,
+      "payload": {
+        "preserved": [
+          "A",
+          "B",
+          "C-c1"
+        ],
+        "returned_to": "lower court",
+        "binding_rules": "undefined"
+      }
+    },
+    {
+      "op": "stage",
+      "id": "RM-r1",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "level": "remand",
+      "prior_judgment": "JS-R",
+      "remand_scope": "RM-SCOPE"
+    },
+    {
+      "op": "assignment",
+      "id": "AS-N-RM-r1",
+      "case_id": "Q2-AP",
+      "cause": "explicit stage assignment",
+      "stage": "RM-r1",
+      "lawyer": "N"
+    },
+    {
+      "op": "commitment",
+      "id": "C20",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "stage": "RM-r1",
+      "lawyer": "N",
+      "slot": "tau20",
+      "work": "r1 handoff review"
+    },
+    {
+      "op": "complete",
+      "id": "T20",
+      "case_id": "Q2-AP",
+      "cause": "TEST-009 injected input; not legal adjudication",
+      "commitment": "C20"
+    }
+  ]
+}
