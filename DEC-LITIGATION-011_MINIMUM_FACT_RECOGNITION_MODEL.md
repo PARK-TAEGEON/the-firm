@@ -1,8 +1,8 @@
 # THE FIRM — 최소 사실인정 모델
 
 문서 ID: DEC-LITIGATION-011
-버전: v0.1 — 초안
-상태: **Proposed / 기획자 채택 필요**
+버전: v0.2 — 기획 결정 반영
+상태: **Accepted**
 상위 기준: [00_GAME_CONSTITUTION.md](00_GAME_CONSTITUTION.md) v0.2, [01_SYSTEM_MAP.md](01_SYSTEM_MAP.md) v0.2
 시스템 기준: [SYS-001_LITIGATION.md](SYS-001_LITIGATION.md) v0.2
 직접 결정 기준: [DEC-LITIGATION-007_JUDGE_ACCEPTANCE.md](DEC-LITIGATION-007_JUDGE_ACCEPTANCE.md), [DEC-LITIGATION-008_FINAL_ADJUDICATION.md](DEC-LITIGATION-008_FINAL_ADJUDICATION.md), [DEC-LITIGATION-009_PROCEDURAL_FLOW.md](DEC-LITIGATION-009_PROCEDURAL_FLOW.md), [DEC-LITIGATION-010_APPEAL_AND_COURT_LEVELS.md](DEC-LITIGATION-010_APPEAL_AND_COURT_LEVELS.md) — 각 v0.2 Accepted 범위
@@ -10,15 +10,15 @@
 
 ## 1. 목적과 결정 경계
 
-제출되고 현재 판단에 사용할 수 있는 evidence / record를 바탕으로 법원이 특정 사실명제를 어느 범위에서 인정하는지, 현 기록으로 인정하지 못하는지, 또는 별도의 반대명제까지 인정하는지를 구별하는 최소 구조를 제안한다.
+제출되고 현재 판단에 사용할 수 있는 evidence / record를 바탕으로 법원이 특정 사실명제를 어느 범위에서 인정하는지, 현 기록으로 인정하지 못하는지, 또는 별도의 반대명제까지 인정하는지를 구별하는 최소 구조를 정한다.
 
 이 문서는 DEC-007의 `자료 내용·신빙성 → 사실 인정·충분성` 사이에 남아 있던 구조적 공백을 좁힌다. 사실인정 결과를 청구 효과로 연결하는 DEC-008의 입증 부담·최종 판정은 변경하지 않는다. 절차상 증거 사용 가능성, 상급심의 새 증거 허용, 손해액, 판사 성향, 판례 효력도 결정하지 않는다.
 
-이번 v0.1은 **채택 전 초안**이다. 아래 F1~F10은 기존 Accepted 결정에서 강제되는 부분을 정리한 **채택 후보**이지, 문서 작성만으로 Accepted된 규칙이 아니다. 실제 대한민국 법률의 일반 규칙이나 사실인정 기준을 새로 선언하지 않는다. 기준이 필요한데 기존 문서나 테스트 콘텐츠에 없으면 `[상세 사실인정 기준 미정]`으로 중단한다.
+기획자의 결정으로 **F1·F2·F4·F6·F8·F9·F10을 Accepted, F3·F5의 핵심 방향을 Core Accepted, F7을 Accepted로 채택한다.** F3의 exact lineage-contribution identity algorithm, F5의 conflict classification generation, F7의 실제 상급심·환송 법적 효과는 미정으로 유지한다. 실제 대한민국 법률의 일반 규칙이나 사실인정 기준을 새로 선언하지 않는다. 기준이 필요한데 기존 문서나 테스트 콘텐츠에 없으면 `[상세 사실인정 기준 미정]`으로 중단한다.
 
 ## 2. 기존 Accepted 결정에서 그대로 이어지는 제약
 
-다음은 이번 초안의 새 선택지가 아니라 이미 Accepted된 범위다.
+다음은 DEC-011의 새 선택지가 아니라 이미 Accepted된 범위다.
 
 | 기존 결정 | DEC-011이 보존해야 하는 제약 |
 |---|---|
@@ -38,9 +38,9 @@
 |---|---|---|
 | A. 하나의 `fact = true/false`를 세계와 법원이 공유 | 단순 | 판사가 미제출 정보와 사건 정답을 읽는 전지적 모델이 됨 |
 | B. 실제 진실 없이 법원 판단만 저장 | 정보 누출은 줄어듦 | 세계 사건의 실제 발생·자료 생성·향후 발견과 법원 판단의 차이를 표현하기 어려움 |
-| C. 사건 실제 상태와 심급별 사실인정 기록을 별도 저장소·입력 경계로 분리 | 실제 발생과 법적 판단의 불일치, 오판·미입증·후속 발견을 기록 가능 | 접근 통제와 테스트가 필요 |
+| C. 사건 실제 상태와 심급별 사실인정 기록을 별도 의미 상태·입력 경계로 분리 | 실제 발생과 법적 판단의 불일치, 오판·미입증·후속 발견을 기록 가능 | 접근 통제와 테스트가 필요 |
 
-**F1-C를 채택 후보로 제안한다.**
+**F1-C Accepted.**
 
 - `ActualStateRecord`는 사건 세계에서 실제로 발생하거나 발생하지 않은 내용을 위한 별도 데이터다. 모든 사실명제에 전지적 참/거짓을 강제로 작성할 필요는 없으며, 콘텐츠가 실제 상태를 정하지 않은 부분은 `unspecified`로 남길 수 있다.
 - `FactProposition`은 법원이 판단할 수 있는 명시적 문장과 범위다. 같은 사건 실제 상태에서 여러 구체·부분·경쟁 명제가 존재할 수 있다.
@@ -53,7 +53,7 @@
 
 ### 4.1 정규 사실명제 상태
 
-DEC-007의 네 수용 상태를 사실 층에서 다음처럼 구체화하는 후보를 제안한다. 이는 기존 상태를 대체하는 새 전 사건 판정 목록이 아니다.
+**F2 Accepted.** DEC-007의 네 수용 상태를 사실 층에서 다음처럼 구체화한다. 이는 기존 상태를 대체하는 새 전 사건 판정 목록이 아니다.
 
 | 사실 층의 기록 | DEC-007과의 관계 | 의미 |
 |---|---|---|
@@ -66,7 +66,7 @@ DEC-007의 네 수용 상태를 사실 층에서 다음처럼 구체화하는 �
 
 ### 4.2 반대사실 인정
 
-**`contrary_recognized`를 명제 자체의 독립 상태로 저장하지 않는 후보를 제안한다.** 다음 세 조건이 모두 충족될 때만 비교 결과 또는 설명으로 도출한다.
+**`contrary_recognized`를 명제 자체의 독립 상태로 저장하지 않는다.** 다음 세 조건이 모두 충족될 때만 비교 결과 또는 설명으로 도출한다.
 
 1. 반대 내용을 가진 별도의 `FactProposition`이 존재한다.
 2. 콘텐츠 또는 Accepted 관계가 두 명제를 해당 범위에서 양립 불가능하다고 명시한다.
@@ -82,20 +82,20 @@ DEC-007의 네 수용 상태를 사실 층에서 다음처럼 구체화하는 �
 | B. 한 evidence는 사건 전체에서 한 fact에만 사용 | 중복 합산 차단 | 하나의 이메일이 시점과 통지 사실을 함께 뒷받침하는 정당한 다중 사용을 막음 |
 | C. 근원 evidence는 한 번 식별하고 fact별 사용 관계만 여러 개 연결 | 다중 관련성을 허용하면서 복제 가산을 차단 | 근원 동일성과 독립 출처 판별 경계가 필요 |
 
-**F3-C를 채택 후보로 제안한다.**
+**F3-C Core Accepted.** source lineage에 기반해 같은 근원의 반복을 중복 가산하지 않는 의미 원칙을 채택한다. 다만 exact lineage-contribution identity algorithm은 TBD다.
 
 - 사건의 실제 자료에는 영구 `evidence_id`와 근원 계보를 나타내는 `source_lineage_id`를 둔다.
 - 제출 사본, 인용, 발췌, 번역, 전문가가 같은 자료를 다시 언급한 부분은 원자료와의 `derived_from` 관계를 보존한다. 단순 복제는 독립 corroboration이 아니다.
 - 한 evidence는 서로 다른 FactProposition에 각각 관련될 수 있다. 각 `EvidenceUse`는 해당 사실에 어떤 내용 범위가 `supports / undermines / limits / contextualizes` 역할을 하는지 기록한다.
-- 같은 `source_lineage_id + content_scope`의 기여는 한 FactProposition 평가 안에서 개수만큼 반복 가산하지 않는다.
+- 같은 근원·같은 내용 범위의 기여는 한 FactProposition 평가 안에서 개수만큼 반복 가산하지 않는다. `source_lineage_id + content_scope` 또는 `lineage_contribution_key`는 이를 설명하는 semantic reference example이며 canonical identity algorithm이 아니다.
 - 다른 FactProposition으로 연결됐다고 원자료가 “소비”되거나 강도가 나뉘지도 않는다. 각 사실에서 관련 범위와 한계를 별도로 평가한다.
-- 독립 출처인지, 같은 소문의 반복인지, 전문가의 독립 분석이 새 근거인지의 판별 기준은 사건 콘텐츠 또는 후속 결정이 제공해야 한다. 기준이 없으면 독립 강화로 처리하지 않는다.
+- 무엇을 동일 기여 또는 독립 출처로 볼지, 같은 소문의 반복인지, 전문가의 독립 분석이 새 근거인지의 판별 기준은 content, 후속 Accepted DEC 또는 explicit fixture가 제공해야 한다. 기준이 없으면 자동 판별하거나 독립 강화로 처리하지 않는다.
 
-이 구조는 strength 숫자를 제안하지 않는다. 중복 방지는 같은 기여의 식별과 계보 보존으로 수행한다.
+이 구조는 strength 숫자를 제안하지 않는다. 중복 방지는 같은 기여의 식별과 계보 보존으로 수행한다. 정확한 필드·키·동일성 판별 방식은 별도 implementation decision의 범위다.
 
 ## 6. F4 — credibility와 sufficiency의 분리
 
-**F4의 채택 후보는 평가 대상과 질문을 분리하는 것이다.**
+**F4 Accepted.** 평가 대상과 질문을 분리한다.
 
 | 구분 | 붙는 대상 | 묻는 질문 | 자동으로 따라오지 않는 결론 |
 |---|---|---|---|
@@ -104,7 +104,7 @@ DEC-007의 네 수용 상태를 사실 층에서 다음처럼 구체화하는 �
 
 신빙성 기록은 전 자료에 붙는 영구 등급이 아니라 `내용 범위 + 판단 단계 + 이유`에 연결한다. 같은 증인이 직접 본 시점에 대해서는 신빙성이 인정되어도 가치 규모에 관한 추정까지 같은 평가를 복사하지 않는다.
 
-최소 상태 후보는 `not_assessed / accepted_for_scope / limited_for_scope / disputed / not_accepted_for_scope`다. 이 값은 왜 그 진술 범위를 사실 판단에 의존했거나 의존하지 않았는지 기록하는 정성 상태이며, evidence admissibility나 숫자 가중치가 아니다. `not_accepted_for_scope`도 그 진술 내용의 반대가 참이라는 뜻은 아니다.
+최소 정성 상태는 `not_assessed / accepted_for_scope / limited_for_scope / disputed / not_accepted_for_scope`다. 이 값은 왜 그 진술 범위를 사실 판단에 의존했거나 의존하지 않았는지 기록하는 의미 상태이며, evidence admissibility나 숫자 가중치가 아니다. `not_accepted_for_scope`도 그 진술 내용의 반대가 참이라는 뜻은 아니다.
 
 충분성은 관련 EvidenceUse, 신빙성 평가, 미해결 충돌, 빠진 범위와 적용한 `recognition_criterion_ref`를 함께 참조한다. 이를 평균·합계·숨은 확률로 환산하지 않는다. 신빙성 높은 하나의 자료도 명제의 필요한 범위를 말하지 않으면 부족할 수 있고, 여러 자료가 있어도 같은 근원의 반복이면 공백을 메우지 못할 수 있다.
 
@@ -112,22 +112,24 @@ DEC-007의 네 수용 상태를 사실 층에서 다음처럼 구체화하는 �
 
 ## 7. F5 — conflicting evidence 기록
 
-**F5 채택 후보는 충돌을 증거 삭제나 점수 상쇄가 아닌 명시적 `EvidenceConflict`로 보존하는 것이다.**
+**F5 Core Accepted.** 충돌을 증거 삭제나 점수 상쇄가 아닌 명시적 `EvidenceConflict`로 보존하는 핵심 방향을 채택한다. conflict classification generation은 TBD다.
 
 최소 의미 정보는 다음과 같다.
 
 - 충돌 ID와 대상 FactProposition 또는 양립 불가능한 명제 관계.
 - 충돌하는 EvidenceUse들의 ID와 정확히 충돌하는 내용 범위.
-- `direct_conflict / scope_difference / qualification / source_dependency`처럼 콘텐츠가 명시한 관계. 자동 자연어 추론으로 관계를 발명하지 않는다.
+- `direct_conflict / scope_difference / qualification / source_dependency`는 가능한 관계를 설명하는 semantic label 예시일 뿐 canonical 분류 목록이 아니다.
 - 각 진술의 별도 credibility 평가와 한계.
 - `unresolved / resolved_for_scope / remains_after_limited_finding`의 처리 상태와 실제 이유.
 - 해결이 영향을 미친 FactFinding과 영향을 주지 않은 범위.
+
+충돌 관계와 유형은 content, explicit fixture 또는 후속 Accepted rule이 제공해야 한다. Litigation engine이 자연어 evidence를 읽고 conflict type을 자동 생성한다고 해석하지 않는다. 기준이 없으면 자동 추론하지 않고 `[상세 사실인정 기준 미정]`으로 중단한다.
 
 충돌 자료는 한쪽을 선택했다고 역사에서 삭제하지 않는다. `unresolved`는 자동 절반 인정도 양쪽 배척도 아니다. 한쪽의 일부 범위만 받아들일 수 있으며, 그 경우 인정 범위와 남은 충돌을 함께 기록한다. 해결 기준이 없으면 `[상세 사실인정 기준 미정]`으로 중단한다.
 
 ## 8. F6 — submitted / allowed record 경계와의 연결
 
-**F6 채택 후보는 각 사실인정이 하나의 `CourtRecordSnapshot`을 필수 입력으로 참조하게 하는 것이다.**
+**F6 Accepted.** 각 사실인정은 판단 당시의 `CourtRecordSnapshot` 의미 입력에 연결된다. 이 이름이 필수 구현 객체를 뜻하지는 않는다.
 
 ```text
 사건에 존재하는 evidence
@@ -148,9 +150,9 @@ DEC-007의 네 수용 상태를 사실 층에서 다음처럼 구체화하는 �
 
 ## 9. F7 — appeal / supreme / remand의 원심 사실인정 보존
 
-**F7 채택 후보는 사실인정을 append-only 단계 버전으로 저장하고, 후속 심급의 현재 취급을 별도 연결로 표현하는 것이다.**
+**F7 Accepted.** 사실인정을 append-only 단계 버전으로 저장하고, 후속 심급의 현재 취급을 별도 연결로 표현한다. 실제 appellate / remand legal effect는 TBD다.
 
-| 상황 | 보존·처리 후보 |
+| 상황 | 보존·처리 |
 |---|---|
 | 항소 시작 | 원심 FactFinding·Record Snapshot·이유를 그대로 보존. 상급심 전달·사용 허용 범위를 별도 기록 |
 | 허용 범위 밖 사실 | 원심 이력과 당시 적용 범위를 유지. 곧바로 영원한 확정 사실이라고 선언하지 않음 |
@@ -160,11 +162,11 @@ DEC-007의 네 수용 상태를 사실 층에서 다음처럼 구체화하는 �
 | 최상급심 | DEC-010 A9에 따라 법률 구조 중심 역할을 유지. 사실 재검토 허용 범위가 명시되지 않으면 원심·항소심 사실을 재계산하지 않음 |
 | 환송 | 상급심 이유·반환 범위가 연 새 사실 범위만 새 proceeding에서 판단. 나머지는 이력과 현재 적용 관계를 보존 |
 
-후속 심급에서 원심 사실인정이 갖는 정확한 법적 효력, 최상급심이 사실 전제를 사용할 범위, 환송 이유의 구속력은 `[상세 상급심 절차 기준 미정]` 또는 `[상세 환송 기준 미정]`이다. DEC-011은 `preserved / opened_for_review / maintained_for_scope / changed_for_scope / remanded_for_reconsideration` 같은 의미 연결 후보만 제안하며, 어느 연결이 법적으로 발생하는지 판정하지 않는다.
+후속 심급에서 원심 사실인정이 갖는 정확한 법적 효력, 최상급심이 사실 전제를 사용할 범위, 환송 이유의 구속력은 `[상세 상급심 절차 기준 미정]` 또는 `[상세 환송 기준 미정]`이다. DEC-011은 `preserved / opened_for_review / maintained_for_scope / changed_for_scope / remanded_for_reconsideration` 같은 표현을 의미 연결 예시로만 사용하며, 어느 연결이 법적으로 발생하는지 판정하지 않는다.
 
 ## 10. F8 — 내부 상태와 player explanation의 분리
 
-**F8 채택 후보는 내부 원인 기록과 공개 설명을 별도 산출물로 두는 것이다.**
+**F8 Accepted.** 내부 원인 기록과 공개 설명을 별도 산출물로 둔다.
 
 ### 내부 `FactFindingTrace`
 
@@ -188,7 +190,7 @@ DEC-007의 네 수용 상태를 사실 층에서 다음처럼 구체화하는 �
 
 ## 11. F9 — probability / hidden score 없는 explainable result
 
-**F9 채택 후보는 숫자 강도 대신 구조화된 이유 연결로 결과를 설명하는 것이다.**
+**F9 Accepted.** 숫자 강도 대신 구조화된 이유 연결로 결과를 설명한다.
 
 최소 연결은 다음과 같다.
 
@@ -208,11 +210,13 @@ FactProposition과 판단 범위
 - “E2는 일부 사용을 말하지만 가치의 범위를 말하지 않고, E2의 사본 E2-copy는 같은 근원이라 새 독립 근거가 아니다. 따라서 가치 명제는 현 기록상 인정하기 부족하다.”
 - “F3은 인정하지 못했지만 이는 `not-F3`의 인정이 아니다. 반대명제 F4도 별도 근거로 인정되지 않았다.”
 
-위 문장은 형식 예시이며 Q2나 실제 한국법의 인정 기준을 확정하지 않는다. `recognition_criterion_ref`가 없거나 적용 이유를 기록할 수 없으면 결과를 먼저 고른 뒤 설명을 생성하지 않고 `[상세 사실인정 기준 미정]`으로 중단한다.
+위 문장은 형식 예시이며 Q2나 실제 한국법의 인정 기준을 확정하지 않는다.
+
+`RecognitionCriterionRef`를 사실인정 결과에 필요한 외부·명시 기준의 참조로 두는 원칙을 채택한다. DEC-011은 criterion의 실제 법률 내용, 임계값 또는 대한민국 법률상 증명도를 생성하지 않는다. `recognition_criterion_ref`가 없거나 적용 이유를 기록할 수 없으면 결과를 먼저 고른 뒤 설명을 생성하지 않고 `[상세 사실인정 기준 미정]`으로 중단한다. TEST-010에서 criterion을 고정 주입해 통과하더라도 automatic fact-recognition engine 또는 legal reasoning engine을 검증한 것으로 표현하지 않는다.
 
 ## 12. F10 — 설계 공백에서의 중단
 
-**F10 채택 후보는 다음 입력 중 하나라도 필요한데 없으면 자동 결과를 만들지 않는 것이다.**
+**F10 Accepted.** 다음 입력 중 하나라도 필요한데 없으면 자동 결과를 만들지 않는다.
 
 - 판단할 FactProposition과 범위.
 - 당시의 CourtRecordSnapshot과 허용된 RecordEntry 범위.
@@ -227,7 +231,7 @@ FactProposition과 판단 범위
 
 ## 13. 최소 데이터 구조 제안
 
-아래는 의미 구조 제안이며 Godot 클래스·저장 포맷·API 확정안이 아니다. 모든 ID는 영구적이며 재사용하지 않는 기존 원칙을 따른다.
+아래는 **semantic reference model**이며 canonical Godot class, JSON schema, save schema, 저장 포맷 또는 API 확정안이 아니다. 구현 시 레코드 수·클래스 수·필드 구조는 별도 implementation decision에서 축소·통합할 수 있다. 모든 ID는 영구적이며 재사용하지 않는 기존 원칙을 따른다.
 
 | 레코드 | 최소 의미 필드 | 경계 |
 |---|---|---|
@@ -237,32 +241,40 @@ FactProposition과 판단 범위
 | `EvidenceItem` | `evidence_id`, `case_id`, `source_lineage_id`, `content_ref`, `derived_from_ids` | 원자료·사본·발췌의 계보 보존. strength 점수 없음 |
 | `RecordEntry` | `record_entry_id`, `stage_id`, `submission_id`, `evidence_id`, `received_scope`, `allowed_scope`, `status_source_ref` | 허용 여부를 소비할 뿐 증거능력을 판정하지 않음 |
 | `CourtRecordSnapshot` | `record_snapshot_id`, `stage_id`, `cutoff_event_id`, `allowed_record_entry_ids` | 판단 당시 실제 입력을 고정. 이후 입력으로 덮어쓰기 금지 |
-| `EvidenceUse` | `evidence_use_id`, `fact_id`, `record_entry_id`, `content_scope`, `role`, `lineage_contribution_key` | 한 evidence의 여러 fact 사용 허용, 동일 기여 중복 가산 금지 |
+| `EvidenceUse` | `evidence_use_id`, `fact_id`, `record_entry_id`, `content_scope`, `role`, `lineage_contribution_key` | 한 evidence의 여러 fact 사용 허용, 동일 기여 중복 가산 금지. `lineage_contribution_key`는 semantic field example이며 필수 schema가 아님 |
 | `CredibilityAssessment` | `credibility_id`, `stage_id`, `evidence_use_id`, `assessed_scope`, `state`, `reason_refs` | 증거 진술 범위에 붙음. Fact sufficiency와 분리 |
 | `EvidenceConflict` | `conflict_id`, `fact_or_relation_id`, `evidence_use_ids`, `conflict_scope`, `state`, `reason_refs` | 충돌 양측과 미해결 범위를 모두 보존 |
 | `RecognitionCriterionRef` | `criterion_ref`, `content_scope`, `authority_source`, `version` | 판정 기준의 참조. 기준 내용·한국법 일반화는 이번 문서 밖 |
-| `CourtFactFinding` | `finding_id`, `stage_id`, `fact_id`, `record_snapshot_id`, `status`, `recognized_scope`, `evidence_use_ids`, `credibility_ids`, `conflict_ids`, `criterion_ref`, `reason_codes` | proposition-level canonical 결과. contrary는 별도 recognized proposition과 관계에서 도출 |
+| `CourtFactFinding` | `finding_id`, `stage_id`, `fact_id`, `record_snapshot_id`, `status`, `recognized_scope`, `evidence_use_ids`, `credibility_ids`, `conflict_ids`, `criterion_ref`, `reason_codes` | 사실명제 단위 의미 결과. contrary는 별도 recognized proposition과 관계에서 도출 |
 | `FindingLineage` | `lineage_id`, `prior_finding_id`, `later_stage_id`, `review_scope_ref`, `treatment`, `later_finding_id`, `reason_ref` | 원심 finding을 덮어쓰지 않고 유지·변경·환송 관계 기록 |
 | `FactFindingExplanation` | `explanation_id`, `finding_id`, `public_fact_text_ref`, `public_record_refs`, `public_reason_codes`, `disclosure_basis` | 내부 trace의 공개 가능한 projection. hidden truth·score 금지 |
 
-최소 구조의 핵심은 `ActualStateRecord`와 `CourtFactFinding`의 물리적·논리적 분리, `EvidenceItem`과 `EvidenceUse`의 분리, `CredibilityAssessment`와 proposition-level sufficiency 결과의 분리, stage별 append-only finding이다.
+구현 형태를 축소·통합해도 다음 의미적 분리는 보존해야 한다.
 
-## 14. Accepted 후보와 TBD 후보의 분리
+- `ActualStateRecord`와 `CourtFactFinding`.
+- `EvidenceItem`과 `EvidenceUse`.
+- `CredibilityAssessment`와 proposition-level sufficiency / finding.
+- stage별 append-only `FactFinding`과 lineage.
+- internal trace와 public explanation.
 
-### 14.1 이번 결정에서 채택을 제안하는 후보
+표의 레코드명과 필드는 이 분리를 설명하기 위한 semantic reference이며 필수 구현 schema가 아니다.
 
-| ID | 채택 후보 | 상태 |
+## 14. Accepted와 TBD의 분리
+
+### 14.1 채택 결정
+
+| ID | 채택 내용 | 상태 |
 |---|---|---|
-| F1 | actual truth와 court finding의 별도 저장·입력 경계 | Proposed |
-| F2 | proposition-level 인정·한정 인정·현 기록상 불충분·유보, 반대사실은 별도 명제 인정으로만 도출 | Proposed |
-| F3 | source lineage 기반 evidence 식별과 fact별 EvidenceUse, 복제 가산 금지 | Proposed |
-| F4 | 범위별 credibility와 proposition-level sufficiency의 분리 | Proposed |
-| F5 | 충돌 자료·범위·해결 상태를 삭제 없이 명시적으로 보존 | Proposed |
-| F6 | 실제 수신·허용 범위의 CourtRecordSnapshot만 사실인정 입력으로 사용 | Proposed |
-| F7 | 심급별 FactFinding append-only 보존과 허용 범위의 lineage 재검토 | Proposed |
-| F8 | 내부 trace와 공개 explanation을 분리하고 공개 projection만 사용 | Proposed |
-| F9 | 확률·숨은 점수 대신 proposition→record→근거→한계→기준→결과의 이유 연결 | Proposed |
-| F10 | 필수 기준·범위가 없으면 원인별 TBD로 중단 | Proposed |
+| F1 | actual truth와 court finding의 별도 의미 상태·입력 경계 | Accepted |
+| F2 | proposition-level 인정·한정 인정·현 기록상 불충분·유보, 반대사실은 별도 명제 인정으로만 도출 | Accepted |
+| F3 | source lineage 기반 evidence 식별과 fact별 EvidenceUse, 복제 가산 금지 | **Core Accepted** — exact lineage-contribution identity algorithm TBD |
+| F4 | 범위별 credibility와 proposition-level sufficiency의 분리 | Accepted |
+| F5 | 충돌 자료·범위·해결 상태를 삭제 없이 명시적으로 보존 | **Core Accepted** — conflict classification generation TBD |
+| F6 | 실제 수신·허용 범위의 CourtRecordSnapshot만 사실인정 입력으로 사용 | Accepted |
+| F7 | 심급별 FactFinding append-only 보존과 허용 범위의 lineage 재검토 | Accepted — actual appellate / remand legal effects TBD |
+| F8 | 내부 trace와 공개 explanation을 분리하고 공개 projection만 사용 | Accepted |
+| F9 | 확률·숨은 점수 대신 proposition→record→근거→한계→기준→결과의 이유 연결 | Accepted |
+| F10 | 필수 기준·범위가 없으면 원인별 TBD로 중단 | Accepted |
 
 ### 14.2 이번에 채택하지 말아야 할 TBD
 
@@ -278,7 +290,7 @@ FactProposition과 판단 범위
 - damages / remedy / 지급액·감액·부분 반환 공식.
 - precedent effect와 World 반영.
 - judgment engine, 상대·판사 AI, workload 공식, Career / Business / World 통합, UI·save schema.
-- 플레이어에게 공개할 문구·시점·상세 수준. F8은 분리 원칙만 제안하며 실제 UI는 정하지 않음.
+- 플레이어에게 공개할 문구·시점·상세 수준. F8은 분리 원칙만 채택하며 실제 UI는 정하지 않음.
 
 ## 15. DEC-007~010과의 충돌 검토
 
@@ -289,15 +301,23 @@ FactProposition과 판단 범위
 | DEC-009 | **직접 충돌 없음** | stage/cutoff별 Record Snapshot과 append-only finding은 P4 누적·부분 재검토와 일치한다. 새 제출 시 과거 finding을 삭제하거나 사건 전체를 재계산하면 충돌한다. F6은 외부에서 정해진 allowed flag를 소비만 하므로 P4의 상세 절차 미정을 침범하지 않는다 |
 | DEC-010 | **직접 충돌 없음** | FindingLineage는 A4·A6·A11의 역사 보존과 범위 재검토를 지원한다. 다만 원심 finding을 자동 진실·자동 구속으로 승격하거나 최상급심에서 fact를 전면 재평가하면 충돌한다. review/remand 허용은 계속 주입 또는 TBD다 |
 
-**조건부 충돌 위험:** F2의 상태를 DEC-007의 네 상태와 별개인 전역 enum으로 구현하거나, F6의 `allowed_scope`를 사실인정 모듈이 자체 결정하거나, F7의 `treatment` 값만으로 법적 구속력을 자동 발생시키면 기존 Accepted 범위를 넘어선다. 채택 시에도 이 세 경계를 명시적으로 유지해야 한다.
+**조건부 충돌 위험:** F2의 상태를 DEC-007의 네 상태와 별개인 전역 제5 상태로 만들거나, F6의 `allowed_scope`를 사실인정 모듈이 자체 결정하거나, F7의 `treatment` 값만으로 appellate / remand legal effect를 자동 발생시키면 기존 Accepted 범위를 넘어선다. 이 세 경계를 유지한다.
 
 ## 16. Failure conditions
 
 다음 중 하나라도 발생하면 최소 사실인정 모델의 실패로 본다.
 
-1. actual truth를 바꾸고 제출·허용 기록은 고정했는데 법원 finding이 달라진다.
+### Core invariants
+
+1. **Truth non-interference:** `ActualStateRecord`만 변경하고 `CourtRecordSnapshot`, recognition criterion, commands가 동일하면 `CourtFactFinding`은 달라지면 안 된다.
+2. **No inverse finding from insufficiency:** `P = not_established_on_record`라는 이유만으로 `not-P` 또는 별도의 반대 `FactProposition`이 `recognized`되어서는 안 된다.
+3. **No result without required criterion:** recognition criterion이 필요한데 없으면 결과를 생성하지 않고 원인에 맞는 TBD로 중단한다.
+
+### 전체 failure conditions
+
+1. actual truth를 바꾸고 CourtRecordSnapshot·criterion·commands는 고정했는데 법원 finding이 달라진다.
 2. 법원 이유나 player explanation이 미제출 자료·내부 AP·숨은 WorkProduct·사후 truth를 인용한다.
-3. `P`가 부족하다는 이유만으로 `not-P`를 인정하거나 상대 청구를 자동 인용한다.
+3. `P = not_established_on_record`라는 이유만으로 `not-P` 또는 별도 반대 FactProposition을 인정하거나 상대 청구를 자동 인용한다.
 4. 명시적 반대명제나 배타 관계 없이 “반대사실 인정”을 생성한다.
 5. 같은 문서의 사본·발췌·재인용·동일 의견 반복으로 credibility 또는 sufficiency가 상승한다.
 6. 같은 evidence가 여러 FactProposition에 쓰였다는 이유로 사실들 사이에 strength가 복제되거나, 반대로 첫 사용 뒤 evidence가 소진된다.
@@ -310,7 +330,7 @@ FactProposition과 판단 범위
 13. 상급심 진입만으로 fact를 재추첨하거나 모든 원심 사실을 자동 재심리한다.
 14. 원심 finding을 역사 보존했다는 이유만으로 모든 후속 심급에서 자동 사용·구속한다.
 15. 동일 입력의 결과를 판사 personality, 숨은 확률, 마지막 RNG로 뒤집는다.
-16. recognition criterion이 없는데 결과를 먼저 고르고 사후 설명을 생성한다.
+16. 필요한 recognition criterion이 없는데 결과를 먼저 고르고 사후 설명을 생성한다.
 17. `[상세 사실인정 기준 미정]`을 사건 당사자의 입증 실패나 패소로 기록한다.
 18. 공개 explanation과 내부 trace가 같은 객체여서 접근 권한 변화 없이 actual truth나 비공개 근거가 노출된다.
 19. 일부 범위 인정이 전체 기간·대상·수량·가치에 대한 인정으로 확대된다.
@@ -318,9 +338,22 @@ FactProposition과 판단 범위
 
 ## 17. TEST-010에서 검증해야 할 항목
 
-다음 단계는 `TEST-010_MINIMUM_FACT_RECOGNITION.md`의 작성과 실행이다. DEC-011이 아직 Proposed이므로, 아래는 **채택 후 검증 계획 후보**다. 이번 문서는 테스트를 작성하거나 실행하지 않는다.
+다음 단계는 `TEST-010_MINIMUM_FACT_RECOGNITION.md`의 작성과 실행이다. 아래 20개 검증 후보는 유지하되 첫 실행은 8개 core case를 우선한다. 이번 문서는 테스트를 작성하거나 실행하지 않는다.
 
-테스트는 우선 고정된 FactProposition, Record Snapshot, allowed 범위, credibility 판단, recognition criterion을 사용하는 **입력 처리 검사**로 수행할 수 있다. 이 값을 주입하면 범용 사실인정 엔진·증거능력·법률 reasoning의 성공으로 보고하지 않는다.
+TEST-010은 고정·주입된 FactProposition, Record Snapshot, allowed 범위, credibility 판단, recognition criterion을 사용하는 **input / state / history / information-boundary 검사**다. 이 semantic input을 주입한 검사는 자연어 evidence 해석, 실제 법률상 증명도, evidence admissibility, automatic fact recognition, automatic judgment generation 또는 legal reasoning engine의 성공으로 보고하지 않는다.
+
+### 첫 실행 우선순위 — 8 core cases
+
+1. truth non-interference.
+2. not-established vs contrary recognized.
+3. missing criterion vs insufficient record.
+4. same-source duplicate / copy attack.
+5. credibility vs sufficiency separation.
+6. submitted / received / allowed record boundary.
+7. prior-stage finding preservation / partial review.
+8. deterministic replay / no new fact-finding RNG.
+
+이 8개를 fixed / injected semantic input에 대한 경계 검사로 먼저 통과시킨 뒤 나머지 케이스를 확장한다. 첫 통과도 자연어 해석·법률상 증명도·admissibility·판결 생성의 검증이 아니다.
 
 | 번호 | 고정·변경 입력 | 반드시 확인할 결과 |
 |---|---|---|
@@ -345,16 +378,17 @@ FactProposition과 판단 범위
 | 19. 범위 한정 | 기간·수량·대상 일부만 뒷받침하는 evidence | `recognized_limited`가 전체 인정으로 확대되지 않음 |
 | 20. 실패 원자성 | 잘못된 fact ID, record 밖 evidence, 재사용 ID, 허용 범위 초과 참조 | 명령 거부, 정확한 error, 전체 state snapshot 불변 |
 
-TEST-010 결과는 `통과 / 부분 통과 / 실패 / 기준 미정으로 미실행`을 구분해야 한다. 1~20의 고정 입력 처리가 통과해도 자연어 증거 해석, 증거능력, 법률상 신빙성·충분성, 실제 판결·항소 결과 생성이 검증됐다고 보고하지 않는다.
+TEST-010 결과는 `통과 / 부분 통과 / 실패 / 기준 미정으로 미실행`을 구분해야 한다. 1~20은 끝까지 fixed / injected semantic input에 대한 input / state / history / information-boundary 검증이다. 전부 통과해도 자연어 evidence 해석, 실제 법률상 증명도, evidence admissibility, automatic fact-recognition engine, legal reasoning engine, automatic judgment generation 또는 실제 항소 결과 생성이 검증됐다고 보고하지 않는다.
 
 ## 18. 이번에 구현하거나 확정하지 않는 사항
 
-이번 문서 초안에서는 코드, judgment engine, evidence admissibility, appeal admissibility, damages / remedy, judge personality, precedent effect를 구현하거나 확정하지 않는다. 상대·판사 AI, 법률 reasoning engine, workload, Career / Business / World 통합, UI, save / migration도 범위 밖이다.
+이번 문서에서는 actual Korean evidentiary law, evidence admissibility, proof standard / threshold, legal reasoning engine, judge personality / error, appellate admissibility, remand binding doctrine, damages / remedy, precedent effect를 새로 확정하거나 구현하지 않는다. opponent / judge AI, workload, Career / Business / World, UI, save / migration, Godot implementation도 범위 밖이다.
 
-DEC-011이 채택되더라도 첫 구현 범위는 고정·주입 입력에 대한 상태·이력·정보 경계 검증용 skeleton이어야 한다. `recognition_criterion_ref`의 내용을 추측하거나 주입 표식을 제거해 자동 사실인정 기능으로 보고해서는 안 된다.
+후속 첫 검증 범위는 고정·주입 semantic input에 대한 input / state / history / information-boundary 검사다. `recognition_criterion_ref`의 내용을 추측하거나 주입 표식을 제거해 자동 사실인정 기능으로 보고해서는 안 된다. 이 문서는 Godot 구현 규칙을 정하지 않는다.
 
 ## 19. 결정 이력
 
 | 버전 | 상태 | 내용 |
 |---|---|---|
 | v0.1 | Proposed / 기획자 채택 필요 | actual truth / court finding 분리, 미인정 / 반대사실 인정 구별, evidence lineage 기반 중복 방지, credibility / sufficiency 분리, conflict 보존, allowed record snapshot, 심급별 finding lineage, 내부 trace / 공개 explanation 분리, 비수치 이유 연결과 TEST-010 후보 제안. 법률 기준·admissibility·최종 판결·상급심 허용·remedy·판사 성향·판례 효력은 TBD 유지 |
+| v0.2 | Accepted / 상세 알고리즘·법적 효과 미정 | F1·F2·F4·F6·F8·F9·F10 Accepted. F3 Core Accepted with exact lineage-contribution identity algorithm TBD. F5 Core Accepted with conflict classification generation TBD. F7 Accepted with appellate legal-effect details TBD. 데이터 구조는 semantic reference model로 유지하고 필수 구현 schema로 확정하지 않음. TEST-010 first-pass priority를 8개 core case로 좁히고 fixed / injected semantic input 경계 검사임을 명시 |
