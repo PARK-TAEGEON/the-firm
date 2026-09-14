@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "content_id": "VS-CONTENT-001",
-  "content_version": "1.0.0",
+  "content_version": "1.1.0",
   "session_event": {
     "id": "VS-EVENT-SESSION-001",
     "session_id": "VS-SESSION-001",
@@ -234,6 +234,78 @@
       "subject_id": "VS-CASE-001",
       "state": "initial_material_received",
       "provenance_ref": "VS-ACQ-001"
+    }
+  ],
+  "task_definitions": [
+    {
+      "id": "VS-TASKDEF-REVIEW-001",
+      "version": "1",
+      "task_family": "evidence_review",
+      "purpose": "초기 제공 자료의 일정 변경 관련 진술과 공백을 검토한다.",
+      "eligible_actor_kinds": ["lawyer"],
+      "work_unit_kind": "work_block",
+      "required_work_units": 2,
+      "authorized_source_scopes": [
+        {"source_id": "VS-SOURCE-CONTRACT-001", "source_version": "1", "scope_id": "parties"},
+        {"source_id": "VS-SOURCE-CONTRACT-001", "source_version": "1", "scope_id": "schedule"},
+        {"source_id": "VS-SOURCE-EMAIL-001", "source_version": "1", "scope_id": "header"},
+        {"source_id": "VS-SOURCE-EMAIL-001", "source_version": "1", "scope_id": "body"},
+        {"source_id": "VS-SOURCE-MEETING-001", "source_version": "1", "scope_id": "summary"}
+      ],
+      "source_assertion_refs": ["VS-ASSERTION-001", "VS-ASSERTION-002", "VS-ASSERTION-003"],
+      "known_gap_refs": ["VS-GAP-001"],
+      "output_type": "evidence_review_work_product",
+      "completion_semantics": "required_work_and_scope_then_explicit_completion"
+    }
+  ],
+  "task_instances": [
+    {
+      "id": "VS-TASK-REVIEW-001",
+      "task_definition_id": "VS-TASKDEF-REVIEW-001",
+      "matter_id": "VS-CASE-001",
+      "stage_id": "VS-STAGE-001",
+      "team_id": "VS-TEAM-001",
+      "dependency_task_ids": [],
+      "initial_state": "unassigned",
+      "creation_event_id": "VS-EVENT-TASK-CREATED-001",
+      "event_order": 7,
+      "created_by_ref": "VS-CONTENT-001"
+    }
+  ],
+  "issues": [
+    {
+      "id": "VS-ISSUE-001",
+      "matter_id": "VS-CASE-001",
+      "label": "일정 변경 합의",
+      "question": "당사자 사이에 목표 납품일 변경이 합의되었다고 주장할 수 있는가?",
+      "basis_assertion_refs": ["VS-ASSERTION-002", "VS-ASSERTION-003"],
+      "known_gap_refs": ["VS-GAP-001"],
+      "epistemic_type": "issue"
+    },
+    {
+      "id": "VS-ISSUE-002",
+      "matter_id": "VS-CASE-001",
+      "label": "목표일 문구의 의미",
+      "question": "6월 30일 기재를 확정 기한과 목표 일정 중 어떻게 분석할 것인가?",
+      "basis_assertion_refs": ["VS-ASSERTION-001"],
+      "known_gap_refs": [],
+      "epistemic_type": "issue"
+    }
+  ],
+  "review_analysis_options": [
+    {
+      "id": "VS-ANALYSIS-OPTION-001",
+      "label": "변경 합의가 있었다고 분석",
+      "statement": "이메일과 회의 메모를 함께 보면 일정 변경 합의가 있었다고 분석한다.",
+      "basis_refs": ["VS-ASSERTION-002", "VS-ASSERTION-003"],
+      "epistemic_type": "professional_analysis"
+    },
+    {
+      "id": "VS-ANALYSIS-OPTION-002",
+      "label": "승인 여부가 미해결이라고 분석",
+      "statement": "현재 자료는 일정 변경 논의를 보여주지만 상대방의 최종 승인은 여전히 미해결이라고 분석한다.",
+      "basis_refs": ["VS-ASSERTION-002", "VS-ASSERTION-003", "VS-GAP-001"],
+      "epistemic_type": "professional_analysis"
     }
   ]
 }

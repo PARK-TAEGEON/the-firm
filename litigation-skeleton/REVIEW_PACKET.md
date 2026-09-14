@@ -1,42 +1,44 @@
-# VS-001 implementation review packet
+# VS-002 implementation review packet
 
 ## 작업 결과
 
-VS-001 — Authorized Case Review Runtime and First Playable Screen을 구현했다. Godot의 Run Project는 `vertical_slice/ui/main.tscn`을 열며, 사용자는 가상 사건 `VS-CASE-001`을 시작한 뒤 플레이어 팀에 제공된 자료 scope를 선택해 원문, 출처, source ID/version을 읽을 수 있다.
+VS-002 — Task Execution and Issue/Theory Selection을 VS-001 runtime 위에 구현했다. 플레이어는 기존 `VS-CASE-001` session에서 자료를 읽은 뒤 review Task를 별도로 배정하고, 명시적 work block으로 수행하고, 별도 완료 action으로 `ReviewWorkProduct`를 만든다. 그 WorkProduct를 근거로 Issue를 선택하고 `CaseTheory`를 생성·개정할 수 있다.
 
-GUI와 headless 회귀는 모두 `ContentLoader → SliceService → SliceState` 경로를 사용한다. presentation/UI는 service의 player projection과 exact-scope read 결과만 소비한다.
+GUI와 headless suite는 모두 `ContentLoader → SliceService → WorkService → SliceState` 경로를 사용한다. UI가 authoritative state를 직접 변경하거나 테스트용 snapshot을 호출하지 않는다.
 
 ## 실제 변경 파일
 
 신규:
 
+- `vertical_slice/services/work_service.gd`
+- `vertical_slice/tests/run_vs002_regressions.gd`
+- `vertical_slice/vs002-test-results.log`
+
+수정:
+
+- `vertical_slice/content/slice_case.json`
 - `vertical_slice/data/slice_state.gd`
-- `vertical_slice/services/content_loader.gd`
 - `vertical_slice/services/slice_service.gd`
 - `vertical_slice/presentation/slice_presenter.gd`
 - `vertical_slice/ui/main.tscn`
 - `vertical_slice/ui/main.gd`
-- `vertical_slice/content/slice_case.json`
 - `vertical_slice/tests/run_slice_regressions.gd`
 - `vertical_slice/test-results.log`
-
-수정:
-
-- `project.godot`
 - `README.md`
 - `REVIEW_PACKET.md`
+- `test-results.log` (legacy suite 재실행 결과)
 
-`test-results.log`는 기존 suite로 다시 생성했지만 정규화된 내용이 이전과 같아 Git content diff는 없다. 신규 `vertical_slice/test-results.log`는 이번 suite 결과로 추가되었다.
+기존 `data/litigation_state.gd`, `services/litigation_service.gd`, fixture, legacy test runner는 수정하지 않았다. 새 DEC/TEST/AUDIT 문서를 만들거나 수정하지 않았고, repository에 이미 있던 untracked architecture 문서는 이 작업 범위에서 제외했다.
 
-기존 `data/litigation_state.gd`, `services/litigation_service.gd`, fixture와 기존 test runner는 수정하지 않았다. 새 DEC/TEST/AUDIT 문서도 만들거나 수정하지 않았다.
+## 구현된 사용자 동작
 
-## 구현한 사용자 동작
-
-1. `사건 시작`으로 content version `1.0.0`의 단일 Matter/trial session을 생성한다.
-2. Case Review 화면에서 acquisition이 있는 3개 자료의 5개 named scope만 본다.
-3. 하나의 scope를 선택하고 `선택 범위 열람`으로 그 범위만 조회한다.
-4. 화면에서 출처, source ID/version, scope 내용, source assertion, known gap을 분리해 확인한다.
-5. “자료에 기록된 내용이며 법원 인정 사실이 아님”을 명시한다.
+1. `사건 시작`으로 content version `1.1.0`의 기존 Matter/trial/player/team session을 연다.
+2. `Case Review`에서 VS-001의 authorized 5개 source scope를 그대로 열람한다. 열람은 Task 상태를 바꾸지 않는다.
+3. `Work & Theory`에서 `Task 배정`을 실행해 Assignment를 만든다.
+4. `Review 수행`으로 2 work blocks와 exact reviewed scopes를 Execution에 기록한다.
+5. 별도 `명시적 완료` action으로 Completion과 `VS-WP-REVIEW-001`을 만든다.
+6. completed WorkProduct에 근거한 Issue를 선택한다.
+7. CaseTheory v1을 만들고 이후 저장은 v2, v3처럼 새 version과 parent lineage를 만든다.
 
 ## 회귀 결과
 
@@ -44,68 +46,89 @@ Godot 4.7.2 stable / Windows에서 저장소 루트 기준으로 실행했다.
 
 | 실행 | checks | failures | exit code |
 |---|---:|---:|---:|
-| 기존 `res://tests/run_regressions.gd` | 214 | 0 | 0 |
-| 신규 `res://vertical_slice/tests/run_slice_regressions.gd` | 72 | 0 | 0 |
+| legacy `res://tests/run_regressions.gd` | 214 | 0 | 0 |
+| VS-001 `res://vertical_slice/tests/run_slice_regressions.gd` | 73 | 0 | 0 |
+| VS-002 `res://vertical_slice/tests/run_vs002_regressions.gd` | 72 | 0 | 0 |
 | main scene headless load (`--quit-after 2`) | 해당 없음 | script/scene error 없음 | 0 |
 
-신규 suite는 실패가 있으면 `quit(1)`로 nonzero 종료한다.
+각 regression runner는 failure가 있으면 nonzero로 종료한다.
 
 ## 실제 GUI 확인
 
-Godot GUI로 프로젝트를 실행해 다음을 직접 확인했다.
+Godot GUI에서 다음을 직접 확인했다.
 
-- main scene과 Authorized Case Review 초기 화면이 열린다.
-- `사건 시작` 후 `VS-SESSION-001`, 사건명, 의뢰 목표, trial stage가 표시된다.
-- 목록에는 획득된 다섯 scope만 표시되고 테스트용 미획득 source 및 `private_appendix` scope는 표시되지 않는다.
-- `일정 변경 협의 이메일 — 발신 정보`를 선택·열람했을 때 source `VS-SOURCE-EMAIL-001`, version `1`, 출처와 `header` 내용만 표시된다.
-- source assertion, known gap과 CourtFactFinding 부정 문구가 함께 표시된다.
+- main scene이 열리고 VS-001 Case Review 탭과 새 Work & Theory 탭이 함께 표시된다.
+- `사건 시작` 후 기존 사건명, 의뢰 목표, trial stage와 authorized 5개 scope가 표시된다.
+- 자료 하나를 선택하면 source/version/origin/exact scope와 SourceAssertion/CourtFactFinding 구분 문구가 표시된다.
+- Work & Theory 탭에서 Task 상태와 required `2 work_block`이 표시된다.
+- 배정과 수행을 거쳐 명시적 완료 후 `Completion: VS-COMPLETE-UI-001` 및 `ReviewWorkProduct: VS-WP-REVIEW-001`이 표시된다.
+- Issue 선택과 Theory 입력 control이 completed WorkProduct 전에는 비활성이고 이후 활성화되는 화면 상태를 확인했다.
 
-GUI 실행은 상호작용 확인 후 테스트 환경에서 종료했으며, pass/fail 판정은 위 두 headless suite의 종료 코드로 기록했다.
+Issue 선택 후 Theory v1/v2의 interactive click-through는 desktop-control 채널 오류로 자동 검증하지 못했다. 동일 UI callback이 호출하는 service 경로의 Issue 선택, v1 생성, v2 개정은 VS-002 headless suite에서 통과했다. 검증하지 않은 GUI 동작을 확인한 것으로 확대 기록하지 않는다.
 
-## 새로 강제한 접근·scope·provenance 경계
+## 새로 강제한 경계
 
-- session에 결속된 `VS-LAWYER-001` / `VS-TEAM-001` 외 viewer는 projection과 직접 source read 모두 거절된다.
-- 미획득 source는 제목·본문·scope·개수 힌트 없이 projection에서 제외되고 직접 조회도 `source_not_acquired`로 거절된다.
-- 부분 획득 자료는 획득 scope만 projection에 나타난다. 허용 scope와 미허용 scope를 섞은 전체-source 요청은 원자적으로 거절된다.
-- source ID/version/scope와 acquisition ID/order/actor/team/route/provider provenance가 유지된다.
-- malformed structure, duplicate source ID, duplicate event order, dangling source reference, invalid version/scope/viewer를 명시적으로 거절한다.
-- 모든 콘텐츠를 검증한 뒤 candidate state를 교체한다. 실패 초기화 전후 authoritative snapshot이 동일하다.
-- 조회 반환값의 중첩 값을 변경해도 authoritative state가 변하지 않는다.
-- 조회를 반복해도 domain event와 state가 증가하지 않는다.
-- 동일 콘텐츠로 시작한 별도 service는 동일한 semantic snapshot과 event order를 만든다.
-- 자료 열람 뒤에도 EvidenceReviewWorkProduct, CaseTheory, CourtRecord, CourtFactFinding, Judgment가 없다.
+- `TaskDefinition ≠ TaskInstance ≠ Assignment ≠ Execution ≠ Completion ≠ ReviewWorkProduct`.
+- assigned 상태에는 Execution/Completion이 없고, 수행 후에도 명시적 completion 전에는 WorkProduct가 없다.
+- work unit 0/빈 slot과 동일 actor/time-slot 중복은 기존 상태를 바꾸지 않고 거절된다.
+- dependency Task가 completed가 아니면 dependent execution을 거절한다.
+- review scope는 TaskDefinition에 지정되고 해당 팀이 acquisition한 exact source/version/scope여야 한다.
+- 완료에는 required work units와 전체 declared review scope가 모두 필요하다.
+- ReviewWorkProduct는 definition/version, assignment, executions, completion, performer/team/matter/stage, source scopes, assertion/gap, analysis와 content version provenance를 보존한다.
+- authored professional analysis는 틀릴 수 있으며 SourceAssertion이나 truth/finding을 변경하지 않는다.
+- Issue 선택은 completed ReviewWorkProduct와 실제 검토된 assertion/gap basis를 요구한다.
+- CaseTheory는 Issue/WorkProduct/support/challenge/assumption/gap provenance를 가지며 `case_theory` analysis로 남는다.
+- Theory update는 이전 version을 덮어쓰지 않고 새 version identity와 parent/current lineage를 만든다. stale base update는 거절된다.
+- WorkProduct 및 Work/Strategy projection의 중첩 반환값을 변경해도 authoritative state는 변하지 않는다.
+- 같은 authored content와 command sequence는 같은 identities, state, journal order를 재현한다.
+- VS-002 종료 후 CourtRecord, CourtFactFinding, Judgment는 존재하지 않는다.
 
-## Authored 콘텐츠와 미구현 후속 기능
+## Authored 콘텐츠와 미구현 기능
 
-`slice_case.json`은 실제 한국 사건이나 Q2 정답 판결이 아닌 가상 납품 일정 분쟁이다. 사건/단계/플레이어/팀 stable ID, 의뢰 목표, 초기 문서, named scope, acquisition, source assertion, known gap, procedural status만 authored했다. 테스트를 위해 한 source와 한 scope는 다른 팀에만 제공되어 플레이어에게는 미획득 상태이며 player projection에는 노출되지 않는다.
+`slice_case.json` v1.1.0에 evidence-review TaskDefinition/TaskInstance, 두 Issue, 두 professional-analysis 선택지를 추가했다. 이는 게임용 authored 분석 선택지이며 객관적 정답·한국법 판단·승자·확률·score가 아니다.
 
 아직 구현하지 않은 기능:
 
-- Task execution과 workload 소비
-- Issue/Theory 선택 및 Strategy finalization
 - Investigation과 신규 acquisition
 - Precedent/Legal Research
-- EvidenceReviewWorkProduct 생성
-- Litigation/adjudication/CourtRecord/finding/judgment 런타임
-- save/load, scheduler, 범용 graph/rule DSL
-- appeal/remand UI, 대규모 NPC simulation, jurisdiction pack, business/world systems
+- Strategy Finalization
+- Submission 및 courtroom procedure
+- CourtRecord / snapshot
+- adjudication / finding / judgment
+- save/load 및 범용 scheduler/graph/rule DSL
+- appeal/remand UI, 대규모 NPC simulation, jurisdiction pack, organization/business/world
 
-## VS-002가 사용할 API와 state reference
+## Service API와 state reference
 
-`SliceService`의 현재 public 경계:
+VS-001 API는 그대로 유지한다.
 
-- `start_session(content, player_actor_id, player_team_id) -> {ok, session_id} | {ok:false, error}`
-- `case_file_projection(viewer_actor_id, viewer_team_id) -> {ok, projection} | error`
-- `read_source(viewer_actor_id, viewer_team_id, source_id, source_version, requested_scope_ids) -> {ok, source} | error`
+- `start_session(content, player_actor_id, player_team_id)`
+- `case_file_projection(viewer_actor_id, viewer_team_id)`
+- `read_source(viewer_actor_id, viewer_team_id, source_id, source_version, requested_scope_ids)`
+
+VS-002 public API:
+
+- `assign_task(task_id, assignment_id, assigner_actor_id, assignee_actor_id, team_id)`
+- `execute_task(task_id, execution_id, actor_id, team_id, time_slot_id, work_units, reviewed_scope_refs)`
+- `complete_review_task(task_id, completion_id, work_product_id, actor_id, team_id, analysis_option_id)`
+- `select_issue(issue_id, selection_id, actor_id, team_id, review_work_product_id)`
+- `create_case_theory(theory_id, version_id, issue_id, review_work_product_id, actor_id, team_id, statement, support_refs, challenge_refs, assumption_refs, known_gap_refs)`
+- `update_case_theory(theory_id, version_id, base_version_id, actor_id, team_id, statement)`
+- `work_strategy_projection(viewer_actor_id, viewer_team_id)`
+- `get_review_work_product(viewer_actor_id, viewer_team_id, work_product_id)`
 
 `debug_snapshot_for_tests()`는 테스트 전용이며 UI에 연결하지 않았다.
 
-VS-002는 service mutation 원칙을 유지하면서 현재 session/matter/stage/player 결속과 source/acquisition stable identity를 참조해야 한다. Issue/Theory 또는 Task 상태를 추가하더라도 source assertion, analysis/work product, CourtRecord, finding을 합치면 안 된다.
+## VS-003 handoff
+
+VS-003는 이 상태를 재사용해 Investigation 및 새 SourceMaterial acquisition을 연결해야 한다. 시작 dependency는 completed review Task, `VS-WP-REVIEW-001`, 선택된 Issue, current CaseTheory version이다. 조사 action은 DEC-026 Task/Assignment/Execution/Completion 경계를 재사용하고, 결과 source는 새 acquisition event와 exact source/version/scope provenance를 통해서만 CaseFile에 들어와야 한다. 조사 결과가 기존 SourceAssertion, CaseTheory, CourtRecord 또는 finding을 직접 변경해서는 안 된다.
+
+이 packet은 VS-003을 구현하지 않는다.
 
 ## 범위 감사
 
-- Task Contract의 허용 파일만 변경했다.
-- 기존 litigation skeleton의 상태/service/fixture/test 코드는 변경하지 않았다.
-- VS-002를 시작하지 않았다.
-- architecture 문서를 재설계하거나 새 DEC를 만들지 않았다.
-- hidden truth query, CaseStrength/EvidenceScore/WinChance, player/NPC 이중 ontology, provenance 삭제, reload reroll을 추가하지 않았다.
+- VS-001 behavior와 regressions를 유지했다.
+- VS-002에 필요한 vertical-slice content/state/service/presentation/UI/test와 handoff 문서만 변경했다.
+- 기존 skeleton service/state/fixtures/tests와 architecture 문서는 변경하지 않았다.
+- Investigation, Research, Submission, CourtRecord, adjudication, judgment, save/load, appeal/remand 및 다른 vertical을 구현하지 않았다.
+- hidden truth query, universal CaseStrength/EvidenceScore/WinChance, player/NPC dual ontology, provenance 삭제, reload reroll을 추가하지 않았다.

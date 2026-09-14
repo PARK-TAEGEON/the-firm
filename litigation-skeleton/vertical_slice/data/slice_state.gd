@@ -1,6 +1,6 @@
 extends RefCounted
 
-# Authoritative VS-001 runtime state. Only SliceService mutates this object.
+# Authoritative vertical-slice runtime state. Only services mutate this object.
 var initialized: bool = false
 var content_meta: Dictionary = {}
 var session: Dictionary = {}
@@ -17,6 +17,27 @@ var gap_order: Array = []
 var procedural_statuses: Dictionary = {}
 var status_order: Array = []
 var acquisitions: Array = []
+var task_definitions: Dictionary = {}
+var task_definition_order: Array = []
+var tasks: Dictionary = {}
+var task_order: Array = []
+var assignments: Dictionary = {}
+var assignment_order: Array = []
+var executions: Dictionary = {}
+var execution_order: Array = []
+var completions: Dictionary = {}
+var completion_order: Array = []
+var review_work_products: Dictionary = {}
+var review_work_product_order: Array = []
+var issues: Dictionary = {}
+var issue_order: Array = []
+var review_analysis_options: Dictionary = {}
+var issue_selections: Dictionary = {}
+var issue_selection_order: Array = []
+var case_theories: Dictionary = {}
+var case_theory_order: Array = []
+var theory_lineages: Dictionary = {}
+var time_allocations: Dictionary = {}
 var journal: Array = []
 
 
@@ -39,5 +60,26 @@ func snapshot() -> Dictionary:
 		"procedural_statuses": procedural_statuses.duplicate(true),
 		"status_order": status_order.duplicate(true),
 		"acquisitions": acquisitions.duplicate(true),
+		"task_definitions": task_definitions.duplicate(true),
+		"task_definition_order": task_definition_order.duplicate(true),
+		"tasks": tasks.duplicate(true),
+		"task_order": task_order.duplicate(true),
+		"assignments": assignments.duplicate(true),
+		"assignment_order": assignment_order.duplicate(true),
+		"executions": executions.duplicate(true),
+		"execution_order": execution_order.duplicate(true),
+		"completions": completions.duplicate(true),
+		"completion_order": completion_order.duplicate(true),
+		"review_work_products": review_work_products.duplicate(true),
+		"review_work_product_order": review_work_product_order.duplicate(true),
+		"issues": issues.duplicate(true),
+		"issue_order": issue_order.duplicate(true),
+		"review_analysis_options": review_analysis_options.duplicate(true),
+		"issue_selections": issue_selections.duplicate(true),
+		"issue_selection_order": issue_selection_order.duplicate(true),
+		"case_theories": case_theories.duplicate(true),
+		"case_theory_order": case_theory_order.duplicate(true),
+		"theory_lineages": theory_lineages.duplicate(true),
+		"time_allocations": time_allocations.duplicate(true),
 		"journal": journal.duplicate(true),
 	}

@@ -53,3 +53,44 @@ func assertion_text(projection: Dictionary) -> String:
 		lines.append("• 현재 기록된 진술 없음")
 	lines.append("자료 진술은 객관적 진실이나 CourtFactFinding이 아닙니다.")
 	return "\n".join(lines)
+
+
+func review_status_text(projection: Dictionary) -> String:
+	if projection["tasks"].is_empty():
+		return "검토 Task 없음"
+	var task: Dictionary = projection["tasks"][0]
+	var definition: Dictionary = task["definition"]
+	var lines: Array[String] = [
+		"Task: %s" % definition["purpose"],
+		"상태: %s" % task["state"],
+		"필요 작업: %d %s" % [definition["required_work_units"], definition["work_unit_kind"]],
+	]
+	if not task["current_assignment_id"].is_empty():
+		lines.append("Assignment: %s" % task["current_assignment_id"])
+	if not task["execution_ids"].is_empty():
+		lines.append("Execution: %s" % ", ".join(task["execution_ids"]))
+	if not task["completion_id"].is_empty():
+		lines.append("Completion: %s" % task["completion_id"])
+	return "\n".join(lines)
+
+
+func strategy_status_text(projection: Dictionary) -> String:
+	var lines: Array[String] = []
+	if projection["review_work_products"].is_empty():
+		lines.append("ReviewWorkProduct: 아직 없음")
+	else:
+		var work_product: Dictionary = projection["review_work_products"][-1]
+		lines.append("ReviewWorkProduct: %s" % work_product["id"])
+		lines.append("분석은 사실인정이 아니며 틀릴 수 있습니다.")
+	if projection["issue_selections"].is_empty():
+		lines.append("선택 Issue: 아직 없음")
+	else:
+		lines.append("선택 Issue: %s" % projection["issue_selections"][-1]["issue_id"])
+	if projection["case_theories"].is_empty():
+		lines.append("CaseTheory: 아직 없음")
+	else:
+		var theory: Dictionary = projection["case_theories"][-1]
+		lines.append("CaseTheory: %s v%d" % [theory["theory_id"], theory["version_number"]])
+		lines.append(theory["statement"])
+		lines.append("CaseTheory는 CourtFactFinding이 아닙니다.")
+	return "\n".join(lines)

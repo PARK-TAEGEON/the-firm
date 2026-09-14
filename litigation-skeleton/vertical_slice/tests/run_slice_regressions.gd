@@ -59,8 +59,8 @@ func _initialize() -> void:
 	check(snapshot["stage"]["id"] == "VS-STAGE-001" and snapshot["stage"]["level"] == "trial", "trial_stage_identity")
 	check(snapshot["session"]["player_actor_id"] == PLAYER_ACTOR_ID, "player_actor_bound")
 	check(snapshot["session"]["player_team_id"] == PLAYER_TEAM_ID, "player_team_bound")
-	check(snapshot["content_meta"]["content_version"] == "1.0.0", "content_version_preserved")
-	check(snapshot["journal"].size() == 6, "initial_history_has_expected_events")
+	check(snapshot["content_meta"]["content_version"] == "1.1.0", "content_version_preserved")
+	check(snapshot["journal"].size() == 7, "initial_history_has_expected_events")
 	for index in snapshot["journal"].size():
 		check(int(snapshot["journal"][index]["event_order"]) == index + 1, "stable_event_order_%d" % (index + 1))
 

@@ -1,6 +1,7 @@
 extends RefCounted
 
 const SliceState = preload("res://vertical_slice/data/slice_state.gd")
+const WorkService = preload("res://vertical_slice/services/work_service.gd")
 
 const SUPPORTED_SCHEMA_VERSION := 1
 const FORBIDDEN_CONTENT_KEYS := [
@@ -10,6 +11,7 @@ const FORBIDDEN_CONTENT_KEYS := [
 ]
 
 var _state = SliceState.new()
+var _work_service = WorkService.new()
 
 
 func start_session(content: Dictionary, player_actor_id: String, player_team_id: String) -> Dictionary:
@@ -54,6 +56,31 @@ func start_session(content: Dictionary, player_actor_id: String, player_team_id:
 		candidate.status_order.append(status["id"])
 	for acquisition in content["acquisitions"]:
 		candidate.acquisitions.append(acquisition.duplicate(true))
+	for definition in content["task_definitions"]:
+		candidate.task_definitions[definition["id"]] = definition.duplicate(true)
+		candidate.task_definition_order.append(definition["id"])
+	for authored_task in content["task_instances"]:
+		candidate.tasks[authored_task["id"]] = {
+			"id": authored_task["id"],
+			"task_definition_id": authored_task["task_definition_id"],
+			"matter_id": authored_task["matter_id"],
+			"stage_id": authored_task["stage_id"],
+			"team_id": authored_task["team_id"],
+			"dependency_task_ids": authored_task["dependency_task_ids"].duplicate(),
+			"state": authored_task["initial_state"],
+			"creation_event_id": authored_task["creation_event_id"],
+			"created_by_ref": authored_task["created_by_ref"],
+			"current_assignment_id": "",
+			"execution_ids": [],
+			"completion_id": "",
+			"output_work_product_ids": [],
+		}
+		candidate.task_order.append(authored_task["id"])
+	for issue in content["issues"]:
+		candidate.issues[issue["id"]] = issue.duplicate(true)
+		candidate.issue_order.append(issue["id"])
+	for option in content["review_analysis_options"]:
+		candidate.review_analysis_options[option["id"]] = option.duplicate(true)
 
 	candidate.journal.append({
 		"id": content["session_event"]["id"],
@@ -72,12 +99,75 @@ func start_session(content: Dictionary, player_actor_id: String, player_team_id:
 		var event: Dictionary = candidate.procedural_statuses[status_id].duplicate(true)
 		event["kind"] = "procedural_status_observed"
 		candidate.journal.append(event)
+	for authored_task in content["task_instances"]:
+		candidate.journal.append({
+			"id": authored_task["creation_event_id"],
+			"event_order": authored_task["event_order"],
+			"kind": "task_created",
+			"task_id": authored_task["id"],
+			"task_definition_id": authored_task["task_definition_id"],
+			"matter_id": authored_task["matter_id"],
+			"stage_id": authored_task["stage_id"],
+			"team_id": authored_task["team_id"],
+			"created_by_ref": authored_task["created_by_ref"],
+		})
 	candidate.journal.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return int(a["event_order"]) < int(b["event_order"])
 	)
 
 	_state = candidate
+	_work_service.bind_state(_state)
 	return {"ok": true, "session_id": candidate.session["id"]}
+
+
+func assign_task(task_id: String, assignment_id: String, assigner_actor_id: String,
+		assignee_actor_id: String, team_id: String) -> Dictionary:
+	return _work_service.assign_task(
+		task_id, assignment_id, assigner_actor_id, assignee_actor_id, team_id)
+
+
+func execute_task(task_id: String, execution_id: String, actor_id: String, team_id: String,
+		time_slot_id: String, work_units: int, reviewed_scope_refs: Array) -> Dictionary:
+	return _work_service.execute_task(
+		task_id, execution_id, actor_id, team_id, time_slot_id, work_units,
+		reviewed_scope_refs)
+
+
+func complete_review_task(task_id: String, completion_id: String, work_product_id: String,
+		actor_id: String, team_id: String, analysis_option_id: String) -> Dictionary:
+	return _work_service.complete_review_task(
+		task_id, completion_id, work_product_id, actor_id, team_id, analysis_option_id)
+
+
+func select_issue(issue_id: String, selection_id: String, actor_id: String, team_id: String,
+		review_work_product_id: String) -> Dictionary:
+	return _work_service.select_issue(
+		issue_id, selection_id, actor_id, team_id, review_work_product_id)
+
+
+func create_case_theory(theory_id: String, version_id: String, issue_id: String,
+		review_work_product_id: String, actor_id: String, team_id: String, statement: String,
+		support_refs: Array, challenge_refs: Array, assumption_refs: Array,
+		known_gap_refs: Array) -> Dictionary:
+	return _work_service.create_case_theory(
+		theory_id, version_id, issue_id, review_work_product_id, actor_id, team_id,
+		statement, support_refs, challenge_refs, assumption_refs, known_gap_refs)
+
+
+func update_case_theory(theory_id: String, version_id: String, base_version_id: String,
+		actor_id: String, team_id: String, statement: String) -> Dictionary:
+	return _work_service.update_case_theory(
+		theory_id, version_id, base_version_id, actor_id, team_id, statement)
+
+
+func work_strategy_projection(viewer_actor_id: String, viewer_team_id: String) -> Dictionary:
+	return _work_service.work_strategy_projection(viewer_actor_id, viewer_team_id)
+
+
+func get_review_work_product(viewer_actor_id: String, viewer_team_id: String,
+		work_product_id: String) -> Dictionary:
+	return _work_service.get_review_work_product(
+		viewer_actor_id, viewer_team_id, work_product_id)
 
 
 func case_file_projection(viewer_actor_id: String, viewer_team_id: String) -> Dictionary:
@@ -232,7 +322,11 @@ func _validate_content(content: Dictionary, player_actor_id: String, player_team
 	for key in ["matter", "stage", "session_event"]:
 		if not content.get(key) is Dictionary:
 			return "invalid_" + key
-	for key in ["actors", "teams", "sources", "acquisitions", "assertions", "known_gaps", "procedural_statuses"]:
+	for key in [
+		"actors", "teams", "sources", "acquisitions", "assertions", "known_gaps",
+		"procedural_statuses", "task_definitions", "task_instances", "issues",
+		"review_analysis_options",
+	]:
 		if not content.get(key) is Array:
 			return "invalid_" + key
 
@@ -334,6 +428,7 @@ func _validate_content(content: Dictionary, player_actor_id: String, player_team
 			acquired_scope_keys[_scope_key(acquisition["team_id"], acquisition["source_id"], acquisition["source_version"], scope_id)] = true
 
 	var assertion_ids: Dictionary = {}
+	var assertion_map: Dictionary = {}
 	for assertion_value in content["assertions"]:
 		if not assertion_value is Dictionary:
 			return "invalid_assertion"
@@ -350,7 +445,9 @@ func _validate_content(content: Dictionary, player_actor_id: String, player_team
 		if not acquired_scope_keys.has(_scope_key(assertion["team_id"], assertion["source_id"], assertion["source_version"], assertion["source_scope_id"])):
 			return "assertion_scope_not_acquired"
 		assertion_ids[assertion["id"]] = true
+		assertion_map[assertion["id"]] = assertion
 
+	var gap_ids: Dictionary = {}
 	for gap_value in content["known_gaps"]:
 		if not gap_value is Dictionary:
 			return "invalid_known_gap"
@@ -363,6 +460,7 @@ func _validate_content(content: Dictionary, player_actor_id: String, player_team
 		for basis_ref in gap["basis_refs"]:
 			if not assertion_ids.has(basis_ref) and not source_map.has(basis_ref):
 				return "known_gap_basis_invalid"
+		gap_ids[gap["id"]] = true
 
 	for status_value in content["procedural_statuses"]:
 		if not status_value is Dictionary:
@@ -378,6 +476,127 @@ func _validate_content(content: Dictionary, player_actor_id: String, player_team
 		event_orders[status["event_order"]] = true
 		if status["subject_id"] != matter["id"] and status["subject_id"] != stage["id"] and not source_map.has(status["subject_id"]):
 			return "status_subject_invalid"
+
+	var definition_map: Dictionary = {}
+	for definition_value in content["task_definitions"]:
+		if not definition_value is Dictionary:
+			return "invalid_task_definition"
+		var definition: Dictionary = definition_value
+		if not _required_strings(definition, [
+			"id", "version", "task_family", "purpose", "work_unit_kind",
+			"output_type", "completion_semantics",
+		]) or definition["task_family"] != "evidence_review" \
+				or definition["output_type"] != "evidence_review_work_product" \
+				or not _positive_int(definition.get("required_work_units")) \
+				or not _nonempty_unique_string_list(definition.get("eligible_actor_kinds", [])) \
+				or not definition.get("authorized_source_scopes") is Array \
+				or definition["authorized_source_scopes"].is_empty() \
+				or not _nonempty_unique_string_list(definition.get("source_assertion_refs", [])) \
+				or not _unique_string_list(definition.get("known_gap_refs", []), true):
+			return "invalid_task_definition"
+		if not _claim_id(seen_ids, definition["id"]):
+			return "duplicate_task_definition_id"
+		var definition_scope_keys: Dictionary = {}
+		for scope_value in definition["authorized_source_scopes"]:
+			if not scope_value is Dictionary or not _required_strings(
+					scope_value, ["source_id", "source_version", "scope_id"]):
+				return "invalid_task_definition_scope"
+			var source_id: String = scope_value["source_id"]
+			if not source_map.has(source_id) or source_map[source_id]["version"] != scope_value["source_version"] \
+					or not scope_map[source_id].has(scope_value["scope_id"]):
+				return "task_definition_scope_reference_invalid"
+			var definition_scope_key := _source_scope_key(
+				source_id, scope_value["source_version"], scope_value["scope_id"])
+			if definition_scope_keys.has(definition_scope_key):
+				return "duplicate_task_definition_scope"
+			definition_scope_keys[definition_scope_key] = true
+		for assertion_ref in definition["source_assertion_refs"]:
+			if not assertion_ids.has(assertion_ref):
+				return "task_definition_assertion_reference_invalid"
+			var referenced_assertion: Dictionary = assertion_map[assertion_ref]
+			if not definition_scope_keys.has(_source_scope_key(
+					referenced_assertion["source_id"], referenced_assertion["source_version"],
+					referenced_assertion["source_scope_id"])):
+				return "task_definition_assertion_outside_scope"
+		for gap_ref in definition["known_gap_refs"]:
+			if not gap_ids.has(gap_ref):
+				return "task_definition_gap_reference_invalid"
+		definition_map[definition["id"]] = definition
+	if definition_map.is_empty():
+		return "task_definitions_required"
+
+	var task_map: Dictionary = {}
+	for task_value in content["task_instances"]:
+		if not task_value is Dictionary:
+			return "invalid_task_instance"
+		var task: Dictionary = task_value
+		if not _required_strings(task, [
+			"id", "task_definition_id", "matter_id", "stage_id", "team_id",
+			"initial_state", "creation_event_id", "created_by_ref",
+		]) or task["matter_id"] != matter["id"] or task["stage_id"] != stage["id"] \
+				or task["initial_state"] != "unassigned" \
+				or not _positive_int(task.get("event_order")) \
+				or not _unique_string_list(task.get("dependency_task_ids", []), true):
+			return "invalid_task_instance"
+		if not _claim_id(seen_ids, task["id"]):
+			return "duplicate_task_id"
+		if not _claim_id(seen_ids, task["creation_event_id"]):
+			return "duplicate_task_event_id"
+		if event_orders.has(task["event_order"]):
+			return "duplicate_event_order"
+		event_orders[task["event_order"]] = true
+		if not definition_map.has(task["task_definition_id"]) or not team_ids.has(task["team_id"]):
+			return "task_definition_or_team_reference_invalid"
+		task_map[task["id"]] = task
+	if task_map.is_empty():
+		return "task_instances_required"
+	for task_id in task_map:
+		var task: Dictionary = task_map[task_id]
+		for dependency_task_id in task["dependency_task_ids"]:
+			if dependency_task_id == task_id or not task_map.has(dependency_task_id):
+				return "task_dependency_reference_invalid"
+		var definition: Dictionary = definition_map[task["task_definition_id"]]
+		for scope_ref in definition["authorized_source_scopes"]:
+			if not acquired_scope_keys.has(_scope_key(
+					task["team_id"], scope_ref["source_id"], scope_ref["source_version"],
+					scope_ref["scope_id"])):
+				return "task_scope_not_acquired"
+
+	var issue_ids: Dictionary = {}
+	for issue_value in content["issues"]:
+		if not issue_value is Dictionary:
+			return "invalid_issue"
+		var issue: Dictionary = issue_value
+		if not _required_strings(issue, ["id", "matter_id", "label", "question", "epistemic_type"]) \
+				or issue["matter_id"] != matter["id"] or issue["epistemic_type"] != "issue" \
+				or not _nonempty_unique_string_list(issue.get("basis_assertion_refs", [])) \
+				or not _unique_string_list(issue.get("known_gap_refs", []), true):
+			return "invalid_issue"
+		if not _claim_id(seen_ids, issue["id"]):
+			return "duplicate_issue_id"
+		for assertion_ref in issue["basis_assertion_refs"]:
+			if not assertion_ids.has(assertion_ref):
+				return "issue_assertion_reference_invalid"
+		for gap_ref in issue["known_gap_refs"]:
+			if not gap_ids.has(gap_ref):
+				return "issue_gap_reference_invalid"
+		issue_ids[issue["id"]] = true
+	if issue_ids.is_empty():
+		return "issues_required"
+
+	for option_value in content["review_analysis_options"]:
+		if not option_value is Dictionary:
+			return "invalid_review_analysis_option"
+		var option: Dictionary = option_value
+		if not _required_strings(option, ["id", "label", "statement", "epistemic_type"]) \
+				or option["epistemic_type"] != "professional_analysis" \
+				or not _nonempty_unique_string_list(option.get("basis_refs", [])):
+			return "invalid_review_analysis_option"
+		if not _claim_id(seen_ids, option["id"]):
+			return "duplicate_review_analysis_option_id"
+		for basis_ref in option["basis_refs"]:
+			if not assertion_ids.has(basis_ref) and not gap_ids.has(basis_ref):
+				return "review_analysis_basis_invalid"
 
 	return ""
 
@@ -430,5 +649,20 @@ func _nonempty_unique_string_list(value: Variant) -> bool:
 	return true
 
 
+func _unique_string_list(value: Variant, allow_empty: bool) -> bool:
+	if not value is Array or (value.is_empty() and not allow_empty):
+		return false
+	var seen: Dictionary = {}
+	for item in value:
+		if not _nonempty_string(item) or seen.has(item):
+			return false
+		seen[item] = true
+	return true
+
+
 func _scope_key(team_id: String, source_id: String, version: String, scope_id: String) -> String:
 	return team_id + "|" + source_id + "|" + version + "|" + scope_id
+
+
+func _source_scope_key(source_id: String, version: String, scope_id: String) -> String:
+	return source_id + "|" + version + "|" + scope_id
