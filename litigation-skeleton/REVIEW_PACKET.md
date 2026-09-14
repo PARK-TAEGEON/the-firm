@@ -1,103 +1,111 @@
-# DEC-LITIGATION-011 draft review packet
+# VS-001 implementation review packet
 
-## 작업 목적
+## 작업 결과
 
-실제 제출·수신되고 해당 판단에 사용 가능하다고 주어진 evidence / record만으로 법원이 사실을 인정하는 최소 구조를 설계한다. actual truth와 court-recognized fact, 현 기록상 인정 불충분과 반대사실 인정, credibility와 sufficiency를 분리하고, 동일 evidence의 중복 가산 방지·충돌 기록·심급별 보존·공개 설명 경계를 제안한다.
+VS-001 — Authorized Case Review Runtime and First Playable Screen을 구현했다. Godot의 Run Project는 `vertical_slice/ui/main.tscn`을 열며, 사용자는 가상 사건 `VS-CASE-001`을 시작한 뒤 플레이어 팀에 제공된 자료 scope를 선택해 원문, 출처, source ID/version을 읽을 수 있다.
 
-이번 작업은 설계 문서 초안 작성이다. DEC-LITIGATION-011 v0.1은 **Proposed / 기획자 채택 필요** 상태이며 코드 구현이나 새 법률 규칙의 확정을 포함하지 않는다.
+GUI와 headless 회귀는 모두 `ContentLoader → SliceService → SliceState` 경로를 사용한다. presentation/UI는 service의 player projection과 exact-scope read 결과만 소비한다.
 
-## 변경 파일 목록
+## 실제 변경 파일
 
-- `DEC-LITIGATION-011_MINIMUM_FACT_RECOGNITION_MODEL.md`
-  - F1~F10 채택 후보, 기존 Accepted 제약, 최소 데이터 의미 구조, TBD, DEC-007~010 충돌 검토, failure conditions, TEST-010 검증 후보를 작성했다.
-- `litigation-skeleton/REVIEW_PACKET.md`
-  - 이번 문서 설계 작업의 범위·검증·미정 사항으로 handoff를 갱신했다.
+신규:
 
-`litigation-skeleton/test-results.log`는 최신 headless regression 실행으로 다시 생성했으나 결과가 기존 파일과 동일해 Git diff가 없다.
+- `vertical_slice/data/slice_state.gd`
+- `vertical_slice/services/content_loader.gd`
+- `vertical_slice/services/slice_service.gd`
+- `vertical_slice/presentation/slice_presenter.gd`
+- `vertical_slice/ui/main.tscn`
+- `vertical_slice/ui/main.gd`
+- `vertical_slice/content/slice_case.json`
+- `vertical_slice/tests/run_slice_regressions.gd`
+- `vertical_slice/test-results.log`
 
-## 각 변경 요약
+수정:
 
-### DEC-LITIGATION-011
+- `project.godot`
+- `README.md`
+- `REVIEW_PACKET.md`
 
-- 사건 세계의 `ActualStateRecord`를 법원이 판단하는 `FactProposition`·`CourtFactFinding`과 별도 저장·입력 경계로 분리하는 후보를 제안했다.
-- 사실명제의 `recognized / recognized_limited / not_established_on_record / undetermined`를 DEC-007의 네 상태 안에서 구체화했다.
-- 반대사실 인정은 별도 반대명제, 명시된 양립 불가능 관계, 그 반대명제 자체의 인정이 모두 있을 때만 파생 설명으로 표시하도록 제안했다.
-- `EvidenceItem`의 source lineage와 fact별 `EvidenceUse`를 분리해 사본·재인용의 중복 가산을 막으면서 하나의 evidence가 여러 사실에 관련되는 것을 허용했다.
-- 범위별 `CredibilityAssessment`와 proposition-level sufficiency 결과를 분리했다.
-- conflicting evidence를 `EvidenceConflict`로 보존하고, unresolved conflict를 자동 상쇄·절충·배척하지 않도록 했다.
-- 사실인정 입력을 stage/cutoff별 `CourtRecordSnapshot`으로 제한했다. admissibility는 외부 결정·주입 입력으로만 소비한다.
-- 원심 finding을 덮어쓰지 않고 `FindingLineage`로 appeal / supreme / remand의 허용 범위별 유지·변경·환송 관계를 제안했다.
-- 내부 `FactFindingTrace`와 공개 `FactFindingExplanation`을 분리하고, 확률·숨은 점수 대신 record 기반 원인 연결을 사용하도록 제안했다.
+`test-results.log`는 기존 suite로 다시 생성했지만 정규화된 내용이 이전과 같아 Git content diff는 없다. 신규 `vertical_slice/test-results.log`는 이번 suite 결과로 추가되었다.
 
-### Review packet
+기존 `data/litigation_state.gd`, `services/litigation_service.gd`, fixture와 기존 test runner는 수정하지 않았다. 새 DEC/TEST/AUDIT 문서도 만들거나 수정하지 않았다.
 
-- 이번 작업의 문서 전용 범위와 최신 regression 결과를 기록했다.
-- Proposed 후보와 이미 강제되는 Accepted invariant를 구별했다.
+## 구현한 사용자 동작
 
-## 새로 강제되는 invariant
+1. `사건 시작`으로 content version `1.0.0`의 단일 Matter/trial session을 생성한다.
+2. Case Review 화면에서 acquisition이 있는 3개 자료의 5개 named scope만 본다.
+3. 하나의 scope를 선택하고 `선택 범위 열람`으로 그 범위만 조회한다.
+4. 화면에서 출처, source ID/version, scope 내용, source assertion, known gap을 분리해 확인한다.
+5. “자료에 기록된 내용이며 법원 인정 사실이 아님”을 명시한다.
 
-없음. DEC-LITIGATION-011은 아직 Proposed이므로 F1~F10은 구현 invariant가 아니다.
+## 회귀 결과
 
-채택 시 강제할 후보는 다음과 같다.
+Godot 4.7.2 stable / Windows에서 저장소 루트 기준으로 실행했다.
 
-- actual truth는 court fact-finding 입력이나 공개 판결 이유가 아니다.
-- 명제 미인정만으로 반대명제를 인정하지 않는다.
-- 동일 source lineage의 동일 기여를 사본·재인용 개수로 반복 가산하지 않는다.
-- credibility는 evidence 진술 범위, sufficiency는 FactProposition 전체 판단에 기록한다.
-- court finding은 당시 allowed Record Snapshot과 실제 이유를 참조하며 stage 이력을 덮어쓰지 않는다.
-- 기준 부재를 입증 실패·패소·임의 결과로 바꾸지 않는다.
+| 실행 | checks | failures | exit code |
+|---|---:|---:|---:|
+| 기존 `res://tests/run_regressions.gd` | 214 | 0 | 0 |
+| 신규 `res://vertical_slice/tests/run_slice_regressions.gd` | 72 | 0 | 0 |
+| main scene headless load (`--quit-after 2`) | 해당 없음 | script/scene error 없음 | 0 |
 
-## 추가·변경한 테스트
+신규 suite는 실패가 있으면 `quit(1)`로 nonzero 종료한다.
 
-없음. 사용자가 이번 작업에서 코드 수정을 금지했고 TEST-010은 DEC-011 채택 후의 후속 검증 후보이므로 테스트 코드·fixture를 추가하지 않았다.
+## 실제 GUI 확인
 
-기존 regression만 실행해 문서 변경이 skeleton 동작을 오염시키지 않았음을 확인했다.
+Godot GUI로 프로젝트를 실행해 다음을 직접 확인했다.
 
-## 실행 명령
+- main scene과 Authorized Case Review 초기 화면이 열린다.
+- `사건 시작` 후 `VS-SESSION-001`, 사건명, 의뢰 목표, trial stage가 표시된다.
+- 목록에는 획득된 다섯 scope만 표시되고 테스트용 미획득 source 및 `private_appendix` scope는 표시되지 않는다.
+- `일정 변경 협의 이메일 — 발신 정보`를 선택·열람했을 때 source `VS-SOURCE-EMAIL-001`, version `1`, 출처와 `header` 내용만 표시된다.
+- source assertion, known gap과 CourtFactFinding 부정 문구가 함께 표시된다.
 
-```powershell
-& 'C:\Users\Admin\Downloads\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe' --headless --path . --log-file ./test-results.log --script res://tests/run_regressions.gd
-```
+GUI 실행은 상호작용 확인 후 테스트 환경에서 종료했으며, pass/fail 판정은 위 두 headless suite의 종료 코드로 기록했다.
 
-## 검증 결과
+## 새로 강제한 접근·scope·provenance 경계
 
-- 총 checks: **214**
-- Failures: **0**
-- Exit code: **0**
-- Result: **PASS**
-- `git diff --check`: **PASS**
+- session에 결속된 `VS-LAWYER-001` / `VS-TEAM-001` 외 viewer는 projection과 직접 source read 모두 거절된다.
+- 미획득 source는 제목·본문·scope·개수 힌트 없이 projection에서 제외되고 직접 조회도 `source_not_acquired`로 거절된다.
+- 부분 획득 자료는 획득 scope만 projection에 나타난다. 허용 scope와 미허용 scope를 섞은 전체-source 요청은 원자적으로 거절된다.
+- source ID/version/scope와 acquisition ID/order/actor/team/route/provider provenance가 유지된다.
+- malformed structure, duplicate source ID, duplicate event order, dangling source reference, invalid version/scope/viewer를 명시적으로 거절한다.
+- 모든 콘텐츠를 검증한 뒤 candidate state를 교체한다. 실패 초기화 전후 authoritative snapshot이 동일하다.
+- 조회 반환값의 중첩 값을 변경해도 authoritative state가 변하지 않는다.
+- 조회를 반복해도 domain event와 state가 증가하지 않는다.
+- 동일 콘텐츠로 시작한 별도 service는 동일한 semantic snapshot과 event order를 만든다.
+- 자료 열람 뒤에도 EvidenceReviewWorkProduct, CaseTheory, CourtRecord, CourtFactFinding, Judgment가 없다.
 
-## 여전히 fixture / injected인 부분
+## Authored 콘텐츠와 미구현 후속 기능
 
-- 기존 Judgment, Reason, AppealTarget, RemandScope와 사실·법적 결과는 기존 fixture의 주입 입력이다.
-- DEC-011의 TEST-010 계획에서 FactProposition, allowed Record Snapshot, credibility 판단, recognition criterion, 상급심 review / remand scope를 고정하면 이는 입력 처리 검사다.
-- 위 고정값으로 상태·이력·정보 경계를 검증해도 자연어 evidence 해석, evidence admissibility, 사실인정·판결·상급심 결과 생성 성능으로 보고할 수 없다.
+`slice_case.json`은 실제 한국 사건이나 Q2 정답 판결이 아닌 가상 납품 일정 분쟁이다. 사건/단계/플레이어/팀 stable ID, 의뢰 목표, 초기 문서, named scope, acquisition, source assertion, known gap, procedural status만 authored했다. 테스트를 위해 한 source와 한 scope는 다른 팀에만 제공되어 플레이어에게는 미획득 상태이며 player projection에는 노출되지 않는다.
 
-## 미구현 / TBD
+아직 구현하지 않은 기능:
 
-- DEC-LITIGATION-011 F1~F10의 기획자 채택 여부.
-- 실제 대한민국 법률의 증명도·입증 기준·사실 추정·자백·무응답 효과.
-- evidence admissibility 및 appeal admissibility.
-- 자료 유형별 credibility 기준과 fact별 sufficiency criterion.
-- 범용 독립 corroboration 판별과 자연어 proposition / contradiction 추출.
-- judgment engine, damages / remedy, judge personality, precedent effect.
-- 상급심 사실인정의 법적 효력, 신규 증거·심리 범위, 환송 구속력.
-- 상대·판사 AI, workload, Career / Business / World 통합, UI, save / migration.
-- TEST-010 문서·fixture·구현 및 실행.
+- Task execution과 workload 소비
+- Issue/Theory 선택 및 Strategy finalization
+- Investigation과 신규 acquisition
+- Precedent/Legal Research
+- EvidenceReviewWorkProduct 생성
+- Litigation/adjudication/CourtRecord/finding/judgment 런타임
+- save/load, scheduler, 범용 graph/rule DSL
+- appeal/remand UI, 대규모 NPC simulation, jurisdiction pack, business/world systems
 
-## 설계 판단이 필요해 건드리지 않은 부분
+## VS-002가 사용할 API와 state reference
 
-- `not_established_on_record`를 최종 청구 효과로 연결하는 입증 부담은 DEC-008의 명시적 관계 없이는 정하지 않았다.
-- `allowed_scope`의 생성·판정은 admissibility 영역이므로 사실인정 구조가 자체 결정하지 않는다.
-- 원심 finding의 보존을 자동 구속력으로 바꾸지 않았다.
-- 정확한 신빙성·충분성 등급, 점수, 임계값, 확률을 만들지 않았다.
-- 반대명제·배타 관계를 자연어에서 자동 추론하는 규칙을 만들지 않았다.
-- player explanation의 구체 UI·공개 시점·문구는 분리 원칙만 두고 미정으로 유지했다.
+`SliceService`의 현재 public 경계:
 
-## 범위 외 변경 여부
+- `start_session(content, player_actor_id, player_team_id) -> {ok, session_id} | {ok:false, error}`
+- `case_file_projection(viewer_actor_id, viewer_team_id) -> {ok, projection} | error`
+- `read_source(viewer_actor_id, viewer_team_id, source_id, source_version, requested_scope_ids) -> {ok, source} | error`
 
-없음.
+`debug_snapshot_for_tests()`는 테스트 전용이며 UI에 연결하지 않았다.
 
-- GDScript, fixture, project 설정, 기존 DEC / SYS / TEST 문서는 수정하지 않았다.
-- judgment engine, evidence admissibility, appeal admissibility, damages / remedy, judge personality, precedent effect를 구현하거나 확정하지 않았다.
-- 기존 미추적 파일 `how 24a00cc -- REVIEW_PACKET.md`는 사용자 소유 변경으로 간주해 읽거나 수정하거나 commit 대상에 포함하지 않았다.
+VS-002는 service mutation 원칙을 유지하면서 현재 session/matter/stage/player 결속과 source/acquisition stable identity를 참조해야 한다. Issue/Theory 또는 Task 상태를 추가하더라도 source assertion, analysis/work product, CourtRecord, finding을 합치면 안 된다.
+
+## 범위 감사
+
+- Task Contract의 허용 파일만 변경했다.
+- 기존 litigation skeleton의 상태/service/fixture/test 코드는 변경하지 않았다.
+- VS-002를 시작하지 않았다.
+- architecture 문서를 재설계하거나 새 DEC를 만들지 않았다.
+- hidden truth query, CaseStrength/EvidenceScore/WinChance, player/NPC 이중 ontology, provenance 삭제, reload reroll을 추가하지 않았다.

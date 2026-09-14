@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "content_id": "VS-CONTENT-001",
+  "content_version": "1.0.0",
+  "session_event": {
+    "id": "VS-EVENT-SESSION-001",
+    "session_id": "VS-SESSION-001",
+    "event_order": 1
+  },
+  "matter": {
+    "id": "VS-CASE-001",
+    "title": "납품 일정 분쟁 — 초기 사건 검토",
+    "client_goal": "납품 지연 책임 주장에 대응할 수 있는 사실·자료·법적 쟁점을 정리한다."
+  },
+  "stage": {
+    "id": "VS-STAGE-001",
+    "matter_id": "VS-CASE-001",
+    "level": "trial",
+    "label": "제1심 준비 단계"
+  },
+  "actors": [
+    {
+      "id": "VS-LAWYER-001",
+      "display_name": "플레이어 변호사",
+      "actor_kind": "lawyer"
+    },
+    {
+      "id": "VS-CLIENT-001",
+      "display_name": "의뢰인 담당자",
+      "actor_kind": "client_representative"
+    },
+    {
+      "id": "VS-OPPONENT-LAWYER-001",
+      "display_name": "상대방 대리인",
+      "actor_kind": "lawyer"
+    }
+  ],
+  "teams": [
+    {
+      "id": "VS-TEAM-001",
+      "matter_id": "VS-CASE-001",
+      "label": "의뢰인 대리팀",
+      "member_actor_ids": ["VS-LAWYER-001"]
+    },
+    {
+      "id": "VS-TEAM-OPPONENT-001",
+      "matter_id": "VS-CASE-001",
+      "label": "상대방 대리팀",
+      "member_actor_ids": ["VS-OPPONENT-LAWYER-001"]
+    }
+  ],
+  "sources": [
+    {
+      "id": "VS-SOURCE-CONTRACT-001",
+      "version": "1",
+      "title": "서비스 공급 계약서",
+      "source_kind": "client_provided_document",
+      "origin": {
+        "kind": "client_provided",
+        "provider_ref": "VS-CLIENT-001",
+        "description": "의뢰인 담당자가 초기 상담 때 제공한 계약서 사본"
+      },
+      "scopes": [
+        {
+          "id": "parties",
+          "label": "당사자 표시",
+          "content": "공급자와 발주자가 서비스 공급 계약의 당사자로 기재되어 있다."
+        },
+        {
+          "id": "schedule",
+          "label": "납품 일정 조항",
+          "content": "계약서에는 6월 30일을 목표 납품일로 기재한 조항이 있다."
+        }
+      ]
+    },
+    {
+      "id": "VS-SOURCE-EMAIL-001",
+      "version": "1",
+      "title": "일정 변경 협의 이메일",
+      "source_kind": "client_provided_email",
+      "origin": {
+        "kind": "client_provided",
+        "provider_ref": "VS-CLIENT-001",
+        "description": "의뢰인 담당자가 초기 상담 때 전달한 이메일 출력본"
+      },
+      "scopes": [
+        {
+          "id": "header",
+          "label": "발신 정보",
+          "content": "이메일 출력본에는 6월 12일 발신으로 표시되어 있다."
+        },
+        {
+          "id": "body",
+          "label": "협의 문구",
+          "content": "발신자는 일정 조정안을 검토하겠다는 취지의 문구를 기록했다."
+        }
+      ]
+    },
+    {
+      "id": "VS-SOURCE-MEETING-001",
+      "version": "1",
+      "title": "프로젝트 회의 메모",
+      "source_kind": "client_provided_note",
+      "origin": {
+        "kind": "client_provided",
+        "provider_ref": "VS-CLIENT-001",
+        "description": "의뢰인 담당자가 작성해 제공한 회의 메모"
+      },
+      "scopes": [
+        {
+          "id": "summary",
+          "label": "회의 요약",
+          "content": "메모 작성자는 회의에서 일정 변경 가능성이 논의되었다고 적었다."
+        },
+        {
+          "id": "private_appendix",
+          "label": "미제공 부록",
+          "content": "이 범위는 현재 플레이어 팀에 제공되지 않았다."
+        }
+      ]
+    },
+    {
+      "id": "VS-SOURCE-UNACQUIRED-TEST",
+      "version": "1",
+      "title": "미획득 검증 전용 자료",
+      "source_kind": "unacquired_test_source",
+      "origin": {
+        "kind": "opponent_provided",
+        "provider_ref": "VS-OPPONENT-LAWYER-001",
+        "description": "상대방 팀에만 제공된 접근 경계 검증 전용 자료"
+      },
+      "scopes": [
+        {
+          "id": "hidden_scope",
+          "label": "비공개 검증 범위",
+          "content": "이 내용은 player projection에 나타나면 안 된다."
+        }
+      ]
+    }
+  ],
+  "acquisitions": [
+    {
+      "id": "VS-ACQ-001",
+      "event_order": 2,
+      "source_id": "VS-SOURCE-CONTRACT-001",
+      "source_version": "1",
+      "actor_id": "VS-LAWYER-001",
+      "team_id": "VS-TEAM-001",
+      "scopes": ["parties", "schedule"],
+      "route": "initial_client_provision",
+      "provider_ref": "VS-CLIENT-001"
+    },
+    {
+      "id": "VS-ACQ-002",
+      "event_order": 3,
+      "source_id": "VS-SOURCE-EMAIL-001",
+      "source_version": "1",
+      "actor_id": "VS-LAWYER-001",
+      "team_id": "VS-TEAM-001",
+      "scopes": ["header", "body"],
+      "route": "initial_client_provision",
+      "provider_ref": "VS-CLIENT-001"
+    },
+    {
+      "id": "VS-ACQ-003",
+      "event_order": 4,
+      "source_id": "VS-SOURCE-MEETING-001",
+      "source_version": "1",
+      "actor_id": "VS-LAWYER-001",
+      "team_id": "VS-TEAM-001",
+      "scopes": ["summary"],
+      "route": "initial_client_provision",
+      "provider_ref": "VS-CLIENT-001"
+    },
+    {
+      "id": "VS-ACQ-004",
+      "event_order": 5,
+      "source_id": "VS-SOURCE-UNACQUIRED-TEST",
+      "source_version": "1",
+      "actor_id": "VS-OPPONENT-LAWYER-001",
+      "team_id": "VS-TEAM-OPPONENT-001",
+      "scopes": ["hidden_scope"],
+      "route": "opponent_initial_provision",
+      "provider_ref": "VS-OPPONENT-LAWYER-001"
+    }
+  ],
+  "assertions": [
+    {
+      "id": "VS-ASSERTION-001",
+      "team_id": "VS-TEAM-001",
+      "source_id": "VS-SOURCE-CONTRACT-001",
+      "source_version": "1",
+      "source_scope_id": "schedule",
+      "asserted_by_ref": "VS-SOURCE-CONTRACT-001",
+      "statement": "계약서 사본은 6월 30일을 목표 납품일로 기재한다.",
+      "epistemic_type": "source_assertion"
+    },
+    {
+      "id": "VS-ASSERTION-002",
+      "team_id": "VS-TEAM-001",
+      "source_id": "VS-SOURCE-EMAIL-001",
+      "source_version": "1",
+      "source_scope_id": "body",
+      "asserted_by_ref": "VS-SOURCE-EMAIL-001",
+      "statement": "이메일 출력본의 발신자는 일정 조정안을 검토하겠다고 기록했다.",
+      "epistemic_type": "source_assertion"
+    },
+    {
+      "id": "VS-ASSERTION-003",
+      "team_id": "VS-TEAM-001",
+      "source_id": "VS-SOURCE-MEETING-001",
+      "source_version": "1",
+      "source_scope_id": "summary",
+      "asserted_by_ref": "VS-CLIENT-001",
+      "statement": "메모 작성자는 회의에서 일정 변경 가능성이 논의되었다고 적었다.",
+      "epistemic_type": "source_assertion"
+    }
+  ],
+  "known_gaps": [
+    {
+      "id": "VS-GAP-001",
+      "team_id": "VS-TEAM-001",
+      "description": "상대방이 일정 변경안을 실제로 승인했는지는 현재 자료만으로 확인되지 않았다.",
+      "status": "known_open",
+      "basis_refs": ["VS-ASSERTION-002", "VS-ASSERTION-003"]
+    }
+  ],
+  "procedural_statuses": [
+    {
+      "id": "VS-STATUS-001",
+      "event_order": 6,
+      "team_id": "VS-TEAM-001",
+      "subject_type": "matter",
+      "subject_id": "VS-CASE-001",
+      "state": "initial_material_received",
+      "provenance_ref": "VS-ACQ-001"
+    }
+  ]
+}
