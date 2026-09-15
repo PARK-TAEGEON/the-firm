@@ -1,5 +1,55 @@
 # VS-003 implementation review packet
 
+## FIX REQUIRED 대응 — hidden outcome leakage / localization boundary
+
+Historical VS-003 review의 두 지적만 수정했다.
+
+- 공개 investigation action identity를 outcome-neutral `VS-INV-ACTION-001` ~ `003`으로 교체했다. 공개 opportunity projection에는 여전히 private `authored_outcome`, 미래 result, target source/version/scope/content가 포함되지 않는다.
+- `complete_investigation_task()`의 acquisition candidate identity preflight를 authored outcome 판독 전에 공통 적용한다. 세 action 모두 빈 identity에는 `acquisition_identity_required`, 이미 사용된 identity에는 `duplicate_identity`를 동일하게 반환하고 rejected command는 state/journal을 변경하지 않는다. 유효한 candidate는 resolution 결과가 success/partial success일 때만 `AcquisitionEvent.id`로 소비된다. authored failure는 candidate를 저장하거나 점유하지 않고 completed `InvestigationResult`만 남긴다.
+- 새 VS-003 authored/player-visible 문구를 `locale_ko.json` key로 교체하고, presentation 전용 `SliceLocalizer`를 통해 표시한다. key가 없으면 key 자체가 보이므로 누락 번역을 탐지할 수 있다. 기존 VS-001/VS-002 literal presentation은 호환성을 위해 변경하지 않았다.
+- UI의 acquisition 안내도 outcome별 입력 방식을 암시하지 않고 모든 조사 완료 명령에 candidate ID가 필요하다고 표시한다.
+
+### 이번 fix의 실제 변경 파일
+
+수정:
+
+- `vertical_slice/content/slice_case.json`
+- `vertical_slice/services/investigation_service.gd`
+- `vertical_slice/presentation/slice_presenter.gd`
+- `vertical_slice/ui/main.gd`
+- `vertical_slice/ui/main.tscn`
+- `vertical_slice/tests/run_vs003_regressions.gd`
+- `vertical_slice/vs003-test-results.log`
+- `REVIEW_PACKET.md`
+
+신규:
+
+- `vertical_slice/content/locale_ko.json`
+- `vertical_slice/presentation/slice_localizer.gd`
+
+### Public API 변화
+
+새 API나 signature 변경은 없다. 기존
+`complete_investigation_task(task_id, completion_id, investigation_result_id, acquisition_id, actor_id, team_id)`의 `acquisition_id` 입력 의미만 outcome-neutral candidate identity로 바로잡았다. unresolved action은 outcome과 무관하게 non-empty/unique candidate를 요구한다. resolution 뒤 success/partial success만 그 ID로 explicit `AcquisitionEvent`를 만들며 failure는 acquisition을 만들지 않는다.
+
+### Fix regression 및 smoke 결과
+
+Godot 4.7.2 stable / Windows, repository root 기준 최종 실행 결과다.
+
+| suite | command script | checks | failures | exit code |
+|---|---|---:|---:|---:|
+| legacy | `res://tests/run_regressions.gd` | 214 | 0 | 0 |
+| VS-001 | `res://vertical_slice/tests/run_slice_regressions.gd` | 73 | 0 | 0 |
+| VS-002 | `res://vertical_slice/tests/run_vs002_regressions.gd` | 72 | 0 | 0 |
+| VS-003 | `res://vertical_slice/tests/run_vs003_regressions.gd` | 260 | 0 | 0 |
+| main scene headless smoke | `--headless --path litigation-skeleton --quit-after 2` | 해당 없음 | script/scene error 0 | 0 |
+
+추가 regression은 공개 action ID의 outcome token 부재, 세 authored outcome에 대한 동일한 empty/duplicate candidate error와 atomicity, VS-003 authored content/scene text의 localization key 사용과 catalog resolution, presenter의 translated rendering을 검사한다. 기존 success/partial/failure, exact-scope authorization, provenance, deep-copy, deterministic replay와 semantic non-mutation 검사도 모두 유지된다. 실패나 nonzero exit는 없었다.
+
+이번 fix에서 interactive GUI는 다시 실행하지 않았다. 대신 headless main scene smoke로 script/scene `_ready()` 및 localization binding을 확인했고, VS-003 regression에서 scene의 player-visible VS-003 controls가 localization key를 사용하며 모든 key가 catalog에서 해석되는지 검사했다. 이전 구현 handoff에 기록된 interactive GUI 확인은 historical evidence로 아래에 남겨 둔다.
+
+Task Contract semantic deviation은 없다. Approved VS-003 plan에는 localization data/localizer 파일이 명시되지 않았으나, accepted `02_ARCHITECTURE_RULES.md`와 Reviewer의 localization fix를 충족하기 위한 presentation-only additive detail로 추가했다. architecture blocker는 없었고 accepted DEC/TEST boundary를 수정·우회·재해석하지 않았다. WorkService, Submission, CourtRecord, CourtFactFinding, Adjudication, Judgment 및 VS-004 production 영역은 변경하지 않았다. VS-004 starting baseline의 domain state/semantics에는 영향이 없으며 presentation text representation과 unresolved completion validation만 바로잡았다. repository root의 기존 untracked later-stage design/TEST 문서는 수정하거나 포함하지 않았다.
+
 ## 작업 목적과 결과
 
 VS-002 완료 상태 위에 VS-003 — Investigation and Source Acquisition을 구현했다. 플레이어는 공개된 known gap 기반 조사 기회를 선택하고 Investigation Task를 런타임에서 명시적으로 생성·배정·수행·완료할 수 있다. 완료는 private authored outcome을 deterministic하게 materialize하여 별도 `InvestigationResult`를 만들고, success/partial success에만 explicit `AcquisitionEvent`를 추가한다. 새 SourceMaterial은 기존 CaseFile의 acquisition-derived authorization 경로에서 exact source/version/scope 단위로만 보인다.
@@ -92,7 +142,7 @@ Godot 4.7.2 stable / Windows에서 repository root 기준으로 실행했다.
 | legacy | `res://tests/run_regressions.gd` | 214 | 0 | 0 |
 | VS-001 | `res://vertical_slice/tests/run_slice_regressions.gd` | 73 | 0 | 0 |
 | VS-002 | `res://vertical_slice/tests/run_vs002_regressions.gd` | 72 | 0 | 0 |
-| VS-003 | `res://vertical_slice/tests/run_vs003_regressions.gd` | 137 | 0 | 0 |
+| VS-003 | `res://vertical_slice/tests/run_vs003_regressions.gd` | 260 | 0 | 0 |
 | main scene headless smoke | `--headless --path litigation-skeleton --quit-after 2` | 해당 없음 | script/scene error 0 | 0 |
 
 실행 명령:
@@ -128,7 +178,7 @@ VS-003 suite는 success, partial success, authored failure, invalid actor/team, 
 
 - 세 outcome은 authored deterministic fixture이며 조사 성공 확률, RNG, investigator stat, 비용, provider AI 또는 hidden-world simulation이 아니다.
 - action prerequisite는 이 slice의 authored `VS-WP-REVIEW-001`, `VS-ISSUE-001`, `VS-GAP-001`와 current theory에 결속된다.
-- UI는 completion identity contract를 hidden outcome mapping 없이 충족하도록 acquisition ID를 사용자가 입력한다. 획득 outcome에는 non-empty ID가 필요하고 failure에는 비워야 한다.
+- UI는 hidden outcome mapping 없이 모든 completion command에 outcome-neutral acquisition candidate ID를 입력한다. success/partial success만 이를 acquisition identity로 소비하고 failure는 저장·점유하지 않는다.
 - newly acquired SourceMaterial은 의도적으로 unreviewed다. 자동 SourceAssertion/ReviewWorkProduct/CaseTheory revision은 없다.
 - retries, Leads, witness interview, Legal Research, precedent search, Strategy Finalization, Submission, courtroom procedure, CourtRecord, adjudication, finding, Judgment, save/load, appeal/remand, Organization/Business/World integration, jurisdiction pack, scheduler/rule DSL은 구현하지 않았다.
 - 실제 조사 권한·증거능력·법률 판단·workload formula는 TBD이며 발명하지 않았다.
@@ -136,7 +186,7 @@ VS-003 suite는 success, partial success, authored failure, invalid actor/team, 
 ## Contract / plan deviation과 architecture audit
 
 - `.agent/tasks/VS-003.md` deviation: 없음.
-- `.agent/plans/VS-003.md` deviation: outcome별 acquisition ID empty/non-empty contract를 UI가 hidden mapping 없이 충족하도록 최소 `Acquisition ID` 입력 field를 추가했다. 이는 lifecycle controls에 붙은 작은 UI implementation detail이며 service/domain semantics를 바꾸지 않는다. 그 밖의 deviation은 없다.
+- `.agent/plans/VS-003.md` deviation: 최소 acquisition candidate ID 입력 field와 review-fix localization catalog/localizer를 presentation-only additive detail로 추가했다. outcome별 empty/non-empty validation은 hidden oracle이었으므로 제거했고 모든 unresolved action에 동일한 candidate preflight를 적용한다. result/acquisition domain semantics는 유지된다.
 - architecture blocker: 없음.
 - accepted DEC/TEST semantic boundary를 수정, 우회 또는 재해석하지 않았다. accepted DEC/TEST 문서는 수정하지 않았다.
 - `WorkService`를 payload/rule framework로 refactor하지 않았고 InvestigationService가 assignment/execution/completion/time allocation을 직접 소유하지 않는다.

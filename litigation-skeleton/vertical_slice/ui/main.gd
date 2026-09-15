@@ -5,6 +5,7 @@ const SliceService = preload("res://vertical_slice/services/slice_service.gd")
 const SlicePresenter = preload("res://vertical_slice/presentation/slice_presenter.gd")
 
 const CONTENT_PATH := "res://vertical_slice/content/slice_case.json"
+const LOCALE_PATH := "res://vertical_slice/content/locale_ko.json"
 const PLAYER_ACTOR_ID := "VS-LAWYER-001"
 const PLAYER_TEAM_ID := "VS-TEAM-001"
 const REVIEW_TASK_ID := "VS-TASK-REVIEW-001"
@@ -43,9 +44,18 @@ var _investigation_projection: Dictionary = {}
 @onready var execute_investigation_button: Button = %ExecuteInvestigationButton
 @onready var complete_investigation_button: Button = %CompleteInvestigationButton
 @onready var acquisition_id_input: LineEdit = %AcquisitionIdInput
+@onready var boundary_label: Label = %Boundary
+@onready var tabs: TabContainer = %Tabs
+@onready var investigation_tab: ScrollContainer = %Investigation
+@onready var investigation_heading: Label = %Heading
+@onready var acquisition_help: Label = %AcquisitionHelp
 
 
 func _ready() -> void:
+	var locale: Dictionary = ContentLoader.new().load_json_file(LOCALE_PATH)
+	if locale.get("ok", false) and locale["content"].get("strings") is Dictionary:
+		_presenter.bind_localization(locale["content"]["strings"])
+	_localize_vs003_controls()
 	start_button.pressed.connect(_on_start_pressed)
 	open_button.pressed.connect(_on_open_pressed)
 	source_list.item_selected.connect(func(_index: int) -> void: open_button.disabled = false)
@@ -134,13 +144,13 @@ func _refresh_investigation() -> void:
 	var selected_action_id := _selected_investigation_action_id()
 	var result: Dictionary = _service.investigation_projection(PLAYER_ACTOR_ID, PLAYER_TEAM_ID)
 	if not result.get("ok", false):
-		_show_error("Investigation 조회", result)
+		_show_error(_presenter.localized_text("ui.vs003.query_label"), result)
 		return
 	_investigation_projection = result["projection"]
 	investigation_options.disabled = false
 	investigation_options.clear()
 	for opportunity in _investigation_projection["opportunities"]:
-		investigation_options.add_item(opportunity["label"])
+		investigation_options.add_item(_presenter.localized_text(opportunity["label"]))
 		investigation_options.set_item_metadata(investigation_options.item_count - 1, opportunity["id"])
 		if opportunity["id"] == selected_action_id:
 			investigation_options.select(investigation_options.item_count - 1)
@@ -227,7 +237,7 @@ func _on_investigation_selected(_index: int) -> void:
 func _on_create_investigation_pressed() -> void:
 	var action_id := _selected_investigation_action_id()
 	var suffix := "%03d" % (_investigation_projection["tasks"].size() + 1)
-	_apply_investigation_action("Investigation Task 생성", _service.create_investigation_task(
+	_apply_investigation_action(_presenter.localized_text("ui.vs003.create_action"), _service.create_investigation_task(
 		action_id, "VS-TASK-INV-UI-" + suffix, "VS-EVENT-INV-CREATE-UI-" + suffix,
 		PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
 
@@ -235,9 +245,9 @@ func _on_create_investigation_pressed() -> void:
 func _on_assign_investigation_pressed() -> void:
 	var task := _selected_investigation_task()
 	if task.is_empty():
-		status_label.text = "먼저 Investigation Task를 생성하십시오."
+		status_label.text = _presenter.localized_text("ui.vs003.create_first")
 		return
-	_apply_investigation_action("Investigation Task 배정", _service.assign_task(
+	_apply_investigation_action(_presenter.localized_text("ui.vs003.assign_action"), _service.assign_task(
 		task["id"], "VS-ASSIGN-INV-UI-%03d" % (_investigation_projection["tasks"].size()),
 		PLAYER_ACTOR_ID, PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
 
@@ -245,10 +255,10 @@ func _on_assign_investigation_pressed() -> void:
 func _on_execute_investigation_pressed() -> void:
 	var task := _selected_investigation_task()
 	if task.is_empty():
-		status_label.text = "먼저 Investigation Task를 생성하십시오."
+		status_label.text = _presenter.localized_text("ui.vs003.create_first")
 		return
 	var suffix := "%03d" % (_investigation_projection["tasks"].find(task) + 1)
-	_apply_investigation_action("Investigation 수행", _service.execute_investigation_task(
+	_apply_investigation_action(_presenter.localized_text("ui.vs003.execute_action"), _service.execute_investigation_task(
 		task["id"], "VS-EXEC-INV-UI-" + suffix, PLAYER_ACTOR_ID, PLAYER_TEAM_ID,
 		"VS-WORK-INV-UI-" + suffix, 1))
 
@@ -256,10 +266,10 @@ func _on_execute_investigation_pressed() -> void:
 func _on_complete_investigation_pressed() -> void:
 	var task := _selected_investigation_task()
 	if task.is_empty():
-		status_label.text = "먼저 Investigation Task를 생성하십시오."
+		status_label.text = _presenter.localized_text("ui.vs003.create_first")
 		return
 	var suffix := "%03d" % (_investigation_projection["results"].size() + 1)
-	_apply_investigation_action("Investigation 완료", _service.complete_investigation_task(
+	_apply_investigation_action(_presenter.localized_text("ui.vs003.complete_action"), _service.complete_investigation_task(
 		task["id"], "VS-COMPLETE-INV-UI-" + suffix, "VS-RESULT-INV-UI-" + suffix,
 		acquisition_id_input.text.strip_edges(), PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
 
@@ -321,7 +331,7 @@ func _apply_investigation_action(label: String, result: Dictionary) -> void:
 	if not result.get("ok", false):
 		_show_error(label, result)
 		return
-	status_label.text = "%s 완료 — 명시적 domain event가 기록되었습니다." % label
+	status_label.text = _presenter.localized_text("ui.vs003.action_recorded", [label])
 	_refresh_work()
 	_refresh_investigation()
 	_refresh_case_file()
@@ -349,3 +359,19 @@ func _set_investigation_controls_disabled(disabled: bool) -> void:
 	execute_investigation_button.disabled = disabled
 	complete_investigation_button.disabled = disabled
 	acquisition_id_input.editable = not disabled
+
+
+func _localize_vs003_controls() -> void:
+	boundary_label.text = _presenter.localized_text("ui.vs003.boundary")
+	investigation_heading.text = _presenter.localized_text("ui.vs003.heading")
+	create_investigation_button.text = _presenter.localized_text("ui.vs003.create_button")
+	assign_investigation_button.text = _presenter.localized_text("ui.vs003.assign_button")
+	execute_investigation_button.text = _presenter.localized_text("ui.vs003.execute_button")
+	complete_investigation_button.text = _presenter.localized_text("ui.vs003.complete_button")
+	acquisition_help.text = _presenter.localized_text("ui.vs003.acquisition_help")
+	acquisition_id_input.placeholder_text = _presenter.localized_text("ui.vs003.acquisition_placeholder")
+	investigation_opportunity_label.text = _presenter.localized_text("ui.vs003.before_start")
+	investigation_status_label.text = _presenter.localized_text("ui.vs003.empty_status")
+	var tab_index := tabs.get_tab_idx_from_control(investigation_tab)
+	if tab_index >= 0:
+		tabs.set_tab_title(tab_index, _presenter.localized_text("ui.vs003.tab"))

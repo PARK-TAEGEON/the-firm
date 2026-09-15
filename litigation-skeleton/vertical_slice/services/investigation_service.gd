@@ -45,18 +45,18 @@ func complete_investigation_task(task_id: String, completion_id: String,
 	var action: Dictionary = prerequisite["action"]
 	if task["investigation_action_id"] != action["id"]:
 		return _failure("investigation_action_mismatch")
+	# Acquisition identity validation is deliberately outcome-independent. The supplied
+	# identity is consumed only if resolution materializes an AcquisitionEvent.
+	if acquisition_id.is_empty():
+		return _failure("acquisition_identity_required")
+	if _work_service.investigation_identity_exists(acquisition_id):
+		return _failure("duplicate_identity")
 	var outcome: Dictionary = action["authored_outcome"]
 	var acquires_source: bool = outcome["outcome"] in ["success", "partial_success"]
-	if acquires_source and acquisition_id.is_empty():
-		return _failure("acquisition_id_required")
-	if not acquires_source and not acquisition_id.is_empty():
-		return _failure("acquisition_id_not_allowed")
-	if acquires_source and _work_service.investigation_identity_exists(acquisition_id):
-		return _failure("duplicate_identity")
 	if acquires_source:
 		var source_validation: String = _validate_authored_acquisition(outcome)
 		if not source_validation.is_empty():
-			return _failure(source_validation)
+			return _failure("invalid_investigation_configuration")
 
 	var completion: Dictionary = _work_service.record_investigation_completion(
 		task_id, completion_id, investigation_result_id, actor_id, team_id)

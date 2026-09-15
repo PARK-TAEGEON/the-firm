@@ -1,5 +1,17 @@
 extends RefCounted
 
+const SliceLocalizer = preload("res://vertical_slice/presentation/slice_localizer.gd")
+
+var _localizer = SliceLocalizer.new()
+
+
+func bind_localization(catalog: Dictionary) -> void:
+	_localizer.bind_catalog(catalog)
+
+
+func localized_text(key_or_literal: String, parameters: Array = []) -> String:
+	return _localizer.text(key_or_literal, parameters)
+
 
 func case_header(projection: Dictionary) -> String:
 	return "%s\n의뢰 목표: %s\n절차 단계: %s" % [
@@ -14,7 +26,7 @@ func source_scope_rows(projection: Dictionary) -> Array:
 	for source in projection["sources"]:
 		for scope in source["acquired_scopes"]:
 			rows.append({
-				"label": "%s — %s" % [source["title"], scope["label"]],
+				"label": "%s — %s" % [localized_text(source["title"]), localized_text(scope["label"])],
 				"source_id": source["id"],
 				"source_version": source["version"],
 				"scope_id": scope["id"],
@@ -24,14 +36,14 @@ func source_scope_rows(projection: Dictionary) -> Array:
 
 func source_detail(source: Dictionary) -> String:
 	var lines: Array[String] = []
-	lines.append(source["title"])
+	lines.append(localized_text(source["title"]))
 	lines.append("Source ID / version: %s / %s" % [source["id"], source["version"]])
-	lines.append("출처: %s" % source["origin"]["description"])
+	lines.append("출처: %s" % localized_text(source["origin"]["description"]))
 	lines.append("자료에 기록된 내용이며 법원 인정 사실이 아닙니다.")
 	lines.append("")
 	for scope in source["scopes"]:
-		lines.append("[%s]" % scope["label"])
-		lines.append(scope["content"])
+		lines.append("[%s]" % localized_text(scope["label"]))
+		lines.append(localized_text(scope["content"]))
 		lines.append("")
 	return "\n".join(lines)
 
@@ -82,7 +94,7 @@ func investigation_opportunity_rows(projection: Dictionary) -> Array:
 	var rows: Array = []
 	for opportunity in projection["opportunities"]:
 		rows.append({
-			"label": opportunity["label"],
+			"label": localized_text(opportunity["label"]),
 			"action_id": opportunity["id"],
 			"task_id": opportunity["task_id"],
 			"created": opportunity["created"],
@@ -91,10 +103,11 @@ func investigation_opportunity_rows(projection: Dictionary) -> Array:
 
 
 func investigation_opportunity_text(opportunity: Dictionary) -> String:
-	return "%s\n목적: %s\n조사 범위: %s\n근거 공백: %s\n%s" % [
-		opportunity["label"], opportunity["purpose"], opportunity["bounded_domain"],
-		", ".join(opportunity["known_gap_refs"]), opportunity["action_description"],
-	]
+	return localized_text("ui.vs003.opportunity", [
+		localized_text(opportunity["label"]), localized_text(opportunity["purpose"]),
+		localized_text(opportunity["bounded_domain"]), ", ".join(opportunity["known_gap_refs"]),
+		localized_text(opportunity["action_description"]),
+	])
 
 
 func investigation_status_text(projection: Dictionary, action_id: String) -> String:
@@ -107,22 +120,27 @@ func investigation_status_text(projection: Dictionary, action_id: String) -> Str
 					selected_task = task
 					break
 	if selected_task.is_empty():
-		lines.append("Investigation Task: 아직 생성되지 않음")
+		lines.append(localized_text("ui.vs003.task_missing"))
 	else:
-		lines.append("Investigation Task: %s" % selected_task["id"])
-		lines.append("상태: %s" % selected_task["state"])
+		lines.append(localized_text("ui.vs003.task", [selected_task["id"]]))
+		var state := localized_text("ui.vs003.task_state." + selected_task["state"])
+		lines.append(localized_text("ui.vs003.state", [state]))
 		if not selected_task["current_assignment_id"].is_empty():
-			lines.append("Assignment: %s" % selected_task["current_assignment_id"])
+			lines.append(localized_text("ui.vs003.assignment", [selected_task["current_assignment_id"]]))
 		if not selected_task["execution_ids"].is_empty():
-			lines.append("Execution: %s" % ", ".join(selected_task["execution_ids"]))
+			lines.append(localized_text("ui.vs003.execution", [", ".join(selected_task["execution_ids"])]))
 		if not selected_task["completion_id"].is_empty():
-			lines.append("Completion: %s" % selected_task["completion_id"])
+			lines.append(localized_text("ui.vs003.completion", [selected_task["completion_id"]]))
 	for result in projection["results"]:
 		if result["investigation_action_id"] == action_id:
-			lines.append("InvestigationResult: %s — %s" % [result["outcome"], result["summary"]])
-			lines.append("제한: %s" % ", ".join(result["limitations"]))
+			var outcome := localized_text("ui.vs003.outcome." + result["outcome"])
+			lines.append(localized_text("ui.vs003.result", [outcome, localized_text(result["summary"])]))
+			var limitations: Array[String] = []
+			for limitation in result["limitations"]:
+				limitations.append(localized_text("vs003.limitation." + limitation))
+			lines.append(localized_text("ui.vs003.limitations", [", ".join(limitations)]))
 			if not result["acquisition_refs"].is_empty():
-				lines.append("AcquisitionEvent: %s" % ", ".join(result["acquisition_refs"]))
+				lines.append(localized_text("ui.vs003.acquisition", [", ".join(result["acquisition_refs"])]))
 	return "\n".join(lines)
 
 

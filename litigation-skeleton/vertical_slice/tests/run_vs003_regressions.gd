@@ -2,8 +2,10 @@ extends SceneTree
 
 const ContentLoader = preload("res://vertical_slice/services/content_loader.gd")
 const SliceService = preload("res://vertical_slice/services/slice_service.gd")
+const SlicePresenter = preload("res://vertical_slice/presentation/slice_presenter.gd")
 
 const CONTENT_PATH := "res://vertical_slice/content/slice_case.json"
+const LOCALE_PATH := "res://vertical_slice/content/locale_ko.json"
 const ACTOR := "VS-LAWYER-001"
 const TEAM := "VS-TEAM-001"
 const REVIEW_TASK := "VS-TASK-REVIEW-001"
@@ -78,16 +80,23 @@ func run_success_and_atomicity(content: Dictionary) -> Dictionary:
 	check(initial["investigation_results"].is_empty(), "no_initial_investigation_result")
 	var public_projection: Dictionary = service.investigation_projection(ACTOR, TEAM)["projection"]
 	check(public_projection["opportunities"].size() == 3, "three_public_investigation_opportunities")
+	for opportunity in public_projection["opportunities"]:
+		var public_id: String = opportunity["id"].to_lower()
+		check(not public_id.contains("success") and not public_id.contains("partial") \
+			and not public_id.contains("failure"), "public_action_id_does_not_encode_authored_outcome")
 	var serialized := JSON.stringify(public_projection)
 	check(not serialized.contains("authored_outcome"), "private_authored_outcome_not_projected")
 	check(not serialized.contains("VS-SOURCE-APPROVAL-001"), "target_source_identity_not_projected")
 	check(not serialized.contains("approval_text"), "hidden_scope_identity_not_projected")
 	check(not serialized.contains("관련 회신 사본 전체가 제공"), "future_result_not_projected")
+	check(not serialized.contains("vs003.result."), "future_result_localization_key_not_projected")
 	var hidden_read: Dictionary = service.read_source(
 		ACTOR, TEAM, "VS-SOURCE-APPROVAL-001", "1", ["header"])
 	check(not hidden_read.get("ok", false) and hidden_read.get("error", "") == "source_not_acquired",
 		"unauthorized_investigation_source_remains_inaccessible")
-	check(not JSON.stringify(service.case_file_projection(ACTOR, TEAM)["projection"]).contains("상대방 내부 승인 회신"),
+	var case_file_before := JSON.stringify(service.case_file_projection(ACTOR, TEAM)["projection"])
+	check(not case_file_before.contains("상대방 내부 승인 회신") \
+		and not case_file_before.contains("vs003.source.approval.title"),
 		"hidden_source_title_not_in_case_file")
 	var before_queries: Dictionary = service.debug_snapshot_for_tests()
 	service.investigation_projection(ACTOR, TEAM)
@@ -97,24 +106,24 @@ func run_success_and_atomicity(content: Dictionary) -> Dictionary:
 
 	var before_invalid: Dictionary = service.debug_snapshot_for_tests()
 	reject_unchanged(service, before_invalid, service.create_investigation_task(
-		"VS-INV-ACTION-SUCCESS-001", "VS-TASK-BAD", "VS-EVENT-BAD",
+		"VS-INV-ACTION-001", "VS-TASK-BAD", "VS-EVENT-BAD",
 		"VS-OPPONENT-LAWYER-001", TEAM), "viewer_not_authorized", "invalid_actor")
 	reject_unchanged(service, before_invalid, service.create_investigation_task(
-		"VS-INV-ACTION-SUCCESS-001", "VS-TASK-BAD-TEAM", "VS-EVENT-BAD-TEAM",
+		"VS-INV-ACTION-001", "VS-TASK-BAD-TEAM", "VS-EVENT-BAD-TEAM",
 		ACTOR, "VS-TEAM-OPPONENT-001"), "viewer_not_authorized", "invalid_team")
 	var created: Dictionary = service.create_investigation_task(
-		"VS-INV-ACTION-SUCCESS-001", "VS-TASK-INV-SUCCESS", "VS-EVENT-INV-CREATE-SUCCESS",
+		"VS-INV-ACTION-001", "VS-TASK-INV-SUCCESS", "VS-EVENT-INV-CREATE-SUCCESS",
 		ACTOR, TEAM)
 	check(created.get("ok", false), "success_investigation_task_created_explicitly")
 	var after_create: Dictionary = service.debug_snapshot_for_tests()
 	reject_unchanged(service, after_create, service.create_investigation_task(
-		"VS-INV-ACTION-SUCCESS-001", "VS-TASK-INV-SUCCESS-2", "VS-EVENT-INV-CREATE-SUCCESS-2",
+		"VS-INV-ACTION-001", "VS-TASK-INV-SUCCESS-2", "VS-EVENT-INV-CREATE-SUCCESS-2",
 		ACTOR, TEAM), "investigation_action_already_created", "duplicate_investigation_action")
 	reject_unchanged(service, after_create, service.create_investigation_task(
-		"VS-INV-ACTION-PARTIAL-001", "VS-TASK-INV-SUCCESS", "VS-EVENT-INV-CREATE-DUP",
+		"VS-INV-ACTION-002", "VS-TASK-INV-SUCCESS", "VS-EVENT-INV-CREATE-DUP",
 		ACTOR, TEAM), "duplicate_identity", "duplicate_investigation_task_identity")
 	reject_unchanged(service, after_create, service.create_investigation_task(
-		"VS-INV-ACTION-PARTIAL-001", "VS-TASK-INV-NEW", "VS-EVENT-INV-CREATE-SUCCESS",
+		"VS-INV-ACTION-002", "VS-TASK-INV-NEW", "VS-EVENT-INV-CREATE-SUCCESS",
 		ACTOR, TEAM), "duplicate_identity", "duplicate_creation_event_identity")
 	check(service.assign_task("VS-TASK-INV-SUCCESS", "VS-ASSIGN-INV-SUCCESS", ACTOR, ACTOR, TEAM).get("ok", false),
 		"blocked_investigation_can_be_assigned")
@@ -137,7 +146,7 @@ func run_success_and_atomicity(content: Dictionary) -> Dictionary:
 	var before_bad_completion: Dictionary = service.debug_snapshot_for_tests()
 	reject_unchanged(service, before_bad_completion, service.complete_investigation_task(
 		"VS-TASK-INV-SUCCESS", "VS-COMPLETE-INV-SUCCESS", "VS-RESULT-SUCCESS", "",
-		ACTOR, TEAM), "acquisition_id_required", "missing_acquisition_identity")
+		ACTOR, TEAM), "acquisition_identity_required", "missing_acquisition_identity")
 	reject_unchanged(service, before_bad_completion, service.complete_investigation_task(
 		"VS-TASK-INV-SUCCESS", "VS-COMPLETE-INV-SUCCESS", "VS-RESULT-SUCCESS", "VS-ACQ-001",
 		ACTOR, TEAM), "duplicate_identity", "duplicate_acquisition_identity")
@@ -207,7 +216,7 @@ func run_outcome(content: Dictionary, action_id: String, suffix: String, acquisi
 
 
 func run_partial_and_failure(content: Dictionary) -> void:
-	var partial = run_outcome(content, "VS-INV-ACTION-PARTIAL-001", "PARTIAL", "VS-ACQ-INV-PARTIAL")
+	var partial = run_outcome(content, "VS-INV-ACTION-002", "PARTIAL", "VS-ACQ-INV-PARTIAL")
 	var partial_projection: Dictionary = partial.investigation_projection(ACTOR, TEAM)["projection"]
 	check(partial_projection["results"][0]["outcome"] == "partial_success", "partial_investigation_result")
 	check(partial_projection["acquisitions"][0]["scopes"] == ["change_entry"], "partial_exact_subset_acquired")
@@ -224,14 +233,10 @@ func run_partial_and_failure(content: Dictionary) -> void:
 	var failure = start_service(content)
 	bootstrap_vs002(failure)
 	var failure_chain: Dictionary = create_assign_execute(
-		failure, "VS-INV-ACTION-FAILURE-001", "FAILURE")
-	var before_failure_acquisition: Dictionary = failure.debug_snapshot_for_tests()
-	reject_unchanged(failure, before_failure_acquisition, failure.complete_investigation_task(
-		failure_chain["task_id"], "VS-COMPLETE-INV-FAILURE", "VS-RESULT-FAILURE",
-		"VS-ACQ-NOT-ALLOWED", ACTOR, TEAM), "acquisition_id_not_allowed",
-		"failure_rejects_acquisition_identity")
+		failure, "VS-INV-ACTION-003", "FAILURE")
 	check(failure.complete_investigation_task(failure_chain["task_id"],
-		"VS-COMPLETE-INV-FAILURE", "VS-RESULT-FAILURE", "", ACTOR, TEAM).get("ok", false),
+		"VS-COMPLETE-INV-FAILURE", "VS-RESULT-FAILURE", "VS-ACQ-CANDIDATE-FAILURE",
+		ACTOR, TEAM).get("ok", false),
 		"investigation_FAILURE_completed")
 	var failure_projection: Dictionary = failure.investigation_projection(ACTOR, TEAM)["projection"]
 	check(failure_projection["results"][0]["outcome"] == "failure", "authored_failure_is_valid_result")
@@ -247,10 +252,10 @@ func run_partial_and_failure(content: Dictionary) -> void:
 
 	var duplicate_service = start_service(content)
 	bootstrap_vs002(duplicate_service)
-	create_assign_execute(duplicate_service, "VS-INV-ACTION-SUCCESS-001", "DUP-A")
+	create_assign_execute(duplicate_service, "VS-INV-ACTION-001", "DUP-A")
 	check(duplicate_service.complete_investigation_task("VS-TASK-INV-DUP-A", "VS-COMPLETE-DUP-A",
 		"VS-RESULT-SHARED", "VS-ACQ-DUP-A", ACTOR, TEAM).get("ok", false), "first_shared_result_identity_used")
-	create_assign_execute(duplicate_service, "VS-INV-ACTION-PARTIAL-001", "DUP-B")
+	create_assign_execute(duplicate_service, "VS-INV-ACTION-002", "DUP-B")
 	var before_shared: Dictionary = duplicate_service.debug_snapshot_for_tests()
 	reject_unchanged(duplicate_service, before_shared, duplicate_service.complete_investigation_task(
 		"VS-TASK-INV-DUP-B", "VS-COMPLETE-DUP-B", "VS-RESULT-SHARED", "VS-ACQ-DUP-B",
@@ -270,9 +275,9 @@ func deterministic_sequence(content: Dictionary) -> Dictionary:
 		["VS-ASSERTION-002", "VS-ASSERTION-003"], ["VS-GAP-001"],
 		["VS-WP-REVIEW-001-ANALYSIS-001"], ["VS-GAP-001"])
 	for entry in [
-		["VS-INV-ACTION-SUCCESS-001", "SUCCESS", "VS-ACQ-INV-SUCCESS"],
-		["VS-INV-ACTION-PARTIAL-001", "PARTIAL", "VS-ACQ-INV-PARTIAL"],
-		["VS-INV-ACTION-FAILURE-001", "FAILURE", ""],
+		["VS-INV-ACTION-001", "SUCCESS", "VS-ACQ-INV-SUCCESS"],
+		["VS-INV-ACTION-002", "PARTIAL", "VS-ACQ-INV-PARTIAL"],
+		["VS-INV-ACTION-003", "FAILURE", "VS-ACQ-CANDIDATE-FAILURE"],
 	]:
 		var action_id: String = entry[0]
 		var suffix: String = entry[1]
@@ -296,6 +301,86 @@ func run_content_validation(content: Dictionary) -> void:
 	check(not service.debug_snapshot_for_tests()["initialized"], "invalid_action_content_initialization_atomic")
 
 
+func run_pre_resolution_oracle_checks(content: Dictionary) -> void:
+	var missing_errors: Array[String] = []
+	var duplicate_errors: Array[String] = []
+	var action_ids := ["VS-INV-ACTION-001", "VS-INV-ACTION-002", "VS-INV-ACTION-003"]
+	for index in action_ids.size():
+		var service = start_service(content)
+		bootstrap_vs002(service)
+		var suffix := "ORACLE-%03d" % (index + 1)
+		var chain: Dictionary = create_assign_execute(service, action_ids[index], suffix)
+		var before: Dictionary = service.debug_snapshot_for_tests()
+		var missing: Dictionary = service.complete_investigation_task(
+			chain["task_id"], "VS-COMPLETE-" + suffix, "VS-RESULT-" + suffix, "", ACTOR, TEAM)
+		missing_errors.append(missing.get("error", ""))
+		check(not missing.get("ok", false), "pre_resolution_missing_candidate_rejected_" + suffix)
+		check(service.debug_snapshot_for_tests() == before, "pre_resolution_missing_candidate_atomic_" + suffix)
+		var duplicate: Dictionary = service.complete_investigation_task(
+			chain["task_id"], "VS-COMPLETE-" + suffix, "VS-RESULT-" + suffix,
+			"VS-ACQ-001", ACTOR, TEAM)
+		duplicate_errors.append(duplicate.get("error", ""))
+		check(not duplicate.get("ok", false), "pre_resolution_duplicate_candidate_rejected_" + suffix)
+		check(service.debug_snapshot_for_tests() == before, "pre_resolution_duplicate_candidate_atomic_" + suffix)
+	check(missing_errors == ["acquisition_identity_required", "acquisition_identity_required",
+		"acquisition_identity_required"], "pre_resolution_missing_validation_is_outcome_independent")
+	check(duplicate_errors == ["duplicate_identity", "duplicate_identity", "duplicate_identity"],
+		"pre_resolution_duplicate_validation_is_outcome_independent")
+
+
+func run_localization_checks(content: Dictionary) -> void:
+	var loaded: Dictionary = ContentLoader.new().load_json_file(LOCALE_PATH)
+	check(loaded.get("ok", false), "vs003_localization_catalog_loads")
+	var catalog: Dictionary = loaded.get("content", {}).get("strings", {})
+	check(not catalog.is_empty(), "vs003_localization_catalog_has_strings")
+	var authored_keys: Array[String] = [content["task_definitions"][1]["purpose"]]
+	for source_index in [4, 5]:
+		var source: Dictionary = content["sources"][source_index]
+		authored_keys.append(source["title"])
+		authored_keys.append(source["origin"]["description"])
+		for scope in source["scopes"]:
+			authored_keys.append(scope["label"])
+			authored_keys.append(scope["content"])
+	for action in content["investigation_actions"]:
+		for field in ["label", "purpose", "bounded_domain", "action_description"]:
+			authored_keys.append(action[field])
+		authored_keys.append(action["authored_outcome"]["summary"])
+	for key in authored_keys:
+		check(key.begins_with("vs003."), "vs003_authored_player_text_uses_localization_key")
+		check(catalog.has(key), "vs003_authored_localization_key_resolves")
+
+	var scene := load("res://vertical_slice/ui/main.tscn") as PackedScene
+	var root := scene.instantiate()
+	var ui_key_nodes := [
+		root.get_node("Margin/Root/Boundary"),
+		root.get_node("Margin/Root/Tabs/Investigation/Workflow/Heading"),
+		root.get_node("Margin/Root/Tabs/Investigation/Workflow/InvestigationOpportunityLabel"),
+		root.get_node("Margin/Root/Tabs/Investigation/Workflow/ActionButtons/CreateInvestigationButton"),
+		root.get_node("Margin/Root/Tabs/Investigation/Workflow/ActionButtons/AssignInvestigationButton"),
+		root.get_node("Margin/Root/Tabs/Investigation/Workflow/ActionButtons/ExecuteInvestigationButton"),
+		root.get_node("Margin/Root/Tabs/Investigation/Workflow/ActionButtons/CompleteInvestigationButton"),
+		root.get_node("Margin/Root/Tabs/Investigation/Workflow/AcquisitionHelp"),
+		root.get_node("Margin/Root/Tabs/Investigation/Workflow/InvestigationStatusLabel"),
+	]
+	for node in ui_key_nodes:
+		check(node.text.begins_with("ui.vs003."), "vs003_scene_player_text_uses_localization_key")
+		check(catalog.has(node.text), "vs003_scene_localization_key_resolves")
+	var acquisition_input: LineEdit = root.get_node(
+		"Margin/Root/Tabs/Investigation/Workflow/AcquisitionIdInput")
+	check(acquisition_input.placeholder_text.begins_with("ui.vs003."),
+		"vs003_placeholder_uses_localization_key")
+	check(catalog.has(acquisition_input.placeholder_text), "vs003_placeholder_localization_key_resolves")
+	root.free()
+
+	var presenter = SlicePresenter.new()
+	presenter.bind_localization(catalog)
+	var service = start_service(content)
+	var opportunity: Dictionary = service.investigation_projection(ACTOR, TEAM)["projection"]["opportunities"][0]
+	var rendered: String = presenter.investigation_opportunity_text(opportunity)
+	check(rendered.contains("승인 담당 부서에 회신 사본 요청"), "vs003_presenter_resolves_localized_action")
+	check(not rendered.contains("vs003.action."), "vs003_presenter_does_not_show_localization_key")
+
+
 func _initialize() -> void:
 	var content: Dictionary = load_content()
 	if content.is_empty():
@@ -304,6 +389,8 @@ func _initialize() -> void:
 	run_success_and_atomicity(content)
 	run_partial_and_failure(content)
 	run_content_validation(content)
+	run_pre_resolution_oracle_checks(content)
+	run_localization_checks(content)
 	var replay_a := deterministic_sequence(content)
 	var replay_b := deterministic_sequence(content)
 	check(replay_a == replay_b, "deterministic_command_sequence_reproduces_state_and_event_order")
