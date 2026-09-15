@@ -3,17 +3,21 @@ extends RefCounted
 const SliceState = preload("res://vertical_slice/data/slice_state.gd")
 const WorkService = preload("res://vertical_slice/services/work_service.gd")
 const InvestigationService = preload("res://vertical_slice/services/investigation_service.gd")
+const LegalResearchService = preload("res://vertical_slice/services/legal_research_service.gd")
 
 const SUPPORTED_SCHEMA_VERSION := 1
 const FORBIDDEN_CONTENT_KEYS := [
 	"actual_state", "actual_state_record", "court_record", "court_record_entry",
 	"court_fact_finding", "finding", "findings", "judgment", "winner",
 	"case_strength", "evidence_score", "win_chance", "win_probability",
+	"correct_law", "correct_argument", "correct_interpretation", "winning_authority",
+	"best_precedent_score", "legal_strength_score",
 ]
 
 var _state = SliceState.new()
 var _work_service = WorkService.new()
 var _investigation_service = InvestigationService.new()
+var _legal_research_service = LegalResearchService.new()
 
 
 func start_session(content: Dictionary, player_actor_id: String, player_team_id: String) -> Dictionary:
@@ -61,6 +65,14 @@ func start_session(content: Dictionary, player_actor_id: String, player_team_id:
 	for action in content["investigation_actions"]:
 		candidate.investigation_actions[action["id"]] = action.duplicate(true)
 		candidate.investigation_action_order.append(action["id"])
+	for source in content["legal_sources"]:
+		candidate.legal_sources[source["id"]] = source.duplicate(true)
+		candidate.legal_source_order.append(source["id"])
+	for question in content["legal_research_questions"]:
+		candidate.legal_research_questions[question["id"]] = question.duplicate(true)
+		candidate.legal_research_question_order.append(question["id"])
+	for recipe in content["legal_research_recipes"]:
+		candidate.legal_research_recipes[recipe["id"]] = recipe.duplicate(true)
 	for definition in content["task_definitions"]:
 		candidate.task_definitions[definition["id"]] = definition.duplicate(true)
 		candidate.task_definition_order.append(definition["id"])
@@ -124,6 +136,7 @@ func start_session(content: Dictionary, player_actor_id: String, player_team_id:
 	_state = candidate
 	_work_service.bind_state(_state)
 	_investigation_service.bind_services(_state, _work_service)
+	_legal_research_service.bind_services(_state, _work_service)
 	return {"ok": true, "session_id": candidate.session["id"]}
 
 
@@ -198,6 +211,84 @@ func complete_investigation_task(task_id: String, completion_id: String,
 
 func investigation_projection(viewer_actor_id: String, viewer_team_id: String) -> Dictionary:
 	return _investigation_service.investigation_projection(viewer_actor_id, viewer_team_id)
+
+
+func create_legal_research_task(question_id: String, task_id: String, creation_event_id: String,
+		actor_id: String, team_id: String) -> Dictionary:
+	return _legal_research_service.create_research_task(
+		question_id, task_id, creation_event_id, actor_id, team_id)
+
+
+func execute_legal_research_task(task_id: String, execution_id: String, actor_id: String,
+		team_id: String, time_slot_id: String, work_units: int) -> Dictionary:
+	return _legal_research_service.execute_research(
+		task_id, execution_id, actor_id, team_id, time_slot_id, work_units)
+
+
+func complete_legal_research_task(task_id: String, completion_id: String,
+		discovery_event_ids: Array, actor_id: String, team_id: String) -> Dictionary:
+	return _legal_research_service.complete_research(
+		task_id, completion_id, discovery_event_ids, actor_id, team_id)
+
+
+func create_legal_source_review_task(legal_source_id: String, legal_source_version: String,
+		scope_id: String, task_id: String, creation_event_id: String, actor_id: String,
+		team_id: String) -> Dictionary:
+	return _legal_research_service.create_source_review_task(legal_source_id, legal_source_version,
+		scope_id, task_id, creation_event_id, actor_id, team_id)
+
+
+func review_legal_source(review_event_id: String, completion_id: String, task_id: String,
+		legal_source_id: String,
+		legal_source_version: String, scope_id: String, actor_id: String, team_id: String) -> Dictionary:
+	return _legal_research_service.review_source(review_event_id, completion_id, task_id, legal_source_id,
+		legal_source_version, scope_id, actor_id, team_id)
+
+
+func record_legal_extraction(extraction_id: String, recipe_id: String, review_event_id: String,
+		actor_id: String, team_id: String) -> Dictionary:
+	return _legal_research_service.record_extraction(
+		extraction_id, recipe_id, review_event_id, actor_id, team_id)
+
+
+func create_rule_statement(rule_id: String, recipe_id: String, extraction_ids: Array,
+		actor_id: String, team_id: String) -> Dictionary:
+	return _legal_research_service.create_rule_statement(
+		rule_id, recipe_id, extraction_ids, actor_id, team_id)
+
+
+func consider_legal_interpretation(interpretation_id: String, recipe_id: String,
+		rule_ids: Array, actor_id: String, team_id: String) -> Dictionary:
+	return _legal_research_service.consider_interpretation(
+		interpretation_id, recipe_id, rule_ids, actor_id, team_id)
+
+
+func create_issue_analysis(issue_analysis_id: String, recipe_id: String, task_id: String,
+		rule_ids: Array, interpretation_ids: Array, factual_basis_refs: Array,
+		actor_id: String, team_id: String) -> Dictionary:
+	return _legal_research_service.create_issue_analysis(issue_analysis_id, recipe_id, task_id,
+		rule_ids, interpretation_ids, factual_basis_refs, actor_id, team_id)
+
+
+func create_argument(argument_id: String, recipe_id: String, issue_analysis_id: String,
+		actor_id: String, team_id: String) -> Dictionary:
+	return _legal_research_service.create_argument(
+		argument_id, recipe_id, issue_analysis_id, actor_id, team_id)
+
+
+func select_argument(selection_event_id: String, argument_id: String, actor_id: String,
+		team_id: String) -> Dictionary:
+	return _legal_research_service.select_argument(selection_event_id, argument_id, actor_id, team_id)
+
+
+func legal_research_projection(viewer_actor_id: String, viewer_team_id: String) -> Dictionary:
+	return _legal_research_service.projection(viewer_actor_id, viewer_team_id)
+
+
+func read_legal_source(viewer_actor_id: String, viewer_team_id: String, legal_source_id: String,
+		legal_source_version: String, scope_ids: Array) -> Dictionary:
+	return _legal_research_service.read_source(
+		viewer_actor_id, viewer_team_id, legal_source_id, legal_source_version, scope_ids)
 
 
 func case_file_projection(viewer_actor_id: String, viewer_team_id: String) -> Dictionary:
@@ -364,7 +455,8 @@ func _validate_content(content: Dictionary, player_actor_id: String, player_team
 	for key in [
 		"actors", "teams", "sources", "acquisitions", "assertions", "known_gaps",
 		"procedural_statuses", "task_definitions", "task_instances", "issues",
-		"review_analysis_options", "investigation_actions",
+		"review_analysis_options", "investigation_actions", "legal_sources",
+		"legal_research_questions", "legal_research_recipes",
 	]:
 		if not content.get(key) is Array:
 			return "invalid_" + key
@@ -524,7 +616,7 @@ func _validate_content(content: Dictionary, player_actor_id: String, player_team
 		if not _required_strings(definition, [
 			"id", "version", "task_family", "purpose", "work_unit_kind",
 			"output_type", "completion_semantics",
-		]) or definition["task_family"] not in ["evidence_review", "investigation"] \
+		]) or definition["task_family"] not in ["evidence_review", "investigation", "legal_research"] \
 				or not _positive_int(definition.get("required_work_units")) \
 				or not _nonempty_unique_string_list(definition.get("eligible_actor_kinds", [])) \
 				or not definition.get("authorized_source_scopes") is Array \
@@ -539,6 +631,11 @@ func _validate_content(content: Dictionary, player_actor_id: String, player_team
 				or not definition["authorized_source_scopes"].is_empty() \
 				or not definition["source_assertion_refs"].is_empty() \
 				or definition["known_gap_refs"].is_empty()):
+			return "invalid_task_definition"
+		if definition["task_family"] == "legal_research" and (definition["output_type"] != "legal_source_discovery_events" \
+				or not definition["authorized_source_scopes"].is_empty() \
+				or not definition["source_assertion_refs"].is_empty() \
+				or not _nonempty_string(definition.get("legal_research_question_id", ""))):
 			return "invalid_task_definition"
 		if not _claim_id(seen_ids, definition["id"]):
 			return "duplicate_task_definition_id"
@@ -695,6 +792,114 @@ func _validate_content(content: Dictionary, player_actor_id: String, player_team
 		action_ids[action["id"]] = true
 	if action_ids.is_empty():
 		return "investigation_actions_required"
+
+	var legal_source_map: Dictionary = {}
+	var legal_scope_map: Dictionary = {}
+	for source_value in content["legal_sources"]:
+		if not source_value is Dictionary: return "invalid_legal_source"
+		var legal_source: Dictionary = source_value
+		if not _required_strings(legal_source, ["id", "version", "title", "citation", "source_kind"]) \
+				or not legal_source.get("scopes") is Array or legal_source["scopes"].is_empty():
+			return "invalid_legal_source"
+		if not _claim_id(seen_ids, legal_source["id"]): return "duplicate_legal_source_id"
+		var legal_scopes: Dictionary = {}
+		for scope_value in legal_source["scopes"]:
+			if not scope_value is Dictionary or not _required_strings(scope_value, ["id", "label", "content"]):
+				return "invalid_legal_source_scope"
+			if legal_scopes.has(scope_value["id"]): return "duplicate_legal_source_scope"
+			legal_scopes[scope_value["id"]] = true
+		legal_source_map[legal_source["id"]] = legal_source
+		legal_scope_map[legal_source["id"]] = legal_scopes
+	if legal_source_map.size() < 2: return "multiple_legal_sources_required"
+
+	var question_ids: Dictionary = {}
+	for question_value in content["legal_research_questions"]:
+		if not question_value is Dictionary: return "invalid_legal_research_question"
+		var question: Dictionary = question_value
+		if not _required_strings(question, ["id", "label", "question", "bounded_domain", "issue_id",
+				"review_work_product_id", "task_definition_id"]) \
+				or not _nonempty_unique_string_list(question.get("dependency_task_ids", [])) \
+				or not question.get("discoverable_legal_source_refs") is Array \
+				or question["discoverable_legal_source_refs"].size() < 2:
+			return "invalid_legal_research_question"
+		if not _claim_id(seen_ids, question["id"]): return "duplicate_legal_research_question_id"
+		if not issue_ids.has(question["issue_id"]) or not definition_map.has(question["task_definition_id"]) \
+				or definition_map[question["task_definition_id"]]["task_family"] != "legal_research" \
+				or definition_map[question["task_definition_id"]]["legal_research_question_id"] != question["id"]:
+			return "legal_research_question_reference_invalid"
+		for dependency_id in question["dependency_task_ids"]:
+			if not task_map.has(dependency_id): return "legal_research_dependency_invalid"
+		var path_ids: Dictionary = {}
+		for ref_value in question["discoverable_legal_source_refs"]:
+			if not ref_value is Dictionary or not _required_strings(ref_value,
+					["authored_path_id", "legal_source_id", "legal_source_version"]):
+				return "invalid_legal_source_path"
+			if path_ids.has(ref_value["authored_path_id"]): return "duplicate_legal_source_path"
+			path_ids[ref_value["authored_path_id"]] = true
+			if not legal_source_map.has(ref_value["legal_source_id"]) \
+					or legal_source_map[ref_value["legal_source_id"]]["version"] != ref_value["legal_source_version"]:
+				return "legal_source_path_reference_invalid"
+		question_ids[question["id"]] = true
+	if question_ids.is_empty(): return "legal_research_question_required"
+
+	var recipe_ids: Dictionary = {}
+	var argument_recipe_count := 0
+	for recipe_value in content["legal_research_recipes"]:
+		if not recipe_value is Dictionary: return "invalid_legal_research_recipe"
+		var recipe: Dictionary = recipe_value
+		if not _required_strings(recipe, ["id", "kind"]) \
+				or recipe["kind"] not in ["extraction", "rule", "interpretation", "issue_analysis", "argument"]:
+			return "invalid_legal_research_recipe"
+		if not _claim_id(seen_ids, recipe["id"]): return "duplicate_legal_research_recipe_id"
+		if recipe["kind"] == "extraction":
+			if not _required_strings(recipe, ["legal_source_id", "legal_source_version", "scope_id", "recorded_text"]) \
+					or not legal_source_map.has(recipe["legal_source_id"]) \
+					or legal_source_map[recipe["legal_source_id"]]["version"] != recipe["legal_source_version"] \
+					or not legal_scope_map[recipe["legal_source_id"]].has(recipe["scope_id"]):
+				return "invalid_extraction_recipe"
+		elif recipe["kind"] == "argument":
+			argument_recipe_count += 1
+			if not _required_strings(recipe, ["label", "position", "issue_id", "issue_analysis_recipe_id"]) \
+					or not issue_ids.has(recipe["issue_id"]) \
+					or not _nonempty_unique_string_list(recipe.get("review_work_product_ids", [])):
+				return "invalid_argument_recipe"
+		recipe_ids[recipe["id"]] = recipe["kind"]
+	if argument_recipe_count < 2: return "multiple_argument_paths_required"
+	for recipe_value in content["legal_research_recipes"]:
+		var recipe: Dictionary = recipe_value
+		var expected_key := ""
+		var expected_kind := ""
+		if recipe["kind"] == "rule": expected_key = "extraction_recipe_ids"; expected_kind = "extraction"
+		elif recipe["kind"] == "interpretation": expected_key = "rule_recipe_ids"; expected_kind = "rule"
+		elif recipe["kind"] == "issue_analysis": expected_key = "interpretation_recipe_ids"; expected_kind = "interpretation"
+		if not expected_key.is_empty():
+			if not _nonempty_unique_string_list(recipe.get(expected_key, [])): return "invalid_recipe_provenance"
+			for ref in recipe[expected_key]:
+				if recipe_ids.get(ref, "") != expected_kind: return "invalid_recipe_provenance"
+		if recipe["kind"] == "issue_analysis":
+			if not _nonempty_unique_string_list(recipe.get("rule_recipe_ids", [])) \
+					or not _required_strings(recipe, ["issue_id", "application"]) \
+					or not recipe.get("factual_basis_requirements") is Array \
+					or recipe["factual_basis_requirements"].is_empty(): return "invalid_issue_analysis_recipe"
+			for ref in recipe["rule_recipe_ids"]:
+				if recipe_ids.get(ref, "") != "rule": return "invalid_recipe_provenance"
+			var factual_types: Dictionary = {}
+			for requirement_value in recipe["factual_basis_requirements"]:
+				if not requirement_value is Dictionary: return "invalid_factual_basis_requirement"
+				var requirement: Dictionary = requirement_value
+				var basis_type: String = requirement.get("basis_type", "")
+				if basis_type not in ["ReviewWorkProduct", "InvestigationResult", "SourceMaterial"] \
+						or factual_types.has(basis_type): return "invalid_factual_basis_requirement"
+				factual_types[basis_type] = true
+				if basis_type == "ReviewWorkProduct" and not _nonempty_string(requirement.get("id", "")):
+					return "invalid_factual_basis_requirement"
+				if basis_type == "InvestigationResult" and not _nonempty_string(requirement.get("investigation_action_id", "")):
+					return "invalid_factual_basis_requirement"
+				if basis_type == "SourceMaterial" and (not _required_strings(requirement,
+						["source_id", "source_version"]) or not _nonempty_unique_string_list(requirement.get("scope_ids", []))):
+					return "invalid_factual_basis_requirement"
+		if recipe["kind"] == "argument" and recipe_ids.get(recipe["issue_analysis_recipe_id"], "") != "issue_analysis":
+			return "invalid_argument_recipe"
 
 	return ""
 

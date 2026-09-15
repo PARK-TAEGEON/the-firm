@@ -21,6 +21,27 @@ var investigation_actions: Dictionary = {}
 var investigation_action_order: Array = []
 var investigation_results: Dictionary = {}
 var investigation_result_order: Array = []
+var legal_sources: Dictionary = {}
+var legal_source_order: Array = []
+var legal_research_questions: Dictionary = {}
+var legal_research_question_order: Array = []
+var legal_research_recipes: Dictionary = {}
+var legal_source_discoveries: Dictionary = {}
+var legal_source_discovery_order: Array = []
+var legal_source_reviews: Dictionary = {}
+var legal_source_review_order: Array = []
+var recorded_legal_extractions: Dictionary = {}
+var recorded_legal_extraction_order: Array = []
+var rule_statements: Dictionary = {}
+var rule_statement_order: Array = []
+var interpretation_candidates: Dictionary = {}
+var interpretation_candidate_order: Array = []
+var issue_analyses: Dictionary = {}
+var issue_analysis_order: Array = []
+var arguments: Dictionary = {}
+var argument_order: Array = []
+var argument_selection_events: Dictionary = {}
+var argument_selection_order: Array = []
 var task_definitions: Dictionary = {}
 var task_definition_order: Array = []
 var tasks: Dictionary = {}
@@ -68,6 +89,27 @@ func snapshot() -> Dictionary:
 		"investigation_action_order": investigation_action_order.duplicate(true),
 		"investigation_results": investigation_results.duplicate(true),
 		"investigation_result_order": investigation_result_order.duplicate(true),
+		"legal_sources": legal_sources.duplicate(true),
+		"legal_source_order": legal_source_order.duplicate(true),
+		"legal_research_questions": legal_research_questions.duplicate(true),
+		"legal_research_question_order": legal_research_question_order.duplicate(true),
+		"legal_research_recipes": legal_research_recipes.duplicate(true),
+		"legal_source_discoveries": legal_source_discoveries.duplicate(true),
+		"legal_source_discovery_order": legal_source_discovery_order.duplicate(true),
+		"legal_source_reviews": legal_source_reviews.duplicate(true),
+		"legal_source_review_order": legal_source_review_order.duplicate(true),
+		"recorded_legal_extractions": recorded_legal_extractions.duplicate(true),
+		"recorded_legal_extraction_order": recorded_legal_extraction_order.duplicate(true),
+		"rule_statements": rule_statements.duplicate(true),
+		"rule_statement_order": rule_statement_order.duplicate(true),
+		"interpretation_candidates": interpretation_candidates.duplicate(true),
+		"interpretation_candidate_order": interpretation_candidate_order.duplicate(true),
+		"issue_analyses": issue_analyses.duplicate(true),
+		"issue_analysis_order": issue_analysis_order.duplicate(true),
+		"arguments": arguments.duplicate(true),
+		"argument_order": argument_order.duplicate(true),
+		"argument_selection_events": argument_selection_events.duplicate(true),
+		"argument_selection_order": argument_selection_order.duplicate(true),
 		"task_definitions": task_definitions.duplicate(true),
 		"task_definition_order": task_definition_order.duplicate(true),
 		"tasks": tasks.duplicate(true),

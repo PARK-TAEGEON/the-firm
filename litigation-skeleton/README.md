@@ -3,9 +3,9 @@
 이 프로젝트는 두 개의 분리된 실행 경로를 가진다.
 
 - 기존 `data/`, `services/`, `fixtures/`, `tests/`는 TEST-008/009에서 추린 고정 입력으로 상태·이력·정보 경계를 검사하는 회귀 골격이다.
-- `vertical_slice/`는 VS-001 Case Review, VS-002 Task Execution / Issue / CaseTheory, VS-003 Investigation / Source Acquisition의 playable 경로다.
+- `vertical_slice/`는 VS-001 Case Review부터 VS-004 Legal Research / IssueAnalysis / Argument 선택까지의 playable 경로다.
 
-어느 경로도 자연어 법률 판단 엔진이 아니다. InvestigationResult, SourceMaterial, SourceAssertion, ReviewWorkProduct, CaseTheory는 서로 다른 객체이며 객관적 진실이나 CourtFactFinding이 아니다. 조사와 획득은 CourtRecord, finding 또는 judgment를 생성하지 않는다.
+어느 경로도 자연어 법률 판단 엔진이 아니다. `LegalSource → RecordedLegalExtraction → RuleStatement → InterpretationCandidate → IssueAnalysis → Argument`는 서로 다른 authored 기록이며 정답 법률이나 법원 판단이 아니다. Argument 선택은 immutable event history이고 canonical Strategy가 아니다.
 
 ## 실행
 
@@ -27,6 +27,10 @@
 & 'Godot 실행 파일의 절대 경로' --headless --path litigation-skeleton `
   --log-file ./vertical_slice/vs003-test-results.log `
   --script res://vertical_slice/tests/run_vs003_regressions.gd
+
+& 'Godot 실행 파일의 절대 경로' --headless --path litigation-skeleton `
+  --log-file ./vertical_slice/vs004-test-results.log `
+  --script res://vertical_slice/tests/run_vs004_regressions.gd
 ```
 
 playable 화면은 다음처럼 실행한다.
@@ -47,11 +51,13 @@ playable 화면은 다음처럼 실행한다.
 | `vertical_slice/services/slice_service.gd` | 전체 콘텐츠 선검증, session/CaseFile API, work/investigation façade |
 | `vertical_slice/services/work_service.gd` | Assignment, Execution, Completion과 기존 ReviewWorkProduct/IssueSelection/CaseTheory mutation; generic Task lifecycle 소유 |
 | `vertical_slice/services/investigation_service.gd` | 조사 prerequisite, deterministic authored InvestigationResult, explicit AcquisitionEvent와 공개 projection |
+| `vertical_slice/services/legal_research_service.gd` | research prerequisite, discovery/review/extraction/rule/interpretation/analysis/Argument materialization과 projection |
 | `vertical_slice/presentation/slice_presenter.gd` | authorized projection을 UI 문자열/목록으로 변환 |
 | `vertical_slice/ui/main.tscn`, `main.gd` | Case Review, Work & Theory, Investigation 화면; service API만 호출 |
 | `vertical_slice/tests/run_slice_regressions.gd` | VS-001 접근·scope·provenance·불변성 회귀 |
 | `vertical_slice/tests/run_vs002_regressions.gd` | VS-002 task 상태·work/time·dependency·WorkProduct·Theory history 회귀 |
 | `vertical_slice/tests/run_vs003_regressions.gd` | VS-003 조사 outcome·atomicity·identity·provenance·exact-scope visibility·replay 회귀 |
+| `vertical_slice/tests/run_vs004_regressions.gd` | VS-004 단계 분리·atomicity·법률 source provenance·Argument 선택 이력·replay 회귀 |
 
 ## 강제하는 경계
 
@@ -71,7 +77,10 @@ playable 화면은 다음처럼 실행한다.
 - 새 자료는 기존 CaseFile acquisition authorization을 통해서만 source/version/exact scope 단위로 보인다.
 - 조사는 기존 SourceAssertion, ReviewWorkProduct, CaseTheory를 바꾸거나 새 review/adjudicative 객체를 자동 생성하지 않는다.
 - ActualState, winner, CaseStrength, EvidenceScore, WinChance, CourtRecord, finding, judgment는 authored content와 VS-003 결과에 없다.
+- LegalSource의 존재·발견·열람·review·extraction은 서로 다른 상태이며 read/query는 event를 만들지 않는다.
+- Argument 생성과 선택은 별도 atomic command이고, 재선택은 이전 이력을 변경하지 않고 새 `ArgumentSelectionEvent`를 append한다.
+- VS-004에는 canonical Strategy, Submission, CourtRecord, adjudication, finding 또는 Judgment가 없다.
 
 ## 범위
 
-현재 구현은 Case Review → explicit review task → ReviewWorkProduct → Issue 선택 → versioned CaseTheory → explicit Investigation Task → deterministic InvestigationResult → explicit exact-scope AcquisitionEvent까지다. 획득 자료의 자동 Review, Legal Research, Strategy Finalization, Submission, CourtRecord, adjudication, judgment, save/load, appeal/remand UI, 대규모 NPC simulation, jurisdiction pack, organization/business/world는 아직 구현하지 않는다.
+현재 구현은 Case Review → explicit review task → ReviewWorkProduct → Issue 선택 → versioned CaseTheory → Investigation → bounded Legal Research → exact-scope review → extraction/rule/interpretation → IssueAnalysis → Argument 생성/선택까지다. generic legal search, substantive Korean-law truth model, canonical Strategy, Submission, CourtRecord, adjudication, judgment, save/load, appeal/remand, 대규모 NPC simulation, jurisdiction pack, organization/business/world는 구현하지 않는다.

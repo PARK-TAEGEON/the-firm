@@ -282,3 +282,118 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "ui.vs003.empty_status"
 autowrap_mode = 2
+
+[node name="Legal Research" type="ScrollContainer" parent="Margin/Root/Tabs"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Workflow" type="VBoxContainer" parent="Margin/Root/Tabs/Legal Research"]
+custom_minimum_size = Vector2(860, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="LegalHeading" type="Label" parent="Margin/Root/Tabs/Legal Research/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "ui.vs004.heading"
+
+[node name="LegalQuestionOptions" type="OptionButton" parent="Margin/Root/Tabs/Legal Research/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="LegalTaskButtons" type="HBoxContainer" parent="Margin/Root/Tabs/Legal Research/Workflow"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CreateLegalTaskButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalTaskButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.create"
+
+[node name="AssignLegalTaskButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalTaskButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.assign"
+
+[node name="ExecuteLegalTaskButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalTaskButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.execute"
+
+[node name="CompleteLegalTaskButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalTaskButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.complete"
+
+[node name="LegalSourceOptions" type="OptionButton" parent="Margin/Root/Tabs/Legal Research/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="LegalSourceButtons" type="HBoxContainer" parent="Margin/Root/Tabs/Legal Research/Workflow"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="OpenLegalSourceButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalSourceButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.open"
+
+[node name="ReviewLegalSourceButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalSourceButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.review"
+
+[node name="LegalSourceDetail" type="TextEdit" parent="Margin/Root/Tabs/Legal Research/Workflow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 110)
+layout_mode = 2
+editable = false
+wrap_mode = 1
+
+[node name="ArgumentPathOptions" type="OptionButton" parent="Margin/Root/Tabs/Legal Research/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="LegalArtifactButtons" type="HFlowContainer" parent="Margin/Root/Tabs/Legal Research/Workflow"]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="ExtractButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalArtifactButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.extract"
+
+[node name="RuleButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalArtifactButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.rule"
+
+[node name="InterpretButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalArtifactButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.interpret"
+
+[node name="AnalyzeButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalArtifactButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.analyze"
+
+[node name="CreateArgumentButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalArtifactButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.argument"
+
+[node name="SelectArgumentButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalArtifactButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.select"
+
+[node name="LegalStatusLabel" type="Label" parent="Margin/Root/Tabs/Legal Research/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.before_start"
+autowrap_mode = 2

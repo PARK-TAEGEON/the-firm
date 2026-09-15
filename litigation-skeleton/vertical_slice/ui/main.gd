@@ -17,6 +17,7 @@ var _presenter = SlicePresenter.new()
 var _scope_rows: Array = []
 var _work_projection: Dictionary = {}
 var _investigation_projection: Dictionary = {}
+var _legal_projection: Dictionary = {}
 
 @onready var start_button: Button = %StartButton
 @onready var status_label: Label = %StatusLabel
@@ -49,6 +50,25 @@ var _investigation_projection: Dictionary = {}
 @onready var investigation_tab: ScrollContainer = %Investigation
 @onready var investigation_heading: Label = %Heading
 @onready var acquisition_help: Label = %AcquisitionHelp
+@onready var legal_heading: Label = %LegalHeading
+@onready var legal_tab: ScrollContainer = get_node("%Legal Research")
+@onready var legal_question_options: OptionButton = %LegalQuestionOptions
+@onready var create_legal_task_button: Button = %CreateLegalTaskButton
+@onready var assign_legal_task_button: Button = %AssignLegalTaskButton
+@onready var execute_legal_task_button: Button = %ExecuteLegalTaskButton
+@onready var complete_legal_task_button: Button = %CompleteLegalTaskButton
+@onready var legal_source_options: OptionButton = %LegalSourceOptions
+@onready var open_legal_source_button: Button = %OpenLegalSourceButton
+@onready var review_legal_source_button: Button = %ReviewLegalSourceButton
+@onready var legal_source_detail: TextEdit = %LegalSourceDetail
+@onready var argument_path_options: OptionButton = %ArgumentPathOptions
+@onready var extract_button: Button = %ExtractButton
+@onready var rule_button: Button = %RuleButton
+@onready var interpret_button: Button = %InterpretButton
+@onready var analyze_button: Button = %AnalyzeButton
+@onready var create_argument_button: Button = %CreateArgumentButton
+@onready var select_argument_button: Button = %SelectArgumentButton
+@onready var legal_status_label: Label = %LegalStatusLabel
 
 
 func _ready() -> void:
@@ -56,6 +76,7 @@ func _ready() -> void:
 	if locale.get("ok", false) and locale["content"].get("strings") is Dictionary:
 		_presenter.bind_localization(locale["content"]["strings"])
 	_localize_vs003_controls()
+	_localize_vs004_controls()
 	start_button.pressed.connect(_on_start_pressed)
 	open_button.pressed.connect(_on_open_pressed)
 	source_list.item_selected.connect(func(_index: int) -> void: open_button.disabled = false)
@@ -69,8 +90,21 @@ func _ready() -> void:
 	assign_investigation_button.pressed.connect(_on_assign_investigation_pressed)
 	execute_investigation_button.pressed.connect(_on_execute_investigation_pressed)
 	complete_investigation_button.pressed.connect(_on_complete_investigation_pressed)
+	create_legal_task_button.pressed.connect(_on_create_legal_task_pressed)
+	assign_legal_task_button.pressed.connect(_on_assign_legal_task_pressed)
+	execute_legal_task_button.pressed.connect(_on_execute_legal_task_pressed)
+	complete_legal_task_button.pressed.connect(_on_complete_legal_task_pressed)
+	open_legal_source_button.pressed.connect(_on_open_legal_source_pressed)
+	review_legal_source_button.pressed.connect(_on_review_legal_source_pressed)
+	extract_button.pressed.connect(_on_extract_pressed)
+	rule_button.pressed.connect(_on_rule_pressed)
+	interpret_button.pressed.connect(_on_interpret_pressed)
+	analyze_button.pressed.connect(_on_analyze_pressed)
+	create_argument_button.pressed.connect(_on_create_argument_pressed)
+	select_argument_button.pressed.connect(_on_select_argument_pressed)
 	_set_work_controls_disabled(true)
 	_set_investigation_controls_disabled(true)
+	_set_legal_controls_disabled(true)
 	open_button.disabled = true
 	status_label.text = "사건을 시작하면 authorized 초기 자료와 review Task를 불러옵니다."
 
@@ -90,6 +124,7 @@ func _on_start_pressed() -> void:
 	_refresh_case_file()
 	_refresh_work()
 	_refresh_investigation()
+	_refresh_legal_research()
 
 
 func _refresh_case_file() -> void:
@@ -325,6 +360,7 @@ func _apply_action(label: String, result: Dictionary) -> void:
 	status_label.text = "%s 완료 — 명시적 domain event가 기록되었습니다." % label
 	_refresh_work()
 	_refresh_investigation()
+	_refresh_legal_research()
 
 
 func _apply_investigation_action(label: String, result: Dictionary) -> void:
@@ -335,6 +371,7 @@ func _apply_investigation_action(label: String, result: Dictionary) -> void:
 	_refresh_work()
 	_refresh_investigation()
 	_refresh_case_file()
+	_refresh_legal_research()
 
 
 func _show_error(label: String, result: Dictionary) -> void:
@@ -375,3 +412,227 @@ func _localize_vs003_controls() -> void:
 	var tab_index := tabs.get_tab_idx_from_control(investigation_tab)
 	if tab_index >= 0:
 		tabs.set_tab_title(tab_index, _presenter.localized_text("ui.vs003.tab"))
+
+
+func _refresh_legal_research() -> void:
+	var result: Dictionary = _service.legal_research_projection(PLAYER_ACTOR_ID, PLAYER_TEAM_ID)
+	if not result.get("ok", false):
+		_show_error(_presenter.localized_text("ui.vs004.query"), result)
+		return
+	_legal_projection = result["projection"]
+	legal_status_label.text = _presenter.legal_research_status_text(_legal_projection)
+	legal_question_options.clear()
+	for question in _legal_projection["questions"]:
+		legal_question_options.add_item("%s — %s" % [_presenter.localized_text(question["label"]),
+			_presenter.localized_text(question["question"])])
+		legal_question_options.set_item_metadata(legal_question_options.item_count - 1, question["id"])
+	legal_source_options.clear()
+	for source in _legal_projection["legal_sources"]:
+		for scope in source["scope_labels"]:
+			legal_source_options.add_item("%s — %s" % [_presenter.localized_text(source["title"]),
+				_presenter.localized_text(scope["label"])])
+			legal_source_options.set_item_metadata(legal_source_options.item_count - 1, {
+				"legal_source_id": source["id"], "legal_source_version": source["version"],
+				"scope_id": scope["id"]})
+	argument_path_options.clear()
+	for path in _legal_projection["argument_paths"]:
+		argument_path_options.add_item(_presenter.localized_text(path["label"]))
+		argument_path_options.set_item_metadata(argument_path_options.item_count - 1, path.duplicate(true))
+	var task := _legal_task()
+	create_legal_task_button.disabled = not task.is_empty() or _work_projection.get("case_theories", []).is_empty()
+	assign_legal_task_button.disabled = task.is_empty() or task["state"] != "unassigned"
+	execute_legal_task_button.disabled = task.is_empty() or task["state"] not in ["assigned", "in_progress"]
+	complete_legal_task_button.disabled = task.is_empty() or task["state"] != "in_progress"
+	var no_source := legal_source_options.item_count == 0
+	open_legal_source_button.disabled = no_source
+	review_legal_source_button.disabled = no_source
+	var no_path := argument_path_options.item_count == 0
+	for button in [extract_button, rule_button, interpret_button, analyze_button,
+		create_argument_button, select_argument_button]:
+		button.disabled = no_path
+
+
+func _legal_task() -> Dictionary:
+	for task in _work_projection.get("tasks", []):
+		if task["id"] == "VS-TASK-LEGAL-UI-001": return task
+	return {}
+
+
+func _selected_legal_scope() -> Dictionary:
+	if legal_source_options.selected < 0: return {}
+	return legal_source_options.get_item_metadata(legal_source_options.selected)
+
+
+func _selected_argument_path() -> Dictionary:
+	if argument_path_options.selected < 0: return {}
+	return argument_path_options.get_item_metadata(argument_path_options.selected)
+
+
+func _path_suffix(path: Dictionary) -> String:
+	return "001" if path.get("argument_recipe_id", "").ends_with("001") else "002"
+
+
+func _record_id_by_recipe(collection_name: String, recipe_id: String) -> String:
+	for record in _legal_projection.get(collection_name, []):
+		if record.get("recipe_id", "") == recipe_id: return record["id"]
+	return ""
+
+
+func _review_id_for_path(path: Dictionary) -> String:
+	for review in _legal_projection.get("review_events", []):
+		if review["legal_source_id"] == path["legal_source_id"] \
+				and review["legal_source_version"] == path["legal_source_version"] \
+				and review["scope_id"] == path["scope_id"]:
+			return review["id"]
+	return ""
+
+
+func _factual_basis_for_path(path: Dictionary) -> Array:
+	var refs: Array = [{"basis_type": "ReviewWorkProduct", "id": "VS-WP-REVIEW-001"}]
+	if not path.get("argument_recipe_id", "").ends_with("001"): return refs
+	for result in _investigation_projection.get("results", []):
+		if result.get("investigation_action_id", "") == "VS-INV-ACTION-001":
+			refs.append({"basis_type": "InvestigationResult", "id": result["id"]})
+			for acquisition in _investigation_projection.get("acquisitions", []):
+				if acquisition.get("investigation_result_id", "") == result["id"]:
+					refs.append({"basis_type": "SourceMaterial", "id": acquisition["id"]})
+					return refs
+	return refs
+
+
+func _on_create_legal_task_pressed() -> void:
+	var question_id: String = legal_question_options.get_item_metadata(legal_question_options.selected)
+	_apply_legal_action(_presenter.localized_text("ui.vs004.action.create_task"), _service.create_legal_research_task(question_id,
+		"VS-TASK-LEGAL-UI-001", "VS-EVENT-LEGAL-UI-001", PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
+
+
+func _on_assign_legal_task_pressed() -> void:
+	_apply_legal_action(_presenter.localized_text("ui.vs004.action.assign"), _service.assign_task("VS-TASK-LEGAL-UI-001",
+		"VS-ASSIGN-LEGAL-UI-001", PLAYER_ACTOR_ID, PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
+
+
+func _on_execute_legal_task_pressed() -> void:
+	_apply_legal_action(_presenter.localized_text("ui.vs004.action.execute"), _service.execute_legal_research_task(
+		"VS-TASK-LEGAL-UI-001", "VS-EXEC-LEGAL-UI-001", PLAYER_ACTOR_ID, PLAYER_TEAM_ID,
+		"VS-WORK-LEGAL-UI-001", 2))
+
+
+func _on_complete_legal_task_pressed() -> void:
+	_apply_legal_action(_presenter.localized_text("ui.vs004.action.complete"), _service.complete_legal_research_task(
+		"VS-TASK-LEGAL-UI-001", "VS-COMP-LEGAL-UI-001",
+		["VS-DISC-LEGAL-UI-001", "VS-DISC-LEGAL-UI-002"], PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
+
+
+func _on_open_legal_source_pressed() -> void:
+	var scope := _selected_legal_scope()
+	if scope.is_empty(): return
+	var result: Dictionary = _service.read_legal_source(PLAYER_ACTOR_ID, PLAYER_TEAM_ID,
+		scope["legal_source_id"], scope["legal_source_version"], [scope["scope_id"]])
+	if not result.get("ok", false): _show_error(_presenter.localized_text("ui.vs004.action.open"), result); return
+	legal_source_detail.text = _presenter.legal_source_detail(result["legal_source"])
+	status_label.text = _presenter.localized_text("ui.vs004.source_opened")
+
+
+func _on_review_legal_source_pressed() -> void:
+	var scope := _selected_legal_scope()
+	if scope.is_empty(): return
+	var sequence := 1
+	for task in _work_projection.get("tasks", []):
+		if task.get("legal_research_work_kind", "") == "source_review": sequence += 1
+	var suffix := "%03d" % sequence
+	var task_id := "VS-TASK-LEGAL-REVIEW-UI-" + suffix
+	var steps: Array = [
+		_service.create_legal_source_review_task(scope["legal_source_id"], scope["legal_source_version"],
+			scope["scope_id"], task_id, "VS-EVENT-LEGAL-REVIEW-UI-" + suffix,
+			PLAYER_ACTOR_ID, PLAYER_TEAM_ID),
+	]
+	if not steps[0].get("ok", false): _show_error(_presenter.localized_text("ui.vs004.action.review"), steps[0]); return
+	var assigned: Dictionary = _service.assign_task(task_id, "VS-ASSIGN-LEGAL-REVIEW-UI-" + suffix,
+		PLAYER_ACTOR_ID, PLAYER_ACTOR_ID, PLAYER_TEAM_ID)
+	if not assigned.get("ok", false): _show_error(_presenter.localized_text("ui.vs004.action.review"), assigned); _refresh_work(); return
+	var executed: Dictionary = _service.execute_legal_research_task(task_id,
+		"VS-EXEC-LEGAL-REVIEW-UI-" + suffix, PLAYER_ACTOR_ID, PLAYER_TEAM_ID,
+		"VS-WORK-LEGAL-REVIEW-UI-" + suffix, 2)
+	if not executed.get("ok", false): _show_error(_presenter.localized_text("ui.vs004.action.review"), executed); _refresh_work(); return
+	_apply_legal_action(_presenter.localized_text("ui.vs004.action.review"), _service.review_legal_source(
+		"VS-REVIEW-LEGAL-UI-" + suffix, "VS-COMP-LEGAL-REVIEW-UI-" + suffix, task_id,
+		scope["legal_source_id"], scope["legal_source_version"], scope["scope_id"],
+		PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
+
+
+func _on_extract_pressed() -> void:
+	var path := _selected_argument_path(); if path.is_empty(): return
+	_apply_legal_action(_presenter.localized_text("ui.vs004.action.extract"), _service.record_legal_extraction(
+		"VS-EXT-UI-" + _path_suffix(path), path["extraction_recipe_id"], _review_id_for_path(path),
+		PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
+
+
+func _on_rule_pressed() -> void:
+	var path := _selected_argument_path(); if path.is_empty(): return
+	var extraction_id := _record_id_by_recipe("recorded_legal_extractions", path["extraction_recipe_id"])
+	_apply_legal_action(_presenter.localized_text("ui.vs004.action.rule"), _service.create_rule_statement("VS-RULE-UI-" + _path_suffix(path),
+		path["rule_recipe_id"], [extraction_id], PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
+
+
+func _on_interpret_pressed() -> void:
+	var path := _selected_argument_path(); if path.is_empty(): return
+	var rule_id := _record_id_by_recipe("rule_statements", path["rule_recipe_id"])
+	_apply_legal_action(_presenter.localized_text("ui.vs004.action.interpret"), _service.consider_legal_interpretation(
+		"VS-INT-UI-" + _path_suffix(path), path["interpretation_recipe_id"], [rule_id],
+		PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
+
+
+func _on_analyze_pressed() -> void:
+	var path := _selected_argument_path(); if path.is_empty(): return
+	var rule_id := _record_id_by_recipe("rule_statements", path["rule_recipe_id"])
+	var interpretation_id := _record_id_by_recipe("interpretation_candidates", path["interpretation_recipe_id"])
+	_apply_legal_action(_presenter.localized_text("ui.vs004.action.analyze"), _service.create_issue_analysis("VS-IA-UI-" + _path_suffix(path),
+		path["issue_analysis_recipe_id"], "VS-TASK-LEGAL-UI-001", [rule_id], [interpretation_id],
+		_factual_basis_for_path(path), PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
+
+
+func _on_create_argument_pressed() -> void:
+	var path := _selected_argument_path(); if path.is_empty(): return
+	var analysis_id := _record_id_by_recipe("issue_analyses", path["issue_analysis_recipe_id"])
+	_apply_legal_action(_presenter.localized_text("ui.vs004.action.argument"), _service.create_argument("VS-ARG-UI-" + _path_suffix(path),
+		path["argument_recipe_id"], analysis_id, PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
+
+
+func _on_select_argument_pressed() -> void:
+	var path := _selected_argument_path(); if path.is_empty(): return
+	var argument_id := _record_id_by_recipe("arguments", path["argument_recipe_id"])
+	var selection_id := "VS-ARG-SEL-UI-%03d" % (_legal_projection["argument_selection_history"].size() + 1)
+	_apply_legal_action(_presenter.localized_text("ui.vs004.action.select"), _service.select_argument(selection_id, argument_id,
+		PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
+
+
+func _apply_legal_action(label: String, result: Dictionary) -> void:
+	if not result.get("ok", false): _show_error(label, result); return
+	status_label.text = _presenter.localized_text("ui.vs004.action_recorded", [label])
+	_refresh_work()
+	_refresh_investigation()
+	_refresh_case_file()
+	_refresh_legal_research()
+
+
+func _set_legal_controls_disabled(disabled: bool) -> void:
+	for control in [legal_question_options, create_legal_task_button, assign_legal_task_button,
+		execute_legal_task_button, complete_legal_task_button, legal_source_options,
+		open_legal_source_button, review_legal_source_button, argument_path_options,
+		extract_button, rule_button, interpret_button, analyze_button, create_argument_button,
+		select_argument_button]:
+		control.disabled = disabled
+
+
+func _localize_vs004_controls() -> void:
+	legal_heading.text = _presenter.localized_text("ui.vs004.heading")
+	for pair in [[create_legal_task_button, "ui.vs004.create"], [assign_legal_task_button, "ui.vs004.assign"],
+		[execute_legal_task_button, "ui.vs004.execute"], [complete_legal_task_button, "ui.vs004.complete"],
+		[open_legal_source_button, "ui.vs004.open"], [review_legal_source_button, "ui.vs004.review"],
+		[extract_button, "ui.vs004.extract"], [rule_button, "ui.vs004.rule"],
+		[interpret_button, "ui.vs004.interpret"], [analyze_button, "ui.vs004.analyze"],
+		[create_argument_button, "ui.vs004.argument"], [select_argument_button, "ui.vs004.select"]]:
+		pair[0].text = _presenter.localized_text(pair[1])
+	legal_status_label.text = _presenter.localized_text("ui.vs004.before_start")
+	var tab_index := tabs.get_tab_idx_from_control(legal_tab)
+	if tab_index >= 0: tabs.set_tab_title(tab_index, _presenter.localized_text("ui.vs004.tab"))

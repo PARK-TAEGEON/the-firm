@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "content_id": "VS-CONTENT-001",
-  "content_version": "1.2.0",
+  "content_version": "1.3.0",
   "session_event": {
     "id": "VS-EVENT-SESSION-001",
     "session_id": "VS-SESSION-001",
@@ -300,6 +300,21 @@
       "known_gap_refs": ["VS-GAP-001"],
       "output_type": "investigation_result",
       "completion_semantics": "required_work_then_explicit_authored_resolution"
+    },
+    {
+      "id": "VS-TASKDEF-LEGAL-001",
+      "version": "1",
+      "task_family": "legal_research",
+      "purpose": "vs004.task_definition.purpose",
+      "eligible_actor_kinds": ["lawyer"],
+      "work_unit_kind": "work_block",
+      "required_work_units": 2,
+      "authorized_source_scopes": [],
+      "source_assertion_refs": [],
+      "known_gap_refs": ["VS-GAP-001"],
+      "output_type": "legal_source_discovery_events",
+      "completion_semantics": "required_work_then_explicit_discovery",
+      "legal_research_question_id": "VS-LRQ-001"
     }
   ],
   "task_instances": [
@@ -419,5 +434,50 @@
         "provider_ref": ""
       }
     }
+  ],
+  "legal_sources": [
+    {
+      "id": "VS-LEGAL-SOURCE-001", "version": "1",
+      "title": "vs004.source.001.title", "citation": "vs004.source.001.citation",
+      "source_kind": "synthetic_contract_principle",
+      "scopes": [
+        {"id": "formation", "label": "vs004.source.001.scope.formation.label", "content": "vs004.source.001.scope.formation.content"},
+        {"id": "limits", "label": "vs004.source.001.scope.limits.label", "content": "vs004.source.001.scope.limits.content"}
+      ]
+    },
+    {
+      "id": "VS-LEGAL-SOURCE-002", "version": "1",
+      "title": "vs004.source.002.title", "citation": "vs004.source.002.citation",
+      "source_kind": "synthetic_interpretive_guide",
+      "scopes": [
+        {"id": "conduct", "label": "vs004.source.002.scope.conduct.label", "content": "vs004.source.002.scope.conduct.content"},
+        {"id": "reservation", "label": "vs004.source.002.scope.reservation.label", "content": "vs004.source.002.scope.reservation.content"}
+      ]
+    }
+  ],
+  "legal_research_questions": [
+    {
+      "id": "VS-LRQ-001", "label": "vs004.question.001.label",
+      "question": "vs004.question.001.question", "bounded_domain": "vs004.question.001.domain",
+      "issue_id": "VS-ISSUE-001", "review_work_product_id": "VS-WP-REVIEW-001",
+      "task_definition_id": "VS-TASKDEF-LEGAL-001",
+      "dependency_task_ids": ["VS-TASK-REVIEW-001"],
+      "discoverable_legal_source_refs": [
+        {"authored_path_id": "VS-LEGAL-PATH-TEXT-001", "legal_source_id": "VS-LEGAL-SOURCE-001", "legal_source_version": "1"},
+        {"authored_path_id": "VS-LEGAL-PATH-CONDUCT-001", "legal_source_id": "VS-LEGAL-SOURCE-002", "legal_source_version": "1"}
+      ]
+    }
+  ],
+  "legal_research_recipes": [
+    {"id": "VS-RECIPE-EXT-001", "kind": "extraction", "legal_source_id": "VS-LEGAL-SOURCE-001", "legal_source_version": "1", "scope_id": "formation", "recorded_text": "vs004.extraction.001.text", "limitations": ["recorded_reading_may_be_incomplete"]},
+    {"id": "VS-RECIPE-EXT-002", "kind": "extraction", "legal_source_id": "VS-LEGAL-SOURCE-002", "legal_source_version": "1", "scope_id": "conduct", "recorded_text": "vs004.extraction.002.text", "limitations": ["context_dependent"]},
+    {"id": "VS-RECIPE-RULE-001", "kind": "rule", "extraction_recipe_ids": ["VS-RECIPE-EXT-001"], "statement": "vs004.rule.001.statement", "limitations": ["not_governing_law_oracle"]},
+    {"id": "VS-RECIPE-RULE-002", "kind": "rule", "extraction_recipe_ids": ["VS-RECIPE-EXT-002"], "statement": "vs004.rule.002.statement", "limitations": ["not_automatically_decisive"]},
+    {"id": "VS-RECIPE-INT-001", "kind": "interpretation", "rule_recipe_ids": ["VS-RECIPE-RULE-001"], "statement": "vs004.interpretation.001.statement", "limitations": ["plausible_not_correctness"]},
+    {"id": "VS-RECIPE-INT-002", "kind": "interpretation", "rule_recipe_ids": ["VS-RECIPE-RULE-002"], "statement": "vs004.interpretation.002.statement", "limitations": ["plausible_not_correctness"]},
+    {"id": "VS-RECIPE-ANALYSIS-001", "kind": "issue_analysis", "issue_id": "VS-ISSUE-001", "rule_recipe_ids": ["VS-RECIPE-RULE-001"], "interpretation_recipe_ids": ["VS-RECIPE-INT-001"], "factual_basis_requirements": [{"basis_type": "ReviewWorkProduct", "id": "VS-WP-REVIEW-001"}, {"basis_type": "InvestigationResult", "investigation_action_id": "VS-INV-ACTION-001"}, {"basis_type": "SourceMaterial", "source_id": "VS-SOURCE-APPROVAL-001", "source_version": "1", "scope_ids": ["header", "approval_text"]}], "application": "vs004.analysis.001.application", "assumptions": ["vs004.analysis.001.assumption"], "challenges": ["vs004.analysis.001.challenge"]},
+    {"id": "VS-RECIPE-ANALYSIS-002", "kind": "issue_analysis", "issue_id": "VS-ISSUE-001", "rule_recipe_ids": ["VS-RECIPE-RULE-002"], "interpretation_recipe_ids": ["VS-RECIPE-INT-002"], "factual_basis_requirements": [{"basis_type": "ReviewWorkProduct", "id": "VS-WP-REVIEW-001"}], "application": "vs004.analysis.002.application", "assumptions": ["vs004.analysis.002.assumption"], "challenges": ["vs004.analysis.002.challenge"]},
+    {"id": "VS-RECIPE-ARG-001", "kind": "argument", "label": "vs004.argument.001.label", "position": "vs004.argument.001.position", "issue_id": "VS-ISSUE-001", "issue_analysis_recipe_id": "VS-RECIPE-ANALYSIS-001", "review_work_product_ids": ["VS-WP-REVIEW-001"], "known_gap_refs": ["VS-GAP-001"], "uses_investigation": true, "assumptions": ["vs004.argument.001.assumption"], "challenges": ["vs004.argument.001.challenge"]},
+    {"id": "VS-RECIPE-ARG-002", "kind": "argument", "label": "vs004.argument.002.label", "position": "vs004.argument.002.position", "issue_id": "VS-ISSUE-001", "issue_analysis_recipe_id": "VS-RECIPE-ANALYSIS-002", "review_work_product_ids": ["VS-WP-REVIEW-001"], "known_gap_refs": ["VS-GAP-001"], "uses_investigation": false, "assumptions": ["vs004.argument.002.assumption"], "challenges": ["vs004.argument.002.challenge"]}
   ]
 }

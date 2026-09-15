@@ -68,6 +68,83 @@
     "ui.vs003.acquisition": "AcquisitionEvent: %s",
     "ui.vs003.outcome.success": "성공",
     "ui.vs003.outcome.partial_success": "부분 성공",
-    "ui.vs003.outcome.failure": "실패"
+    "ui.vs003.outcome.failure": "실패",
+    "vs004.task_definition.purpose": "선택 쟁점에 관한 두 개의 제한된 법률 자료 경로를 조사한다.",
+    "vs004.question.001.label": "일정 변경 합의의 법적 구성",
+    "vs004.question.001.question": "합성 계약 원칙상 일정 변경 합의를 어떤 근거와 한계로 구성할 수 있는가?",
+    "vs004.question.001.domain": "이 사건용 합성 계약 원칙과 해석 지침",
+    "vs004.source.001.title": "합성 계약 원칙집 — 변경 합의",
+    "vs004.source.001.citation": "SCP-12 (합성 자료, v1)",
+    "vs004.source.001.scope.formation.label": "변경 합의의 형성",
+    "vs004.source.001.scope.formation.content": "명시적 승인 또는 승인 의사를 객관적으로 드러내는 교환이 있으면 변경 합의를 주장할 수 있다고 기록한다.",
+    "vs004.source.001.scope.limits.label": "적용 한계",
+    "vs004.source.001.scope.limits.content": "단순한 검토나 협의 개시는 승인과 구별되어야 한다고 기록한다.",
+    "vs004.source.002.title": "합성 해석 지침 — 후속 행위",
+    "vs004.source.002.citation": "SIG-7 (합성 자료, v1)",
+    "vs004.source.002.scope.conduct.label": "후속 행위의 해석",
+    "vs004.source.002.scope.conduct.content": "당사자의 후속 이행 행위는 변경된 일정에 대한 공동 이해를 추론하는 자료가 될 수 있다고 기록한다.",
+    "vs004.source.002.scope.reservation.label": "유보와 반대 정황",
+    "vs004.source.002.scope.reservation.content": "명시적 유보나 일관되지 않은 행위가 있으면 후속 행위의 의미가 제한될 수 있다고 기록한다.",
+    "vs004.extraction.001.text": "명시적 승인 또는 객관적으로 드러난 승인 의사의 교환이 변경 합의 주장을 뒷받침할 수 있다.",
+    "vs004.extraction.002.text": "후속 이행 행위가 변경 일정에 대한 공동 이해를 추론하는 자료가 될 수 있다.",
+    "vs004.rule.001.statement": "승인 의사가 객관적으로 교환되었다면 일정 변경 합의를 구성할 수 있다는 규칙 후보.",
+    "vs004.rule.002.statement": "후속 이행 행위가 공동 이해를 보여주면 변경 합의를 추론할 수 있다는 규칙 후보.",
+    "vs004.interpretation.001.statement": "회신의 승인 문구를 객관적 승인 의사 교환으로 읽는 해석 후보.",
+    "vs004.interpretation.002.statement": "이메일·회의·변경 기록의 연속성을 후속 행위에 의한 공동 이해로 읽는 해석 후보.",
+    "vs004.analysis.001.application": "조사로 획득한 승인 회신이 진정하고 적용 가능하다는 조건에서 명시적 승인 경로를 적용한다.",
+    "vs004.analysis.001.assumption": "승인 회신의 의미와 권한이 추가로 다투어질 수 있다.",
+    "vs004.analysis.001.challenge": "기존 이메일의 검토 문구만으로는 승인 여부가 불명확하다.",
+    "vs004.analysis.002.application": "기존 이메일·회의 메모와 후속 변경 기록을 함께 보아 행위 기반 공동 이해 경로를 적용한다.",
+    "vs004.analysis.002.assumption": "후속 행위들이 같은 일정 변경 제안을 가리킨다고 전제한다.",
+    "vs004.analysis.002.challenge": "명시적 유보 또는 다른 설명 가능성이 남는다.",
+    "vs004.argument.001.label": "명시적 승인 경로",
+    "vs004.argument.001.position": "획득한 승인 회신과 합성 원칙집을 결합해 명시적 변경 합의를 주장한다.",
+    "vs004.argument.001.assumption": "회신 작성자의 승인 권한이 확인된다는 조건.",
+    "vs004.argument.001.challenge": "상대방은 회신이 내부 검토에 불과하다고 다툴 수 있다.",
+    "vs004.argument.002.label": "후속 행위 경로",
+    "vs004.argument.002.position": "이메일·회의 메모와 후속 행위의 연속성으로 공동 이해를 주장한다.",
+    "vs004.argument.002.assumption": "각 행위가 동일한 변경 일정과 관련된다는 조건.",
+    "vs004.argument.002.challenge": "후속 행위만으로 명시적 승인 부재를 극복하지 못할 수 있다.",
+    "ui.vs004.tab": "Legal Research",
+    "ui.vs004.heading": "Legal Research — 발견부터 Argument 선택까지",
+    "ui.vs004.boundary": "LegalSource ≠ RecordedLegalExtraction ≠ RuleStatement ≠ InterpretationCandidate ≠ IssueAnalysis ≠ Argument ≠ CaseTheory",
+    "ui.vs004.before_start": "사건 시작 전",
+    "ui.vs004.create": "1. Research Task 생성",
+    "ui.vs004.assign": "2. 배정",
+    "ui.vs004.execute": "3. 조사 수행",
+    "ui.vs004.complete": "4. 완료·발견",
+    "ui.vs004.open": "자료 열기",
+    "ui.vs004.review": "선택 scope 검토",
+    "ui.vs004.extract": "5. 추출 기록",
+    "ui.vs004.rule": "6. RuleStatement 작성",
+    "ui.vs004.interpret": "7. 해석 후보 고려",
+    "ui.vs004.analyze": "8. IssueAnalysis 작성",
+    "ui.vs004.argument": "9. Argument 생성",
+    "ui.vs004.select": "10. Argument 선택",
+    "ui.vs004.counts": "발견 %d · 검토 %d · 추출 %d · 규칙 %d · 해석 %d · 분석 %d · Argument %d",
+    "ui.vs004.no_selection": "선택된 Argument가 없습니다.",
+    "ui.vs004.current_selection": "현재 접근: %s / CaseTheory %s / selection event order %d",
+    "ui.vs004.citation": "인용: %s",
+    "ui.vs004.source_identity": "LegalSource ID / version: %s / %s"
+    ,"ui.vs004.query": "Legal Research 조회"
+    ,"ui.vs004.action_recorded": "%s 완료 — immutable provenance event가 기록되었습니다."
+    ,"ui.vs004.source_opened": "LegalSource를 열었습니다. 열람은 review가 아닙니다."
+    ,"ui.vs004.action.create_task": "Legal Research Task 생성"
+    ,"ui.vs004.action.assign": "Legal Research 배정"
+    ,"ui.vs004.action.execute": "Legal Research 수행"
+    ,"ui.vs004.action.complete": "Legal Research 완료"
+    ,"ui.vs004.action.open": "LegalSource 열람"
+    ,"ui.vs004.action.review": "LegalSource scope 검토"
+    ,"ui.vs004.action.extract": "RecordedLegalExtraction 기록"
+    ,"ui.vs004.action.rule": "RuleStatement 작성"
+    ,"ui.vs004.action.interpret": "InterpretationCandidate 고려"
+    ,"ui.vs004.action.analyze": "IssueAnalysis 작성"
+    ,"ui.vs004.action.argument": "Argument 생성"
+    ,"ui.vs004.action.select": "Argument 선택"
+    ,"ui.vs004.selected_formulation": "선택 Argument: %s — %s"
+    ,"ui.vs004.selected_provenance": "근거: IssueAnalysis %s / RuleStatement %s / LegalSourceReviewEvent %s / factual basis %s"
+    ,"ui.vs004.analysis_application": "현재 적용: %s"
+    ,"ui.vs004.analysis_assumptions": "가정: %s"
+    ,"ui.vs004.analysis_challenges": "도전·한계: %s"
   }
 }

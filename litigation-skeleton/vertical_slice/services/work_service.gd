@@ -213,6 +213,173 @@ func complete_review_task(task_id: String, completion_id: String, work_product_i
 	}
 
 
+func create_legal_research_task(question: Dictionary, task_id: String,
+		creation_event_id: String, actor_id: String, team_id: String) -> Dictionary:
+	var context_error := _validate_actor_context(actor_id, team_id)
+	if not context_error.is_empty(): return _failure(context_error)
+	if _id_exists(task_id) or _id_exists(creation_event_id): return _failure("duplicate_identity")
+	var definition: Dictionary = _state.task_definitions[question["task_definition_id"]]
+	if definition["task_family"] != "legal_research": return _failure("task_family_mismatch")
+	var event_order := _next_event_order()
+	var task := {
+		"id": task_id, "task_definition_id": definition["id"],
+		"matter_id": _state.matter["id"], "stage_id": _state.stage["id"], "team_id": team_id,
+		"dependency_task_ids": question["dependency_task_ids"].duplicate(), "state": "unassigned",
+		"creation_event_id": creation_event_id, "created_by_ref": question["id"],
+		"legal_research_question_id": question["id"], "current_assignment_id": "",
+		"legal_research_work_kind": "discovery", "created_event_order": event_order,
+		"execution_ids": [], "completion_id": "", "output_work_product_ids": [], "output_result_ids": [],
+	}
+	var event := {"id": creation_event_id, "event_order": event_order, "task_id": task_id,
+		"task_definition_id": definition["id"], "matter_id": _state.matter["id"],
+		"stage_id": _state.stage["id"], "team_id": team_id, "created_by_ref": question["id"],
+		"legal_research_question_id": question["id"]}
+	_state.tasks[task_id] = task.duplicate(true)
+	_state.task_order.append(task_id)
+	_append_event(event, "task_created")
+	return {"ok": true, "task": task.duplicate(true)}
+
+
+func create_legal_source_review_task(question: Dictionary, task_id: String,
+		creation_event_id: String, discovery_event: Dictionary, legal_source_id: String,
+		legal_source_version: String, scope_id: String, actor_id: String,
+		team_id: String) -> Dictionary:
+	var context_error := _validate_actor_context(actor_id, team_id)
+	if not context_error.is_empty(): return _failure(context_error)
+	if _id_exists(task_id) or _id_exists(creation_event_id): return _failure("duplicate_identity")
+	var definition: Dictionary = _state.task_definitions[question["task_definition_id"]]
+	if definition["task_family"] != "legal_research": return _failure("task_family_mismatch")
+	var event_order := _next_event_order()
+	if event_order <= int(discovery_event["event_order"]): return _failure("post_discovery_work_required")
+	var task := {
+		"id": task_id, "task_definition_id": definition["id"],
+		"matter_id": _state.matter["id"], "stage_id": _state.stage["id"], "team_id": team_id,
+		"dependency_task_ids": [discovery_event["task_id"]], "state": "unassigned",
+		"creation_event_id": creation_event_id, "created_by_ref": discovery_event["id"],
+		"legal_research_question_id": question["id"], "current_assignment_id": "",
+		"legal_research_work_kind": "source_review", "created_event_order": event_order,
+		"target_discovery_event_id": discovery_event["id"],
+		"target_legal_source_id": legal_source_id,
+		"target_legal_source_version": legal_source_version,
+		"target_scope_id": scope_id,
+		"execution_ids": [], "completion_id": "", "output_work_product_ids": [],
+		"output_result_ids": [],
+	}
+	var event := {
+		"id": creation_event_id, "event_order": event_order, "task_id": task_id,
+		"task_definition_id": definition["id"], "matter_id": _state.matter["id"],
+		"stage_id": _state.stage["id"], "team_id": team_id,
+		"created_by_ref": discovery_event["id"], "legal_research_question_id": question["id"],
+		"legal_research_work_kind": "source_review", "legal_source_id": legal_source_id,
+		"legal_source_version": legal_source_version, "scope_id": scope_id,
+	}
+	_state.tasks[task_id] = task.duplicate(true)
+	_state.task_order.append(task_id)
+	_append_event(event, "task_created")
+	return {"ok": true, "task": task.duplicate(true)}
+
+
+func execute_legal_research_task(task_id: String, execution_id: String, actor_id: String,
+		team_id: String, time_slot_id: String, work_units: int) -> Dictionary:
+	var context_error := _validate_actor_context(actor_id, team_id)
+	if not context_error.is_empty():
+		return _failure(context_error)
+	if not _state.tasks.has(task_id):
+		return _failure("task_not_found")
+	var task: Dictionary = _state.tasks[task_id]
+	if task["team_id"] != team_id:
+		return _failure("task_team_mismatch")
+	var definition: Dictionary = _state.task_definitions[task["task_definition_id"]]
+	if definition["task_family"] != "legal_research":
+		return _failure("task_family_mismatch")
+	if task["state"] == "completed":
+		return _failure("task_already_completed")
+	if task["state"] not in ["assigned", "in_progress"]:
+		return _failure("task_not_assigned")
+	var assignment: Dictionary = _state.assignments[task["current_assignment_id"]]
+	if assignment["assignee_actor_id"] != actor_id:
+		return _failure("actor_not_assignee")
+	if not _dependencies_complete(task):
+		return _failure("incomplete_dependency")
+	if _id_exists(execution_id):
+		return _failure("duplicate_identity")
+	if time_slot_id.is_empty() or work_units <= 0:
+		return _failure("invalid_work_time_allocation")
+	var allocation_key := actor_id + "|" + time_slot_id
+	if _state.time_allocations.has(allocation_key):
+		return _failure("overlapping_work_time")
+	var execution := {
+		"id": execution_id,
+		"task_id": task_id,
+		"task_definition_id": definition["id"],
+		"task_definition_version": definition["version"],
+		"assignment_id": assignment["id"],
+		"legal_research_question_id": definition["legal_research_question_id"],
+		"actor_id": actor_id, "team_id": team_id,
+		"matter_id": task["matter_id"], "stage_id": task["stage_id"],
+		"time_slot_id": time_slot_id, "work_unit_kind": definition["work_unit_kind"],
+		"work_units": work_units, "event_order": _next_event_order(),
+	}
+	_state.executions[execution_id] = execution.duplicate(true)
+	_state.execution_order.append(execution_id)
+	_state.time_allocations[allocation_key] = {
+		"actor_id": actor_id, "time_slot_id": time_slot_id,
+		"execution_id": execution_id, "work_units": work_units,
+	}
+	task["execution_ids"].append(execution_id)
+	task["state"] = "in_progress"
+	_append_event(execution, "task_executed")
+	return {"ok": true, "execution": execution.duplicate(true)}
+
+
+func preflight_legal_research_completion(task_id: String, completion_id: String,
+		actor_id: String, team_id: String) -> Dictionary:
+	var context_error := _validate_actor_context(actor_id, team_id)
+	if not context_error.is_empty():
+		return _failure(context_error)
+	if not _state.tasks.has(task_id):
+		return _failure("task_not_found")
+	var task: Dictionary = _state.tasks[task_id]
+	if task["team_id"] != team_id:
+		return _failure("task_team_mismatch")
+	var definition: Dictionary = _state.task_definitions[task["task_definition_id"]]
+	if definition["task_family"] != "legal_research":
+		return _failure("task_family_mismatch")
+	if task["state"] == "completed":
+		return _failure("task_already_completed")
+	if task["state"] != "in_progress":
+		return _failure("task_not_executed")
+	var assignment: Dictionary = _state.assignments[task["current_assignment_id"]]
+	if assignment["assignee_actor_id"] != actor_id:
+		return _failure("actor_not_assignee")
+	if not _dependencies_complete(task):
+		return _failure("incomplete_dependency")
+	if _id_exists(completion_id):
+		return _failure("duplicate_identity")
+	var performed_units := 0
+	for execution_id in task["execution_ids"]:
+		performed_units += int(_state.executions[execution_id]["work_units"])
+	if performed_units < int(definition["required_work_units"]):
+		return _failure("insufficient_performed_work")
+	return {"ok": true, "task": task.duplicate(true), "definition": definition.duplicate(true),
+		"assignment": assignment.duplicate(true), "performed_work_units": performed_units}
+
+
+func record_legal_research_completion(task_id: String, completion_id: String,
+		actor_id: String, team_id: String) -> Dictionary:
+	var task: Dictionary = _state.tasks[task_id]
+	var completion := {
+		"id": completion_id, "task_id": task_id, "actor_id": actor_id,
+		"team_id": team_id, "event_order": _next_event_order(),
+	}
+	_state.completions[completion_id] = completion.duplicate(true)
+	_state.completion_order.append(completion_id)
+	task["completion_id"] = completion_id
+	task["state"] = "completed"
+	_append_event(completion, "task_completed")
+	return completion.duplicate(true)
+
+
 func create_investigation_task(action: Dictionary, task_id: String, creation_event_id: String,
 		actor_id: String, team_id: String) -> Dictionary:
 	var context_error := _validate_actor_context(actor_id, team_id)
@@ -697,6 +864,11 @@ func _id_exists(identity: String) -> bool:
 		_state.executions, _state.completions, _state.review_work_products, _state.issues,
 		_state.review_analysis_options, _state.issue_selections, _state.case_theories,
 		_state.theory_lineages, _state.investigation_actions, _state.investigation_results,
+		_state.legal_sources, _state.legal_research_questions, _state.legal_research_recipes,
+		_state.legal_source_discoveries, _state.legal_source_reviews,
+		_state.recorded_legal_extractions, _state.rule_statements,
+		_state.interpretation_candidates, _state.issue_analyses, _state.arguments,
+		_state.argument_selection_events,
 	]:
 		if collection.has(identity):
 			return true

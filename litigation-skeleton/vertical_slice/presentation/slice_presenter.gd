@@ -164,3 +164,50 @@ func strategy_status_text(projection: Dictionary) -> String:
 		lines.append(theory["statement"])
 		lines.append("CaseTheory는 CourtFactFinding이 아닙니다.")
 	return "\n".join(lines)
+
+
+func legal_research_status_text(projection: Dictionary) -> String:
+	var lines: Array[String] = [localized_text("ui.vs004.boundary")]
+	lines.append(localized_text("ui.vs004.counts", [projection["legal_sources"].size(),
+		projection["review_events"].size(), projection["recorded_legal_extractions"].size(),
+		projection["rule_statements"].size(), projection["interpretation_candidates"].size(),
+		projection["issue_analyses"].size(), projection["arguments"].size()]))
+	if projection["argument_selection_history"].is_empty():
+		lines.append(localized_text("ui.vs004.no_selection"))
+	else:
+		var selected: Dictionary = projection["argument_selection_history"][-1]
+		lines.append(localized_text("ui.vs004.current_selection", [selected["argument_id"],
+			selected["case_theory_version_id"], selected["event_order"]]))
+		var argument: Dictionary = {}
+		for candidate in projection["arguments"]:
+			if candidate["id"] == selected["argument_id"]: argument = candidate; break
+		if not argument.is_empty():
+			lines.append(localized_text("ui.vs004.selected_formulation", [
+				localized_text(argument["label"]), localized_text(argument["position"])]))
+			var basis_labels: Array[String] = []
+			for basis in argument.get("factual_basis_refs", []):
+				basis_labels.append("%s:%s" % [basis["basis_type"], basis["id"]])
+			lines.append(localized_text("ui.vs004.selected_provenance", [argument["issue_analysis_id"],
+				", ".join(argument["rule_statement_ids"]), ", ".join(argument["legal_source_review_event_ids"]),
+				", ".join(basis_labels)]))
+			for analysis in projection["issue_analyses"]:
+				if analysis["id"] != argument["issue_analysis_id"]: continue
+				lines.append(localized_text("ui.vs004.analysis_application", [localized_text(analysis["application"])]))
+				var assumptions: Array[String] = []
+				for value in analysis["assumptions"]: assumptions.append(localized_text(value))
+				var challenges: Array[String] = []
+				for value in analysis["challenges"]: challenges.append(localized_text(value))
+				lines.append(localized_text("ui.vs004.analysis_assumptions", [" / ".join(assumptions)]))
+				lines.append(localized_text("ui.vs004.analysis_challenges", [" / ".join(challenges)]))
+				break
+	return "\n".join(lines)
+
+
+func legal_source_detail(source: Dictionary) -> String:
+	var lines: Array[String] = [localized_text(source["title"]),
+		localized_text("ui.vs004.citation", [localized_text(source["citation"])]),
+		localized_text("ui.vs004.source_identity", [source["id"], source["version"]])]
+	for scope in source["scopes"]:
+		lines.append("[%s]" % localized_text(scope["label"]))
+		lines.append(localized_text(scope["content"]))
+	return "\n".join(lines)
