@@ -1,0 +1,399 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://vertical_slice/ui/main.gd" id="1_main"]
+
+[node name="LitigationVerticalSlice" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_main")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.055, 0.071, 0.09, 1)
+mouse_filter = 2
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 24
+
+[node name="Root" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Margin/Root"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "THE FIRM — Litigation Vertical Slice"
+
+[node name="Boundary" type="Label" parent="Margin/Root"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs003.boundary"
+
+[node name="StartRow" type="HBoxContainer" parent="Margin/Root"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="StartButton" type="Button" parent="Margin/Root/StartRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "사건 시작"
+
+[node name="StatusLabel" type="Label" parent="Margin/Root/StartRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "준비 중"
+autowrap_mode = 2
+
+[node name="CaseHeaderLabel" type="Label" parent="Margin/Root"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "사건을 시작하지 않았습니다."
+autowrap_mode = 2
+
+[node name="Tabs" type="TabContainer" parent="Margin/Root"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Case Review" type="HSplitContainer" parent="Margin/Root/Tabs"]
+layout_mode = 2
+split_offset = 390
+
+[node name="SourcePanel" type="VBoxContainer" parent="Margin/Root/Tabs/Case Review"]
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SourceHeading" type="Label" parent="Margin/Root/Tabs/Case Review/SourcePanel"]
+layout_mode = 2
+text = "Authorized 자료 범위"
+
+[node name="SourceList" type="ItemList" parent="Margin/Root/Tabs/Case Review/SourcePanel"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+allow_reselect = true
+
+[node name="OpenButton" type="Button" parent="Margin/Root/Tabs/Case Review/SourcePanel"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "선택 범위 열람"
+
+[node name="DetailPanel" type="VBoxContainer" parent="Margin/Root/Tabs/Case Review"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="DetailHeading" type="Label" parent="Margin/Root/Tabs/Case Review/DetailPanel"]
+layout_mode = 2
+text = "자료 내용과 provenance"
+
+[node name="SourceDetail" type="TextEdit" parent="Margin/Root/Tabs/Case Review/DetailPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(420, 220)
+layout_mode = 2
+size_flags_vertical = 3
+editable = false
+wrap_mode = 1
+text = "사건을 시작하십시오."
+
+[node name="AssertionsLabel" type="Label" parent="Margin/Root/Tabs/Case Review/DetailPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "자료 진술"
+autowrap_mode = 2
+
+[node name="GapsLabel" type="Label" parent="Margin/Root/Tabs/Case Review/DetailPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "알려진 공백"
+autowrap_mode = 2
+
+[node name="Work & Theory" type="ScrollContainer" parent="Margin/Root/Tabs"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Workflow" type="VBoxContainer" parent="Margin/Root/Tabs/Work & Theory"]
+custom_minimum_size = Vector2(860, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="ReviewHeading" type="Label" parent="Margin/Root/Tabs/Work & Theory/Workflow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Review Task — 배정, 수행, 완료는 서로 다른 상태입니다"
+
+[node name="ReviewStatusLabel" type="Label" parent="Margin/Root/Tabs/Work & Theory/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "사건 시작 전"
+autowrap_mode = 2
+
+[node name="TaskButtons" type="HBoxContainer" parent="Margin/Root/Tabs/Work & Theory/Workflow"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="AssignButton" type="Button" parent="Margin/Root/Tabs/Work & Theory/Workflow/TaskButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "1. Task 배정"
+
+[node name="ExecuteButton" type="Button" parent="Margin/Root/Tabs/Work & Theory/Workflow/TaskButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "2. Review 수행 (2 work blocks)"
+
+[node name="AnalysisOptions" type="OptionButton" parent="Margin/Root/Tabs/Work & Theory/Workflow/TaskButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CompleteButton" type="Button" parent="Margin/Root/Tabs/Work & Theory/Workflow/TaskButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "3. 명시적 완료"
+
+[node name="Separator" type="HSeparator" parent="Margin/Root/Tabs/Work & Theory/Workflow"]
+layout_mode = 2
+
+[node name="IssueHeading" type="Label" parent="Margin/Root/Tabs/Work & Theory/Workflow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Issue 선택과 CaseTheory"
+
+[node name="IssueRow" type="HBoxContainer" parent="Margin/Root/Tabs/Work & Theory/Workflow"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="IssueOptions" type="OptionButton" parent="Margin/Root/Tabs/Work & Theory/Workflow/IssueRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SelectIssueButton" type="Button" parent="Margin/Root/Tabs/Work & Theory/Workflow/IssueRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Issue 선택"
+
+[node name="TheoryInputLabel" type="Label" parent="Margin/Root/Tabs/Work & Theory/Workflow"]
+layout_mode = 2
+text = "Theory 분석 문장 (분석은 틀릴 수 있으며 사실인정이 아닙니다)"
+
+[node name="TheoryInput" type="TextEdit" parent="Margin/Root/Tabs/Work & Theory/Workflow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+wrap_mode = 1
+text = "이메일과 회의 메모는 일정 변경 논의를 지지하지만 최종 승인 공백이 남아 있다."
+
+[node name="SaveTheoryButton" type="Button" parent="Margin/Root/Tabs/Work & Theory/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "CaseTheory 생성"
+
+[node name="StrategyStatusLabel" type="Label" parent="Margin/Root/Tabs/Work & Theory/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ReviewWorkProduct와 Theory가 아직 없습니다."
+autowrap_mode = 2
+
+[node name="Investigation" type="ScrollContainer" parent="Margin/Root/Tabs"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Workflow" type="VBoxContainer" parent="Margin/Root/Tabs/Investigation"]
+custom_minimum_size = Vector2(860, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="Heading" type="Label" parent="Margin/Root/Tabs/Investigation/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "ui.vs003.heading"
+
+[node name="InvestigationOptions" type="OptionButton" parent="Margin/Root/Tabs/Investigation/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="InvestigationOpportunityLabel" type="Label" parent="Margin/Root/Tabs/Investigation/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs003.before_start"
+autowrap_mode = 2
+
+[node name="ActionButtons" type="HBoxContainer" parent="Margin/Root/Tabs/Investigation/Workflow"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="CreateInvestigationButton" type="Button" parent="Margin/Root/Tabs/Investigation/Workflow/ActionButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs003.create_button"
+
+[node name="AssignInvestigationButton" type="Button" parent="Margin/Root/Tabs/Investigation/Workflow/ActionButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs003.assign_button"
+
+[node name="ExecuteInvestigationButton" type="Button" parent="Margin/Root/Tabs/Investigation/Workflow/ActionButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs003.execute_button"
+
+[node name="CompleteInvestigationButton" type="Button" parent="Margin/Root/Tabs/Investigation/Workflow/ActionButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs003.complete_button"
+
+[node name="AcquisitionHelp" type="Label" parent="Margin/Root/Tabs/Investigation/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs003.acquisition_help"
+
+[node name="AcquisitionIdInput" type="LineEdit" parent="Margin/Root/Tabs/Investigation/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "ui.vs003.acquisition_placeholder"
+
+[node name="InvestigationStatusLabel" type="Label" parent="Margin/Root/Tabs/Investigation/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs003.empty_status"
+autowrap_mode = 2
+
+[node name="Legal Research" type="ScrollContainer" parent="Margin/Root/Tabs"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Workflow" type="VBoxContainer" parent="Margin/Root/Tabs/Legal Research"]
+custom_minimum_size = Vector2(860, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="LegalHeading" type="Label" parent="Margin/Root/Tabs/Legal Research/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "ui.vs004.heading"
+
+[node name="LegalQuestionOptions" type="OptionButton" parent="Margin/Root/Tabs/Legal Research/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="LegalTaskButtons" type="HBoxContainer" parent="Margin/Root/Tabs/Legal Research/Workflow"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CreateLegalTaskButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalTaskButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.create"
+
+[node name="AssignLegalTaskButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalTaskButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.assign"
+
+[node name="ExecuteLegalTaskButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalTaskButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.execute"
+
+[node name="CompleteLegalTaskButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalTaskButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.complete"
+
+[node name="LegalSourceOptions" type="OptionButton" parent="Margin/Root/Tabs/Legal Research/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="LegalSourceButtons" type="HBoxContainer" parent="Margin/Root/Tabs/Legal Research/Workflow"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="OpenLegalSourceButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalSourceButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.open"
+
+[node name="ReviewLegalSourceButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalSourceButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.review"
+
+[node name="LegalSourceDetail" type="TextEdit" parent="Margin/Root/Tabs/Legal Research/Workflow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 110)
+layout_mode = 2
+editable = false
+wrap_mode = 1
+
+[node name="ArgumentPathOptions" type="OptionButton" parent="Margin/Root/Tabs/Legal Research/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="LegalArtifactButtons" type="HFlowContainer" parent="Margin/Root/Tabs/Legal Research/Workflow"]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="ExtractButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalArtifactButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.extract"
+
+[node name="RuleButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalArtifactButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.rule"
+
+[node name="InterpretButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalArtifactButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.interpret"
+
+[node name="AnalyzeButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalArtifactButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.analyze"
+
+[node name="CreateArgumentButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalArtifactButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.argument"
+
+[node name="SelectArgumentButton" type="Button" parent="Margin/Root/Tabs/Legal Research/Workflow/LegalArtifactButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.select"
+
+[node name="LegalStatusLabel" type="Label" parent="Margin/Root/Tabs/Legal Research/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ui.vs004.before_start"
+autowrap_mode = 2
