@@ -15,6 +15,7 @@ var _service = SliceService.new()
 var _presenter = SlicePresenter.new()
 var _scope_rows: Array = []
 var _work_projection: Dictionary = {}
+var _investigation_projection: Dictionary = {}
 
 @onready var start_button: Button = %StartButton
 @onready var status_label: Label = %StatusLabel
@@ -34,6 +35,14 @@ var _work_projection: Dictionary = {}
 @onready var select_issue_button: Button = %SelectIssueButton
 @onready var theory_input: TextEdit = %TheoryInput
 @onready var save_theory_button: Button = %SaveTheoryButton
+@onready var investigation_options: OptionButton = %InvestigationOptions
+@onready var investigation_opportunity_label: Label = %InvestigationOpportunityLabel
+@onready var investigation_status_label: Label = %InvestigationStatusLabel
+@onready var create_investigation_button: Button = %CreateInvestigationButton
+@onready var assign_investigation_button: Button = %AssignInvestigationButton
+@onready var execute_investigation_button: Button = %ExecuteInvestigationButton
+@onready var complete_investigation_button: Button = %CompleteInvestigationButton
+@onready var acquisition_id_input: LineEdit = %AcquisitionIdInput
 
 
 func _ready() -> void:
@@ -45,7 +54,13 @@ func _ready() -> void:
 	complete_button.pressed.connect(_on_complete_pressed)
 	select_issue_button.pressed.connect(_on_select_issue_pressed)
 	save_theory_button.pressed.connect(_on_save_theory_pressed)
+	investigation_options.item_selected.connect(_on_investigation_selected)
+	create_investigation_button.pressed.connect(_on_create_investigation_pressed)
+	assign_investigation_button.pressed.connect(_on_assign_investigation_pressed)
+	execute_investigation_button.pressed.connect(_on_execute_investigation_pressed)
+	complete_investigation_button.pressed.connect(_on_complete_investigation_pressed)
 	_set_work_controls_disabled(true)
+	_set_investigation_controls_disabled(true)
 	open_button.disabled = true
 	status_label.text = "사건을 시작하면 authorized 초기 자료와 review Task를 불러옵니다."
 
@@ -64,6 +79,7 @@ func _on_start_pressed() -> void:
 	status_label.text = "사건 검토 세션 %s 시작" % started["session_id"]
 	_refresh_case_file()
 	_refresh_work()
+	_refresh_investigation()
 
 
 func _refresh_case_file() -> void:
@@ -112,6 +128,25 @@ func _refresh_work() -> void:
 	theory_input.editable = has_selection
 	save_theory_button.disabled = not has_selection
 	save_theory_button.text = "Theory 새 버전 저장" if not _work_projection["case_theories"].is_empty() else "CaseTheory 생성"
+
+
+func _refresh_investigation() -> void:
+	var selected_action_id := _selected_investigation_action_id()
+	var result: Dictionary = _service.investigation_projection(PLAYER_ACTOR_ID, PLAYER_TEAM_ID)
+	if not result.get("ok", false):
+		_show_error("Investigation 조회", result)
+		return
+	_investigation_projection = result["projection"]
+	investigation_options.disabled = false
+	investigation_options.clear()
+	for opportunity in _investigation_projection["opportunities"]:
+		investigation_options.add_item(opportunity["label"])
+		investigation_options.set_item_metadata(investigation_options.item_count - 1, opportunity["id"])
+		if opportunity["id"] == selected_action_id:
+			investigation_options.select(investigation_options.item_count - 1)
+	if investigation_options.selected < 0 and investigation_options.item_count > 0:
+		investigation_options.select(0)
+	_update_investigation_selection()
 
 
 func _on_open_pressed() -> void:
@@ -185,6 +220,87 @@ func _on_save_theory_pressed() -> void:
 			statement))
 
 
+func _on_investigation_selected(_index: int) -> void:
+	_update_investigation_selection()
+
+
+func _on_create_investigation_pressed() -> void:
+	var action_id := _selected_investigation_action_id()
+	var suffix := "%03d" % (_investigation_projection["tasks"].size() + 1)
+	_apply_investigation_action("Investigation Task 생성", _service.create_investigation_task(
+		action_id, "VS-TASK-INV-UI-" + suffix, "VS-EVENT-INV-CREATE-UI-" + suffix,
+		PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
+
+
+func _on_assign_investigation_pressed() -> void:
+	var task := _selected_investigation_task()
+	if task.is_empty():
+		status_label.text = "먼저 Investigation Task를 생성하십시오."
+		return
+	_apply_investigation_action("Investigation Task 배정", _service.assign_task(
+		task["id"], "VS-ASSIGN-INV-UI-%03d" % (_investigation_projection["tasks"].size()),
+		PLAYER_ACTOR_ID, PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
+
+
+func _on_execute_investigation_pressed() -> void:
+	var task := _selected_investigation_task()
+	if task.is_empty():
+		status_label.text = "먼저 Investigation Task를 생성하십시오."
+		return
+	var suffix := "%03d" % (_investigation_projection["tasks"].find(task) + 1)
+	_apply_investigation_action("Investigation 수행", _service.execute_investigation_task(
+		task["id"], "VS-EXEC-INV-UI-" + suffix, PLAYER_ACTOR_ID, PLAYER_TEAM_ID,
+		"VS-WORK-INV-UI-" + suffix, 1))
+
+
+func _on_complete_investigation_pressed() -> void:
+	var task := _selected_investigation_task()
+	if task.is_empty():
+		status_label.text = "먼저 Investigation Task를 생성하십시오."
+		return
+	var suffix := "%03d" % (_investigation_projection["results"].size() + 1)
+	_apply_investigation_action("Investigation 완료", _service.complete_investigation_task(
+		task["id"], "VS-COMPLETE-INV-UI-" + suffix, "VS-RESULT-INV-UI-" + suffix,
+		acquisition_id_input.text.strip_edges(), PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
+
+
+func _selected_investigation_action_id() -> String:
+	if investigation_options == null or investigation_options.selected < 0:
+		return ""
+	return investigation_options.get_item_metadata(investigation_options.selected)
+
+
+func _selected_investigation_task() -> Dictionary:
+	var action_id := _selected_investigation_action_id()
+	for opportunity in _investigation_projection.get("opportunities", []):
+		if opportunity["id"] == action_id and not opportunity["task_id"].is_empty():
+			for task in _investigation_projection["tasks"]:
+				if task["id"] == opportunity["task_id"]:
+					return task
+	return {}
+
+
+func _update_investigation_selection() -> void:
+	var action_id := _selected_investigation_action_id()
+	var opportunity: Dictionary = {}
+	for candidate in _investigation_projection.get("opportunities", []):
+		if candidate["id"] == action_id:
+			opportunity = candidate
+			break
+	if opportunity.is_empty():
+		_set_investigation_controls_disabled(true)
+		return
+	investigation_opportunity_label.text = _presenter.investigation_opportunity_text(opportunity)
+	investigation_status_label.text = _presenter.investigation_status_text(
+		_investigation_projection, action_id)
+	var task := _selected_investigation_task()
+	create_investigation_button.disabled = opportunity["created"]
+	assign_investigation_button.disabled = task.is_empty() or task["state"] != "unassigned"
+	execute_investigation_button.disabled = task.is_empty() or task["state"] not in ["assigned", "in_progress"]
+	complete_investigation_button.disabled = task.is_empty() or task["state"] != "in_progress"
+	acquisition_id_input.editable = not complete_investigation_button.disabled
+
+
 func _issue_by_id(issue_id: String) -> Dictionary:
 	for issue in _work_projection["issues"]:
 		if issue["id"] == issue_id:
@@ -198,6 +314,17 @@ func _apply_action(label: String, result: Dictionary) -> void:
 		return
 	status_label.text = "%s 완료 — 명시적 domain event가 기록되었습니다." % label
 	_refresh_work()
+	_refresh_investigation()
+
+
+func _apply_investigation_action(label: String, result: Dictionary) -> void:
+	if not result.get("ok", false):
+		_show_error(label, result)
+		return
+	status_label.text = "%s 완료 — 명시적 domain event가 기록되었습니다." % label
+	_refresh_work()
+	_refresh_investigation()
+	_refresh_case_file()
 
 
 func _show_error(label: String, result: Dictionary) -> void:
@@ -213,3 +340,12 @@ func _set_work_controls_disabled(disabled: bool) -> void:
 	select_issue_button.disabled = disabled
 	theory_input.editable = not disabled
 	save_theory_button.disabled = disabled
+
+
+func _set_investigation_controls_disabled(disabled: bool) -> void:
+	investigation_options.disabled = disabled
+	create_investigation_button.disabled = disabled
+	assign_investigation_button.disabled = disabled
+	execute_investigation_button.disabled = disabled
+	complete_investigation_button.disabled = disabled
+	acquisition_id_input.editable = not disabled

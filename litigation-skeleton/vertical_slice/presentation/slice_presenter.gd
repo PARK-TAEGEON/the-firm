@@ -56,9 +56,13 @@ func assertion_text(projection: Dictionary) -> String:
 
 
 func review_status_text(projection: Dictionary) -> String:
-	if projection["tasks"].is_empty():
+	var task: Dictionary = {}
+	for candidate in projection["tasks"]:
+		if candidate["definition"]["task_family"] == "evidence_review":
+			task = candidate
+			break
+	if task.is_empty():
 		return "검토 Task 없음"
-	var task: Dictionary = projection["tasks"][0]
 	var definition: Dictionary = task["definition"]
 	var lines: Array[String] = [
 		"Task: %s" % definition["purpose"],
@@ -71,6 +75,54 @@ func review_status_text(projection: Dictionary) -> String:
 		lines.append("Execution: %s" % ", ".join(task["execution_ids"]))
 	if not task["completion_id"].is_empty():
 		lines.append("Completion: %s" % task["completion_id"])
+	return "\n".join(lines)
+
+
+func investigation_opportunity_rows(projection: Dictionary) -> Array:
+	var rows: Array = []
+	for opportunity in projection["opportunities"]:
+		rows.append({
+			"label": opportunity["label"],
+			"action_id": opportunity["id"],
+			"task_id": opportunity["task_id"],
+			"created": opportunity["created"],
+		})
+	return rows
+
+
+func investigation_opportunity_text(opportunity: Dictionary) -> String:
+	return "%s\n목적: %s\n조사 범위: %s\n근거 공백: %s\n%s" % [
+		opportunity["label"], opportunity["purpose"], opportunity["bounded_domain"],
+		", ".join(opportunity["known_gap_refs"]), opportunity["action_description"],
+	]
+
+
+func investigation_status_text(projection: Dictionary, action_id: String) -> String:
+	var lines: Array[String] = []
+	var selected_task: Dictionary = {}
+	for opportunity in projection["opportunities"]:
+		if opportunity["id"] == action_id and not opportunity["task_id"].is_empty():
+			for task in projection["tasks"]:
+				if task["id"] == opportunity["task_id"]:
+					selected_task = task
+					break
+	if selected_task.is_empty():
+		lines.append("Investigation Task: 아직 생성되지 않음")
+	else:
+		lines.append("Investigation Task: %s" % selected_task["id"])
+		lines.append("상태: %s" % selected_task["state"])
+		if not selected_task["current_assignment_id"].is_empty():
+			lines.append("Assignment: %s" % selected_task["current_assignment_id"])
+		if not selected_task["execution_ids"].is_empty():
+			lines.append("Execution: %s" % ", ".join(selected_task["execution_ids"]))
+		if not selected_task["completion_id"].is_empty():
+			lines.append("Completion: %s" % selected_task["completion_id"])
+	for result in projection["results"]:
+		if result["investigation_action_id"] == action_id:
+			lines.append("InvestigationResult: %s — %s" % [result["outcome"], result["summary"]])
+			lines.append("제한: %s" % ", ".join(result["limitations"]))
+			if not result["acquisition_refs"].is_empty():
+				lines.append("AcquisitionEvent: %s" % ", ".join(result["acquisition_refs"]))
 	return "\n".join(lines)
 
 

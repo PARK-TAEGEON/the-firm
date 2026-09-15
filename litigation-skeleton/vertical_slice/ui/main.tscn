@@ -44,7 +44,7 @@ text = "THE FIRM — Litigation Vertical Slice"
 
 [node name="Boundary" type="Label" parent="Margin/Root"]
 layout_mode = 2
-text = "SourceMaterial ≠ SourceAssertion ≠ ReviewWorkProduct ≠ Issue ≠ CaseTheory ≠ CourtFactFinding"
+text = "InvestigationResult ≠ SourceMaterial ≠ SourceAssertion ≠ ReviewWorkProduct ≠ CaseTheory ≠ CourtRecord ≠ CourtFactFinding"
 
 [node name="StartRow" type="HBoxContainer" parent="Margin/Root"]
 layout_mode = 2
@@ -212,4 +212,68 @@ text = "CaseTheory 생성"
 unique_name_in_owner = true
 layout_mode = 2
 text = "ReviewWorkProduct와 Theory가 아직 없습니다."
+autowrap_mode = 2
+
+[node name="Investigation" type="ScrollContainer" parent="Margin/Root/Tabs"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Workflow" type="VBoxContainer" parent="Margin/Root/Tabs/Investigation"]
+custom_minimum_size = Vector2(860, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="Heading" type="Label" parent="Margin/Root/Tabs/Investigation/Workflow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Investigation — 알려진 공백에서 명시적 조사와 자료 획득까지"
+
+[node name="InvestigationOptions" type="OptionButton" parent="Margin/Root/Tabs/Investigation/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="InvestigationOpportunityLabel" type="Label" parent="Margin/Root/Tabs/Investigation/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "사건 시작 전"
+autowrap_mode = 2
+
+[node name="ActionButtons" type="HBoxContainer" parent="Margin/Root/Tabs/Investigation/Workflow"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="CreateInvestigationButton" type="Button" parent="Margin/Root/Tabs/Investigation/Workflow/ActionButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "1. Task 생성"
+
+[node name="AssignInvestigationButton" type="Button" parent="Margin/Root/Tabs/Investigation/Workflow/ActionButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "2. 배정"
+
+[node name="ExecuteInvestigationButton" type="Button" parent="Margin/Root/Tabs/Investigation/Workflow/ActionButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "3. 조사 수행"
+
+[node name="CompleteInvestigationButton" type="Button" parent="Margin/Root/Tabs/Investigation/Workflow/ActionButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "4. 명시적 완료"
+
+[node name="AcquisitionHelp" type="Label" parent="Margin/Root/Tabs/Investigation/Workflow"]
+layout_mode = 2
+text = "Acquisition ID (자료 획득 결과에는 필수, 획득 없는 결과에는 비움):"
+
+[node name="AcquisitionIdInput" type="LineEdit" parent="Margin/Root/Tabs/Investigation/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "예: VS-ACQ-INV-UI-001"
+
+[node name="InvestigationStatusLabel" type="Label" parent="Margin/Root/Tabs/Investigation/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Investigation Task와 Result가 아직 없습니다."
 autowrap_mode = 2

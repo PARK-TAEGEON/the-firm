@@ -17,6 +17,10 @@ var gap_order: Array = []
 var procedural_statuses: Dictionary = {}
 var status_order: Array = []
 var acquisitions: Array = []
+var investigation_actions: Dictionary = {}
+var investigation_action_order: Array = []
+var investigation_results: Dictionary = {}
+var investigation_result_order: Array = []
 var task_definitions: Dictionary = {}
 var task_definition_order: Array = []
 var tasks: Dictionary = {}
@@ -60,6 +64,10 @@ func snapshot() -> Dictionary:
 		"procedural_statuses": procedural_statuses.duplicate(true),
 		"status_order": status_order.duplicate(true),
 		"acquisitions": acquisitions.duplicate(true),
+		"investigation_actions": investigation_actions.duplicate(true),
+		"investigation_action_order": investigation_action_order.duplicate(true),
+		"investigation_results": investigation_results.duplicate(true),
+		"investigation_result_order": investigation_result_order.duplicate(true),
 		"task_definitions": task_definitions.duplicate(true),
 		"task_definition_order": task_definition_order.duplicate(true),
 		"tasks": tasks.duplicate(true),

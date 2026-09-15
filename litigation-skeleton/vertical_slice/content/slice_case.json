@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "content_id": "VS-CONTENT-001",
-  "content_version": "1.1.0",
+  "content_version": "1.2.0",
   "session_event": {
     "id": "VS-EVENT-SESSION-001",
     "session_id": "VS-SESSION-001",
@@ -136,6 +136,36 @@
           "content": "이 내용은 player projection에 나타나면 안 된다."
         }
       ]
+    },
+    {
+      "id": "VS-SOURCE-APPROVAL-001",
+      "version": "1",
+      "title": "상대방 내부 승인 회신",
+      "source_kind": "investigation_acquired_correspondence",
+      "origin": {
+        "kind": "third_party_provision",
+        "provider_ref": "VS-PROVIDER-APPROVAL-001",
+        "description": "조사 요청에 따라 제3자가 제공한 회신 사본"
+      },
+      "scopes": [
+        {"id": "header", "label": "회신 식별 정보", "content": "회신 사본에는 작성 일자와 담당 부서가 표시되어 있다."},
+        {"id": "approval_text", "label": "승인 관련 문구", "content": "회신 사본에는 변경 일정에 대한 내부 승인 문구가 기록되어 있다."}
+      ]
+    },
+    {
+      "id": "VS-SOURCE-LOG-001",
+      "version": "1",
+      "title": "프로젝트 승인 로그",
+      "source_kind": "investigation_acquired_system_log",
+      "origin": {
+        "kind": "third_party_provision",
+        "provider_ref": "VS-PROVIDER-LOG-001",
+        "description": "조사 요청에 따라 시스템 관리자가 제공한 로그 발췌본"
+      },
+      "scopes": [
+        {"id": "change_entry", "label": "변경 기록", "content": "로그 발췌본에는 일정 변경 요청의 등록 시각이 기록되어 있다."},
+        {"id": "approval_audit", "label": "승인 감사 기록", "content": "전체 감사 기록은 이번 제공 범위에 포함되지 않았다."}
+      ]
     }
   ],
   "acquisitions": [
@@ -256,6 +286,20 @@
       "known_gap_refs": ["VS-GAP-001"],
       "output_type": "evidence_review_work_product",
       "completion_semantics": "required_work_and_scope_then_explicit_completion"
+    },
+    {
+      "id": "VS-TASKDEF-INVESTIGATION-001",
+      "version": "1",
+      "task_family": "investigation",
+      "purpose": "알려진 승인 공백에 대해 선택한 조사 경로를 수행한다.",
+      "eligible_actor_kinds": ["lawyer"],
+      "work_unit_kind": "work_block",
+      "required_work_units": 1,
+      "authorized_source_scopes": [],
+      "source_assertion_refs": [],
+      "known_gap_refs": ["VS-GAP-001"],
+      "output_type": "investigation_result",
+      "completion_semantics": "required_work_then_explicit_authored_resolution"
     }
   ],
   "task_instances": [
@@ -306,6 +350,74 @@
       "statement": "현재 자료는 일정 변경 논의를 보여주지만 상대방의 최종 승인은 여전히 미해결이라고 분석한다.",
       "basis_refs": ["VS-ASSERTION-002", "VS-ASSERTION-003", "VS-GAP-001"],
       "epistemic_type": "professional_analysis"
+    }
+  ],
+  "investigation_actions": [
+    {
+      "id": "VS-INV-ACTION-SUCCESS-001",
+      "label": "승인 담당 부서에 회신 사본 요청",
+      "purpose": "알려진 승인 공백을 확인할 수 있는 회신 자료를 요청한다.",
+      "bounded_domain": "상대방 승인 담당 부서의 일정 변경 회신",
+      "task_definition_id": "VS-TASKDEF-INVESTIGATION-001",
+      "dependency_task_ids": ["VS-TASK-REVIEW-001"],
+      "required_review_work_product_id": "VS-WP-REVIEW-001",
+      "required_issue_id": "VS-ISSUE-001",
+      "known_gap_refs": ["VS-GAP-001"],
+      "action_description": "기존 자료에 나타난 승인 공백을 바탕으로 지정된 부서에 자료를 요청한다.",
+      "authored_outcome": {
+        "outcome": "success",
+        "summary": "요청 경로에서 관련 회신 사본 전체가 제공되었다.",
+        "limitations": ["source_not_reviewed", "not_a_fact_finding"],
+        "source_id": "VS-SOURCE-APPROVAL-001",
+        "source_version": "1",
+        "scopes": ["header", "approval_text"],
+        "route": "investigation_third_party_request",
+        "provider_ref": "VS-PROVIDER-APPROVAL-001"
+      }
+    },
+    {
+      "id": "VS-INV-ACTION-PARTIAL-001",
+      "label": "시스템 관리자에게 승인 로그 요청",
+      "purpose": "승인 공백과 관련된 시스템 기록의 제공 가능 범위를 확인한다.",
+      "bounded_domain": "프로젝트 시스템의 일정 변경·승인 로그",
+      "task_definition_id": "VS-TASKDEF-INVESTIGATION-001",
+      "dependency_task_ids": ["VS-TASK-REVIEW-001"],
+      "required_review_work_product_id": "VS-WP-REVIEW-001",
+      "required_issue_id": "VS-ISSUE-001",
+      "known_gap_refs": ["VS-GAP-001"],
+      "action_description": "기존 자료에 나타난 승인 공백을 바탕으로 시스템 로그 발췌를 요청한다.",
+      "authored_outcome": {
+        "outcome": "partial_success",
+        "summary": "변경 기록 일부만 제공되었고 승인 감사 기록은 제공되지 않았다.",
+        "limitations": ["remaining_scope_not_acquired", "source_not_reviewed", "not_a_fact_finding"],
+        "source_id": "VS-SOURCE-LOG-001",
+        "source_version": "1",
+        "scopes": ["change_entry"],
+        "route": "investigation_system_record_request",
+        "provider_ref": "VS-PROVIDER-LOG-001"
+      }
+    },
+    {
+      "id": "VS-INV-ACTION-FAILURE-001",
+      "label": "회의 참석자에게 보관 자료 문의",
+      "purpose": "알려진 승인 공백과 관련된 추가 보관 자료의 존재를 확인한다.",
+      "bounded_domain": "회의 참석자가 보관한 일정 변경 관련 자료",
+      "task_definition_id": "VS-TASKDEF-INVESTIGATION-001",
+      "dependency_task_ids": ["VS-TASK-REVIEW-001"],
+      "required_review_work_product_id": "VS-WP-REVIEW-001",
+      "required_issue_id": "VS-ISSUE-001",
+      "known_gap_refs": ["VS-GAP-001"],
+      "action_description": "기존 자료에 나타난 승인 공백을 바탕으로 참석자의 보관 자료를 문의한다.",
+      "authored_outcome": {
+        "outcome": "failure",
+        "summary": "문의 대상이 추가 자료를 보관하고 있지 않아 새 자료를 확보하지 못했다.",
+        "limitations": ["no_source_acquired", "known_gap_remains_open", "not_a_fact_finding"],
+        "source_id": "",
+        "source_version": "",
+        "scopes": [],
+        "route": "",
+        "provider_ref": ""
+      }
     }
   ]
 }

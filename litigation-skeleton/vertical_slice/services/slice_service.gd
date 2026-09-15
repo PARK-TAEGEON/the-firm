@@ -2,6 +2,7 @@ extends RefCounted
 
 const SliceState = preload("res://vertical_slice/data/slice_state.gd")
 const WorkService = preload("res://vertical_slice/services/work_service.gd")
+const InvestigationService = preload("res://vertical_slice/services/investigation_service.gd")
 
 const SUPPORTED_SCHEMA_VERSION := 1
 const FORBIDDEN_CONTENT_KEYS := [
@@ -12,6 +13,7 @@ const FORBIDDEN_CONTENT_KEYS := [
 
 var _state = SliceState.new()
 var _work_service = WorkService.new()
+var _investigation_service = InvestigationService.new()
 
 
 func start_session(content: Dictionary, player_actor_id: String, player_team_id: String) -> Dictionary:
@@ -56,6 +58,9 @@ func start_session(content: Dictionary, player_actor_id: String, player_team_id:
 		candidate.status_order.append(status["id"])
 	for acquisition in content["acquisitions"]:
 		candidate.acquisitions.append(acquisition.duplicate(true))
+	for action in content["investigation_actions"]:
+		candidate.investigation_actions[action["id"]] = action.duplicate(true)
+		candidate.investigation_action_order.append(action["id"])
 	for definition in content["task_definitions"]:
 		candidate.task_definitions[definition["id"]] = definition.duplicate(true)
 		candidate.task_definition_order.append(definition["id"])
@@ -74,6 +79,7 @@ func start_session(content: Dictionary, player_actor_id: String, player_team_id:
 			"execution_ids": [],
 			"completion_id": "",
 			"output_work_product_ids": [],
+			"output_result_ids": [],
 		}
 		candidate.task_order.append(authored_task["id"])
 	for issue in content["issues"]:
@@ -117,6 +123,7 @@ func start_session(content: Dictionary, player_actor_id: String, player_team_id:
 
 	_state = candidate
 	_work_service.bind_state(_state)
+	_investigation_service.bind_services(_state, _work_service)
 	return {"ok": true, "session_id": candidate.session["id"]}
 
 
@@ -168,6 +175,29 @@ func get_review_work_product(viewer_actor_id: String, viewer_team_id: String,
 		work_product_id: String) -> Dictionary:
 	return _work_service.get_review_work_product(
 		viewer_actor_id, viewer_team_id, work_product_id)
+
+
+func create_investigation_task(action_id: String, task_id: String, creation_event_id: String,
+		actor_id: String, team_id: String) -> Dictionary:
+	return _investigation_service.create_investigation_task(
+		action_id, task_id, creation_event_id, actor_id, team_id)
+
+
+func execute_investigation_task(task_id: String, execution_id: String, actor_id: String,
+		team_id: String, time_slot_id: String, work_units: int) -> Dictionary:
+	return _investigation_service.execute_investigation_task(
+		task_id, execution_id, actor_id, team_id, time_slot_id, work_units)
+
+
+func complete_investigation_task(task_id: String, completion_id: String,
+		investigation_result_id: String, acquisition_id: String, actor_id: String,
+		team_id: String) -> Dictionary:
+	return _investigation_service.complete_investigation_task(
+		task_id, completion_id, investigation_result_id, acquisition_id, actor_id, team_id)
+
+
+func investigation_projection(viewer_actor_id: String, viewer_team_id: String) -> Dictionary:
+	return _investigation_service.investigation_projection(viewer_actor_id, viewer_team_id)
 
 
 func case_file_projection(viewer_actor_id: String, viewer_team_id: String) -> Dictionary:
@@ -300,11 +330,20 @@ func _acquisition_refs(team_id: String, source_id: String, source_version: Strin
 				and acquisition["source_version"] == source_version:
 			result.append({
 				"id": acquisition["id"],
+				"source_id": acquisition["source_id"],
+				"source_version": acquisition["source_version"],
 				"event_order": acquisition["event_order"],
 				"actor_id": acquisition["actor_id"],
+				"team_id": acquisition["team_id"],
+				"matter_id": acquisition.get("matter_id", ""),
+				"stage_id": acquisition.get("stage_id", ""),
+				"investigation_action_id": acquisition.get("investigation_action_id", ""),
+				"investigation_task_id": acquisition.get("investigation_task_id", ""),
+				"investigation_result_id": acquisition.get("investigation_result_id", ""),
 				"route": acquisition["route"],
 				"provider_ref": acquisition["provider_ref"],
 				"scopes": acquisition["scopes"].duplicate(),
+				"content_version": acquisition.get("content_version", ""),
 			})
 	return result
 
@@ -325,7 +364,7 @@ func _validate_content(content: Dictionary, player_actor_id: String, player_team
 	for key in [
 		"actors", "teams", "sources", "acquisitions", "assertions", "known_gaps",
 		"procedural_statuses", "task_definitions", "task_instances", "issues",
-		"review_analysis_options",
+		"review_analysis_options", "investigation_actions",
 	]:
 		if not content.get(key) is Array:
 			return "invalid_" + key
@@ -485,14 +524,21 @@ func _validate_content(content: Dictionary, player_actor_id: String, player_team
 		if not _required_strings(definition, [
 			"id", "version", "task_family", "purpose", "work_unit_kind",
 			"output_type", "completion_semantics",
-		]) or definition["task_family"] != "evidence_review" \
-				or definition["output_type"] != "evidence_review_work_product" \
+		]) or definition["task_family"] not in ["evidence_review", "investigation"] \
 				or not _positive_int(definition.get("required_work_units")) \
 				or not _nonempty_unique_string_list(definition.get("eligible_actor_kinds", [])) \
 				or not definition.get("authorized_source_scopes") is Array \
-				or definition["authorized_source_scopes"].is_empty() \
-				or not _nonempty_unique_string_list(definition.get("source_assertion_refs", [])) \
+				or not _unique_string_list(definition.get("source_assertion_refs", []), true) \
 				or not _unique_string_list(definition.get("known_gap_refs", []), true):
+			return "invalid_task_definition"
+		if definition["task_family"] == "evidence_review" and (definition["output_type"] != "evidence_review_work_product" \
+				or definition["authorized_source_scopes"].is_empty() \
+				or definition["source_assertion_refs"].is_empty()):
+			return "invalid_task_definition"
+		if definition["task_family"] == "investigation" and (definition["output_type"] != "investigation_result" \
+				or not definition["authorized_source_scopes"].is_empty() \
+				or not definition["source_assertion_refs"].is_empty() \
+				or definition["known_gap_refs"].is_empty()):
 			return "invalid_task_definition"
 		if not _claim_id(seen_ids, definition["id"]):
 			return "duplicate_task_definition_id"
@@ -556,11 +602,12 @@ func _validate_content(content: Dictionary, player_actor_id: String, player_team
 			if dependency_task_id == task_id or not task_map.has(dependency_task_id):
 				return "task_dependency_reference_invalid"
 		var definition: Dictionary = definition_map[task["task_definition_id"]]
-		for scope_ref in definition["authorized_source_scopes"]:
-			if not acquired_scope_keys.has(_scope_key(
-					task["team_id"], scope_ref["source_id"], scope_ref["source_version"],
-					scope_ref["scope_id"])):
-				return "task_scope_not_acquired"
+		if definition["task_family"] == "evidence_review":
+			for scope_ref in definition["authorized_source_scopes"]:
+				if not acquired_scope_keys.has(_scope_key(
+						task["team_id"], scope_ref["source_id"], scope_ref["source_version"],
+						scope_ref["scope_id"])):
+					return "task_scope_not_acquired"
 
 	var issue_ids: Dictionary = {}
 	for issue_value in content["issues"]:
@@ -597,6 +644,57 @@ func _validate_content(content: Dictionary, player_actor_id: String, player_team
 		for basis_ref in option["basis_refs"]:
 			if not assertion_ids.has(basis_ref) and not gap_ids.has(basis_ref):
 				return "review_analysis_basis_invalid"
+
+	var action_ids: Dictionary = {}
+	for action_value in content["investigation_actions"]:
+		if not action_value is Dictionary:
+			return "invalid_investigation_action"
+		var action: Dictionary = action_value
+		if not _required_strings(action, [
+			"id", "label", "purpose", "bounded_domain", "task_definition_id",
+			"required_review_work_product_id", "required_issue_id", "action_description",
+		]) or not _nonempty_unique_string_list(action.get("dependency_task_ids", [])) \
+				or not _nonempty_unique_string_list(action.get("known_gap_refs", [])) \
+				or not action.get("authored_outcome") is Dictionary:
+			return "invalid_investigation_action"
+		if not _claim_id(seen_ids, action["id"]):
+			return "duplicate_investigation_action_id"
+		if not definition_map.has(action["task_definition_id"]) \
+				or definition_map[action["task_definition_id"]]["task_family"] != "investigation":
+			return "investigation_task_definition_invalid"
+		if not issue_ids.has(action["required_issue_id"]):
+			return "investigation_issue_reference_invalid"
+		for dependency_task_id in action["dependency_task_ids"]:
+			if not task_map.has(dependency_task_id):
+				return "investigation_dependency_reference_invalid"
+		for gap_ref in action["known_gap_refs"]:
+			if not gap_ids.has(gap_ref) or gap_ref not in definition_map[action["task_definition_id"]]["known_gap_refs"]:
+				return "investigation_gap_reference_invalid"
+		var outcome: Dictionary = action["authored_outcome"]
+		if not _required_strings(outcome, ["outcome", "summary"]) \
+				or outcome["outcome"] not in ["success", "partial_success", "failure"] \
+				or not _nonempty_unique_string_list(outcome.get("limitations", [])) \
+				or not outcome.get("scopes") is Array:
+			return "invalid_investigation_outcome"
+		if outcome["outcome"] in ["success", "partial_success"]:
+			if not _required_strings(outcome, ["source_id", "source_version", "route", "provider_ref"]) \
+					or not _nonempty_unique_string_list(outcome["scopes"]):
+				return "invalid_investigation_outcome"
+			if not source_map.has(outcome["source_id"]) \
+					or source_map[outcome["source_id"]]["version"] != outcome["source_version"]:
+				return "investigation_source_reference_invalid"
+			for scope_id in outcome["scopes"]:
+				if not scope_map[outcome["source_id"]].has(scope_id):
+					return "investigation_scope_reference_invalid"
+		else:
+			if not outcome.get("source_id", "").is_empty() \
+					or not outcome.get("source_version", "").is_empty() \
+					or not outcome["scopes"].is_empty() or not outcome.get("route", "").is_empty() \
+					or not outcome.get("provider_ref", "").is_empty():
+				return "invalid_investigation_failure_outcome"
+		action_ids[action["id"]] = true
+	if action_ids.is_empty():
+		return "investigation_actions_required"
 
 	return ""
 
