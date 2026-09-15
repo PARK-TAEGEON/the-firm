@@ -1,0 +1,48 @@
+name: Godot Tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    defaults:
+      run:
+        working-directory: litigation-skeleton
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Godot 4.7.2
+        working-directory: .
+        run: |
+          wget -q https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q Godot_v4.7.2-stable_linux.x86_64.zip
+          chmod +x Godot_v4.7.2-stable_linux.x86_64
+          sudo mv Godot_v4.7.2-stable_linux.x86_64 /usr/local/bin/godot
+          godot --version
+
+      - name: Legacy regressions
+        run: godot --headless --path . --script res://tests/run_regressions.gd
+
+      - name: VS-001 regressions
+        run: godot --headless --path . --script res://vertical_slice/tests/run_slice_regressions.gd
+
+      - name: VS-002 regressions
+        run: godot --headless --path . --script res://vertical_slice/tests/run_vs002_regressions.gd
+
+      - name: VS-003 regressions
+        run: godot --headless --path . --script res://vertical_slice/tests/run_vs003_regressions.gd
+
+      - name: VS-004 regressions
+        run: godot --headless --path . --script res://vertical_slice/tests/run_vs004_regressions.gd
+
+      - name: Main scene smoke
+        run: godot --headless --path . --quit-after 2
