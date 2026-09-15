@@ -1,11 +1,11 @@
 # THE FIRM — Legal Research and Issue Analysis
 
 문서 ID: TEST-022  
-버전: v0.1 — Manual verification draft  
-상태: **Proposed / manual fixture-level verification**  
+버전: v0.2 — Accepted / manual fixture-level verification  
+상태: **Accepted / manual fixture-level verification**  
 프로젝트: THE FIRM  
 문서 유형: Manual Verification Test  
-Source DEC: `DEC-LITIGATION-023_LEGAL_RESEARCH_AND_ISSUE_ANALYSIS.md` v0.1 Proposed / design review required
+Source DEC: `DEC-LITIGATION-023_LEGAL_RESEARCH_AND_ISSUE_ANALYSIS.md` v0.2 Accepted
 
 ## 1. Purpose
 
@@ -1710,11 +1710,53 @@ This document is the TEST-022 artifact and does not create TEST-023. Future test
 
 **Default recommendation:** `DEC-024 — Case Theory & Evidence Synthesis`, only if TEST-022 confirms factual/legal branches remain separate and no truth laundering occurs. Final order remains subject to design review.
 
+## 30.1 VS-004 closure fixtures
+
+### Case 49 — Discovery event does not materialize review
+
+**Fixture**  Completed research path discovers LS-1 v1 but declares no reviewed scope.  
+**Expected / Observed**  LegalSourceDiscoveryEvent exists and LS-1 becomes visible; no LegalSourceReviewEvent, RecordedLegalExtraction or RuleStatement exists. **Verdict: PASS.**
+
+### Case 50 — Read/open does not materialize work
+
+**Fixture**  Player repeatedly opens/project LS-1 after discovery.  
+**Expected / Observed**  No new domain event or reviewed scope appears. **Verdict: PASS.**
+
+### Case 51 — Exact review/extraction/rule chain
+
+**Fixture**  Completed declared work reviews LS-1 v1 scope `holding`, records RX-1 and synthesizes RS-1.  
+**Expected / Observed**  Review event preserves exact scope; RX-1 binds that event/source/version/scope; RS-1 requires RX-1 and preserves transitive provenance. None changes LS-1. **Verdict: PASS.**
+
+### Case 52 — InterpretationCandidate and IssueAnalysis materialization
+
+**Fixture**  IC-X/IC-Y are authored from RS-1. Explicit IssueAnalysis creation selects both as competing readings after research completion.  
+**Expected / Observed**  IC-X/IC-Y and IA-1 are separate immutable artifacts; IA-1 preserves Issue, completed research, reviewed source/extraction/rule and typed factual provenance. Neither candidate is marked correct. **Verdict: PASS.**
+
+### Case 53 — Premature analysis attack
+
+**Fixture**  Attempt IA-2 before research completion or without a reviewed extraction chain.  
+**Expected / Observed**  Command is rejected atomically; no IA, Argument or selection is created. **Verdict: PASS.**
+
+### Case 54 — Canonical Argument identity/provenance
+
+**Fixture**  Authored recipe AR-X creates ARG-X from IA-1, IC-X, RS-1, RX-1, LS-1 v1 `holding`, current CT-2 v2 and the factual ReviewWorkProduct/Investigation provenance actually used.  
+**Expected / Observed**  ARG-X has a never-reused ID and all §14.1 identity/provenance fields. Revision would require a new linked ID. It is not IA-1, IC-X, CT-2 or correct law. **Verdict: PASS.**
+
+### Case 55 — Argument creation validation and atomicity
+
+**Fixture**  Try an un-authored combination, stale CT-1 v1, wrong Issue/matter/team and duplicate ARG-X ID.  
+**Expected / Observed**  Each command is rejected before mutation; source, analysis, arguments, selections and event journal remain unchanged. **Verdict: PASS.**
+
+### Case 56 — Argument selection without Strategy materialization
+
+**Fixture**  ARG-X and ARG-Y have different interpretation/source/factual provenance. Player selects ARG-X, then selects ARG-Y.  
+**Expected / Observed**  Two immutable ArgumentSelectionEvents remain; current selection derives as ARG-Y. Neither Argument is mutated, choices remain observably different, and no Strategy, StrategicNarrative, Submission, CourtRecord or adjudicative object is created. **Verdict: PASS.**
+
 ## 31. Final verification summary
 
 ```text
-Total core cases: 48
-PASS: 48
+Total core cases: 56
+PASS: 56
 PARTIAL: 0
 FAIL: 0
 ```
@@ -1722,7 +1764,7 @@ FAIL: 0
 PARTIAL cases: none  
 FAIL cases: none
 
-- DEC-023 reopen required: No semantic reopen indicated.
+- DEC-023 v0.2 reopen required: No.
 - Internal contradiction: None observed.
 - Inherited boundary violation: None accepted.
 - Hidden legal model leak: Rejected in Cases 3, 44–45.
@@ -1742,7 +1784,9 @@ FAIL cases: none
 - History overwrite: None accepted.
 - CourtRecord bypass: Rejected.
 - JII/finding bypass: Rejected.
-- Issue blocking DEC-023 promotion: None at fixture-level.
+- VS-004 discovery/review, extraction/rule, interpretation/analysis and Argument creation/selection gaps: Closed by Cases 49–56.
+- Canonical Strategy object attack: Rejected in Case 56.
+- Issue blocking DEC-023 Accepted status: None at fixture-level.
 - Issue blocking DEC-024: None at fixture-level.
 
 ## 32. Promotion recommendation
@@ -1750,8 +1794,8 @@ FAIL cases: none
 Fixture-level result에 semantic blocker가 없으므로 다음을 design-review에 권고한다.
 
 ```text
-DEC-023 v0.1 → v0.2 Accepted
-TEST-022 v0.1 → v0.2 Accepted / manual fixture-level verification
+DEC-023 v0.2 — Accepted
+TEST-022 v0.2 — Accepted / manual fixture-level verification
 ```
 
 TEST 문서가 DEC 상태를 자동 변경하는 것은 아니다. Substantive law, hierarchy, search/probability, procedure와 implementation은 계속 TBD다.
@@ -1761,3 +1805,4 @@ TEST 문서가 DEC 상태를 자동 변경하는 것은 아니다. Substantive l
 | Version | Status | Change |
 |---|---|---|
 | v0.1 | Proposed / manual fixture-level verification | DEC-023 LAW1–LAW35를 기준으로 48개 core fixture, hidden-law/extraction/rule/conditional-branch attacks, invariant/contradiction 및 false-pass/partial audits를 작성. |
+| v0.2 | Accepted / manual fixture-level verification | Existing 48 PASS에 LAW36–LAW41의 discovery/review, extraction/rule, interpretation/analysis, Argument identity/creation/selection 및 no-Strategy closure fixtures 8건을 추가해 56 PASS / 0 PARTIAL / 0 FAIL로 확정했다. |

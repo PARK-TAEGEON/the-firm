@@ -1,11 +1,11 @@
 # THE FIRM — Investigation and Evidence Acquisition
 
 문서 ID: TEST-020  
-버전: v0.1 — Manual verification draft  
-상태: **Proposed / manual fixture-level verification**  
+버전: v0.2 — Accepted / manual fixture-level verification  
+상태: **Accepted / manual fixture-level verification**  
 프로젝트: THE FIRM  
 문서 유형: Manual Verification Test  
-Source DEC: `DEC-LITIGATION-021_INVESTIGATION_AND_EVIDENCE_ACQUISITION.md` v0.1 Proposed / design review required
+Source DEC: `DEC-LITIGATION-021_INVESTIGATION_AND_EVIDENCE_ACQUISITION.md` v0.2 Accepted
 
 ## 1. Purpose
 
@@ -1477,8 +1477,8 @@ FAIL cases: none
 이 수동 fixture-level 결과에는 semantic blocker가 없으므로 다음을 design-review에 권고한다.
 
 ```text
-DEC-021 v0.1 → v0.2 Accepted
-TEST-020 v0.1 → v0.2 Accepted / manual fixture-level verification
+DEC-021 v0.2 — Accepted
+TEST-020 v0.2 — Accepted / manual fixture-level verification
 ```
 
 TEST 문서가 DEC 상태를 자동 변경하는 것은 아니다. Exact discovery/access/acquisition algorithms, probabilities, route/cooperation, witness system 및 구현은 계속 TBD다.
@@ -1488,3 +1488,4 @@ TEST 문서가 DEC 상태를 자동 변경하는 것은 아니다. Exact discove
 | Version | Status | Change |
 |---|---|---|
 | v0.1 | Proposed / manual fixture-level verification | DEC-021 INV1–INV35를 기준으로 40개 core fixture, unknown-unknown, starting-basis, Lead, stage, negative-result, acquisition-review, witness, invariant 및 contradiction audits 작성. |
+| v0.2 | Accepted / manual fixture-level verification | Existing 40 PASS / 0 PARTIAL / 0 FAIL result를 design review에서 승인하고 DEC-021 v0.2 Accepted와 정렬했다. |

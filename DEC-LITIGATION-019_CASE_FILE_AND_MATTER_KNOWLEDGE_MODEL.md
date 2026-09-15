@@ -1,8 +1,8 @@
 # THE FIRM — Case File and Matter Knowledge Model
 
 문서 ID: DEC-LITIGATION-019  
-버전: v0.1 — Proposed / design review required  
-상태: **Proposed / design review required**  
+버전: v0.2 — Accepted  
+상태: **Accepted**  
 프로젝트: THE FIRM  
 문서 유형: Design Decision  
 상위 기준: `00_GAME_CONSTITUTION.md`, `01_SYSTEM_MAP.md`, `SYS-001_LITIGATION.md`  
@@ -941,3 +941,4 @@ All exact taxonomies, schemas, relation/status vocabularies, correctness/confide
 | Version | Status | Change |
 |---|---|---|
 | v0.1 | Proposed / design review required | CFK1–CFK26 define firm-side graph epistemic state, source/assertion/analysis/inference/hypothesis/gap separation, fallible analysis, known/unknown boundary, provenance/history/conflict, authorized task reads, WorkProduct knowledge updates and explicit CourtRecord materialization. Includes 28 pressure fixtures and TEST-018 proposal. |
+| v0.2 | Accepted | TEST-018의 29 PASS / 0 PARTIAL / 0 FAIL과 design review에 따라 CFK semantic boundary를 Accepted로 승격했다. Exact taxonomy/schema/UI/implementation은 기존 TBD로 유지한다. |

@@ -1,11 +1,12 @@
 # THE FIRM — Task Assignment, Workload and Team Coordination
 
 문서 ID: DEC-LITIGATION-026  
-버전: v0.1 — Proposed / design review required  
-상태: **Proposed / design review required**  
+버전: v0.2 — Accepted  
+상태: **Accepted**  
 프로젝트: THE FIRM  
 문서 유형: Design Decision  
-직접 기준: `DEC-LITIGATION-025_DRAFTING_PLEADING_AND_FILING.md` v0.2 Accepted, `TEST-024_DRAFTING_PLEADING_AND_FILING.md` v0.2 Accepted / manual semantic verification, `DEC-LITIGATION-024_CASE_THEORY_AND_EVIDENCE_SYNTHESIS.md` v0.2 Accepted, `TEST-023_CASE_THEORY_AND_EVIDENCE_SYNTHESIS.md` v0.2 Accepted / manual fixture-level verification, `DEC-LITIGATION-023_LEGAL_RESEARCH_AND_ISSUE_ANALYSIS.md` v0.2 Accepted, `DEC-LITIGATION-022_WITNESS_INTERVIEW_AND_STATEMENT_MODEL.md` v0.2 Accepted, `DEC-LITIGATION-021_INVESTIGATION_AND_EVIDENCE_ACQUISITION.md` v0.2 Accepted, `DEC-LITIGATION-020_EVIDENCE_REVIEW.md` v0.2 Accepted, `DEC-LITIGATION-019_CASE_FILE_AND_MATTER_KNOWLEDGE_MODEL.md`, `DEC-LITIGATION-018_LAWYER_TASK_AND_WORKPRODUCT_RESOLUTION.md`, `DEC-LITIGATION-017_LAWYER_CAPABILITY_AND_PRACTICE_PROFILE.md`, `DEC-LITIGATION-016_LEGAL_PROFESSIONAL_PROFILE_RELATIONSHIP_AND_INTERACTION.md`  
+직접 Accepted 기준: `DEC-LITIGATION-024_CASE_THEORY_AND_EVIDENCE_SYNTHESIS.md` v0.2 Accepted, `TEST-023_CASE_THEORY_AND_EVIDENCE_SYNTHESIS.md` v0.2 Accepted, `DEC-LITIGATION-023_LEGAL_RESEARCH_AND_ISSUE_ANALYSIS.md` v0.2 Accepted, `DEC-LITIGATION-021_INVESTIGATION_AND_EVIDENCE_ACQUISITION.md` v0.2 Accepted, `DEC-LITIGATION-020_EVIDENCE_REVIEW.md` v0.2 Accepted, `DEC-LITIGATION-019_CASE_FILE_AND_MATTER_KNOWLEDGE_MODEL.md` v0.2 Accepted, `DEC-LITIGATION-018_LAWYER_TASK_AND_WORKPRODUCT_RESOLUTION.md` v0.2 Accepted  
+검증된 boundary 참고: `DEC-LITIGATION-025_DRAFTING_PLEADING_AND_FILING.md` v0.1 Proposed, `TEST-024_DRAFTING_PLEADING_AND_FILING.md` v0.1 Proposed / 64 PASS, `DEC-LITIGATION-022` v0.1 Proposed. VS-004는 drafting/filing/witness semantics를 소비하지 않고 OPS lifecycle boundary만 사용한다.  
 상위 기준: `00_GAME_CONSTITUTION.md`, `01_SYSTEM_MAP.md`, `SYS-001_LITIGATION.md`
 
 ## 1. Purpose
@@ -406,4 +407,5 @@ OPS11 non-linear candidate state vocabulary와 OPS27 optional MatterTeam archite
 | Version | Status | Change |
 |---|---|---|
 | v0.1 | Proposed / design review required | OPS1–OPS51 define firm-wide workload graph, cross-Matter finite capacity, structured assignment/state/dependency/review/team semantics, 60 invariants and 66 case-specific pressure fixtures. |
+| v0.2 | Accepted | TEST-025의 72 PASS / 0 PARTIAL / 0 FAIL과 design review에 따라 Task assignment/workload/team boundary를 Accepted로 승격했다. Exact scheduling, capacity formula, staffing, UI/AI와 economics는 기존 TBD로 유지한다. |
 

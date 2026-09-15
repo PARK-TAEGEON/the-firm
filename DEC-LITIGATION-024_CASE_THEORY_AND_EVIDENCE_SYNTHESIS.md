@@ -1,11 +1,12 @@
 # THE FIRM — Case Theory and Evidence Synthesis
 
 문서 ID: DEC-LITIGATION-024  
-버전: v0.1 — Proposed / design review required  
-상태: **Proposed / design review required**  
+버전: v0.2 — Accepted  
+상태: **Accepted**  
 프로젝트: THE FIRM  
 문서 유형: Design Decision  
-직접 기준: `DEC-LITIGATION-023_LEGAL_RESEARCH_AND_ISSUE_ANALYSIS.md` v0.2 Accepted, `TEST-022_LEGAL_RESEARCH_AND_ISSUE_ANALYSIS.md` v0.2 Accepted / manual fixture-level verification, `DEC-LITIGATION-022_WITNESS_INTERVIEW_AND_STATEMENT_MODEL.md` v0.2 Accepted, `TEST-021_WITNESS_INTERVIEW_AND_STATEMENT_MODEL.md` v0.2 Accepted / manual fixture-level verification, `DEC-LITIGATION-021_INVESTIGATION_AND_EVIDENCE_ACQUISITION.md` v0.2 Accepted, `TEST-020_INVESTIGATION_AND_EVIDENCE_ACQUISITION.md` v0.2 Accepted / manual fixture-level verification, `DEC-LITIGATION-020_EVIDENCE_REVIEW.md` v0.2 Accepted, `TEST-019_EVIDENCE_REVIEW.md` v0.2 Accepted / manual fixture-level verification, `DEC-LITIGATION-019_CASE_FILE_AND_MATTER_KNOWLEDGE_MODEL.md`, `TEST-018_CASE_FILE_AND_MATTER_KNOWLEDGE_MODEL.md`, `DEC-LITIGATION-018_LAWYER_TASK_AND_WORKPRODUCT_RESOLUTION.md`, `DEC-LITIGATION-017_LAWYER_CAPABILITY_AND_PRACTICE_PROFILE.md`, `DEC-LITIGATION-016_LEGAL_PROFESSIONAL_PROFILE_RELATIONSHIP_AND_INTERACTION.md`, `DEC-LITIGATION-015_JUDGE_GENERATION_CAREER_AND_LIFECYCLE.md`, `DEC-LITIGATION-014_CRITERION_CHOICE_POINT_AUTHORING_AND_VALIDATION.md`, `DEC-LITIGATION-013_JUDGE_INTERPRETATION_AND_JUDICIAL_PROFILE.md`  
+직접 Accepted 기준: `DEC-LITIGATION-023_LEGAL_RESEARCH_AND_ISSUE_ANALYSIS.md` v0.2 Accepted, `TEST-022_LEGAL_RESEARCH_AND_ISSUE_ANALYSIS.md` v0.2 Accepted, `DEC-LITIGATION-021_INVESTIGATION_AND_EVIDENCE_ACQUISITION.md` v0.2 Accepted, `DEC-LITIGATION-020_EVIDENCE_REVIEW.md` v0.2 Accepted, `DEC-LITIGATION-019_CASE_FILE_AND_MATTER_KNOWLEDGE_MODEL.md` v0.2 Accepted, `DEC-LITIGATION-018_LAWYER_TASK_AND_WORKPRODUCT_RESOLUTION.md` v0.2 Accepted  
+검증된 boundary 참고: `DEC-LITIGATION-022_WITNESS_INTERVIEW_AND_STATEMENT_MODEL.md` v0.1 Proposed, `TEST-021_WITNESS_INTERVIEW_AND_STATEMENT_MODEL.md` v0.1 Proposed / 44 PASS. VS-004 closure는 witness semantics를 소비하지 않는다.  
 상위 기준: `00_GAME_CONSTITUTION.md`, `01_SYSTEM_MAP.md`, `SYS-001_LITIGATION.md`
 
 ## 1. Purpose / non-goals
@@ -166,6 +167,17 @@ Argument selection ≠ legal correctness
 ```
 
 One CaseTheory may support multiple Arguments; multiple theories may support one Argument. Exact Argument/drafting handoff is TBD.
+
+### 11.1 VS-004 strategic-state closure
+
+VS-004에는 canonical `Strategy` object를 도입하지 않는다. 이 slice에서 "strategy finalization"은 current `CaseTheory` version을 바꾸거나 복제하는 행위가 아니라, DEC-023의 provenance-bearing `Argument` 중 하나를 explicit selection event로 current choice로 지정하는 UI/workflow 표현이다. 선택 이력은 보존되며 다음 선택은 이전 Argument나 selection event를 overwrite하지 않는다.
+
+```text
+CaseTheory ≠ Argument ≠ ArgumentSelectionEvent
+current argument selection ≠ Strategy object ≠ legal correctness
+```
+
+`StrategicNarrative`도 VS-004의 필수 materialized object가 아니다. Submission, CourtRecord 또는 adjudication으로 이어지는 handoff는 이 문서와 VS-004 범위 밖이다.
 
 ## 12. Comparison and strategic selection
 
@@ -1196,3 +1208,4 @@ Exact CaseTheory/Synthesis schemas, relation/status taxonomies, reliability/cred
 | Version | Status | Change |
 |---|---|---|
 | v0.1 | Proposed / design review required | SYN1–SYN35 define provenance-bearing CaseTheory/EvidenceSynthesis, authorized typed inputs, no hidden truth/law access, support/challenge/count/chronology boundaries, competing/no/wrong theory states, factual/legal and strategy separation, version/merge/split lineage, capability/team boundaries, court non-interference and 52-case TEST-023 plan. |
+| v0.2 | Accepted | TEST-023의 existing PASS 결과와 VS-004 closure review에 따라 Accepted로 승격했다. VS-004 strategic state는 immutable Argument selection history이며 canonical Strategy/StrategicNarrative materialization이 아님을 명시했다. |

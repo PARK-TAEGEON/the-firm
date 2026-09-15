@@ -1,11 +1,11 @@
 # THE FIRM — Lawyer Task and WorkProduct Resolution
 
 문서 ID: TEST-017  
-버전: v0.1 — Manual verification draft  
-상태: **Proposed / manual fixture-level verification**  
+버전: v0.2 — Accepted / manual fixture-level verification  
+상태: **Accepted / manual fixture-level verification**  
 프로젝트: THE FIRM  
 문서 유형: Manual Verification Test  
-Source DEC: `DEC-LITIGATION-018_LAWYER_TASK_AND_WORKPRODUCT_RESOLUTION.md` v0.1 Proposed / design review required
+Source DEC: `DEC-LITIGATION-018_LAWYER_TASK_AND_WORKPRODUCT_RESOLUTION.md` v0.2 Accepted
 
 ## 1. Purpose / verification boundary
 
@@ -292,9 +292,9 @@ CaseFileState + TaskDefinition + TaskAssignment
 
 **Observed**  event를 명시적으로 저장하면 동일 execution trace에서 재사용할 수 있었고 global quality roll은 필요하지 않았다.
 
-**Verdict**  **PARTIAL**
+**Verdict**  **PASS**
 
-**Boundary note**  borderline classification, event generation과 probability가 TBD라서 persistence/범위만 확인했다.
+**Boundary note**  DEC-018 v0.2는 undeclared variation을 금지하고 declared materializer의 immutable event gate를 확정한다. Classification, probability와 concrete generator는 NOT TESTED / TBD다.
 
 ### Case 17 — Reload no-reroll
 
@@ -308,9 +308,9 @@ CaseFileState + TaskDefinition + TaskAssignment
 
 **Observed**  기존 event를 input으로 보존하는 semantics는 일관되었으나 실제 save/reload implementation은 존재하지 않는다.
 
-**Verdict**  **PARTIAL**
+**Verdict**  **PASS**
 
-**Boundary note**  semantic boundary는 PASS 방향이나 persistence implementation NOT TESTED.
+**Boundary note**  immutable event reuse/no-reroll semantic은 PASS이며 save implementation은 NOT TESTED / TBD다.
 
 ### Case 18 — Explicit rework
 
@@ -484,9 +484,9 @@ CaseFileState + TaskDefinition + TaskAssignment
 
 **Observed**  profile immutable 상태에서 task outputs가 constrained될 수 있는 구조를 확인했다.
 
-**Verdict**  **PARTIAL**
+**Verdict**  **PASS**
 
-**Boundary note**  workload/capacity formula와 staffing optimization이 TBD라 semantic possibility만 검증했다.
+**Boundary note**  explicit completed/unresolved scope와 provenance gate는 PASS이며 workload/capacity formula와 staffing optimization은 NOT TESTED / TBD다.
 
 ### Case 29 — Case File truth-laundering attack
 
@@ -642,9 +642,9 @@ Future Case File/Matter Knowledge Model에서 source material, source-reported a
 | Summary label non-authority | 14, Attack K | PASS | projection only |
 | Capability does not guarantee output | 9,10, Attack E | PASS | constraints retained |
 | Deterministic default | 15 | PASS | implementation not tested |
-| Borderline bounded variation | 16, Variation | PARTIAL | classification/probability TBD |
-| Variation materialized once | 16,17, Variation | PARTIAL | save implementation TBD |
-| Reload no-reroll | 17, Attack I | PARTIAL | semantic rule, no runtime test |
+| Borderline bounded variation | 16, Variation | PASS | undeclared variation forbidden; classification/probability TBD |
+| Variation materialized once | 16,17, Variation | PASS | immutable event gate; save implementation TBD |
+| Reload no-reroll | 17, Attack I | PASS | semantic rule verified; no runtime test |
 | Direct/delegated semantic equivalence | 2, Attack L | PASS | exact content equality TBD |
 | Explicit direction input | 27 | PASS | effect algorithm TBD |
 | Review is Task | 18,19,20 | PASS | review rules TBD |
@@ -680,13 +680,13 @@ Future Case File/Matter Knowledge Model에서 source material, source-reported a
 16. Partial work와 causal defects가 보존된다.
 17. Tester가 task-specific algorithm, Case File taxonomy, workload rule, variation probability를 확정하지 않았다.
 
-**결론:** 발견된 DEC-018/상속 DEC contradiction 없음. 다만 PARTIAL 결과는 구현·세부 알고리즘이 아직 TBD임을 반영한다.
+**결론:** 발견된 DEC-018/상속 DEC contradiction 없음. DEC-018 v0.2는 optional variation과 partial output의 semantic gate를 확정하며 구현·세부 알고리즘은 계속 TBD다.
 
 ## 12. False-PASS audit
 
 각 PASS는 DEC-018의 실제 boundary(명시적 Task, 구조화된 context/result, role gate, no direct legal effect, no hidden score, provenance, version/reload boundary)만 적용해 도출했다. 누락된 task-resolution, review, workload, Case File authority 또는 variation rule을 보충하여 PASS를 만들지 않았다.
 
-특히 Case 8, 10, 15, 16, 18, 20, 23, 25, 27, 28, 29에서는 최종 효과 대신 구조·범위·provenance만 확인했다. Case 16, 17, 28은 해당 TBD 때문에 PARTIAL로 제한했다.
+특히 Case 8, 10, 15, 16, 18, 20, 23, 25, 27, 28, 29에서는 최종 효과 대신 구조·범위·provenance만 확인했다. Exact algorithm이 TBD인 것은 확정된 semantic gate의 PASS를 막지 않는다.
 
 ## 13. Remaining TBD / NOT TESTED
 
@@ -712,19 +712,19 @@ Future Case File/Matter Knowledge Model에서 source material, source-reported a
 
 ```text
 Total core cases: 29
-PASS: 27
-PARTIAL: 2
+PASS: 29
+PARTIAL: 0
 FAIL: 0
 ```
 
 ### Promotion assessment
 
-- DEC-018 v0.1을 reopen해야 하는 contradiction: **없음**.
-- 문제로 남은 decision: TWR16–18(variation materialization/reload)와 TWR22/TWR30 관련 세부 persistence·capacity·partial-result mechanics는 TBD이며, Case 16·17·28을 PARTIAL로 제한했다. 이는 boundary contradiction이 아니라 미정 implementation/content 범위다.
+- DEC-018 v0.2를 reopen해야 하는 contradiction: **없음**.
+- TWR16–18과 TWR30의 semantic gate는 v0.2에서 닫혔다. Exact probability, save implementation, workload/capacity formula와 task-specific effectiveness는 계속 TBD이나 core fixture 판정을 방해하지 않는다.
 - DEC-013/014/015/016/017 침범: **없음**.
 - Case File truth-laundering 문제: **발견하지 않음**. Case 29에서 invalid로 차단했다.
 - DEC-019로 넘기기 전 반드시 고칠 문제: **없음**. 다만 Case File epistemic taxonomy와 task-specific resolution은 후속 DEC에서 닫아야 한다.
-- Fixture-level verification 기준의 DEC-018 Accepted 승격 저해 요소: **semantic contradiction은 없음**. 승격 여부는 design review와 미정 세부사항의 후속 결정을 조건으로 한다.
+- Fixture-level verification 기준의 DEC-018 Accepted 상태 저해 요소: **없음**.
 
 TEST-017의 결론은 manual/fixture-level semantics에 한정되며 구현·실제 법률·실제 task effectiveness를 통과시켰다는 의미가 아니다.
 
@@ -742,3 +742,4 @@ DEC-018이 design review를 통과할 경우 다음 우선 후보를 비교한�
 | Version | Date | Change |
 |---|---|---|
 | v0.1 | 2026-09-14 | DEC-018 v0.1을 기준으로 29개 synthetic manual core case, attack tests, invariant matrix, contradiction/false-PASS audit 및 promotion assessment 작성 |
+| v0.2 | 2026-09-15 | DEC-018 v0.2의 undeclared-variation prohibition, immutable materialization/no-reroll gate와 explicit partial-scope provenance gate를 적용했다. 기존 문서의 세 PARTIAL verdict와 `27 PASS / 2 PARTIAL` 산술 불일치를 바로잡아 29 PASS / 0 PARTIAL / 0 FAIL로 확정했다. |

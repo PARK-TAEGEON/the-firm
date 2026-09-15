@@ -1,8 +1,8 @@
 # THE FIRM — Investigation and Evidence Acquisition
 
 문서 ID: DEC-LITIGATION-021  
-버전: v0.1 — Proposed / design review required  
-상태: **Proposed / design review required**  
+버전: v0.2 — Accepted  
+상태: **Accepted**  
 프로젝트: THE FIRM  
 문서 유형: Design Decision  
 직접 기준: `DEC-LITIGATION-020_EVIDENCE_REVIEW.md` v0.2 Accepted, `TEST-019_EVIDENCE_REVIEW.md` v0.2 Accepted / manual fixture-level verification, `DEC-LITIGATION-019_CASE_FILE_AND_MATTER_KNOWLEDGE_MODEL.md`, `TEST-018_CASE_FILE_AND_MATTER_KNOWLEDGE_MODEL.md`, `DEC-LITIGATION-018_LAWYER_TASK_AND_WORKPRODUCT_RESOLUTION.md`, `TEST-017_LAWYER_TASK_AND_WORKPRODUCT_RESOLUTION.md`, `DEC-LITIGATION-017_LAWYER_CAPABILITY_AND_PRACTICE_PROFILE.md`, `TEST-016_LAWYER_CAPABILITY_AND_PRACTICE_PROFILE.md`, `DEC-LITIGATION-016_LEGAL_PROFESSIONAL_PROFILE_RELATIONSHIP_AND_INTERACTION.md`, `DEC-LITIGATION-015_JUDGE_GENERATION_CAREER_AND_LIFECYCLE.md`, `DEC-LITIGATION-014_CRITERION_CHOICE_POINT_AUTHORING_AND_VALIDATION.md`, `DEC-LITIGATION-013_JUDGE_INTERPRETATION_AND_JUDICIAL_PROFILE.md`  
@@ -889,3 +889,4 @@ All task/Lead/search/acquisition taxonomies, algorithms, probabilities, accessib
 | Version | Status | Change |
 |---|---|---|
 | v0.1 | Proposed / design review required | INV1–INV35 define explicit Investigation Tasks, starting basis/search domain, Lead chains, unknown-unknown discovery, discovery/access/acquisition/review separation, structured failures/false Leads/negative results, materialized events, witness stages, provenance/history, Evidence Review/CourtRecord gates and 36-case TEST-020 plan. |
+| v0.2 | Accepted | TEST-020의 40 PASS / 0 PARTIAL / 0 FAIL과 design review에 따라 Investigation/acquisition boundary를 Accepted로 승격했다. Exact algorithms, probabilities, routes, cooperation과 implementation은 기존 TBD로 유지한다. |

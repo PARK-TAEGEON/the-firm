@@ -1,9 +1,9 @@
 # THE FIRM — TEST-025 Task Assignment, Workload and Team Coordination
 
 문서 ID: TEST-025  
-버전: v0.1 — Manual verification draft  
-상태: **Proposed / manual fixture-level verification**  
-대상: `DEC-LITIGATION-026_TASK_ASSIGNMENT_WORKLOAD_AND_TEAM_COORDINATION.md` v0.1 Proposed / design review required
+버전: v0.2 — Accepted / manual fixture-level verification  
+상태: **Accepted / manual fixture-level verification**  
+대상: `DEC-LITIGATION-026_TASK_ASSIGNMENT_WORKLOAD_AND_TEAM_COORDINATION.md` v0.2 Accepted
 
 ## 1. Purpose
 
@@ -828,8 +828,8 @@ Arithmetic: 72 + 0 + 0 = 72.
 ## 20. Promotion recommendation
 
 ```text
-DEC-026 v0.1 → v0.2 Accepted
-TEST-025 v0.1 → v0.2 Accepted / manual fixture-level verification
+DEC-026 v0.2 — Accepted
+TEST-025 v0.2 — Accepted / manual fixture-level verification
 ```
 
 TEST-025은 DEC status를 자동 변경하지 않는다.
@@ -843,4 +843,5 @@ TEST-025은 DEC status를 자동 변경하지 않는다.
 | Version | Status | Change |
 |---|---|---|
 | v0.1 | Proposed / manual fixture-level verification | DEC-026의 72개 case-specific fixture와 60개 invariant를 수동 적용; 모든 case PASS, PARTIAL/FAIL 없음. |
+| v0.2 | Accepted / manual fixture-level verification | Existing 72 PASS / 0 PARTIAL / 0 FAIL result를 design review에서 승인하고 DEC-026 v0.2 Accepted와 정렬했다. |
 

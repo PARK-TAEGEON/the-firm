@@ -1,11 +1,11 @@
 # THE FIRM — Case File and Matter Knowledge Model
 
 문서 ID: TEST-018  
-버전: v0.1 — Manual verification draft  
-상태: **Proposed / manual fixture-level verification**  
+버전: v0.2 — Accepted / manual fixture-level verification  
+상태: **Accepted / manual fixture-level verification**  
 프로젝트: THE FIRM  
 문서 유형: Manual Verification Test  
-Source DEC: `DEC-LITIGATION-019_CASE_FILE_AND_MATTER_KNOWLEDGE_MODEL.md` v0.1 Proposed / design review required
+Source DEC: `DEC-LITIGATION-019_CASE_FILE_AND_MATTER_KNOWLEDGE_MODEL.md` v0.2 Accepted
 
 ## 1. Purpose / verification boundary
 
@@ -419,8 +419,8 @@ FAIL: 0
 ## 16. Promotion recommendation
 
 ```text
-DEC-019 v0.1 → v0.2 Accepted
-TEST-018 v0.1 → v0.2 Accepted / manual fixture-level verification
+DEC-019 v0.2 — Accepted
+TEST-018 v0.2 — Accepted / manual fixture-level verification
 ```
 
 Recommendation is conditional on design review; TEST does not automatically change status.
@@ -438,3 +438,4 @@ Default recommendation is **Evidence Review first**, with Investigation followin
 | Version | Status | Change |
 |---|---|---|
 | v0.1 | Proposed / manual fixture-level verification | 29 core fixtures, additional attacks, semantic-family/wrong-analysis/known-unknown/conflict/observable-status pressure tests, invariant matrix, contradiction and false-PASS/PARTIAL audits 작성 |
+| v0.2 | Accepted / manual fixture-level verification | Existing 29 PASS / 0 PARTIAL / 0 FAIL result를 design review에서 승인하고 DEC-019 v0.2 Accepted와 정렬했다. |

@@ -146,3 +146,7 @@ VS-003 suite는 success, partial success, authored failure, invalid actor/team, 
 ## VS-004 starting baseline
 
 VS-004 시작 시 기존 completed ReviewWorkProduct, selected Issue, current CaseTheory와 함께 provenance-bearing acquired SourceMaterial이 존재할 수 있다. 이 자료는 아직 reviewed/asserted/researched/synthesized되지 않았으며 별도 accepted contract 없이 자동 분석·판례 검색·전략 갱신으로 취급해서는 안 된다. VS-004 작업은 시작하지 않았다.
+
+## VS-004 Architect design-closure addendum — 2026-09-15
+
+VS-004 implementation은 아직 시작하지 않았고 이 packet의 runtime baseline은 계속 VS-003이다. Architect review에서 required DEC/TEST promotion과 Legal Research materialization/Argument selection semantics를 닫고 `.agent/tasks/VS-004.md`를 수정했다. Canonical Strategy object는 도입하지 않는다. Exact status matrix, semantic closure, remaining TBD와 regression evidence는 `.agent/reviews/VS-004-DESIGN-CLOSURE.md`를 따른다.

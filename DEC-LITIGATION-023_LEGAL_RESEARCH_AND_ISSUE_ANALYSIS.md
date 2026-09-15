@@ -1,11 +1,12 @@
 # THE FIRM — Legal Research and Issue Analysis
 
 문서 ID: DEC-LITIGATION-023  
-버전: v0.1 — Proposed / design review required  
-상태: **Proposed / design review required**  
+버전: v0.2 — Accepted  
+상태: **Accepted**  
 프로젝트: THE FIRM  
 문서 유형: Design Decision  
-직접 기준: `DEC-LITIGATION-022_WITNESS_INTERVIEW_AND_STATEMENT_MODEL.md` v0.2 Accepted, `TEST-021_WITNESS_INTERVIEW_AND_STATEMENT_MODEL.md` v0.2 Accepted / manual fixture-level verification, `DEC-LITIGATION-021_INVESTIGATION_AND_EVIDENCE_ACQUISITION.md` v0.2 Accepted, `TEST-020_INVESTIGATION_AND_EVIDENCE_ACQUISITION.md` v0.2 Accepted / manual fixture-level verification, `DEC-LITIGATION-020_EVIDENCE_REVIEW.md` v0.2 Accepted, `TEST-019_EVIDENCE_REVIEW.md` v0.2 Accepted / manual fixture-level verification, `DEC-LITIGATION-019_CASE_FILE_AND_MATTER_KNOWLEDGE_MODEL.md`, `TEST-018_CASE_FILE_AND_MATTER_KNOWLEDGE_MODEL.md`, `DEC-LITIGATION-018_LAWYER_TASK_AND_WORKPRODUCT_RESOLUTION.md`, `DEC-LITIGATION-017_LAWYER_CAPABILITY_AND_PRACTICE_PROFILE.md`, `DEC-LITIGATION-016_LEGAL_PROFESSIONAL_PROFILE_RELATIONSHIP_AND_INTERACTION.md`, `DEC-LITIGATION-015_JUDGE_GENERATION_CAREER_AND_LIFECYCLE.md`, `DEC-LITIGATION-014_CRITERION_CHOICE_POINT_AUTHORING_AND_VALIDATION.md`, `DEC-LITIGATION-013_JUDGE_INTERPRETATION_AND_JUDICIAL_PROFILE.md`  
+직접 Accepted 기준: `DEC-LITIGATION-021_INVESTIGATION_AND_EVIDENCE_ACQUISITION.md` v0.2 Accepted, `TEST-020_INVESTIGATION_AND_EVIDENCE_ACQUISITION.md` v0.2 Accepted, `DEC-LITIGATION-020_EVIDENCE_REVIEW.md` v0.2 Accepted, `TEST-019_EVIDENCE_REVIEW.md` v0.2 Accepted, `DEC-LITIGATION-019_CASE_FILE_AND_MATTER_KNOWLEDGE_MODEL.md` v0.2 Accepted, `TEST-018_CASE_FILE_AND_MATTER_KNOWLEDGE_MODEL.md` v0.2 Accepted, `DEC-LITIGATION-018_LAWYER_TASK_AND_WORKPRODUCT_RESOLUTION.md` v0.2 Accepted, `TEST-017_LAWYER_TASK_AND_WORKPRODUCT_RESOLUTION.md` v0.2 Accepted  
+검증된 boundary 참고: `DEC-LITIGATION-022_WITNESS_INTERVIEW_AND_STATEMENT_MODEL.md` v0.1 Proposed, `TEST-021_WITNESS_INTERVIEW_AND_STATEMENT_MODEL.md` v0.1 Proposed / 44 PASS. VS-004는 witness semantics를 소비하지 않는다. 그 밖의 inherited profile/JII references는 기존 상태를 유지한다.  
 상위 기준: `00_GAME_CONSTITUTION.md`, `01_SYSTEM_MAP.md`, `SYS-001_LITIGATION.md`
 
 ## 1. Purpose / non-goals
@@ -190,7 +191,7 @@ Argument ≠ correct interpretation
 Conclusion candidate ≠ judgment
 ```
 
-Exact Argument model and drafting mechanics are TBD.
+Drafting and procedural use remain TBD. The minimum canonical Argument identity and creation/selection semantics required by VS-004 are closed in §14.1.
 
 ## 14. WorkProduct reference models
 
@@ -225,6 +226,76 @@ IssueAnalysisWorkProduct
 ```
 
 There is no universal `ResearchQuality`, `IssueStrength` or `CaseStrength = 78`.
+
+### 14.1 VS-004 minimum materialization and Argument closure
+
+The following is the minimum canonical semantic contract for VS-004. Field/storage names may vary, but these identities, references and gates may not be omitted or collapsed.
+
+#### Discovery and review materialization
+
+- A `LegalSource` exists as authored content independently of player knowledge.
+- Discovery materializes one immutable `LegalSourceDiscoveryEvent` referencing the research Task/assignment/execution/completion, query or authored path, source ID/version, actor/team/matter/stage, content version and event order. Discovery changes authorized visibility only; it does not mark any source scope reviewed.
+- Review occurs only through declared executed research work over an already discovered source and exact authorized source scope. Completion materializes an immutable `LegalSourceReviewEvent` with the same operational provenance plus exact reviewed scope. Opening or projecting a source is a read and creates neither event nor review state.
+- One valid completion may materialize zero or more discovery/review events according to its authored path. An authored bounded negative research result may still complete its Task and preserve a result/WorkProduct without inventing a source. An invalid or insufficient-work command is rejected before mutation and materializes none of the downstream artifacts described below.
+
+#### RecordedLegalExtraction, RuleStatement and InterpretationCandidate
+
+- `RecordedLegalExtraction` is an immutable researcher record produced from exactly one reviewed `LegalSource` ID/version and a non-empty exact reviewed scope. It also preserves its own ID, text/proposition, review event, research Task lifecycle, actor/team/matter/stage, content version and event order. One reviewed scope may yield zero or more extractions; an extraction may be incomplete or mistaken without changing the source.
+- `RuleStatement` is a distinct lawyer-authored synthesis. It requires its own persistent ID and one or more `RecordedLegalExtraction` references. It preserves the transitive LegalSource/version/scope provenance and any authored limitations. A direct LegalSource reference without an extraction is not sufficient to materialize a RuleStatement.
+- `InterpretationCandidate` is an immutable possible reading materialized explicitly from one or more RuleStatements. It preserves its own persistent ID, rule refs, supporting/challenging extraction/source refs, assumptions/limits, research lifecycle and actor/team/matter/stage/content/event provenance. It is neither a hidden truth value nor a selection.
+
+#### IssueAnalysis materialization
+
+`IssueAnalysis` materializes only through an explicit service command after the referenced Legal Research Task is completed. It requires a persistent ID, valid selected Issue, completed research Task lifecycle, at least one reviewed LegalSource/RecordedLegalExtraction chain, at least one RuleStatement and at least one InterpretationCandidate. It preserves typed factual inputs and their ReviewWorkProduct/Investigation/SourceMaterial provenance where used, assumptions, application reasoning, gaps/challenges, actor/team/matter/stage, content version and event order. Creating it does not mutate Issue, CaseTheory, source assertions, court or adjudicative state. A revision creates a new ID with `parent_issue_analysis_id`; it never overwrites the prior artifact.
+
+#### Minimum canonical Argument identity and provenance
+
+An `Argument` is an immutable advocacy artifact with at least:
+
+```text
+argument_id
+authored_argument_key / formulation
+issue_id
+issue_analysis_id
+interpretation_candidate_ids
+rule_statement_ids
+recorded_legal_extraction_ids
+legal_source_id/version/exact-scope refs
+case_theory_id/version
+relevant ReviewWorkProduct refs
+relevant InvestigationResult/AcquisitionEvent/SourceMaterial refs
+assumptions / known gaps / challenges
+creator actor_id / team_id / matter_id / stage_id
+research task/assignment/execution/completion refs
+content_version / creation_event_id / event_order
+optional parent_argument_id
+```
+
+"Relevant" provenance means every basis actually used by the authored Argument path must be preserved; it does not require inventing an Investigation reference for a path that did not use one. An Argument cannot exist from IssueAnalysis text alone while dropping the source/rule/extraction chain. Revision creates a new `argument_id` linked by `parent_argument_id`; persistent IDs are never reused.
+
+Argument creation is an explicit command selecting one authored argument recipe whose required IssueAnalysis, interpretation, rule, theory version and factual provenance are all present and authorized. Candidate interpretation or IssueAnalysis creation does not auto-create an Argument. Duplicate IDs, stale/non-current CaseTheory bases, mismatched Issue/matter/stage/team, missing required provenance and un-authored combinations are rejected atomically.
+
+Argument selection is a separate explicit command. It materializes an immutable `ArgumentSelectionEvent` referencing the selected existing Argument, its Issue and CaseTheory version, selector actor/team/matter/stage, content version and event order. For VS-004, current strategic state is derived from the latest valid selection event for the Issue; re-selection appends history and does not mutate either Argument. Selection does not assert correctness and does not create a canonical `Strategy`, `StrategicNarrative`, Submission, CourtRecord or adjudicative object.
+
+```text
+LegalSource
+≠ LegalSourceDiscoveryEvent
+≠ LegalSourceReviewEvent
+≠ RecordedLegalExtraction
+≠ RuleStatement
+≠ InterpretationCandidate
+≠ IssueAnalysis
+≠ Argument
+≠ ArgumentSelectionEvent
+≠ CaseTheory
+```
+
+Required artifact boundary는 다음과 같이 그대로 유지된다.
+
+```text
+LegalSource ≠ RecordedLegalExtraction ≠ RuleStatement ≠ InterpretationCandidate
+≠ IssueAnalysis ≠ Argument ≠ CaseTheory
+```
 
 ## 15. Incomplete research and negative results
 
@@ -601,6 +672,42 @@ Research may inform Argument/drafting/submission Tasks. Only later valid procedu
 **Recommendation:** create bounded ResearchLead/gap/follow-up candidate only.  
 **Status:** **Core Accepted candidate**  
 **Reason:** uncertainty without oracle UI.
+
+### LAW36 — Discovery and review materialize separately
+
+**Recommendation:** discovery and exact-scope review use distinct immutable events; reads create neither.  
+**Status:** **Core Accepted**  
+**Reason:** source visibility cannot stand in for performed review work.
+
+### LAW37 — Extraction and rule provenance chain
+
+**Recommendation:** each RecordedLegalExtraction binds one reviewed source version/scope; each RuleStatement requires one or more extraction refs.  
+**Status:** **Core Accepted**  
+**Reason:** mistaken recording and later synthesis must remain distinguishable from source content.
+
+### LAW38 — InterpretationCandidate and IssueAnalysis materialization
+
+**Recommendation:** interpretations materialize explicitly from rules; IssueAnalysis materializes explicitly after completed research and retains typed factual/legal provenance.  
+**Status:** **Core Accepted**  
+**Reason:** review, interpretation and application are different work states.
+
+### LAW39 — Minimum immutable Argument identity
+
+**Recommendation:** use the identity and provenance contract in §14.1; revision creates a new linked Argument ID.  
+**Status:** **Core Accepted**  
+**Reason:** later choices must be traceable without collapsing Argument into analysis or theory.
+
+### LAW40 — Argument creation and selection are separate
+
+**Recommendation:** explicit authored creation validates all bases; a separate immutable selection event establishes the current choice and preserves history.  
+**Status:** **Core Accepted**  
+**Reason:** candidate existence, advocacy materialization and player selection are distinct.
+
+### LAW41 — No canonical Strategy object in VS-004
+
+**Recommendation:** derive VS-004 current strategic state from Argument selection; do not materialize Strategy or downstream procedural/adjudicative objects.  
+**Status:** **Core Accepted**  
+**Reason:** no separate decision currently justifies a Strategy ontology.
 
 ## 22. Hard invariants
 
@@ -1134,6 +1241,7 @@ Do not create the TEST here. Recommended file: `TEST-022_LEGAL_RESEARCH_AND_ISSU
 | LAW1–LAW15 | Explicit bounded research, source/rule/authority/conflict/version boundaries | **Core Accepted candidate** |
 | LAW17–LAW31 | Capability, typed Case File inputs, scenarios, analysis/Argument, history and court boundaries | **Core Accepted candidate** |
 | LAW33–LAW35 | No CaseStrength, hidden-model separation and research gaps | **Core Accepted candidate** |
+| LAW36–LAW41 | Discovery/review events, extraction/rule/interpretation/analysis materialization, Argument identity/selection and no canonical Strategy | **Core Accepted** |
 
 ### Accepted candidates
 
@@ -1143,7 +1251,7 @@ Do not create the TEST here. Recommended file: `TEST-022_LEGAL_RESEARCH_AND_ISSU
 
 ### TBD
 
-Substantive legal content, Korean doctrine, authority hierarchy, jurisdiction/precedent rules, source/search/citation systems, errors/probabilities, capability mapping, Issue/IRAC/Argument catalogs, drafting/procedure, UI/AI/schema/Godot and balancing remain **TBD**.
+Substantive legal content, Korean doctrine, authority hierarchy, jurisdiction/precedent rules, general source/search/citation systems, errors/probabilities, capability mapping, broader Issue/IRAC/Argument catalogs, drafting/procedure, UI/AI/schema/Godot and balancing remain **TBD**. VS-004's minimum materialization gates and Argument identity/selection contract are closed by §14.1 and LAW36–LAW41.
 
 ### Forbidden
 
@@ -1162,3 +1270,4 @@ Substantive legal content, Korean doctrine, authority hierarchy, jurisdiction/pr
 | Version | Status | Change |
 |---|---|---|
 | v0.1 | Proposed / design review required | LAW1–LAW35 define explicit bounded Legal Research, LegalSource/extraction/RuleStatement/IssueAnalysis/Argument layers, fallible/conflicting/versioned authority semantics, typed conditional scenarios, hidden legal-model separation, no score/oracle, court boundary and 44-case TEST-022 plan. |
+| v0.2 | Accepted | TEST-022 existing 48 PASS와 VS-004 closure fixtures를 바탕으로 Accepted. LAW36–LAW41 add separate discovery/review events, exact extraction→rule→interpretation→analysis materialization, canonical immutable Argument identity/provenance, explicit creation/selection history and prohibition on a canonical Strategy object. |

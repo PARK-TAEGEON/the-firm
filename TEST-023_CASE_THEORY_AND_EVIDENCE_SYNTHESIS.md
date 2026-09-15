@@ -1,9 +1,9 @@
 # THE FIRM — TEST-023 Case Theory and Evidence Synthesis
 
 문서 ID: TEST-023  \\  
-버전: v0.1 — Manual verification draft  \\  
-상태: **Proposed / manual fixture-level verification**  \\  
-대상: `DEC-LITIGATION-024_CASE_THEORY_AND_EVIDENCE_SYNTHESIS.md` v0.1 Proposed / design review required
+버전: v0.2 — Accepted / manual fixture-level verification  \\
+상태: **Accepted / manual fixture-level verification**  \\
+대상: `DEC-LITIGATION-024_CASE_THEORY_AND_EVIDENCE_SYNTHESIS.md` v0.2 Accepted
 
 ## 1. Purpose
 
@@ -633,18 +633,25 @@ semantic ambiguity가 없으므로 PARTIAL 없음. TBD인 algorithm, reliability
 - save/schema/API/Godot
 - balancing/performance
 
+### Case 57 — VS-004 canonical Strategy object attack
+
+**Purpose**  Argument 선택을 별도 canonical Strategy artifact로 승격하는 collapse를 차단한다.  
+**Fixture**  Current CaseTheory CT-A-v2와 ARG-1/ARG-2가 존재하고 player가 ARG-2를 current choice로 선택한다.  
+**Expected / Observed**  Immutable ArgumentSelectionEvent가 ARG-2와 CT-A-v2를 참조하고 이전 selection history를 보존한다. Strategy 또는 StrategicNarrative object, Submission, CourtRecord와 adjudicative state는 생성되지 않는다. **Verdict: PASS.**  
+**Boundary note**  Later procedural handoff와 presentation strategy model은 NOT TESTED / out of scope.
+
 ## 16. Final verification summary
 
 ```text
-Total core cases: 56
-PASS: 56
+Total core cases: 57
+PASS: 57
 PARTIAL: 0
 FAIL: 0
 ```
 
 PARTIAL cases: none  
 FAIL cases: none  
-Arithmetic: 56 + 0 + 0 = 56.
+Arithmetic: 57 + 0 + 0 = 57.
 
 - DEC-024 reopen required: No.
 - Internal contradiction: None found.
@@ -661,8 +668,8 @@ Arithmetic: 56 + 0 + 0 = 56.
 ## 17. Promotion recommendation
 
 ```text
-DEC-024 v0.1 → v0.2 Accepted
-TEST-023 v0.1 → v0.2 Accepted / manual fixture-level verification
+DEC-024 v0.2 — Accepted
+TEST-023 v0.2 — Accepted / manual fixture-level verification
 ```
 
 TEST-023은 DEC status를 자동 변경하지 않는다.
@@ -676,3 +683,4 @@ DEC-025 — Drafting / Pleading / Filing을 다음 후보로 평가한다. CaseT
 | Version | Status | Change |
 |---|---|---|
 | v0.1 | Proposed / manual fixture-level verification | DEC-024 v0.1의 56개 core fixture와 invariant matrix를 수동 적용; 모든 case PASS, PARTIAL/FAIL 없음. |
+| v0.2 | Accepted / manual fixture-level verification | Existing 56 PASS와 VS-004 canonical Strategy object attack 1건을 합쳐 57 PASS / 0 PARTIAL / 0 FAIL로 확정하고 DEC-024 v0.2 Accepted와 정렬했다. |

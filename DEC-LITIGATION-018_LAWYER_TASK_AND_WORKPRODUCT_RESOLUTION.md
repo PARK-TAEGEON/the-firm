@@ -1,8 +1,8 @@
 # THE FIRM — Lawyer Task & WorkProduct Resolution 최소 모델
 
 문서 ID: DEC-LITIGATION-018  
-버전: v0.1 — Proposed / design review required  
-상태: **Proposed / design review required**  
+버전: v0.2 — Accepted  
+상태: **Accepted**  
 프로젝트: THE FIRM  
 문서 유형: Design Decision  
 상위 기준: [00_GAME_CONSTITUTION.md](00_GAME_CONSTITUTION.md) v0.2, [01_SYSTEM_MAP.md](01_SYSTEM_MAP.md) v0.2  
@@ -792,8 +792,17 @@ All task catalogs/schemas, role laws, demand/component/WorkProduct vocabularies,
 - Case File/Internal WorkProduct treated as CourtRecord without materialization.
 - In-place WorkProduct/history overwrite or direct JII/finding effect.
 
-## 16. Decision history
+## 16. Acceptance closure
+
+TWR16–TWR18은 모든 Task family가 variability를 구현해야 한다는 요구가 아니다. Task-specific rule이 bounded borderline variation과 그 materializer를 명시하지 않은 경우 resolution은 declared inputs에 대해 deterministic해야 한다. Variation을 명시한 경우에는 immutable `TaskExecutionEvent` identity, 대상 component, 입력 version, 결과와 event order를 최초 resolution에서 한 번 materialize하고 이후 read/reload에서 재추첨하지 않는다. Exact probability와 분포는 해당 Task family가 별도로 결정하기 전까지 사용할 수 없다.
+
+TWR30의 partial output은 completed scope, unresolved scope, causal gaps와 provenance가 명시된 경우에만 later Task input 후보가 된다. Partial이라는 이유만으로 Task completion, adequacy, review acceptance 또는 downstream legal effect를 의미하지 않는다. Capacity/workload의 exact formula가 없는 경우에도 finite declared work와 unresolved scope의 separation은 유효하지만, 시스템이 임의 penalty나 completion forecast를 만들 수는 없다.
+
+이 closure는 optional variability, save implementation 또는 workload formula를 발명하지 않고 공통 semantic gate만 확정한다.
+
+## 17. Decision history
 
 | Version | Status | Change |
 |---|---|---|
 | v0.1 | Proposed / design review required | Explicit Task units, structured demands, role eligibility, shared direct/delegated resolution, component-based capability contribution, structured WorkProducts, deterministic core with bounded materialized variation, no reload reroll, review/rework/dependency graphs, Case File updates, CourtRecord separation, version history and partial useful outputs를 TWR1~TWR30으로 제안. 28-case TEST-017 plan included; task-specific algorithms, Case File system, substantive work mechanics and implementation remain TBD. |
+| v0.2 | Accepted | TEST-017 audit에서 드러난 optional variation/reload와 partial-capacity 판정 공백을 semantic gate로 닫았다. Undeclared variation은 사용할 수 없고, declared variation은 한 번 materialize되어야 하며, partial output은 explicit completed/unresolved scope와 provenance가 있을 때만 later input 후보가 된다. Exact probability, save implementation과 workload formula는 계속 TBD다. |
