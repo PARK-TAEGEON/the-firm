@@ -68,3 +68,43 @@
 - UI/save system
 
 테스트 통과를 위해 위 규칙을 임의로 발명하지 않는다.
+
+## Agent Roles
+
+### Planner
+- repository와 accepted design 문서를 읽고 Task Contract를 작성한다.
+- production code를 수정하지 않는다.
+- 이미 닫힌 architecture를 임의로 다시 설계하지 않는다.
+
+### Implementer
+- active Task Contract에 명시된 범위만 구현한다.
+- 허용되지 않은 파일이나 다음 VS scope를 건드리지 않는다.
+- 구현 후 required regression을 실행하고 REVIEW_PACKET.md를 갱신한다.
+
+### Reviewer
+- Task Contract, git diff, test result, REVIEW_PACKET을 검토한다.
+- review 중 production code를 몰래 수정하지 않는다.
+- 판정은 다음 중 하나로 한다:
+  - PASS
+  - FIX REQUIRED
+  - BLOCKED
+
+## Active Task Contract
+
+구현 작업을 시작하기 전에 `.agent/tasks/` 아래의 active task contract를 읽는다.
+
+Task Contract와 Accepted design document가 충돌하면 구현을 멈추고 충돌을 보고한다.
+
+## Completion Gate
+
+작업 완료를 선언하기 전에 반드시 다음을 확인한다.
+
+- requested scope implemented
+- forbidden scope untouched
+- existing regressions pass
+- new regressions pass
+- git diff reviewed
+- REVIEW_PACKET updated
+- no next-stage work started
+
+Reviewer PASS 전에는 다음 VS task로 진행하지 않는다.
