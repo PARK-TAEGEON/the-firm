@@ -42,6 +42,26 @@ var arguments: Dictionary = {}
 var argument_order: Array = []
 var argument_selection_events: Dictionary = {}
 var argument_selection_order: Array = []
+var submission_rules: Dictionary = {}
+var submission_rule_order: Array = []
+var record_inclusion_rules: Dictionary = {}
+var record_inclusion_rule_order: Array = []
+var package_members: Dictionary = {}
+var package_member_order: Array = []
+var deadline_contexts: Dictionary = {}
+var deadline_context_order: Array = []
+var draft_work_products: Dictionary = {}
+var draft_work_product_order: Array = []
+var finalized_documents: Dictionary = {}
+var finalized_document_order: Array = []
+var submission_attempts: Dictionary = {}
+var submission_attempt_order: Array = []
+var procedural_results: Dictionary = {}
+var procedural_result_order: Array = []
+var record_materialization_events: Dictionary = {}
+var record_materialization_order: Array = []
+var court_record_entries: Dictionary = {}
+var court_record_entry_order: Array = []
 var task_definitions: Dictionary = {}
 var task_definition_order: Array = []
 var tasks: Dictionary = {}
@@ -110,6 +130,26 @@ func snapshot() -> Dictionary:
 		"argument_order": argument_order.duplicate(true),
 		"argument_selection_events": argument_selection_events.duplicate(true),
 		"argument_selection_order": argument_selection_order.duplicate(true),
+		"submission_rules": submission_rules.duplicate(true),
+		"submission_rule_order": submission_rule_order.duplicate(true),
+		"record_inclusion_rules": record_inclusion_rules.duplicate(true),
+		"record_inclusion_rule_order": record_inclusion_rule_order.duplicate(true),
+		"package_members": package_members.duplicate(true),
+		"package_member_order": package_member_order.duplicate(true),
+		"deadline_contexts": deadline_contexts.duplicate(true),
+		"deadline_context_order": deadline_context_order.duplicate(true),
+		"draft_work_products": draft_work_products.duplicate(true),
+		"draft_work_product_order": draft_work_product_order.duplicate(true),
+		"finalized_documents": finalized_documents.duplicate(true),
+		"finalized_document_order": finalized_document_order.duplicate(true),
+		"submission_attempts": submission_attempts.duplicate(true),
+		"submission_attempt_order": submission_attempt_order.duplicate(true),
+		"procedural_results": procedural_results.duplicate(true),
+		"procedural_result_order": procedural_result_order.duplicate(true),
+		"record_materialization_events": record_materialization_events.duplicate(true),
+		"record_materialization_order": record_materialization_order.duplicate(true),
+		"court_record_entries": court_record_entries.duplicate(true),
+		"court_record_entry_order": court_record_entry_order.duplicate(true),
 		"task_definitions": task_definitions.duplicate(true),
 		"task_definition_order": task_definition_order.duplicate(true),
 		"tasks": tasks.duplicate(true),

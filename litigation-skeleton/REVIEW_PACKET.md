@@ -1,144 +1,165 @@
-# VS-004 review-fix implementation packet
+# VS-005 implementation review packet
 
 ## Result
 
-VS-004 now implements the accepted Legal Research → IssueAnalysis → Argument flow, including the focused Reviewer fixes. Discovery and exact-scope review use separate generic Task lifecycle instances. IssueAnalysis preserves validated typed factual provenance. The playable presentation exposes the selected Argument formulation/basis and its current IssueAnalysis application, assumptions, and challenges.
-
-No Task Contract or Accepted DEC/TEST conflict was encountered. VS-005 was not started.
-
-## Exact changed files
-
-The complete VS-004 branch diff contains:
-
-- `README.md`
-- `REVIEW_PACKET.md`
-- `vertical_slice/content/locale_ko.json`
-- `vertical_slice/content/slice_case.json`
-- `vertical_slice/data/slice_state.gd`
-- `vertical_slice/presentation/slice_presenter.gd`
-- `vertical_slice/services/legal_research_service.gd` (new)
-- `vertical_slice/services/slice_service.gd`
-- `vertical_slice/services/work_service.gd`
-- `vertical_slice/tests/run_slice_regressions.gd` (content-version compatibility only)
-- `vertical_slice/tests/run_vs004_regressions.gd` (new)
-- `vertical_slice/ui/main.gd`
-- `vertical_slice/ui/main.tscn`
-- `vertical_slice/vs004-test-results.log` (new/latest output)
-
-The focused review-fix pass changed:
-
-- `vertical_slice/content/slice_case.json`
-- `vertical_slice/content/locale_ko.json`
-- `vertical_slice/presentation/slice_presenter.gd`
-- `vertical_slice/services/legal_research_service.gd`
-- `vertical_slice/services/slice_service.gd`
-- `vertical_slice/services/work_service.gd`
-- `vertical_slice/tests/run_vs004_regressions.gd`
-- `vertical_slice/ui/main.gd`
-- `vertical_slice/vs004-test-results.log`
-- `REVIEW_PACKET.md`
-
-Required prior-suite log files were refreshed by earlier required executions but have no content diff from HEAD.
-
-## Reviewer defects fixed
-
-### 1. Post-discovery review work
-
-- Discovery tasks carry `legal_research_work_kind = discovery`.
-- Exact-source review work is separately declared after discovery as another ordinary TaskInstance with `legal_research_work_kind = source_review`.
-- It uses the existing `TaskDefinition → Assignment → Execution → Completion` lifecycle in `WorkService`; no second task ontology exists.
-- The review task binds the discovery event, LegalSource ID/version, and exact scope at declaration.
-- `review_legal_source` preflights actor/team, task kind, target scope, discovery ordering, assignment, executed work, dependencies, work units, completion identity, and execution event ordering before the first mutation.
-- A successful review atomically records task completion followed by immutable `LegalSourceReviewEvent` materialization.
-- Discovery work, pre-discovery work, unexecuted work, and wrong task/scope provenance cannot satisfy review.
-
-### 2. Complete IssueAnalysis factual/legal provenance
-
-Authored IssueAnalysis recipes declare typed `factual_basis_requirements`. Runtime commands submit typed `factual_basis_refs`, resolved against authoritative state:
-
-- `ReviewWorkProduct`
-- `InvestigationResult`
-- acquired `SourceMaterial` (the exact acquisition event, source ID/version/scopes, and InvestigationResult link)
-
-The service validates team/matter/stage, required authored identity/action/source/scope, and InvestigationResult ↔ SourceMaterial linkage before mutation. It also proves every supplied InterpretationCandidate derives from the supplied RuleStatement instance, and proves each extraction/review/discovery chain belongs to the completed research basis. IssueAnalysis records the current CaseTheory version so later Argument creation rejects a stale analysis basis.
-
-### 3. Playable inspection
-
-`legal_research_status_text()` now derives and displays through service projections only:
-
-- current IssueAnalysis application;
-- assumptions;
-- challenges/limitations;
-- selected Argument label and formulation;
-- selected Argument IssueAnalysis, RuleStatement, LegalSourceReviewEvent, and typed factual basis provenance.
-
-No UI domain mutation was added.
-
-### 4. Missing attacks and handoff accuracy
-
-The VS-004 suite now covers pre-completion IssueAnalysis, pre-investigation factual application, stale/invalid factual provenance, actual InterpretationCandidate→RuleStatement instance mismatch, invalid/stale Argument bases, hidden `correct_argument`, and the post-discovery executed-review-work boundary.
-
-## Exact SliceService APIs
+VS-005 implements only the accepted Submission → CourtRecord boundary in DEC-LITIGATION-025 v0.3 / TEST-024 v0.3, including the finalized-document lineage clarification in commit `2b62636`:
 
 ```text
-create_legal_research_task(question_id, task_id, creation_event_id, actor_id, team_id)
-create_legal_source_review_task(legal_source_id, legal_source_version, scope_id, task_id, creation_event_id, actor_id, team_id)
-assign_task(task_id, assignment_id, assigner_actor_id, assignee_actor_id, team_id)
-execute_legal_research_task(task_id, execution_id, actor_id, team_id, time_slot_id, work_units)
-complete_legal_research_task(task_id, completion_id, discovery_event_ids, actor_id, team_id)
-review_legal_source(review_event_id, completion_id, task_id, legal_source_id, legal_source_version, scope_id, actor_id, team_id)
-record_legal_extraction(extraction_id, recipe_id, review_event_id, actor_id, team_id)
-create_rule_statement(rule_id, recipe_id, extraction_ids, actor_id, team_id)
-consider_legal_interpretation(interpretation_id, recipe_id, rule_ids, actor_id, team_id)
-create_issue_analysis(issue_analysis_id, recipe_id, task_id, rule_ids, interpretation_ids, factual_basis_refs, actor_id, team_id)
-create_argument(argument_id, recipe_id, issue_analysis_id, actor_id, team_id)
-select_argument(selection_event_id, argument_id, actor_id, team_id)
-legal_research_projection(viewer_actor_id, viewer_team_id)
-read_legal_source(viewer_actor_id, viewer_team_id, legal_source_id, legal_source_version, scope_ids)
+selected ArgumentSelectionEvent
+→ Drafting Task / immutable DraftWorkProduct
+→ immutable FinalizedDocument version
+→ SubmissionAttempt
+→ ProceduralResult
+→ RecordMaterializationEvent + CourtRecordEntry
+→ CourtRecordProjection
 ```
 
-`SliceService` remains the facade. `WorkService` owns generic lifecycle mutation. `LegalResearchService` owns Legal Research prerequisites/materialization. Returned projections are deep copies and reads create no domain events.
+`document_id` is a stable lineage ID. `(document_id, document_version)` identifies an immutable finalized version. A later version uses the same `document_id`, a new `document_version`, and a distinct completed DraftWorkProduct ID/version pair with the same matter, stage, team and document type. Earlier versions remain readable and submission-eligible. An unknown lineage or a version absent from that lineage is stale; later versions do not invalidate earlier ones.
 
-## Exact state collection and event names
+No VS-006 Contribution/Criterion/Adjudication or Judgment semantics were added. No amendment, supersession, cure or withdrawal mechanics were inferred.
 
-Authoritative authored/runtime collections:
+## Changed files
 
-- `legal_sources`, `legal_source_order`
-- `legal_research_questions`, `legal_research_question_order`
-- `legal_research_recipes`
-- `legal_source_discoveries`, `legal_source_discovery_order`
-- `legal_source_reviews`, `legal_source_review_order`
-- `recorded_legal_extractions`, `recorded_legal_extraction_order`
-- `rule_statements`, `rule_statement_order`
-- `interpretation_candidates`, `interpretation_candidate_order`
-- `issue_analyses`, `issue_analysis_order`
-- `arguments`, `argument_order`
-- `argument_selection_events`, `argument_selection_order`
+- `README.md` — VS-005 boundary, composite document version identity, defective route and test command.
+- `REVIEW_PACKET.md` — this factual implementation and verification handoff.
+- `vertical_slice/content/slice_case.json` — bounded drafting, package, deadline, submission and inclusion fixtures plus negative-only mismatch fixtures.
+- `vertical_slice/content/locale_ko.json` — VS-005 fixture/UI strings, including the bounded omission choice.
+- `vertical_slice/data/slice_state.gd` — authored-definition and immutable VS-005 runtime collections/orders.
+- `vertical_slice/services/work_service.gd` — generic Task lifecycle support for drafting and DraftWorkProduct creation.
+- `vertical_slice/services/submission_service.gd` — VS-005 finalization, submission, deterministic result, materialization and projection service.
+- `vertical_slice/services/slice_service.gd` — content validation, service wiring and public façade APIs.
+- `vertical_slice/presentation/slice_presenter.gd` — player-safe submission/CourtRecord projection text.
+- `vertical_slice/ui/main.gd` — service-only Submission & Record interactions and bounded package selection.
+- `vertical_slice/ui/main.tscn` — minimum Submission & Record tab and package option control.
+- `vertical_slice/tests/run_vs005_regressions.gd` — VS-005 flow, attack, atomicity, presentation and replay regressions.
+- `vertical_slice/vs005-test-results.log` — latest 351-check VS-005 run.
 
-The journal event kinds are `legal_source_discovered`, `legal_source_reviewed`, `legal_extraction_recorded`, `rule_statement_created`, `interpretation_considered`, `issue_analysis_created`, `argument_created`, and `argument_selected`. Selection history is immutable; current choice derives from the latest valid `argument_selection_events` entry for the Issue.
+The required prior-suite logs were refreshed by their final commands; their contents have no semantic Git diff except where noted by the final scope audit. The pre-existing untracked `.agent/prompts/planner-vs.md` was not read, edited or included.
 
-## Semantic boundaries and authored choices
+## Public APIs
 
-The implementation preserves:
+```text
+create_drafting_task(task_definition_id, task_id, creation_event_id, actor_id, team_id)
+execute_drafting_task(task_id, execution_id, actor_id, team_id, time_slot_id, work_units)
+complete_drafting_task(task_id, completion_id, work_product_id, argument_id, selection_event_id, actor_id, team_id)
+finalize_document(document_id, document_version, draft_work_product_id, actor_id, team_id)
+create_submission_attempt(attempt_id, document_id, document_version, rule_id, target_id, route_id, package_member_ids, deadline_context_id, actor_id, team_id)
+materialize_procedural_result(result_id, attempt_id, actor_id, team_id)
+materialize_court_record(materialization_event_id, entry_id, document_id, document_version, attempt_id, result_id, inclusion_rule_id, actor_id, team_id)
+submission_projection(viewer_actor_id, viewer_team_id)
+```
 
-`LegalSource ≠ RecordedLegalExtraction ≠ RuleStatement ≠ InterpretationCandidate ≠ IssueAnalysis ≠ Argument ≠ CaseTheory`
+`SliceService` is the public façade. `WorkService` owns generic Task/Assignment/Execution/Completion mutation. `SubmissionService` owns only the VS-005 document finalization through CourtRecord boundary.
 
-Discovery, opening/read, review work, extraction, synthesis, interpretation, application, Argument creation, and Argument selection remain distinct operations.
+## Canonical state and event shapes
 
-Exact authored Argument recipe identifiers in `slice_case.json`:
+Authored collections are `submission_rules`, `record_inclusion_rules`, `package_members`, and `deadline_contexts`, each with its corresponding order array. Runtime collections are `draft_work_products`, `finalized_documents`, `submission_attempts`, `procedural_results`, `record_materialization_events`, and `court_record_entries`, each with its corresponding order array.
 
-- `VS-RECIPE-ARG-001`: explicit-approval formulation, based on `VS-RECIPE-ANALYSIS-001`, the ReviewWorkProduct, `VS-INV-ACTION-001` InvestigationResult, and acquired `VS-SOURCE-APPROVAL-001` SourceMaterial.
-- `VS-RECIPE-ARG-002`: post-conduct formulation, based on `VS-RECIPE-ANALYSIS-002` and the ReviewWorkProduct without claiming the first path's Investigation/acquisition basis.
+`finalized_documents` is a nested composite-key store:
 
-Legal discovery path identifiers are separately `VS-LEGAL-PATH-TEXT-001` and `VS-LEGAL-PATH-CONDUCT-001`.
+```text
+finalized_documents[document_id][document_version] = FinalizedDocument
+finalized_document_order[] = { document_id, document_version }
+```
 
-Neither Argument is marked correct, winning, or canonical. No Strategy object exists.
+The exact runtime record fields are:
 
-## Regression results
+```text
+DraftWorkProduct = {
+  id, version, work_product_type, task_id, task_definition_id,
+  task_definition_version, assignment_id, execution_refs, completion_id,
+  performer_actor_id, team_id, matter_id, stage_id, document_type,
+  argument_id, argument_selection_event_id, issue_id, issue_analysis_id,
+  case_theory_id, case_theory_version_id, factual_basis_refs,
+  rule_statement_ids, interpretation_candidate_ids,
+  recorded_legal_extraction_ids, legal_source_review_event_ids,
+  package_member_ids, assertion_payload, performed_work_units,
+  work_unit_kind, content_version, created_event_order
+}
 
-All commands below were run with working directory:
+FinalizedDocument = {
+  document_id, document_version,
+  id, version,                         # compatibility aliases of the two fields above
+  draft_work_product_id, draft_work_product_version, drafting_task_id,
+  drafting_completion_id, document_type, matter_id, stage_id,
+  finalized_by_actor_id, team_id, case_theory_id, case_theory_version_id,
+  issue_id, issue_analysis_id, argument_id, argument_selection_event_id,
+  factual_basis_refs, rule_statement_ids, interpretation_candidate_ids,
+  recorded_legal_extraction_ids, legal_source_review_event_ids,
+  package_member_ids, assertion_payload, content_version, event_order
+}
 
-`C:\Users\Admin\orca\workspaces\The Firm\VS-004\litigation-skeleton`
+SubmissionAttempt = {
+  id, document_id, document_version, submitter_actor_id, actor_id, team_id,
+  matter_id, stage_id, document_type, target_id, route_id,
+  package_member_ids, submission_rule_id, deadline_context_id,
+  content_version, event_order
+}
+
+ProceduralResult = {
+  id, submission_attempt_id, submission_rule_id, document_id,
+  document_version, kind, reason, missing_package_member_ids,
+  evaluated_package_member_ids, actor_id, team_id, matter_id, stage_id,
+  content_version, event_order
+}
+
+RecordMaterializationEvent = {
+  id, court_record_entry_id, document_id, document_version,
+  submission_attempt_id, procedural_result_id, record_inclusion_rule_id,
+  actor_id, team_id, matter_id, stage_id, content_version, event_order
+}
+
+CourtRecordEntry = {
+  id, record_materialization_event_id, document_id, document_version,
+  submission_attempt_id, procedural_result_id, record_inclusion_rule_id,
+  actor_id, team_id, matter_id, stage_id, content_version, event_order,
+  document_type, assertion_payload, case_theory_id, case_theory_version_id,
+  issue_analysis_id, argument_id, argument_selection_event_id
+}
+```
+
+The `draft_work_product_created` journal event has `{id, event_order, kind, task_id, completion_id, matter_id, stage_id, team_id}`. `document_finalized` is a FinalizedDocument snapshot plus `kind`. Its persistent deterministic ID uses injective length-prefix encoding: `FinalizedDocument|<document_id.length>:<document_id>|<document_version.length>:<document_version>`. Component delimiters remain valid; for example, `(A|B, C)` becomes `FinalizedDocument|3:A|B|1:C`, while `(A, B|C)` becomes `FinalizedDocument|1:A|3:B|C`. Before any finalized-document state mutation, this generated ID is checked against all existing persistent identities and an occupied ID returns `duplicate_identity` atomically. `submission_attempted` and `procedural_result_materialized` are their record snapshots plus `kind`. `court_record_materialized` is the RecordMaterializationEvent plus `kind`; `court_record_entry_created` is the CourtRecordEntry plus `kind`.
+
+`CourtRecordProjection` contains ordered deep-copy arrays named `draft_work_products`, `finalized_documents`, `submission_attempts`, `procedural_results`, `record_materialization_events`, `court_record_entries`, plus authored `submission_contexts`. Reads and redraws create no events.
+
+## Fixture semantics and player path
+
+The synthetic authored fixture has one canonical `synthetic_response_brief` drafting definition, document and exhibit package members, a provenance-only deadline context, one canonical SubmissionRule and one canonical RecordInclusionRule. Foreign-matter, alternate-document-type and inclusion mismatch definitions exist only to drive negative regressions.
+
+The only result vocabulary is:
+
+- complete required package → `accepted_for_record`, reason `package_complete`;
+- omitted known required member → `rejected_defective`, reason `missing_required_package_member`, with exact missing-member IDs.
+
+No result record means unresolved; `pending` is not a result kind. Deadline context is preserved, not evaluated. `accepted_for_record` is only record eligibility and does not mean filed, served, admitted, substantively correct or judicially accepted.
+
+The `Submission & Record` tab exposes the eight explicit service-backed lifecycle actions. Before creating an attempt, its single bounded option control permits either the complete authored package or the authored omission case (document only, exhibit omitted). Choosing the omission produces an inspectable `rejected_defective` SubmissionAttempt/ProceduralResult through services; the UI displays the result/reason/missing member, and record materialization remains disabled/ineligible. This is not generic filing customization and creates no cure, amendment, withdrawal or supersession path.
+
+## Enforced invariants and regression coverage
+
+The 351-check VS-005 suite covers the positive accepted path, defective path, historical-version Case 73 and the mandatory attack matrix. In particular it verifies:
+
+- real v1 and v2 in one document lineage from distinct DraftWorkProducts; both retained; v1 usable after v2; absent v3 rejected atomically;
+- delimiter-bearing composite identities `(A|B, C)` and `(A, B|C)` coexist with distinct canonical finalized-event IDs; a pre-existing persistent journal ID collision is rejected atomically before finalization mutation;
+- unknown document lineage, duplicate composite version, reused DraftWorkProduct pair and same-lineage scope mismatch rejection;
+- distinct document IDs remain distinct lineages;
+- wrong team, target and route; unknown, known foreign-matter and duplicate package members;
+- authored-content initialization rejects wrong submission matter/stage and inclusion-rule matter/stage/result-kind mismatches atomically;
+- materialization rejects document/attempt/result mismatches and inclusion-rule document type, target, route, matter, stage and result-kind mismatches;
+- reused materialization-event ID and reused CourtRecordEntry ID independently;
+- authored illegal result vocabulary `pending`, `filed`, `served`, `admitted`, `withdrawn`, `superseded` and an arbitrary kind;
+- defective history remains immutable and outside CourtRecord; a later complete attempt does not rewrite it;
+- exact provenance, source immutability, nested deep-copy projections, read purity, deterministic replay and strictly monotonic event order;
+- absence of Contribution, Criterion, JII, ChoicePoint, CourtFactFinding, adjudication, Judgment and appeal state;
+- bounded defective UI route and player-visible result details without UI-owned gameplay logic.
+
+Where matter/stage/result-kind mismatches cannot be supplied through structurally scoped runtime APIs, regressions mutate authored content and assert that `start_session` fails without changing state.
+
+## Verification
+
+Working directory for every command:
+
+`C:\Users\Admin\orca\workspaces\The Firm\VS-005\litigation-skeleton`
 
 Executable:
 
@@ -146,50 +167,32 @@ Executable:
 
 | Suite | Exact command arguments | Checks | Failures | Exit |
 | --- | --- | ---: | ---: | ---: |
-| Legacy | `--headless --path . --script res://tests/run_regressions.gd` | 214 | 0 | 0 |
-| VS-001 | `--headless --path . --script res://vertical_slice/tests/run_slice_regressions.gd` | 73 | 0 | 0 |
-| VS-002 | `--headless --path . --script res://vertical_slice/tests/run_vs002_regressions.gd` | 72 | 0 | 0 |
-| VS-003 | `--headless --path . --script res://vertical_slice/tests/run_vs003_regressions.gd` | 260 | 0 | 0 |
-| VS-004 | `--headless --path . --script res://vertical_slice/tests/run_vs004_regressions.gd` | 256 | 0 | 0 |
+| Legacy | `--headless --path . --log-file ./test-results.log --script res://tests/run_regressions.gd` | 214 | 0 | 0 |
+| VS-001 | `--headless --path . --log-file ./vertical_slice/test-results.log --script res://vertical_slice/tests/run_slice_regressions.gd` | 73 | 0 | 0 |
+| VS-002 | `--headless --path . --log-file ./vertical_slice/vs002-test-results.log --script res://vertical_slice/tests/run_vs002_regressions.gd` | 72 | 0 | 0 |
+| VS-003 | `--headless --path . --log-file ./vertical_slice/vs003-test-results.log --script res://vertical_slice/tests/run_vs003_regressions.gd` | 260 | 0 | 0 |
+| VS-004 | `--headless --path . --log-file ./vertical_slice/vs004-test-results.log --script res://vertical_slice/tests/run_vs004_regressions.gd` | 256 | 0 | 0 |
+| VS-005 | `--headless --path . --log-file ./vertical_slice/vs005-test-results.log --script res://vertical_slice/tests/run_vs005_regressions.gd` | 351 | 0 | 0 |
 
-The VS-004 log contains the latest 256-check run.
+Total: **1,226 checks, 0 failures**. Every regression command exited `0`.
 
-## Main-scene smoke
+Main-scene smoke arguments: `--headless --path . --quit-after 2`. Result: exit `0`; `SCRIPT ERROR|Parse Error|ERROR:` matched `0` output lines. No visible desktop GUI click-through is claimed; scene/script loading is smoke-tested and the UI wiring/presentation/service flows are regression-tested.
 
-Exact command arguments, from the same working directory:
+## Known limitations
 
-```text
---headless --path . --quit-after 2
-```
+- Document type, assertion payload, package, target, route, deadline context and rules are bounded synthetic authored content.
+- Result mapping is deterministic fixture validation, not a generic filing or legal-procedure engine.
+- There is no document editor/generator, amendment, correction, cure, withdrawal, supersession, service, reception, deadline, jurisdiction or admissibility mechanic.
+- There is no automatic Judgment, legal reasoning engine, judge/opponent AI, merits score, hidden procedural oracle, save/load, Career/Business/World integration or gameplay RNG in this slice.
+- Content retains the existing `1.3.0` compatibility identifier; changing the version policy is outside this contract.
 
-Result: `SMOKE_ERRORS=0`, `MAIN_SCENE_SMOKE_EXIT=0`.
+## Scope audit and status
 
-## Actual GUI verification
+- Implementation is confined to the VS-005 Task Contract allowlist.
+- `.agent/prompts/` was untouched; its pre-existing untracked file remains unrelated.
+- Existing VS-001 through VS-004 behavior is preserved by the required suites.
+- No Contribution/Criterion/Adjudication, Judgment or next-slice work was added.
+- No commit or push was performed.
+- Final `git diff --check` exited `0`. The tracked diff-name audit contains only allowlisted VS-005 files. The only untracked files are the three allowlisted VS-005 additions and pre-existing `.agent/prompts/planner-vs.md`; the latter was untouched. No generated/out-of-scope file was added by this pass.
 
-The Godot DEBUG main scene was launched visibly during this review-fix pass. The following were actually observed and read back from screenshots/accessibility state:
-
-- the main scene rendered;
-- clicking `사건 시작` produced session `VS-SESSION-001` and rendered matter/stage data;
-- existing Case Review content rendered;
-- `Case Review`, `Work & Theory`, `Investigation`, and `Legal Research` tab labels were present.
-
-Desktop automation did not produce a verifiable Legal Research tab transition during this pass. Therefore no claim is made that the full selected-Argument detail was visually exercised by clicks. Its rendered text construction is covered by VS-004 presenter regressions asserting application, assumption, challenge, formulation, IssueAnalysis ID, and typed factual basis text; main-scene loading is covered by smoke.
-
-## Known limitations / TBD
-
-- LegalSource, question, recipe, factual requirements, and Argument alternatives are authored fixture content.
-- This is not a generic search engine or NLP/LLM legal-reasoning runtime.
-- It provides no hidden correct law/interpretation/Argument, winning authority, CaseStrength, EvidenceScore, or WinChance.
-- Substantive law, authority hierarchy, precedent effect, broad IRAC catalogs, workload formula, AI, and persistence remain TBD.
-- Submission, Filing, CourtRecord, adjudication, CourtFactFinding, Judgment, appeal/remand, organization/business/world systems, and all VS-005-or-later mechanics are absent.
-
-## Scope audit and VS-005 handoff
-
-- All content-changing files are within the VS-004 Allowed Changes allowlist.
-- Layer ownership remains DATA → SIMULATION/STATE → SERVICES → PRESENTATION → UI.
-- Rejected review, analysis, Argument, and selection commands are tested for unchanged authoritative snapshots.
-- No canonical Strategy or forbidden oracle/state was added.
-- VS-005 was not started.
-- No commit and no push were performed.
-
-Any later procedural/adjudicative/persistence work requires a separately accepted VS-005 Task Contract. VS-004 ends at immutable Argument creation and selection history.
+The implementation is **READY FOR RE-REVIEW**.

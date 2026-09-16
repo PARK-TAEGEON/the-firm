@@ -3,9 +3,10 @@
 이 프로젝트는 두 개의 분리된 실행 경로를 가진다.
 
 - 기존 `data/`, `services/`, `fixtures/`, `tests/`는 TEST-008/009에서 추린 고정 입력으로 상태·이력·정보 경계를 검사하는 회귀 골격이다.
-- `vertical_slice/`는 VS-001 Case Review부터 VS-004 Legal Research / IssueAnalysis / Argument 선택까지의 playable 경로다.
+- `vertical_slice/`는 VS-001 Case Review부터 VS-005 Submission → CourtRecord까지의 playable 경로다.
 
 어느 경로도 자연어 법률 판단 엔진이 아니다. `LegalSource → RecordedLegalExtraction → RuleStatement → InterpretationCandidate → IssueAnalysis → Argument`는 서로 다른 authored 기록이며 정답 법률이나 법원 판단이 아니다. Argument 선택은 immutable event history이고 canonical Strategy가 아니다.
+VS-005의 `CourtRecordEntry`도 당사자 assertion을 보존하는 기록일 뿐 CourtFactFinding, 판사의 고려·신뢰·채택 또는 Judgment가 아니다.
 
 ## 실행
 
@@ -31,6 +32,10 @@
 & 'Godot 실행 파일의 절대 경로' --headless --path litigation-skeleton `
   --log-file ./vertical_slice/vs004-test-results.log `
   --script res://vertical_slice/tests/run_vs004_regressions.gd
+
+& 'Godot 실행 파일의 절대 경로' --headless --path litigation-skeleton `
+  --log-file ./vertical_slice/vs005-test-results.log `
+  --script res://vertical_slice/tests/run_vs005_regressions.gd
 ```
 
 playable 화면은 다음처럼 실행한다.
@@ -48,16 +53,18 @@ playable 화면은 다음처럼 실행한다.
 | `vertical_slice/content/slice_case.json` | 사건/source/acquisition, versioned TaskDefinition, Issue, review-analysis 선택지, 공개 조사 기회와 비공개 authored outcome 입력 |
 | `vertical_slice/data/slice_state.gd` | authoritative state, append-only order/history, 테스트용 deep-copy snapshot |
 | `vertical_slice/services/content_loader.gd` | JSON 파일/문자열 파싱과 명시적 구조 오류 |
-| `vertical_slice/services/slice_service.gd` | 전체 콘텐츠 선검증, session/CaseFile API, work/investigation façade |
-| `vertical_slice/services/work_service.gd` | Assignment, Execution, Completion과 기존 ReviewWorkProduct/IssueSelection/CaseTheory mutation; generic Task lifecycle 소유 |
+| `vertical_slice/services/slice_service.gd` | 전체 콘텐츠 선검증과 public façade |
+| `vertical_slice/services/work_service.gd` | Assignment, Execution, Completion과 WorkProduct mutation; generic Task lifecycle 소유 |
 | `vertical_slice/services/investigation_service.gd` | 조사 prerequisite, deterministic authored InvestigationResult, explicit AcquisitionEvent와 공개 projection |
 | `vertical_slice/services/legal_research_service.gd` | research prerequisite, discovery/review/extraction/rule/interpretation/analysis/Argument materialization과 projection |
+| `vertical_slice/services/submission_service.gd` | FinalizedDocument, SubmissionAttempt, ProceduralResult, RecordMaterializationEvent, CourtRecordEntry mutation과 projection |
 | `vertical_slice/presentation/slice_presenter.gd` | authorized projection을 UI 문자열/목록으로 변환 |
-| `vertical_slice/ui/main.tscn`, `main.gd` | Case Review, Work & Theory, Investigation 화면; service API만 호출 |
+| `vertical_slice/ui/main.tscn`, `main.gd` | Case Review부터 Submission & Record까지의 화면; service API만 호출 |
 | `vertical_slice/tests/run_slice_regressions.gd` | VS-001 접근·scope·provenance·불변성 회귀 |
 | `vertical_slice/tests/run_vs002_regressions.gd` | VS-002 task 상태·work/time·dependency·WorkProduct·Theory history 회귀 |
 | `vertical_slice/tests/run_vs003_regressions.gd` | VS-003 조사 outcome·atomicity·identity·provenance·exact-scope visibility·replay 회귀 |
 | `vertical_slice/tests/run_vs004_regressions.gd` | VS-004 단계 분리·atomicity·법률 source provenance·Argument 선택 이력·replay 회귀 |
+| `vertical_slice/tests/run_vs005_regressions.gd` | VS-005 finalization/submission/result/record 분리, defect, atomicity, provenance, deep-copy, replay 회귀 |
 
 ## 강제하는 경계
 
@@ -79,8 +86,16 @@ playable 화면은 다음처럼 실행한다.
 - ActualState, winner, CaseStrength, EvidenceScore, WinChance, CourtRecord, finding, judgment는 authored content와 VS-003 결과에 없다.
 - LegalSource의 존재·발견·열람·review·extraction은 서로 다른 상태이며 read/query는 event를 만들지 않는다.
 - Argument 생성과 선택은 별도 atomic command이고, 재선택은 이전 이력을 변경하지 않고 새 `ArgumentSelectionEvent`를 append한다.
-- VS-004에는 canonical Strategy, Submission, CourtRecord, adjudication, finding 또는 Judgment가 없다.
+- Drafting은 기존 Task lifecycle을 사용하며 completed DraftWorkProduct와 FinalizedDocument는 별도 immutable 기록이다.
+- FinalizedDocument의 `document_id`는 lineage ID이고 `(document_id, document_version)`이 immutable version identity다. 같은 lineage의 후속 version은 별도 completed DraftWorkProduct에서 생성되며 이전 version도 계속 읽고 제출할 수 있다.
+- FinalizedDocument는 자동 submit되지 않고 SubmissionAttempt는 자동 result를 만들지 않는다.
+- ProceduralResult는 `accepted_for_record` 또는 `rejected_defective`만 materialize한다. 미해결 상태는 result record 부재다.
+- known required package member 누락은 valid attempt를 보존한 뒤 `missing_required_package_member` defect로 materialize한다.
+- Submission & Record UI는 complete package와 authored exhibit-omission 두 선택만 제공하며, omission 결과인 `rejected_defective`를 확인할 수 있지만 CourtRecord에는 넣을 수 없다.
+- accepted result도 matching `RecordInclusionRule`을 적용하는 별도 atomic command 전에는 CourtRecord에 들어가지 않는다.
+- CourtRecord materialization은 정확히 하나의 RecordMaterializationEvent와 CourtRecordEntry를 함께 만들며 source provenance와 immutable history를 보존한다.
+- VS-005에는 Contribution, Criterion, admissibility, JII, ChoicePoint, judge interpretation, CourtFactFinding, adjudication 또는 Judgment가 없다.
 
 ## 범위
 
-현재 구현은 Case Review → explicit review task → ReviewWorkProduct → Issue 선택 → versioned CaseTheory → Investigation → bounded Legal Research → exact-scope review → extraction/rule/interpretation → IssueAnalysis → Argument 생성/선택까지다. generic legal search, substantive Korean-law truth model, canonical Strategy, Submission, CourtRecord, adjudication, judgment, save/load, appeal/remand, 대규모 NPC simulation, jurisdiction pack, organization/business/world는 구현하지 않는다.
+현재 구현은 Case Review → explicit review task → ReviewWorkProduct → Issue 선택 → versioned CaseTheory → Investigation → bounded Legal Research → IssueAnalysis → Argument 선택 → Drafting Task/WorkProduct → FinalizedDocument → SubmissionAttempt → ProceduralResult → explicit CourtRecord materialization까지다. 제출 규칙은 이 synthetic case의 authored fixture이며 실제 한국 form/deadline/jurisdiction/service/admission 규칙이 아니다. generic legal search, substantive truth model, canonical Strategy, adjudication, CourtFactFinding, Judgment, save/load, appeal/remand, 대규모 NPC simulation, organization/business/world는 구현하지 않는다.

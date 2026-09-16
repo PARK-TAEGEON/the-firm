@@ -397,3 +397,74 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "ui.vs004.before_start"
 autowrap_mode = 2
+
+[node name="Submission & Record" type="ScrollContainer" parent="Margin/Root/Tabs"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Workflow" type="VBoxContainer" parent="Margin/Root/Tabs/Submission & Record"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="SubmissionHeading" type="Label" parent="Margin/Root/Tabs/Submission & Record/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Submission → CourtRecord"
+
+[node name="DraftButtons" type="HFlowContainer" parent="Margin/Root/Tabs/Submission & Record/Workflow"]
+layout_mode = 2
+
+[node name="CreateDraftingTaskButton" type="Button" parent="Margin/Root/Tabs/Submission & Record/Workflow/DraftButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "1. Drafting Task 생성"
+
+[node name="AssignDraftingButton" type="Button" parent="Margin/Root/Tabs/Submission & Record/Workflow/DraftButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "2. 작성 배정"
+
+[node name="ExecuteDraftingButton" type="Button" parent="Margin/Root/Tabs/Submission & Record/Workflow/DraftButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "3. 작성 수행"
+
+[node name="CompleteDraftingButton" type="Button" parent="Margin/Root/Tabs/Submission & Record/Workflow/DraftButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "4. Draft 완료"
+
+[node name="SubmissionButtons" type="HFlowContainer" parent="Margin/Root/Tabs/Submission & Record/Workflow"]
+layout_mode = 2
+
+[node name="SubmissionPackageOptions" type="OptionButton" parent="Margin/Root/Tabs/Submission & Record/Workflow/SubmissionButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="FinalizeDocumentButton" type="Button" parent="Margin/Root/Tabs/Submission & Record/Workflow/SubmissionButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "5. 문서 Finalize"
+
+[node name="SubmitDocumentButton" type="Button" parent="Margin/Root/Tabs/Submission & Record/Workflow/SubmissionButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "6. SubmissionAttempt"
+
+[node name="MaterializeResultButton" type="Button" parent="Margin/Root/Tabs/Submission & Record/Workflow/SubmissionButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "7. 결과 Materialize"
+
+[node name="MaterializeRecordButton" type="Button" parent="Margin/Root/Tabs/Submission & Record/Workflow/SubmissionButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "8. CourtRecord Materialize"
+
+[node name="SubmissionStatusLabel" type="Label" parent="Margin/Root/Tabs/Submission & Record/Workflow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "FinalizedDocument가 아직 없습니다."
+autowrap_mode = 2

@@ -18,6 +18,7 @@ var _scope_rows: Array = []
 var _work_projection: Dictionary = {}
 var _investigation_projection: Dictionary = {}
 var _legal_projection: Dictionary = {}
+var _submission_projection: Dictionary = {}
 
 @onready var start_button: Button = %StartButton
 @onready var status_label: Label = %StatusLabel
@@ -69,6 +70,18 @@ var _legal_projection: Dictionary = {}
 @onready var create_argument_button: Button = %CreateArgumentButton
 @onready var select_argument_button: Button = %SelectArgumentButton
 @onready var legal_status_label: Label = %LegalStatusLabel
+@onready var submission_tab: ScrollContainer = get_node("%Submission & Record")
+@onready var submission_heading: Label = %SubmissionHeading
+@onready var submission_status_label: Label = %SubmissionStatusLabel
+@onready var create_drafting_task_button: Button = %CreateDraftingTaskButton
+@onready var assign_drafting_button: Button = %AssignDraftingButton
+@onready var execute_drafting_button: Button = %ExecuteDraftingButton
+@onready var complete_drafting_button: Button = %CompleteDraftingButton
+@onready var finalize_document_button: Button = %FinalizeDocumentButton
+@onready var submission_package_options: OptionButton = %SubmissionPackageOptions
+@onready var submit_document_button: Button = %SubmitDocumentButton
+@onready var materialize_result_button: Button = %MaterializeResultButton
+@onready var materialize_record_button: Button = %MaterializeRecordButton
 
 
 func _ready() -> void:
@@ -77,6 +90,7 @@ func _ready() -> void:
 		_presenter.bind_localization(locale["content"]["strings"])
 	_localize_vs003_controls()
 	_localize_vs004_controls()
+	_localize_vs005_controls()
 	start_button.pressed.connect(_on_start_pressed)
 	open_button.pressed.connect(_on_open_pressed)
 	source_list.item_selected.connect(func(_index: int) -> void: open_button.disabled = false)
@@ -102,9 +116,18 @@ func _ready() -> void:
 	analyze_button.pressed.connect(_on_analyze_pressed)
 	create_argument_button.pressed.connect(_on_create_argument_pressed)
 	select_argument_button.pressed.connect(_on_select_argument_pressed)
+	create_drafting_task_button.pressed.connect(_on_create_drafting_task_pressed)
+	assign_drafting_button.pressed.connect(_on_assign_drafting_pressed)
+	execute_drafting_button.pressed.connect(_on_execute_drafting_pressed)
+	complete_drafting_button.pressed.connect(_on_complete_drafting_pressed)
+	finalize_document_button.pressed.connect(_on_finalize_document_pressed)
+	submit_document_button.pressed.connect(_on_submit_document_pressed)
+	materialize_result_button.pressed.connect(_on_materialize_result_pressed)
+	materialize_record_button.pressed.connect(_on_materialize_record_pressed)
 	_set_work_controls_disabled(true)
 	_set_investigation_controls_disabled(true)
 	_set_legal_controls_disabled(true)
+	_set_submission_controls_disabled(true)
 	open_button.disabled = true
 	status_label.text = "사건을 시작하면 authorized 초기 자료와 review Task를 불러옵니다."
 
@@ -125,6 +148,7 @@ func _on_start_pressed() -> void:
 	_refresh_work()
 	_refresh_investigation()
 	_refresh_legal_research()
+	_refresh_submission()
 
 
 func _refresh_case_file() -> void:
@@ -613,6 +637,7 @@ func _apply_legal_action(label: String, result: Dictionary) -> void:
 	_refresh_investigation()
 	_refresh_case_file()
 	_refresh_legal_research()
+	_refresh_submission()
 
 
 func _set_legal_controls_disabled(disabled: bool) -> void:
@@ -636,3 +661,124 @@ func _localize_vs004_controls() -> void:
 	legal_status_label.text = _presenter.localized_text("ui.vs004.before_start")
 	var tab_index := tabs.get_tab_idx_from_control(legal_tab)
 	if tab_index >= 0: tabs.set_tab_title(tab_index, _presenter.localized_text("ui.vs004.tab"))
+
+
+func _drafting_task() -> Dictionary:
+	for task in _work_projection.get("tasks", []):
+		if task["id"] == "VS-TASK-DRAFTING-UI-001": return task
+	return {}
+
+
+func _refresh_submission() -> void:
+	var result: Dictionary = _service.submission_projection(PLAYER_ACTOR_ID, PLAYER_TEAM_ID)
+	if not result.get("ok", false):
+		_show_error("Submission 조회", result)
+		return
+	_submission_projection = result["projection"]
+	submission_status_label.text = _presenter.submission_status_text(_submission_projection)
+	var task: Dictionary = _drafting_task()
+	var has_selection: bool = not _legal_projection.get("argument_selection_history", []).is_empty()
+	create_drafting_task_button.disabled = not task.is_empty() or not has_selection
+	assign_drafting_button.disabled = task.is_empty() or task["state"] != "unassigned"
+	execute_drafting_button.disabled = task.is_empty() or task["state"] not in ["assigned", "in_progress"]
+	complete_drafting_button.disabled = task.is_empty() or task["state"] != "in_progress"
+	finalize_document_button.disabled = _submission_projection["draft_work_products"].is_empty() \
+		or not _submission_projection["finalized_documents"].is_empty()
+	submit_document_button.disabled = _submission_projection["finalized_documents"].is_empty() \
+		or not _submission_projection["submission_attempts"].is_empty()
+	submission_package_options.disabled = submit_document_button.disabled
+	materialize_result_button.disabled = _submission_projection["submission_attempts"].is_empty() \
+		or not _submission_projection["procedural_results"].is_empty()
+	materialize_record_button.disabled = _submission_projection["procedural_results"].is_empty() \
+		or _submission_projection["procedural_results"][-1]["kind"] != "accepted_for_record" \
+		or not _submission_projection["court_record_entries"].is_empty()
+
+
+func _on_create_drafting_task_pressed() -> void:
+	_apply_submission_action(_presenter.localized_text("ui.vs005.create_draft"),
+		_service.create_drafting_task("VS-TASKDEF-DRAFTING-001", "VS-TASK-DRAFTING-UI-001",
+			"VS-EVENT-DRAFTING-UI-001", PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
+
+
+func _on_assign_drafting_pressed() -> void:
+	_apply_submission_action(_presenter.localized_text("ui.vs005.assign"),
+		_service.assign_task("VS-TASK-DRAFTING-UI-001", "VS-ASSIGN-DRAFTING-UI-001",
+			PLAYER_ACTOR_ID, PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
+
+
+func _on_execute_drafting_pressed() -> void:
+	_apply_submission_action(_presenter.localized_text("ui.vs005.execute"),
+		_service.execute_drafting_task("VS-TASK-DRAFTING-UI-001", "VS-EXEC-DRAFTING-UI-001",
+			PLAYER_ACTOR_ID, PLAYER_TEAM_ID, "VS-WORK-DRAFTING-UI-001", 1))
+
+
+func _on_complete_drafting_pressed() -> void:
+	if _legal_projection.get("argument_selection_history", []).is_empty(): return
+	var selection: Dictionary = _legal_projection["argument_selection_history"][-1]
+	_apply_submission_action(_presenter.localized_text("ui.vs005.complete"),
+		_service.complete_drafting_task("VS-TASK-DRAFTING-UI-001", "VS-COMP-DRAFTING-UI-001",
+			"VS-DRAFT-WP-UI-001", selection["argument_id"], selection["id"],
+			PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
+
+
+func _on_finalize_document_pressed() -> void:
+	_apply_submission_action(_presenter.localized_text("ui.vs005.finalize"),
+		_service.finalize_document("VS-FINAL-DOC-UI-001", "1", "VS-DRAFT-WP-UI-001",
+			PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
+
+
+func _on_submit_document_pressed() -> void:
+	if submission_package_options.selected < 0: return
+	var package_member_ids: Array = submission_package_options.get_item_metadata(
+		submission_package_options.selected).duplicate()
+	_apply_submission_action(_presenter.localized_text("ui.vs005.submit"),
+		_service.create_submission_attempt("VS-ATTEMPT-UI-001", "VS-FINAL-DOC-UI-001", "1",
+			"VS-SUBMISSION-RULE-001", "VS-TARGET-TRIAL-RECORD-001", "VS-ROUTE-ELECTRONIC-001",
+			package_member_ids,
+			"VS-DEADLINE-CONTEXT-001", PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
+
+
+func _on_materialize_result_pressed() -> void:
+	_apply_submission_action(_presenter.localized_text("ui.vs005.result_action"),
+		_service.materialize_procedural_result("VS-RESULT-UI-001", "VS-ATTEMPT-UI-001",
+			PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
+
+
+func _on_materialize_record_pressed() -> void:
+	_apply_submission_action(_presenter.localized_text("ui.vs005.record_action"),
+		_service.materialize_court_record("VS-MATERIALIZATION-UI-001", "VS-COURT-ENTRY-UI-001",
+			"VS-FINAL-DOC-UI-001", "1", "VS-ATTEMPT-UI-001", "VS-RESULT-UI-001",
+			"VS-RECORD-RULE-001", PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
+
+
+func _apply_submission_action(label: String, result: Dictionary) -> void:
+	if not result.get("ok", false): _show_error(label, result); return
+	status_label.text = "%s 완료" % label
+	_refresh_work()
+	_refresh_legal_research()
+	_refresh_submission()
+
+
+func _set_submission_controls_disabled(disabled: bool) -> void:
+	for control in [create_drafting_task_button, assign_drafting_button, execute_drafting_button,
+		complete_drafting_button, finalize_document_button, submit_document_button,
+		materialize_result_button, materialize_record_button, submission_package_options]:
+		control.disabled = disabled
+
+
+func _localize_vs005_controls() -> void:
+	submission_heading.text = _presenter.localized_text("ui.vs005.heading")
+	submission_package_options.clear()
+	submission_package_options.add_item(_presenter.localized_text("ui.vs005.package.complete"))
+	submission_package_options.set_item_metadata(0,
+		["VS-PACKAGE-MEMBER-DOCUMENT-001", "VS-PACKAGE-MEMBER-EXHIBIT-001"])
+	submission_package_options.add_item(_presenter.localized_text("ui.vs005.package.omit_exhibit"))
+	submission_package_options.set_item_metadata(1, ["VS-PACKAGE-MEMBER-DOCUMENT-001"])
+	for pair in [[create_drafting_task_button, "ui.vs005.create_draft"],
+		[assign_drafting_button, "ui.vs005.assign"], [execute_drafting_button, "ui.vs005.execute"],
+		[complete_drafting_button, "ui.vs005.complete"], [finalize_document_button, "ui.vs005.finalize"],
+		[submit_document_button, "ui.vs005.submit"], [materialize_result_button, "ui.vs005.result_action"],
+		[materialize_record_button, "ui.vs005.record_action"]]:
+		pair[0].text = _presenter.localized_text(pair[1])
+	var tab_index := tabs.get_tab_idx_from_control(submission_tab)
+	if tab_index >= 0: tabs.set_tab_title(tab_index, _presenter.localized_text("ui.vs005.tab"))
