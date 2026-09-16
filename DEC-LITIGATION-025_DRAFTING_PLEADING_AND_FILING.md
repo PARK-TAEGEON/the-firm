@@ -1,7 +1,7 @@
 # THE FIRM — Drafting, Pleading and Filing
 
 문서 ID: DEC-LITIGATION-025  
-버전: v0.2 — Accepted
+버전: v0.3 — Accepted
 상태: **Accepted**
 프로젝트: THE FIRM  
 문서 유형: Design Decision  
@@ -452,6 +452,17 @@ completed Drafting Task + selected ArgumentSelectionEvent + authorized provenanc
 
 `SubmissionPackage`는 VS-005에서 별도 lifecycle aggregate가 아니라 `SubmissionAttempt`에 동결되는 ordered member-ref snapshot이다. `ProcedurallyAcceptedArtifact`는 `FinalizedDocument + SubmissionAttempt + accepted ProceduralResult`의 derived eligibility view이며 별도 mutable record를 만들지 않는다. `FiledArtifact`, `ServedArtifact`, amendment, withdrawal, supersession 및 admission objects는 VS-005에서 materialize하지 않는다.
 
+#### FinalizedDocument lineage and version identity
+
+VS-005에서 `document_id`는 한 문서의 stable lineage identity이고 `document_version`은 그 lineage 안의 immutable finalized-version identity다. 하나의 finalized version record는 composite identity `(document_id, document_version)`로 식별한다.
+
+- 같은 `document_id`에 새 `document_version`을 추가하는 것이 later finalized revision의 유일한 VS-005 representation이다.
+- 같은 `document_id`가 여러 version records에 나타나는 것은 persistent ID 재사용이 아니라 이미 할당된 lineage ID를 참조하는 것이다. `document_id`를 unrelated lineage에 다시 할당하거나 같은 composite pair를 두 번 생성하는 것은 금지한다.
+- `document_version`은 해당 lineage 안에서 unique하고 immutable하다. Storage는 composite key 또는 lineage별 nested version map처럼 모든 real versions를 동시에 주소 지정할 수 있어야 하며, `document_id` 하나만으로 version record를 key하여 overwrite하거나 later version 생성을 거절할 수 없다.
+- Later version은 기존 `WorkService` lifecycle이 생성한 별도의 completed `DraftWorkProduct` ID/version pair를 exact provenance로 동결하고, first version과 matter/stage/team/document type이 같아야 한다. 이 relation은 generic editing, diff, merge, amendment, supersession 또는 cure semantics를 추가하지 않는다.
+- Later version의 생성은 earlier version을 stale/current-only/ineligible로 만들지 않는다. 권한과 다른 VS-005 validation을 만족하면 어떤 existing version도 새 `SubmissionAttempt`가 exact pair로 참조할 수 있다.
+- 다른 `document_id`는 별도 document lineage이며 revision의 대체 표현이 아니다. Unknown `document_id` 또는 known lineage에 존재하지 않는 `document_version` pair만 absent/stale version reference다.
+
 ### 12.1.2 Exact VS-005 procedural result allowlist
 
 VS-005에서 materialized `ProceduralResult.kind`는 정확히 다음 둘뿐이다.
@@ -465,9 +476,9 @@ Result가 아직 materialize되지 않은 상태는 result record의 부재이�
 
 ### 12.1.3 Command validation versus authored procedural defect
 
-다음은 command validation failure이며 attempt/result/event/entry와 journal을 전혀 변경하지 않는다: duplicate or reused ID, unknown/stale ID-version pair, non-finalized document, wrong matter/stage/actor/team, unauthorized submitter, rule/target/route mismatch, package member가 unknown이거나 다른 matter에 속함, unsatisfied dependency, invalid event order.
+다음은 command validation failure이며 attempt/result/event/entry와 journal을 전혀 변경하지 않는다: duplicate composite finalized-version identity or reused unrelated lineage ID, unknown/stale ID-version pair, non-finalized document, wrong matter/stage/actor/team, unauthorized submitter, rule/target/route mismatch, package member가 unknown이거나 다른 matter에 속함, unsatisfied dependency, invalid event order.
 
-여기서 stale은 immutable historical version이 오래되었다는 뜻이 아니다. supplied `(document ID, version)`이 referenced FinalizedDocument record와 정확히 일치하지 않거나 finalization lineage에 존재하지 않는 경우만 뜻한다. 새 revision은 과거 finalized version을 자동 무효화하거나 rewrite하지 않는다.
+여기서 stale은 immutable historical version이 오래되었다는 뜻이 아니다. supplied `(document_id, document_version)`이 finalization lineage에 존재하지 않는 경우만 뜻한다. 같은 lineage에 later real version이 존재해도 earlier pair는 계속 valid하다. 새 revision은 과거 finalized version을 자동 무효화하거나 rewrite하지 않는다.
 
 Known required member의 omission은 malformed command가 아니라 authored procedural defect다. Valid SubmissionAttempt를 먼저 보존하고, 별도 result command가 같은 frozen package snapshot을 평가해 `rejected_defective`를 materialize한다. Merits, capability, review, partner/client approval은 이 mapping을 변경하지 않는다.
 
@@ -486,7 +497,7 @@ Known required member의 omission은 malformed command가 아니라 authored pro
 ### 12.1.5 Ownership, immutability and terminal boundary
 
 - 모든 mutation은 service command를 통해서만 일어나고 DATA definitions 및 prior records/events는 mutation하지 않는다.
-- IDs는 재사용하지 않는다. Attempt당 result는 최대 하나, eligible result/rule pair당 materialization event와 entry는 최대 하나다.
+- Lineage IDs는 unrelated object에 재할당하지 않고 composite finalized-version identities 및 모든 event/record IDs는 재사용하지 않는다. Attempt당 result는 최대 하나, eligible result/rule pair당 materialization event와 entry는 최대 하나다.
 - Caller가 returned nested collection을 바꿔도 authoritative state는 바뀌지 않는다.
 - Deterministic fixture rules는 동일 authored content와 command sequence에서 동일 result와 event order를 만든다. Gameplay RNG는 이 slice에서 사용하지 않는다.
 - Later corrected document/attempt가 있더라도 prior rejection, attempt와 package snapshot은 rewrite하지 않는다. VS-005는 generic cure/amendment workflow를 요구하지 않는다.
@@ -785,3 +796,4 @@ DFT24: generic filing/service separation, exact service doctrine는 TBD.
 |---|---|---|
 | v0.1 | Proposed / design review required | DFT1–DFT37, 55 invariants and 60 pressure fixtures establish drafting, review, finalization, submission, procedural reception and explicit CourtRecord materialization boundaries without Korean procedural claims. |
 | v0.2 | Accepted | Corrected DEC-022/TEST-021 from a false Accepted direct dependency to a non-consuming Proposed boundary reference; closed the VS-005 canonical FinalizedDocument → SubmissionAttempt → ProceduralResult → RecordMaterializationEvent → CourtRecordEntry slice, exact result allowlist, validation/defect split, atomic materialization rule, provenance and adjudication terminal boundary. |
+| v0.3 | Accepted | Clarified Case 73 without adding revision workflow: `document_id` is the stable lineage identity, `(document_id, document_version)` identifies each immutable finalized version, same-lineage later versions coexist with and do not stale earlier versions, and distinct document IDs are separate lineages rather than revisions. |

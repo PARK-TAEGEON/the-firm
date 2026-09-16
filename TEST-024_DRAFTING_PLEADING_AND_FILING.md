@@ -1,9 +1,9 @@
 # THE FIRM — TEST-024 Drafting, Pleading and Filing
 
 문서 ID: TEST-024  
-버전: v0.2 — Accepted / manual fixture-level verification
+버전: v0.3 — Accepted / manual fixture-level verification
 상태: **Accepted / manual fixture-level verification**
-대상: `DEC-LITIGATION-025_DRAFTING_PLEADING_AND_FILING.md` v0.2 Accepted
+대상: `DEC-LITIGATION-025_DRAFTING_PLEADING_AND_FILING.md` v0.3 Accepted
 
 ## 1. Purpose
 
@@ -745,14 +745,14 @@ Core case에는 semantic ambiguity가 없다. TBD인 taxonomy, deadlines, filing
 | 70 | Complete authored package | Exact required members are present. Separate evaluation materializes exactly one `accepted_for_record`; no CourtRecord entry is created. | PASS |
 | 71 | Missing required member | A known required member is omitted from an otherwise valid package. Attempt is retained and separate evaluation creates `rejected_defective` with `missing_required_package_member` and exact missing IDs. | PASS |
 | 72 | Validation failure atomicity | Unknown/reused ID, mismatched ID-version, unauthorized actor/team, wrong matter/stage/target/route, foreign package member or invalid order creates no attempt/result/event/entry and changes no journal state. | PASS |
-| 73 | Historical-version attack | A real immutable finalized historical version is not stale merely because a later revision exists. A supplied ID/version absent from that finalization lineage is rejected before mutation. | PASS |
+| 73 | Historical-version attack | Materialize `(DOC-LINE-1, v1)` from one completed DraftWorkProduct, then a real later `(DOC-LINE-1, v2)` from a distinct completed DraftWorkProduct ID/version pair with matching lineage scope. Both immutable versions remain stored and readable; a new SubmissionAttempt may still reference exact pair `(DOC-LINE-1, v1)`. `(DOC-LINE-1, v3)` is rejected atomically because that pair is absent. Creating `DOC-LINE-2` would be a separate document and does not satisfy this revision case. | PASS |
 | 74 | Result allowlist attack | `pending`, `filed`, `served`, `admitted`, `withdrawn`, `superseded` and arbitrary result strings cannot materialize in VS-005. Absence of a result record represents not-yet-resolved. | PASS |
 | 75 | Merits/procedure laundering | Strong/weak Argument, capability, review and approvals cannot alter complete-package → `accepted_for_record` or missing-member → `rejected_defective`. | PASS |
 | 76 | Accepted result without inclusion command | `accepted_for_record` alone creates no RecordMaterializationEvent or CourtRecordEntry. Reads, redraw and reload also create none. | PASS |
 | 77 | Explicit matching materialization | Exact document/attempt/result plus matching RecordInclusionRule and fresh event/entry IDs atomically append one RecordMaterializationEvent and one CourtRecordEntry with all required provenance. | PASS |
 | 78 | Rejected result materialization attack | `rejected_defective` is ineligible and cannot create an event or entry. State and journal remain unchanged. | PASS |
 | 79 | Inclusion-rule mismatch attack | Wrong result kind, matter/stage, document type, target or route causes atomic rejection with neither event nor entry. | PASS |
-| 80 | Duplicate cardinality attack | Second result for an attempt, reused persistent ID, or second materialization of the same result/rule pair is rejected without mutation. | PASS |
+| 80 | Duplicate cardinality attack | Duplicate finalized composite pair, reassignment of a lineage ID to an unrelated document, second result for an attempt, reused event/record ID, or second materialization of the same result/rule pair is rejected without mutation. Repeating one allocated `document_id` across its own version records is a lineage reference, not ID reuse. | PASS |
 | 81 | Projection isolation | Mutating returned package members, provenance arrays or CourtRecordProjection nesting cannot change authoritative records or history. | PASS |
 | 82 | Determinism/no-reroll | Same authored content and commands reproduce result and event order without gameplay RNG; repeated reads/reload append nothing. | PASS |
 | 83 | Later correction history | A later valid FinalizedDocument/attempt/result does not rewrite or delete an earlier defective attempt, package snapshot or result. Generic cure/amendment semantics are not required. | PASS |
@@ -789,8 +789,8 @@ Arithmetic: 84 + 0 + 0 = 84.
 ## 18. Promotion record
 
 ```text
-DEC-025 v0.2 Accepted
-TEST-024 v0.2 Accepted / manual fixture-level verification
+DEC-025 v0.3 Accepted
+TEST-024 v0.3 Accepted / manual fixture-level verification
 ```
 
 Design review accepted both documents after the original 64 cases and the 20 VS-005 closure cases passed at manual fixture level. This is not an implementation-test result.
@@ -805,3 +805,4 @@ Design review accepted both documents after the original 64 cases and the 20 VS-
 |---|---|---|
 | v0.1 | Proposed / manual fixture-level verification | DEC-025의 64 core fixture, 55 invariant와 state/procedure/history audit를 수동 적용; 모든 case PASS, PARTIAL/FAIL 없음. |
 | v0.2 | Accepted / manual fixture-level verification | Corrected the DEC-022/TEST-021 dependency audit and added 20 VS-005 closure cases for canonical records, the exact result allowlist, validation-versus-defect behavior, explicit atomic CourtRecord materialization, provenance, determinism and the VS-006 terminal boundary; 84 PASS, 0 PARTIAL, 0 FAIL total. |
+| v0.3 | Accepted / manual fixture-level verification | Clarified Case 73 to require two real immutable versions in one stable document lineage, continued usability of the earlier pair, and atomic rejection only for an absent lineage/version pair; total remains 84 PASS, 0 PARTIAL, 0 FAIL. |
