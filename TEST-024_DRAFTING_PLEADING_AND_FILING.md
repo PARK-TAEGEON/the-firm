@@ -1,13 +1,13 @@
 # THE FIRM — TEST-024 Drafting, Pleading and Filing
 
 문서 ID: TEST-024  
-버전: v0.1 — Manual verification draft  
-상태: **Proposed / manual fixture-level verification**  
-대상: `DEC-LITIGATION-025_DRAFTING_PLEADING_AND_FILING.md` v0.1 Proposed / design review required
+버전: v0.2 — Accepted / manual fixture-level verification
+상태: **Accepted / manual fixture-level verification**
+대상: `DEC-LITIGATION-025_DRAFTING_PLEADING_AND_FILING.md` v0.2 Accepted
 
 ## 1. Purpose
 
-DEC-025의 Drafting/Pleading/Filing semantics를 synthetic fixture에 수동 적용한다. implementation test나 실제 한국 법률 절차 검증이 아니며 Observed는 manual fixture application이다.
+DEC-025의 Drafting/Pleading/Filing semantics와 §12.1 VS-005 implementation slice를 synthetic fixture에 수동 적용한다. implementation test나 실제 한국 법률 절차 검증이 아니며 Observed는 manual fixture application이다.
 
 ```text
 InternalAnalysis ≠ Argument ≠ Draft ≠ FinalizedDocument ≠ SubmissionAttempt
@@ -311,16 +311,16 @@ PASS는 DEC-025 경계만으로 결과가 결정되고 inherited DEC와 모순 �
 **Expected**  해당 상태/관계만 생성되고 Draft, source, truth, procedure, CourtRecord 단계가 자동 collapse하지 않는다.  
 **Observed**  typed inputs와 history는 유지되고 hidden correction, automatic promotion, score/oracle은 나타나지 않는다.  
 **Verdict**  PASS  
-**Boundary note**  exact Korean procedure, taxonomy, algorithm, UI, AI, schema와 capability mapping은 NOT TESTED / TBD.
+**Boundary note**  exact Korean procedure, taxonomy, algorithm, UI, AI, schema와 capability mapping은 NOT TESTED / TBD. VS-005는 deadline context를 보존하지만 deadline result를 평가하지 않는다.
 
 ### Case 33 — Pending submission
 **Purpose**  Pending submission semantic boundary를 검증한다.  
 **Fixture**  authorized Case File, CaseTheory/Argument, Draft/version와 해당 review 또는 procedural state  
 **Manual verification**  상태 전이, provenance, attachment/package, review scope, supplied rule과 hidden truth/court bypass를 확인한다.  
-**Expected**  해당 상태/관계만 생성되고 Draft, source, truth, procedure, CourtRecord 단계가 자동 collapse하지 않는다.  
-**Observed**  typed inputs와 history는 유지되고 hidden correction, automatic promotion, score/oracle은 나타나지 않는다.  
+**Expected**  unresolved attempt는 broad architecture에서 유효하다. VS-005에서는 result record 부재로 표현되고 `pending` ProceduralResult kind를 만들지 않는다.
+**Observed**  SubmissionAttempt만 존재하고 result/CourtRecord는 없으며 hidden correction, automatic promotion, score/oracle은 나타나지 않는다.
 **Verdict**  PASS  
-**Boundary note**  exact Korean procedure, taxonomy, algorithm, UI, AI, schema와 capability mapping은 NOT TESTED / TBD.
+**Boundary note**  future broad procedure may define pending vocabulary; it is outside the VS-005 exact allowlist.
 
 ### Case 34 — Rejected submission
 **Purpose**  Rejected submission semantic boundary를 검증한다.  
@@ -603,7 +603,7 @@ PASS는 DEC-025 경계만으로 결과가 결정되고 inherited DEC와 모순 �
 
 ## 5. State-chain pressure test
 
-Draft → FinalizedDocument → SubmissionAttempt → Filed → Accepted → explicit CourtRecord materialization rule → CourtRecordEntry를 단계별로 확인한다. 어느 단계도 암묵적으로 skip하지 않으며 CourtRecordEntry ≠ CourtFactFinding이다. PASS.
+Broad architecture에서는 Draft → FinalizedDocument → SubmissionAttempt → Filed/Accepted-like procedural states → explicit CourtRecord materialization rule → CourtRecordEntry를 분리한다. VS-005 slice에서는 이를 `FinalizedDocument → SubmissionAttempt → ProceduralResult(accepted_for_record | rejected_defective) → RecordMaterializationEvent → CourtRecordEntry`로 좁힌다. 어느 단계도 암묵적으로 skip하지 않으며 CourtRecordEntry ≠ CourtFactFinding이다. PASS.
 
 ## 6. Draft-truth and hidden-correction pressure test
 
@@ -709,7 +709,7 @@ SA-1 rejection 후 D2/SA-2가 accepted되어도 SA-1 성공으로 바꾸거나 �
 
 ## 13. Contradiction audit
 
-DEC-025 내부 및 DEC-024/023/022/021/020/019/018/017/013/014 inherited boundary와의 모순을 점검했다. Draft/truth, state-stage, procedural/substantive, attachment/admission, filing/service, history, reroll, capability, approval, CourtRecord/JII/finding bypass와 fabricated Korean procedure는 모두 거부된다.
+DEC-025 내부 및 direct Accepted DEC-024/023/021/020/019/018 경계와의 모순을 점검했다. DEC-022/TEST-021은 v0.1 Proposed boundary 참고일 뿐 direct dependency가 아니며 witness semantics는 소비하지 않는다. Draft/truth, state-stage, procedural/substantive, attachment/admission, filing/service, history, reroll, capability, approval, CourtRecord/JII/finding bypass와 fabricated Korean procedure는 모두 거부된다.
 
 ## 14. False-PASS audit
 
@@ -723,26 +723,55 @@ Core case에는 semantic ambiguity가 없다. TBD인 taxonomy, deadlines, filing
 
 - document taxonomy and Korean forms
 - deadlines, jurisdiction, filing/service/admission rules
-- procedural defect and exhibit requirements
+- broad procedural defect and exhibit requirements beyond the authored VS-005 package rule
 - signature/authorization/client approval
 - Drafting/Review capability mapping
 - text generation, UI/editor, NPC AI
-- CourtRecord inclusion and judge consideration mechanics
+- broad CourtRecord admission and judge-consideration mechanics beyond the accepted VS-005 materialization gate
 - save/schema/API/Godot
 - balancing/performance
+
+## 16.1 VS-005 closure cases (65–84)
+
+이 절은 DEC-025 §12.1의 exact implementation boundary만 검증한다. Fixture rule은 synthetic authored DATA이며 한국 법률·법원 절차를 주장하지 않는다.
+
+| Case | Fixture / attack | Expected and observed result | Verdict |
+|---:|---|---|---|
+| 65 | Dependency-status audit | DEC-022/TEST-021 actual headers are v0.1 Proposed; DEC-025 records them only as non-consuming boundary references. No witness semantic is required by VS-005. | PASS |
+| 66 | Selected Argument only | Current Argument and ArgumentSelectionEvent exist, but no completed Drafting Task/WorkProduct is supplied. No FinalizedDocument, attempt, result or record object appears. | PASS |
+| 67 | FinalizedDocument provenance | Completed DraftWorkProduct version plus selected ArgumentSelectionEvent and authorized typed refs create one immutable FinalizedDocument preserving exact IDs/versions; it has no filing effect. | PASS |
+| 68 | Finalization does not submit | Reading or finalizing the document creates no SubmissionAttempt or ProceduralResult. | PASS |
+| 69 | Attempt/result separation | Valid attempt creation freezes document/version, actor/team, matter/stage, target/route, package, rule and deadline-context refs; result remains absent until a separate command. | PASS |
+| 70 | Complete authored package | Exact required members are present. Separate evaluation materializes exactly one `accepted_for_record`; no CourtRecord entry is created. | PASS |
+| 71 | Missing required member | A known required member is omitted from an otherwise valid package. Attempt is retained and separate evaluation creates `rejected_defective` with `missing_required_package_member` and exact missing IDs. | PASS |
+| 72 | Validation failure atomicity | Unknown/reused ID, mismatched ID-version, unauthorized actor/team, wrong matter/stage/target/route, foreign package member or invalid order creates no attempt/result/event/entry and changes no journal state. | PASS |
+| 73 | Historical-version attack | A real immutable finalized historical version is not stale merely because a later revision exists. A supplied ID/version absent from that finalization lineage is rejected before mutation. | PASS |
+| 74 | Result allowlist attack | `pending`, `filed`, `served`, `admitted`, `withdrawn`, `superseded` and arbitrary result strings cannot materialize in VS-005. Absence of a result record represents not-yet-resolved. | PASS |
+| 75 | Merits/procedure laundering | Strong/weak Argument, capability, review and approvals cannot alter complete-package → `accepted_for_record` or missing-member → `rejected_defective`. | PASS |
+| 76 | Accepted result without inclusion command | `accepted_for_record` alone creates no RecordMaterializationEvent or CourtRecordEntry. Reads, redraw and reload also create none. | PASS |
+| 77 | Explicit matching materialization | Exact document/attempt/result plus matching RecordInclusionRule and fresh event/entry IDs atomically append one RecordMaterializationEvent and one CourtRecordEntry with all required provenance. | PASS |
+| 78 | Rejected result materialization attack | `rejected_defective` is ineligible and cannot create an event or entry. State and journal remain unchanged. | PASS |
+| 79 | Inclusion-rule mismatch attack | Wrong result kind, matter/stage, document type, target or route causes atomic rejection with neither event nor entry. | PASS |
+| 80 | Duplicate cardinality attack | Second result for an attempt, reused persistent ID, or second materialization of the same result/rule pair is rejected without mutation. | PASS |
+| 81 | Projection isolation | Mutating returned package members, provenance arrays or CourtRecordProjection nesting cannot change authoritative records or history. | PASS |
+| 82 | Determinism/no-reroll | Same authored content and commands reproduce result and event order without gameplay RNG; repeated reads/reload append nothing. | PASS |
+| 83 | Later correction history | A later valid FinalizedDocument/attempt/result does not rewrite or delete an earlier defective attempt, package snapshot or result. Generic cure/amendment semantics are not required. | PASS |
+| 84 | VS-006 leakage attack | Materialization creates no Contribution, Criterion, admissibility result, JII, ChoicePoint, judge interpretation, CourtFactFinding, adjudication, Judgment or appeal state; UI may say recorded, not considered/believed/adopted. | PASS |
+
+Closure arithmetic: 20 PASS + 0 PARTIAL + 0 FAIL = 20. No semantic ambiguity, contradiction or VS-006 dependency was found in the accepted VS-005 slice.
 
 ## 17. Final verification summary
 
 ```text
-Total core cases: 64
-PASS: 64
+Total core cases: 84
+PASS: 84
 PARTIAL: 0
 FAIL: 0
 ```
 
 PARTIAL cases: none  
 FAIL cases: none  
-Arithmetic: 64 + 0 + 0 = 64.
+Arithmetic: 84 + 0 + 0 = 84.
 
 - DEC-025 reopen required: No.
 - Internal contradiction: None found.
@@ -754,17 +783,17 @@ Arithmetic: 64 + 0 + 0 = 64.
 - History/version loss, cure overwrite, parallel auto-merge, capability/approval oracle: None.
 - Reload reroll and hidden future-outcome leak: None.
 - Fabricated Korean procedure: None.
-- Issue blocking DEC-025 promotion: None.
+- Issue blocking DEC-025 promotion: None; v0.2 is Accepted.
 - Issue blocking DEC-026: None.
 
-## 18. Promotion recommendation
+## 18. Promotion record
 
 ```text
-DEC-025 v0.1 → v0.2 Accepted
-TEST-024 v0.1 → v0.2 Accepted / manual fixture-level verification
+DEC-025 v0.2 Accepted
+TEST-024 v0.2 Accepted / manual fixture-level verification
 ```
 
-TEST-024은 DEC status를 자동 변경하지 않는다.
+Design review accepted both documents after the original 64 cases and the 20 VS-005 closure cases passed at manual fixture level. This is not an implementation-test result.
 
 ## 19. Next DEC recommendation
 
@@ -775,3 +804,4 @@ TEST-024은 DEC status를 자동 변경하지 않는다.
 | Version | Status | Change |
 |---|---|---|
 | v0.1 | Proposed / manual fixture-level verification | DEC-025의 64 core fixture, 55 invariant와 state/procedure/history audit를 수동 적용; 모든 case PASS, PARTIAL/FAIL 없음. |
+| v0.2 | Accepted / manual fixture-level verification | Corrected the DEC-022/TEST-021 dependency audit and added 20 VS-005 closure cases for canonical records, the exact result allowlist, validation-versus-defect behavior, explicit atomic CourtRecord materialization, provenance, determinism and the VS-006 terminal boundary; 84 PASS, 0 PARTIAL, 0 FAIL total. |
