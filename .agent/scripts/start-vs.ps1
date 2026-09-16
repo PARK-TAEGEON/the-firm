@@ -26,6 +26,28 @@ function Invoke-FirmGit([string[]]$Arguments, [string]$At=$Repository) {
     if ($LASTEXITCODE -ne 0) { throw "git $($Arguments -join ' ') failed: $($output -join ' ')" }
     return $output
 }
+function Test-FirmAncestor([string]$Ancestor, [string]$Descendant, [string]$At=$Repository) {
+    $ErrorActionPreference = 'Continue'
+    $output = @(& git -C $At merge-base --is-ancestor $Ancestor $Descendant 2>&1 | ForEach-Object { "$_" })
+    $code = $LASTEXITCODE
+    if ($code -eq 0) { return $true }
+    if ($code -eq 1) { return $false }
+    throw "BLOCKED: git merge-base --is-ancestor $Ancestor $Descendant failed (exit $code): $($output -join ' ')"
+}
+function Sync-FirmWorktree([string]$Base, [string]$At) {
+    $head = (Invoke-FirmGit @('rev-parse','HEAD') $At) -join ''
+    $dirty = @(Invoke-FirmGit @('status','--porcelain','--untracked-files=all') $At)
+    if ($dirty.Count) { throw "BLOCKED: worktree has staged, unstaged or untracked changes at $At (HEAD $head; latest origin/main $Base). Preserve/review changes manually; no automatic synchronization. Changes: $($dirty -join '; ')" }
+    if ($head -eq $Base) { return }
+    if (!(Test-FirmAncestor $head $Base $At)) {
+        throw "BLOCKED: worktree HEAD $head has task commits or diverges from latest origin/main $Base at $At. Manual review required; no reset/rebase is automatic."
+    }
+    $null = Invoke-FirmGit @('merge','--ff-only',$Base) $At
+    if (((Invoke-FirmGit @('rev-parse','HEAD') $At) -join '') -ne $Base -or @(Invoke-FirmGit @('status','--porcelain','--untracked-files=all') $At).Count) {
+        throw 'BLOCKED: worktree synchronization did not produce a clean HEAD at latest origin/main.'
+    }
+    Write-Output "Fast-forwarded clean worktree: $head -> $Base at $At"
+}
 function SaveJson($Value, [string]$Path) {
     [IO.File]::WriteAllText($Path, ($Value | ConvertTo-Json -Depth 12), [Text.UTF8Encoding]::new($false))
 }
@@ -72,12 +94,10 @@ function Resolve-Predecessor([string]$Base, [bool]$Preview) {
     if ($recorded.Success -and $final -ne ((Invoke-FirmGit @('rev-parse',($recorded.Groups[1].Value+'^{commit}'))) -join '')) { throw 'BLOCKED: explicit predecessor commit conflicts with approved archive.' }
     $subject = (Invoke-FirmGit @('show','-s','--format=%s',$final)) -join ''
     if ($subject -notmatch ('^feat\(vs-{0:000}\): implement\b' -f ($number-1))) { throw "BLOCKED: predecessor is not an identified $previous implementation commit." }
-    $null = Invoke-FirmGit @('merge-base','--is-ancestor',$final,$Base)
+    if (!(Test-FirmAncestor $final $Base)) { throw 'BLOCKED: predecessor implementation is not merged into main.' }
     $integration = ''
     foreach ($entry in (Invoke-FirmGit @('rev-list','--first-parent','--reverse',$Base))) {
-        & git -C $Repository merge-base --is-ancestor $final $entry 2>$null
-        if ($LASTEXITCODE -eq 0) { $integration = $entry; break }
-        if ($LASTEXITCODE -ne 1) { throw 'BLOCKED: cannot verify predecessor integration.' }
+        if (Test-FirmAncestor $final $entry) { $integration = $entry; break }
     }
     if (!$integration) { throw 'BLOCKED: predecessor integration missing from main.' }
     if ($mergeRecord.Success) {
@@ -192,9 +212,7 @@ else {
     if (Test-Path -LiteralPath $wt) {
         if ((Invoke-FirmGit @('rev-parse','--show-toplevel') $wt | Out-String).Trim().Replace('\','/') -ne ([IO.Path]::GetFullPath($wt).Replace('\','/'))) { throw 'Target is not a worktree root.' }
         if (((Invoke-FirmGit @('branch','--show-current') $wt) -join '') -ne $Branch) { throw 'Worktree belongs to another branch.' }
-        if (@(Invoke-FirmGit @('status','--porcelain') $wt).Count) { throw 'Reuse requires a clean worktree. Preserve/review existing changes manually.' }
-        $null = Invoke-FirmGit @('merge-base','--is-ancestor',$base,'HEAD') $wt
-        if (@(Invoke-FirmGit @('rev-list',($base+'..HEAD')) $wt).Count) { throw 'Reuse requires HEAD at latest main; existing task commits need manual review.' }
+        Sync-FirmWorktree $base $wt
     } else {
         $existing = @(& git -C $Repository show-ref --verify --quiet ('refs/heads/'+$Branch))
         $branchExists = $LASTEXITCODE -eq 0

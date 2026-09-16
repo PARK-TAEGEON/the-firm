@@ -1,39 +1,23 @@
-# VS Orchestrator bounded closure and review fix handoff
+# VS Orchestrator stale-worktree fix
 
-Purpose: automatically close eligible design-document blockers and re-review
-focused implementation fixes without manual prompt copying. No gameplay code,
-project design decisions or production regression logs changed by this upgrade.
-Preserves the existing uncommitted BOM-safe/predecessor/test-runner changes.
+Purpose: safely resume VS-006 created at b91d2de before main advanced to 71f0718.
 
-Changed files for this upgrade:
-- ../prompts/design-closure-vs.md: reusable minimum document closure role with
-  READY/BLOCKED JSON, source/status checks, prohibited implementation and approval fabrication.
-- start-vs.ps1: explicit Planner blocker_kind, at most two workspace-write design
-  cycles with all-file scope audit and diff validation, automatic Planner reruns;
-  at most two focused Reviewer fixes with full tests and independent re-review.
-- self-test.ps1: six additional fixture modes, cycle/call/commit gates, changed,
-  deleted and ignored executable-file rejection, retesting every review fix.
-- README.md: bounded loops, document policy, evidence layout and fixture details.
-- test-results.log and this packet: current validation and handoff.
+Changed files:
+- start-vs.ps1: shared boolean ancestry helper (0=true, 1=false, unexpected exit throws); clean behind worktree fast-forward with --ff-only before Planner. Dirty/ahead/diverged worktrees stop with BLOCKED and preserve HEAD/index/files.
+- self-test.ps1: real Git ancestry true/false/error fixtures; clean stale/current worktree fixtures; staged, unstaged, untracked, ahead and diverged refusal fixtures checking no agent calls and unchanged state.
+- README.md: documents safe synchronization and refusal behavior.
+- REVIEW_PACKET.md and test-results.log: current handoff and validation.
 
-Invariants: implementation requires Planner READY; only Reviewer PASS authorizes
-host archive/commit/publish. Other blockers and failed scope/tests stop. Closure
-documents are audited and frozen after READY, except the host's active contract
-replacement. HEAD/index and read-only snapshot gates remain. Predecessor discovery,
-BOM-free JSON and publication logic remain. No next VS work.
+Validation: offline self-test on PowerShell 7 and Windows PowerShell 5.1; each 35 PASS fixture groups, 199 BOM-free parseable JSON/schema/event files, zero failures, exit 0. git diff --check passed.
 
-Validation: staged scripts ran offline self-test on PowerShell 7 and Windows
-PowerShell 5.1. Both: 27 fixture groups, 189 generated JSON/schema/event files
-strictly parsed and BOM-free, zero failures, exit code 0. Windows 5.1 additionally
-asserts the specific scope-violation reason and tests.json for each fix cycle.
-Whitespace checks of staged changes passed (diff --no-index returns 1 for differences).
+Commands: pwsh -NoProfile -File .agent/scripts/self-test.ps1; powershell.exe -NoProfile -ExecutionPolicy Bypass -File .agent/scripts/self-test.ps1; git diff --check.
 
-Codex/Godot are mocks; Git fixture worktrees/history/commits are disposable local
-repositories. No real Codex or gameplay regression invocation, real VS implementation,
-commit or push. Design closure uses git diff --check; runtime regressions are deferred
-to the READY contract's runner/log authorization. Owner-dependent unresolved
-decisions remain BLOCKED. Stopped runs preserve partial changes for inspection and
-require a clean reviewed worktree before another invocation; no automatic rollback.
+Preserved: predecessor PASS/integration detection, read-only/HEAD/index/scope/test hard gates, BOM-safe JSON, bounded design closure and reviewer fixes, archive/commit/optional publication behavior. Dirty worktrees remain refused even when at current main; detached unregistered task branches still require manual review.
 
-Resume VS-006 with explicit Repository and the README's verified Godot console
-path; normal successful runs retain the original automatic commit behavior.
+Fixture-only: fake Codex/Godot and disposable local Git repositories/commits. No real gameplay tests required for this scripts-only change. No gameplay, design, production logs or prompts changed. No actual VS task run, real commit or push performed. Actual VS-006 inspected clean at b91d2de; synchronization is deferred until operator resumes.
+
+Resume:
+```powershell
+& 'C:\Users\Admin\Documents\ChatGPT\The Firm\.agent\scripts\start-vs.ps1' -VS 006 -Repository 'C:\Users\Admin\Documents\ChatGPT\The Firm' -WorktreeRoot 'C:\Users\Admin\Documents\ChatGPT\THE-FIRM-VS' -Godot 'C:\Users\Admin\Downloads\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe'
+```
+Normal resumed PASS retains the existing automatic task commit behavior; publishing requires -Publish.

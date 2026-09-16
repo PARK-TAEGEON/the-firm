@@ -63,7 +63,10 @@ active contract with Planner's READY text).
 New branches are `task/vs-XXX`, with worktrees in sibling `THE-FIRM-VS/VS-XXX`.
 Override with `-Branch PARK-TAEGEON/vs-006` or `-WorktreeRoot <directory>`.
 An already registered matching branch reuses its existing worktree. Reuse requires
-a clean worktree at latest main. Stale/diverged branches and dirty worktrees stop;
+a clean worktree. A clean HEAD behind latest origin/main is fast-forwarded with
+--ff-only before Planner/design closure; ancestry exit 1 is boolean false.
+Dirty worktrees (staged/unstaged/untracked), ahead or diverged HEADs stop with
+a BLOCKED diagnostic and preserve HEAD/index/files;
 there is no reset/rebase or resume of partial implementation across invocations.
 Reviewer FIX REQUIRED invokes a focused Implementer fix within the frozen
 contract, then all required tests/smoke and a fresh read-only Reviewer. At most

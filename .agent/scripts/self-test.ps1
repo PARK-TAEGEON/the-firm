@@ -142,6 +142,64 @@ try {
             'PASS fixture: persisted archive + automatic predecessor + normal gate'
         }
     }
+    # Exercise ancestry directly using the same functions as the orchestrator.
+    $ast = [Management.Automation.Language.Parser]::ParseFile($scriptPath, [ref]$null, [ref]$null)
+    foreach ($name in @('Invoke-FirmGit','Test-FirmAncestor')) {
+        $definition = $ast.Find({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq $name }, $true)
+        Invoke-Expression $definition.Extent.Text
+    }
+    $repo=Fixture 'ancestry'
+    $initial=(& git -C $repo rev-parse HEAD) -join ''
+    if (!(Test-FirmAncestor $initial $initial $repo)) { throw 'Ancestor true rejected.' }
+    $source=Join-Path $fixtureRoot 'ancestry-source'
+    'advance' | Set-Content (Join-Path $source 'advance.txt')
+    & git -C $source add .
+    & git -C $source -c user.name=Fixture -c user.email=fixture@example.invalid commit -q -m advance
+    & git -C $repo fetch -q origin main
+    $latest=(& git -C $repo rev-parse origin/main) -join ''
+    if (!(Test-FirmAncestor $initial $latest $repo) -or (Test-FirmAncestor $latest $initial $repo)) { throw 'Ancestor true/false handling failed.' }
+    $rejected=$false
+    try { Test-FirmAncestor 'missing-commit' $latest $repo | Out-Null } catch { $rejected=$_.Exception.Message -like 'BLOCKED: git merge-base*exit*' }
+    if (!$rejected) { throw 'Unexpected ancestry exit did not throw.' }
+    'PASS fixture: ancestor true + false + unexpected exit'
+    foreach ($case in @('CLEAN','STAGED','UNSTAGED','UNTRACKED','AHEAD','DIVERGED','CURRENT')) {
+        $repo=Fixture ('sync-'+$case)
+        $source=Join-Path $fixtureRoot ('sync-'+$case+'-source')
+        $root=Join-Path $fixtureRoot ('sync-'+$case+'-worktrees')
+        $wt=Join-Path $root 'VS-001'
+        & git -C $repo worktree add -q -b task/vs-001 $wt main
+        if ($case -in @('AHEAD','DIVERGED')) {
+            'task commit' | Set-Content (Join-Path $wt 'task.txt')
+            & git -C $wt add .
+            & git -C $wt commit -q -m 'task work'
+        }
+        if ($case -notin @('AHEAD','CURRENT')) {
+            'advance' | Set-Content (Join-Path $source 'advance.txt')
+            & git -C $source add .
+            & git -C $source -c user.name=Fixture -c user.email=fixture@example.invalid commit -q -m 'latest base'
+        }
+        if ($case -in @('STAGED','UNSTAGED')) {
+            'user changes' | Set-Content (Join-Path $wt 'litigation-skeleton/REVIEW_PACKET.md')
+            if ($case -eq 'STAGED') { & git -C $wt add . }
+        }
+        if ($case -eq 'UNTRACKED') { 'user file' | Set-Content (Join-Path $wt 'user.txt') }
+        $headBefore=(& git -C $wt rev-parse HEAD) -join ''
+        $statusBefore=(& git -C $wt status --porcelain) -join "`n"
+        $diffBefore=((& git -C $wt diff) + (& git -C $wt diff --cached)) -join "`n"
+        $global:firmMockMode='PLANNER_BLOCKED'
+        $global:firmMockCalls=@()
+        $reason=''
+        try { & $scriptPath -VS 001 -Repository $repo -WorktreeRoot $root -Godot firmMockGodot | Out-Null } catch { $reason=$_.Exception.Message }
+        if ($case -in @('CLEAN','CURRENT')) {
+            $latest=(& git -C $repo rev-parse origin/main) -join ''
+            if (((& git -C $wt rev-parse HEAD) -join '') -ne $latest -or $reason -notlike 'BLOCKED: fixture*' -or ($global:firmMockCalls -join ',') -ne 'planner') { throw "$case did not reach Planner at latest main: $reason" }
+        } else {
+            if ($reason -notlike 'BLOCKED: worktree*' -or $global:firmMockCalls.Count) { throw "$case did not refuse before agents: $reason" }
+            if (((& git -C $wt rev-parse HEAD) -join '') -ne $headBefore -or ((& git -C $wt status --porcelain) -join "`n") -ne $statusBefore -or (((& git -C $wt diff)+(& git -C $wt diff --cached)) -join "`n") -ne $diffBefore) { throw "$case changed HEAD/index/files on refusal." }
+            if ($case -eq 'UNTRACKED' -and (Get-Content (Join-Path $wt 'user.txt') -Raw).Trim() -ne 'user file') { throw 'Untracked content changed.' }
+        }
+        "PASS fixture: worktree $case"
+    }
     $repo=Fixture 'preview'
     $before=(& git -C $repo worktree list --porcelain) -join "`n"
     & $scriptPath -VS 001 -Repository $repo -DryRun | Out-Null
