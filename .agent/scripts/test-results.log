@@ -1,0 +1,30 @@
+PASS fixture: BOM + malformed JSON rejection
+PASS fixture: PASS
+PASS fixture: persisted archive + automatic predecessor + normal gate
+PASS fixture: PLANNER_BLOCKED
+PASS fixture: IMPLEMENTER_BLOCKED
+PASS fixture: TEST_FAIL
+PASS fixture: FIX REQUIRED
+PASS fixture: REVIEWER_BLOCKED
+PASS fixture: SCOPE_FAIL
+PASS fixture: DESIGN_SUCCESS
+PASS fixture: DESIGN_REPEAT
+PASS fixture: DESIGN_SCOPE
+PASS fixture: DESIGN_IGNORED_SCOPE
+PASS fixture: DESIGN_DELETE_SCOPE
+PASS fixture: FIX_SUCCESS
+PASS fixture: dry-run + smoke
+PASS fixture: predecessor gate
+PASS fixture: predecessor INVALID_PASS
+PASS fixture: predecessor CONFLICTING_PASS
+PASS fixture: predecessor MISSING_MERGE
+PASS fixture: predecessor WRONG_MERGE
+PASS fixture: predecessor UNMERGED
+PASS fixture: predecessor DESIGN_COMMIT
+PASS fixture: predecessor OVERRIDE
+PASS fixture: predecessor TRAVERSAL
+PASS fixture: historical archive + explicit overrides
+PASS fixture: 189 generated JSON/schema/event files are BOM-free and parseable
+Fixture files retained for inspection: C:\Users\Admin\AppData\Local\Temp\firm-orchestrator-test-7105e4cfd5c94f4e93938532c65b71cd
+
+SUMMARY 27 fixture groups, 189 generated JSON/schema/event files, 0 failures, exit code 0

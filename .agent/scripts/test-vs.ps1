@@ -37,5 +37,5 @@ try {
         $results += [pscustomobject]@{suite=$suite.Name; arguments=$arguments; exit_code=$code; summary=$summary.Value; passed=$passed}
     }
 } finally { Pop-Location }
-$results | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $RunDirectory 'tests.json') -Encoding UTF8
+[IO.File]::WriteAllText((Join-Path $RunDirectory 'tests.json'), ($results | ConvertTo-Json -Depth 6), [Text.UTF8Encoding]::new($false))
 if (@($results | Where-Object { !$_.passed }).Count) { throw 'Required regression/smoke failed. See tests.json.' }

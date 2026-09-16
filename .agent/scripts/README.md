@@ -1,4 +1,4 @@
-# VS Orchestrator v0.1 (Windows PowerShell 5.1+)
+# VS Orchestrator v0.2 (Windows PowerShell 5.1+)
 
 Run from the repository root:
 
@@ -38,16 +38,40 @@ unmerged/wrong implementation, conflicting metadata or incorrect historical
 integration stops before agent execution. DryRun uses local main, so its result
 is a preview; normal mode revalidates against freshly fetched origin/main.
 Planner independently validates evidence, required tests and Accepted design gates.
-Missing VS-006 accepted
-design/contract decisions also cause Planner BLOCKED.
+Missing VS-006 accepted design/contract decisions cause Planner BLOCKED with
+machine-readable `blocker_kind=design_closure`. Only that classification invokes
+the reusable `../prompts/design-closure-vs.md` role in workspace-write mode.
+Other BLOCKED reasons stop immediately; failed predecessor PASS/merge gates remain
+outside this loop. Planner READY must use `blocker_kind=none`.
+
+The host permits at most two design-closure cycles per invocation. Each cycle
+saves the blocking Planner verdict, invokes closure, audits all tracked/untracked
+files (including ignored files) against a Markdown-only document policy, runs
+`git diff --check`, records closure-result.json and reruns the read-only Planner
+even if closure itself returned BLOCKED. Only Planner READY proceeds. Document
+scope covers root named governance/numbered architecture/DEC/TEST Markdown,
+Markdown under docs/, .agent/tasks/ and .agent/plans/. Production, executable
+tests/fixtures, scripts/prompts, review archives, configuration, assets and links
+are prohibited. Scope violations stop without rollback; preserve evidence and
+inspect the worktree manually. Design decisions requiring owner approval remain
+BLOCKED; the role cannot fabricate acceptance or predecessor evidence.
+Runtime regressions are deferred until the READY contract provides the required
+runners and canonical-log allowlist. Closed documents are included in the final
+reviewed change set and frozen during implementation (the host may replace the
+active contract with Planner's READY text).
 
 New branches are `task/vs-XXX`, with worktrees in sibling `THE-FIRM-VS/VS-XXX`.
 Override with `-Branch PARK-TAEGEON/vs-006` or `-WorktreeRoot <directory>`.
 An already registered matching branch reuses its existing worktree. Reuse requires
 a clean worktree at latest main. Stale/diverged branches and dirty worktrees stop;
-there is no reset/rebase, automatic fix loop or resume of partial implementation.
-On FIX REQUIRED/BLOCKED, inspect saved files, resolve the issue and arrange a new
-clean reviewed run manually. After commit/push/PR failures, finish the remaining
+there is no reset/rebase or resume of partial implementation across invocations.
+Reviewer FIX REQUIRED invokes a focused Implementer fix within the frozen
+contract, then all required tests/smoke and a fresh read-only Reviewer. At most
+two fix cycles follow the initial review. Reviewer BLOCKED, Implementer BLOCKED,
+failed tests/scope validation and unresolved third review stop immediately.
+Reviewer PASS remains the sole transition to archive/commit/publication.
+On unresolved FIX REQUIRED/BLOCKED, inspect saved files, resolve the issue and
+arrange a new clean reviewed run manually. After commit/push/PR failures, finish the remaining
 Git/gh action manually; do not rerun implementation on a committed task branch.
 
 Handoffs live in each target worktree at `.agent/runs/VS-XXX/<timestamp-id>/`:
@@ -55,7 +79,11 @@ invocation, input prompts, schemas, final JSON verdicts, JSONL events, stderr,
 frozen contract, suite logs, tests.json, completion.json or stopped.json. A lock
 prevents overlapping phase execution. Runs are locally excluded via Git
 info/exclude (shared by worktrees), never staged. Every invocation has a new run
-directory so old PASS/test outputs cannot authorize a new run.
+directory so old PASS/test outputs cannot authorize a new run. Design cycles use
+design-closure-1/ and design-closure-2/ with scope.json, closure-result.json and
+fresh Planner outputs; fix cycles use review-fix-1/ and review-fix-2/ with preceding
+reviewer-feedback.json, fresh Implementer/Reviewer outputs and tests.json/logs.
+All machine JSON/schema/event files remain BOM-free.
 
 Planner remains read-only, returning full contract text and an exact file
 allowlist as structured JSON. The host writes the contract only on READY; the
@@ -90,4 +118,14 @@ Structured Codex invocation follows the installed CLI help and
 [official noninteractive documentation](https://developers.openai.com/codex/noninteractive/).
 
 Offline gate checks: run .\.agent\scripts\self-test.ps1. It uses disposable local Git repositories and fake Codex/Godot; no authentication or publication. Fixture repositories are retained in the temporary directory for inspection.
+
+Additional fixtures: DESIGN_SUCCESS (closure then Planner READY and final PASS),
+DESIGN_REPEAT (two closure calls, three Planner calls, no implementation/commit),
+DESIGN_SCOPE / DESIGN_IGNORED_SCOPE / DESIGN_DELETE_SCOPE (changed production,
+ignored production or deleted executable test rejected before implementation),
+FIX_SUCCESS (focused fix then PASS) and FIX REQUIRED (two fixes then stop without
+commit). Existing predecessor, BOM, failed-test, scope and publication gates remain
+covered. Fixture-only commits never touch the real project. Do not launch a full
+VS run just to test orchestration: normal PASS automatically commits, even without
+-Publish.
 

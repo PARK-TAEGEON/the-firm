@@ -7,6 +7,15 @@ $null = New-Item -ItemType Directory -Path $fixtureRoot
 $scriptPath = Join-Path $PSScriptRoot 'start-vs.ps1'
 $global:firmMockMode = 'PASS'
 $global:firmMockCalls = @()
+function AssertMachineJson([string]$Path) {
+    $bytes = [IO.File]::ReadAllBytes($Path)
+    if ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) { throw "UTF-8 BOM: $Path" }
+    $text = [Text.UTF8Encoding]::new($false, $true).GetString($bytes)
+    if ([string]::IsNullOrWhiteSpace($text)) { throw "Empty JSON: $Path" }
+    if ([IO.Path]::GetExtension($Path) -eq '.jsonl') {
+        foreach ($line in ($text -split '\r?\n')) { if ($line.Trim()) { $null = $line | ConvertFrom-Json -ErrorAction Stop } }
+    } else { $null = $text | ConvertFrom-Json -ErrorAction Stop }
+}
 function global:firmMockGodot {
     if ($global:firmMockMode -eq 'TEST_FAIL') { 'SUMMARY 3 checks, 1 failures'; $global:LASTEXITCODE=1 }
     elseif ($args -contains '--script') { 'SUMMARY 3 checks, 0 failures'; $global:LASTEXITCODE=0 }
@@ -17,23 +26,39 @@ function global:codex {
     process { $inputText += "$_`n" }
     end {
         $resultPath=$a[[array]::IndexOf($a,'--output-last-message')+1]
+        AssertMachineJson $a[[array]::IndexOf($a,'--output-schema')+1]
         $at=$a[[array]::IndexOf($a,'--cd')+1]
         $role=[IO.Path]::GetFileNameWithoutExtension($resultPath)
         $global:firmMockCalls += $role
+        $plannerCount = @($global:firmMockCalls | Where-Object { $_ -eq 'planner' }).Count
+        $reviewCount = @($global:firmMockCalls | Where-Object { $_ -eq 'reviewer' }).Count
         $result=@{verdict='READY';reason='fixture';contract_markdown='';allowed_files=@()}
-        if ($inputText -match 'Do not inspect or modify') { $result.reason='CODEX_ORCHESTRATOR_SMOKE_OK' }
+        if ($inputText -match 'Do not inspect or modify') { $result.reason='CODEX_ORCHESTRATOR_SMOKE_OK'; $result.blocker_kind='none' }
         elseif ($role -eq 'planner') {
+            $result.blocker_kind='none'
             $result.contract_markdown='# VS-001 fixture contract READY'
             $result.allowed_files=@('litigation-skeleton/REVIEW_PACKET.md')
-            if ($global:firmMockMode -eq 'PLANNER_BLOCKED') { $result.verdict='BLOCKED' }
+            if ($global:firmMockMode -eq 'PLANNER_BLOCKED') { $result.verdict='BLOCKED'; $result.blocker_kind='other' }
+            if ($global:firmMockMode -like 'DESIGN_*' -and ($global:firmMockMode -ne 'DESIGN_SUCCESS' -or $plannerCount -eq 1)) {
+                $result.verdict='BLOCKED'; $result.reason='Missing Accepted design closure'; $result.blocker_kind='design_closure'
+            }
+        } elseif ($role -eq 'design-closure') {
+            $sandbox=$a[[array]::IndexOf($a,'--sandbox')+1]
+            if ($sandbox -ne 'workspace-write') { throw 'Closure sandbox incorrect.' }
+            $null=New-Item -ItemType Directory -Path (Join-Path $at '.agent/plans') -Force
+            "# Closure fixture $plannerCount" | Set-Content (Join-Path $at '.agent/plans/closure.md')
+            if ($global:firmMockMode -eq 'DESIGN_REPEAT') { $result.verdict='BLOCKED' }
+            if ($global:firmMockMode -eq 'DESIGN_SCOPE') { 'unauthorized' | Set-Content (Join-Path $at 'litigation-skeleton/tests/run_regressions.gd') }
+            if ($global:firmMockMode -eq 'DESIGN_IGNORED_SCOPE') { 'unauthorized' | Set-Content (Join-Path $at 'ignored.gd') }
+            if ($global:firmMockMode -eq 'DESIGN_DELETE_SCOPE') { Remove-Item -LiteralPath (Join-Path $at 'litigation-skeleton/tests/run_regressions.gd') }
         } elseif ($role -eq 'implementer') {
             'Fixture implementation packet' | Set-Content (Join-Path $at 'litigation-skeleton/REVIEW_PACKET.md')
             if ($global:firmMockMode -eq 'SCOPE_FAIL') { 'unauthorized' | Set-Content (Join-Path $at 'forbidden.txt') }
             if ($global:firmMockMode -eq 'IMPLEMENTER_BLOCKED') { $result.verdict='BLOCKED' }
         } else {
-            $result.verdict=if ($global:firmMockMode -eq 'FIX REQUIRED') { 'FIX REQUIRED' } elseif ($global:firmMockMode -eq 'REVIEWER_BLOCKED') { 'BLOCKED' } else { 'PASS' }
+            $result.verdict=if ($global:firmMockMode -eq 'FIX REQUIRED') { 'FIX REQUIRED' } elseif ($global:firmMockMode -eq 'FIX_SUCCESS' -and $reviewCount -eq 1) { 'FIX REQUIRED' } elseif ($global:firmMockMode -eq 'REVIEWER_BLOCKED') { 'BLOCKED' } else { 'PASS' }
         }
-        $result | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $resultPath -Encoding UTF8
+        [IO.File]::WriteAllText($resultPath, ($result | ConvertTo-Json -Depth 6), [Text.UTF8Encoding]::new($false))
         '{"fixture":true}'
         $global:LASTEXITCODE=0
     }
@@ -44,6 +69,7 @@ function Fixture([string]$Name) {
     $null=New-Item -ItemType Directory -Path (Join-Path $source 'litigation-skeleton/tests'),(Join-Path $source 'litigation-skeleton/vertical_slice/tests') -Force
     'fixture' | Set-Content (Join-Path $source 'litigation-skeleton/tests/run_regressions.gd')
     'fixture' | Set-Content (Join-Path $source 'litigation-skeleton/vertical_slice/tests/run_slice_regressions.gd')
+    'ignored.gd' | Set-Content (Join-Path $source '.gitignore')
     'initial packet' | Set-Content (Join-Path $source 'litigation-skeleton/REVIEW_PACKET.md')
     & git init -q -b main $source
     & git -C $source -c user.name=Fixture -c user.email=fixture@example.invalid add .
@@ -54,18 +80,46 @@ function Fixture([string]$Name) {
     return $repo
 }
 try {
-    foreach ($mode in @('PASS','PLANNER_BLOCKED','IMPLEMENTER_BLOCKED','TEST_FAIL','FIX REQUIRED','REVIEWER_BLOCKED','SCOPE_FAIL')) {
+    $bomFixture = Join-Path $fixtureRoot 'bom-negative.json'
+    [IO.File]::WriteAllText($bomFixture, '{"fixture":true}', [Text.UTF8Encoding]::new($true))
+    $rejected = $false
+    try { AssertMachineJson $bomFixture } catch { if ($_.Exception.Message -notlike 'UTF-8 BOM:*') { throw }; $rejected = $true }
+    if (!$rejected) { throw 'BOM assertion accepted a BOM fixture.' }
+    Remove-Item -LiteralPath $bomFixture
+    $invalidFixture = Join-Path $fixtureRoot 'invalid-negative.json'
+    [IO.File]::WriteAllText($invalidFixture, '{invalid', [Text.UTF8Encoding]::new($false))
+    $rejected = $false
+    try { AssertMachineJson $invalidFixture } catch { $rejected = $true }
+    if (!$rejected) { throw 'JSON assertion accepted malformed JSON.' }
+    Remove-Item -LiteralPath $invalidFixture
+    'PASS fixture: BOM + malformed JSON rejection'
+    foreach ($mode in @('PASS','PLANNER_BLOCKED','IMPLEMENTER_BLOCKED','TEST_FAIL','FIX REQUIRED','REVIEWER_BLOCKED','SCOPE_FAIL','DESIGN_SUCCESS','DESIGN_REPEAT','DESIGN_SCOPE','DESIGN_IGNORED_SCOPE','DESIGN_DELETE_SCOPE','FIX_SUCCESS')) {
         $repo=Fixture ($mode -replace ' ','-')
         $global:firmMockMode=$mode
         $global:firmMockCalls=@()
         $failed=$false
-        try { & $scriptPath -VS 001 -Repository $repo -WorktreeRoot (Join-Path $fixtureRoot $mode) -Godot firmMockGodot | Out-Null } catch { $failed=$true; if ($mode -eq 'PASS') { Write-Host $_.Exception.Message } }
-        if ($mode -eq 'PASS' -and $failed) { throw 'PASS fixture unexpectedly failed.' }
-        if ($mode -ne 'PASS' -and !$failed) { throw "$mode did not stop." }
+        $failureReason=''
+        try { & $scriptPath -VS 001 -Repository $repo -WorktreeRoot (Join-Path $fixtureRoot $mode) -Godot firmMockGodot | Out-Null } catch { $failed=$true; $failureReason=$_.Exception.Message; Write-Verbose $failureReason }
+        $success = $mode -in @('PASS','DESIGN_SUCCESS','FIX_SUCCESS')
+        if ($success -and $failed) { throw 'PASS fixture unexpectedly failed.' }
+        if (!$success -and !$failed) { throw "$mode did not stop." }
         $count=[int](& git -C $repo rev-list --count main..task/vs-001)
-        if ($count -ne $(if ($mode -eq 'PASS') {1} else {0})) { throw "$mode violated commit gate." }
+        if ($count -ne $(if ($success) {1} else {0})) { throw "$mode violated commit gate." }
         if ($mode -in @('PLANNER_BLOCKED','IMPLEMENTER_BLOCKED','TEST_FAIL','SCOPE_FAIL') -and $global:firmMockCalls -contains 'reviewer') { throw "$mode advanced to Reviewer." }
         if ($mode -eq 'PLANNER_BLOCKED' -and $global:firmMockCalls -contains 'implementer') { throw 'BLOCKED advanced to Implementer.' }
+        if ($mode -like 'DESIGN_*') {
+            if ($mode -like '*SCOPE' -and $failureReason -notlike 'BLOCKED: design-closure scope violation:*') { throw "$mode stopped for the wrong reason: $failureReason" }
+            $expected = if ($mode -eq 'DESIGN_REPEAT') {2} else {1}
+            if (@($global:firmMockCalls | Where-Object { $_ -eq 'design-closure' }).Count -ne $expected) { throw "$mode closure bound incorrect." }
+            if ($mode -ne 'DESIGN_SUCCESS' -and $global:firmMockCalls -contains 'implementer') { throw "$mode advanced to implementation." }
+            if ($mode -eq 'DESIGN_REPEAT' -and @($global:firmMockCalls | Where-Object { $_ -eq 'planner' }).Count -ne 3) { throw 'Repeated BLOCKED did not rerun Planner twice.' }
+        }
+        if ($mode -in @('FIX REQUIRED','FIX_SUCCESS')) {
+            $expected = if ($mode -eq 'FIX_SUCCESS') {2} else {3}
+            if (@($global:firmMockCalls | Where-Object { $_ -eq 'implementer' }).Count -ne $expected -or @($global:firmMockCalls | Where-Object { $_ -eq 'reviewer' }).Count -ne $expected) { throw "$mode fix bound incorrect." }
+            $fixTests = @(Get-ChildItem -Path (Join-Path $fixtureRoot "$mode/VS-001/.agent/runs/VS-001/*/review-fix-*/tests.json"))
+            if ($fixTests.Count -ne ($expected-1)) { throw "$mode did not retest each fix." }
+        }
         "PASS fixture: $mode"
         if ($mode -eq 'PASS') {
             $archive = (& git -C $repo show 'task/vs-001:.agent/reviews/VS-001.md') -join "`n"
@@ -146,6 +200,12 @@ try {
     $valid | Set-Content $reviewPath
     & $scriptPath -VS 002 -Repository $repo -DryRun -PreviousFinalCommit $final -PreviousReview '.agent/reviews/VS-001.md' | Out-Null
     'PASS fixture: historical archive + explicit overrides'
+    $jsonFiles = @(Get-ChildItem -LiteralPath $fixtureRoot -Recurse -File | Where-Object { $_.Extension -in @('.json','.jsonl') })
+    foreach ($file in $jsonFiles) { AssertMachineJson $file.FullName }
+    foreach ($name in @('planner.schema.json','implementer.schema.json','reviewer.schema.json','invocation.json','tests.json','completion.json','stopped.json','planner.events.jsonl','implementer.events.jsonl','reviewer.events.jsonl')) {
+        if ($jsonFiles.Name -notcontains $name) { throw "Missing JSON coverage: $name" }
+    }
+    "PASS fixture: $($jsonFiles.Count) generated JSON/schema/event files are BOM-free and parseable"
     "Fixture files retained for inspection: $fixtureRoot"
 } finally {
     Remove-Item Function:\codex,Function:\firmMockGodot

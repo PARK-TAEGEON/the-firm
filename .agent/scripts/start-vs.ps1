@@ -26,7 +26,9 @@ function Invoke-FirmGit([string[]]$Arguments, [string]$At=$Repository) {
     if ($LASTEXITCODE -ne 0) { throw "git $($Arguments -join ' ') failed: $($output -join ' ')" }
     return $output
 }
-function SaveJson($Value, [string]$Path) { $Value | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $Path -Encoding UTF8 }
+function SaveJson($Value, [string]$Path) {
+    [IO.File]::WriteAllText($Path, ($Value | ConvertTo-Json -Depth 12), [Text.UTF8Encoding]::new($false))
+}
 function Resolve-Predecessor([string]$Base, [bool]$Preview) {
     if ($number -le 1) { return }
     $previous = 'VS-{0:000}' -f ($number-1)
@@ -88,7 +90,7 @@ function Resolve-Predecessor([string]$Base, [bool]$Preview) {
     $script:PreviousReviewText = $review
 }
 function Snapshot([string]$At) {
-    $files = @(Invoke-FirmGit @('ls-files','--cached','--others','--exclude-standard') $At | Sort-Object -Unique)
+    $files = @(Invoke-FirmGit @('ls-files','--cached','--others') $At | Sort-Object -Unique)
     $entries = foreach ($file in $files) {
         if ($file -like '.agent/runs/*') { continue }
         $path = Join-Path $At $file
@@ -96,32 +98,69 @@ function Snapshot([string]$At) {
     }
     return (@(Invoke-FirmGit @('rev-parse','HEAD') $At) + @(Invoke-FirmGit @('diff','--cached') $At) + @($entries)) -join "`n"
 }
+function FileState([string]$At) {
+    $state = @{}
+    foreach ($file in @(Invoke-FirmGit @('ls-files','--cached','--others') $At | Sort-Object -Unique)) {
+        if ($file -like '.agent/runs/*') { continue }
+        $path = Join-Path $At $file
+        $state[$file] = if (Test-Path -LiteralPath $path -PathType Leaf) { (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash } else { 'DELETED' }
+    }
+    return $state
+}
+function StateChanges($Before, $After) {
+    foreach ($file in @(@($Before.Keys) + @($After.Keys) | Sort-Object -Unique)) {
+        if (!$Before.ContainsKey($file) -or !$After.ContainsKey($file) -or $Before[$file] -cne $After[$file]) { $file }
+    }
+}
+function AssertDesignScope([string[]]$Files) {
+    foreach ($file in $Files) {
+        $valid = $file -cmatch '^(docs/[^\\:]+|\.agent/(tasks|plans)/[^\\:]+)\.md$|^(AGENTS|WORKFLOW|WORKFLOW_RULES|REVIEW_PACKET|[0-9]{2}_[A-Z0-9_]+|DEC-[A-Z0-9_-]+|TEST-[A-Z0-9_-]+)\.md$'
+        if (!$valid -or $file -match '(^|/)\.\.(/|$)') { throw "BLOCKED: design-closure scope violation: $file" }
+        $target = Join-Path $wt $file
+        while ($target -and $target -ne $wt) {
+            if ((Test-Path -LiteralPath $target) -and ((Get-Item -LiteralPath $target -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw "BLOCKED: design-closure scope violation (link): $file" }
+            $target = Split-Path $target -Parent
+        }
+    }
+}
 function Agent([string]$Role, [string]$Sandbox, [string[]]$Verdicts, [string]$Context) {
     $schema = @{type='object'; additionalProperties=$false; properties=@{
         verdict=@{type='string'; enum=$Verdicts}; reason=@{type='string'};
         contract_markdown=@{type='string'}; allowed_files=@{type='array'; items=@{type='string'}}
     }; required=@('verdict','reason','contract_markdown','allowed_files')}
+    if ($Role -eq 'planner') {
+        $schema.properties.blocker_kind = @{type='string'; enum=@('none','design_closure','other')}
+        $schema.required += 'blocker_kind'
+    }
     $schemaPath = Join-Path $run ($Role+'.schema.json')
     SaveJson $schema $schemaPath
     $prompt = Get-Content -LiteralPath (Join-Path $PSScriptRoot ('../prompts/'+$Role+'-vs.md')) -Raw
-    $prompt += "`n`nORCHESTRATOR INVOCATION (final response format overrides the reusable prompt's text format):`n$Context`nReturn ONLY schema JSON. Use empty contract_markdown and allowed_files for non-planner roles. Do not alter Invoke-FirmGit HEAD/index or publish. Run directory is handoff data, not new governance."
-    if ($Role -eq 'planner') { $prompt += "`nYou are read-only: do NOT write the contract. Return its full validated text in contract_markdown and an exact repository-relative file allowlist in allowed_files. The host saves the contract only on READY. Missing decisions mean BLOCKED. Canonical regression logs must be explicitly included in Allowed Changes and allowed_files if their updates are required. No wildcards or directory allowlists." }
-    if ($Smoke) { $prompt = 'Do not inspect or modify files or execute commands. Return verdict READY, reason CODEX_ORCHESTRATOR_SMOKE_OK, empty contract_markdown and empty allowed_files in the provided schema.' }
+    $prompt += "`n`nORCHESTRATOR INVOCATION (final response format overrides the reusable prompt's text format):`n$Context`nReturn ONLY schema JSON. Use empty contract_markdown and allowed_files for non-planner roles. Do not alter Git HEAD/index or publish. Run directory is handoff data, not new governance."
+    if ($Role -eq 'planner') { $prompt += "`nYou are read-only: do NOT write the contract. Return its full validated text in contract_markdown and an exact repository-relative file allowlist in allowed_files. The host saves the contract only on READY. Missing decisions mean BLOCKED. Set blocker_kind=design_closure ONLY for missing Accepted design/architecture/task/test-spec dependency closure; none on READY; other for failed tests, missing predecessor PASS/merge, environment, identity or authorization blockers. Never classify a failed hard gate as design closure. Canonical regression logs must be explicitly included in Allowed Changes and allowed_files if their updates are required. No wildcards or directory allowlists." }
+    if ($Smoke) { $prompt = 'Do not inspect or modify files or execute commands. Return verdict READY, reason CODEX_ORCHESTRATOR_SMOKE_OK, empty contract_markdown and empty allowed_files and blocker_kind none in the provided schema.' }
     $prompt | Set-Content -LiteralPath (Join-Path $run ($Role+'.input.md')) -Encoding UTF8
     $resultPath = Join-Path $run ($Role+'.json')
     $before = Snapshot $wt
+    $designBefore = if ($Role -eq 'design-closure') { FileState $wt } else { $null }
     $headBefore = (Invoke-FirmGit @('rev-parse','HEAD') $wt) -join ''
     $savedPreference = $ErrorActionPreference
+    $eventWriter = [IO.StreamWriter]::new((Join-Path $run ($Role+'.events.jsonl')), $false, [Text.UTF8Encoding]::new($false))
     try {
         $ErrorActionPreference = 'Continue'
-        $prompt | & codex exec --ephemeral --sandbox $Sandbox --color never --cd $wt --json --output-schema $schemaPath --output-last-message $resultPath - 2> (Join-Path $run ($Role+'.stderr.log')) | Set-Content -LiteralPath (Join-Path $run ($Role+'.events.jsonl')) -Encoding UTF8
+        $prompt | & codex exec --ephemeral --sandbox $Sandbox --color never --cd $wt --json --output-schema $schemaPath --output-last-message $resultPath - 2> (Join-Path $run ($Role+'.stderr.log')) | ForEach-Object { $eventWriter.WriteLine([string]$_) }
         $code = $LASTEXITCODE
-    } finally { $ErrorActionPreference = $savedPreference }
+    } finally { $eventWriter.Dispose(); $ErrorActionPreference = $savedPreference }
+    if ($Role -eq 'design-closure') {
+        $designChanged = @(StateChanges $designBefore (FileState $wt))
+        SaveJson @{changed_files=$designChanged} (Join-Path $run 'scope.json')
+        AssertDesignScope $designChanged
+    }
     if ($code -ne 0) { throw "$Role CLI failed. See run logs." }
     if (((Invoke-FirmGit @('rev-parse','HEAD') $wt) -join '') -ne $headBefore -or @(Invoke-FirmGit @('diff','--cached','--name-only') $wt).Count) { throw "$Role changed HEAD/index; stop for manual inspection." }
     if ($Sandbox -eq 'read-only' -and (Snapshot $wt) -ne $before) { throw "$Role changed files despite read-only role." }
     $result = Get-Content -LiteralPath $resultPath -Raw | ConvertFrom-Json
     if ($result.verdict -cnotin $Verdicts -or [string]::IsNullOrWhiteSpace($result.reason)) { throw "$Role returned an invalid verdict." }
+    if ($Role -eq 'planner' -and ($result.blocker_kind -cnotin @('none','design_closure','other') -or ($result.verdict -eq 'READY' -and $result.blocker_kind -ne 'none'))) { throw 'Planner returned invalid blocker_kind.' }
     return $result
 }
 $null = Get-Command git -ErrorAction Stop
@@ -137,7 +176,7 @@ if ($DryRun) {
     $previewBase = (Invoke-FirmGit @('rev-parse','main^{commit}')) -join ''
     Resolve-Predecessor $previewBase $true
     Write-Output "DRY RUN $id -> $Branch at $wt"
-    Write-Output 'Normal flow: clean-worktree check -> fetch origin main -> previous PASS/final commit gate -> planner read-only -> READY contract -> implementer workspace-write -> regressions + smoke -> reviewer read-only -> PASS archive -> commit. -Publish additionally pushes and creates PR; never merges.'
+    Write-Output 'Normal flow: clean-worktree check -> fetch origin main -> previous PASS/final commit gate -> planner read-only -> bounded design closure on design BLOCKED -> READY contract -> implementer workspace-write -> regressions + smoke -> reviewer read-only -> bounded focused fixes on FIX REQUIRED -> PASS archive -> commit. -Publish additionally pushes and creates PR; never merges.'
     Write-Output "Godot: $Godot; previous final commit: $PreviousFinalCommit; previous review: $PreviousReview"
     if ($number -gt 1) { Write-Output "Previous integration on local main: $PreviousMergeCommit (preview only; normal mode fetches origin/main)." }
     return
@@ -189,8 +228,26 @@ try {
         $context += "`nPrevious integration commit: $PreviousMergeCommit`nResolved predecessor evidence (host-validated):`n$PreviousReviewText"
     }
     SaveJson @{vs=$id;branch=$Branch;worktree=$wt;base=$base;previous_final_commit=$PreviousFinalCommit;previous_review=$PreviousReview;publish=[bool]$Publish} (Join-Path $run 'invocation.json')
+    $phaseRoot = $run
+    $designFiles = @()
     $plan = Agent 'planner' 'read-only' @('READY','BLOCKED') $context
-    if ($plan.verdict -ne 'READY') { throw "BLOCKED: $($plan.reason)" }
+    for ($cycle=1; $plan.verdict -eq 'BLOCKED' -and $plan.blocker_kind -eq 'design_closure' -and $cycle -le 2; $cycle++) {
+        $run = Join-Path $phaseRoot ('design-closure-'+$cycle)
+        $null = New-Item -ItemType Directory -Path $run
+        SaveJson $plan (Join-Path $run 'planner-blocker.json')
+        Write-Output "Design closure $cycle/2: $($plan.reason)"
+        $beforeClosure = FileState $wt
+        $closure = Agent 'design-closure' 'workspace-write' @('READY','BLOCKED') ($context+"`nBlocking Planner reason: $($plan.reason)`nCycle: $cycle/2`nEvidence directory: $run")
+        $files = @(StateChanges $beforeClosure (FileState $wt))
+        $designFiles = @($designFiles + $files | Sort-Object -Unique)
+        # Document whitespace validation is always available; gameplay regressions
+        # require the READY contract's runner/log allowlist and run after implementation.
+        $null = Invoke-FirmGit @('diff','--check') $wt
+        SaveJson @{verdict=$closure.verdict;reason=$closure.reason;changed_files=$files;validation='git diff --check PASS; runtime regressions deferred until Planner READY'} (Join-Path $run 'closure-result.json')
+        $plan = Agent 'planner' 'read-only' @('READY','BLOCKED') ($context+"`nDesign closure result: $($closure.verdict): $($closure.reason)`nClosure evidence: $run")
+        $run = $phaseRoot
+    }
+    if ($plan.verdict -ne 'READY') { throw "BLOCKED: $($plan.reason) (maximum design-closure cycles: 2; see run evidence)" }
     if ([string]::IsNullOrWhiteSpace($plan.contract_markdown) -or !@($plan.allowed_files).Count) { throw 'Planner READY lacks contract/allowlist.' }
     foreach ($file in $plan.allowed_files) {
         if ([IO.Path]::IsPathRooted($file) -or $file -match '[\\:*?\[\]]|(^|/)\.\.(/|$)' -or $file -like '.agent/runs/*' -or $file -in @('AGENTS.md','WORKFLOW.md',$contractPath) -or $file -like '.agent/scripts/*' -or $file -like '.agent/prompts/*') { throw "Invalid implementation allowlist entry: $file" }
@@ -199,16 +256,37 @@ try {
     $plan.contract_markdown.TrimEnd() | Set-Content -LiteralPath (Join-Path $wt $contractPath) -Encoding UTF8
     Copy-Item -LiteralPath (Join-Path $wt $contractPath) -Destination (Join-Path $run 'contract.md')
     $contractHash = (Get-FileHash -LiteralPath (Join-Path $wt $contractPath)).Hash
-    $implementation = Agent 'implementer' 'workspace-write' @('READY','BLOCKED') $context
-    if ($implementation.verdict -ne 'READY') { throw "BLOCKED: $($implementation.reason)" }
-    if ((Get-FileHash -LiteralPath (Join-Path $wt $contractPath)).Hash -ne $contractHash) { throw 'Implementer changed frozen contract.' }
-    & (Join-Path $PSScriptRoot 'test-vs.ps1') -Worktree $wt -VS $number -RunDirectory $run -Godot $Godot
-    $changed = @(Invoke-FirmGit @('diff','--name-only',$base) $wt) + @(Invoke-FirmGit @('ls-files','--others','--exclude-standard') $wt)
-    $allowed = @($plan.allowed_files) + @($contractPath)
-    foreach ($file in $changed) { if ($file -cnotin $allowed) { throw "FIX REQUIRED: out-of-scope change: $file" } }
-    $null = Invoke-FirmGit @('diff','--check') $wt
-    $reviewer = Agent 'reviewer' 'read-only' @('PASS','FIX REQUIRED','BLOCKED') $context
-    if ($reviewer.verdict -ne 'PASS') { throw "$($reviewer.verdict): $($reviewer.reason)" }
+    $frozenDesign = FileState $wt
+    $allowed = @($plan.allowed_files) + @($contractPath) + @($designFiles)
+    for ($fixCycle=0; $fixCycle -le 2; $fixCycle++) {
+        $run = if ($fixCycle -eq 0) { $phaseRoot } else { Join-Path $phaseRoot ('review-fix-'+$fixCycle) }
+        $null = New-Item -ItemType Directory -Path $run -Force
+        $fixContext = $context
+        if ($fixCycle -gt 0) {
+            SaveJson $reviewer (Join-Path $run 'reviewer-feedback.json')
+            $fixContext += "`nFocused fix $fixCycle/2. Correct ONLY the preceding Reviewer's findings within the frozen contract. Feedback: $($reviewer.reason)`nFeedback directory: $run"
+            Write-Output "Reviewer fix $fixCycle/2: $($reviewer.reason)"
+        }
+        $beforeImplementation = FileState $wt
+        $implementation = Agent 'implementer' 'workspace-write' @('READY','BLOCKED') $fixContext
+        foreach ($file in @(StateChanges $beforeImplementation (FileState $wt))) {
+            if ($file -cnotin $plan.allowed_files) { throw "FIX REQUIRED: out-of-scope implementation change: $file" }
+        }
+        if ($implementation.verdict -ne 'READY') { throw "BLOCKED: $($implementation.reason)" }
+        if ((Get-FileHash -LiteralPath (Join-Path $wt $contractPath)).Hash -ne $contractHash) { throw 'Implementer changed frozen contract.' }
+        & (Join-Path $PSScriptRoot 'test-vs.ps1') -Worktree $wt -VS $number -RunDirectory $run -Godot $Godot
+        $now = FileState $wt
+        foreach ($file in $designFiles) {
+            if ($file -ne $contractPath -and (!$now.ContainsKey($file) -or $now[$file] -cne $frozenDesign[$file])) { throw "FIX REQUIRED: frozen design changed: $file" }
+        }
+        $changed = @(Invoke-FirmGit @('diff','--name-only',$base) $wt) + @(Invoke-FirmGit @('ls-files','--others','--exclude-standard') $wt)
+        foreach ($file in $changed) { if ($file -cnotin $allowed) { throw "FIX REQUIRED: out-of-scope change: $file" } }
+        $null = Invoke-FirmGit @('diff','--check') $wt
+        $reviewer = Agent 'reviewer' 'read-only' @('PASS','FIX REQUIRED','BLOCKED') ($context+"`nCurrent test and implementation evidence: $run`nFix cycle: $fixCycle/2`nDesign closure documents: $($designFiles -join ', ')")
+        if ($reviewer.verdict -eq 'PASS') { break }
+        if ($reviewer.verdict -ne 'FIX REQUIRED' -or $fixCycle -eq 2) { throw "$($reviewer.verdict): $($reviewer.reason) (review-fix limit: 2)" }
+    }
+    $run = $phaseRoot
     $packet = Join-Path $wt 'litigation-skeleton/REVIEW_PACKET.md'
     if (!(Test-Path -LiteralPath $packet)) { throw 'Review packet missing.' }
     $archive = '.agent/reviews/'+$id+'.md'
@@ -231,6 +309,10 @@ try {
     }
     Write-Output "PASS: $commit; handoff: $run"
 } catch {
-    if (Get-Variable run -ErrorAction SilentlyContinue) { SaveJson @{verdict='STOPPED';reason=$_.Exception.Message} (Join-Path $run 'stopped.json') }
+    if (Get-Variable run -ErrorAction SilentlyContinue) {
+        $stopReason=$_.Exception.Message
+        $stopVerdict = if ($stopReason -like 'BLOCKED:*') { 'BLOCKED' } elseif ($stopReason -like 'FIX REQUIRED:*') { 'FIX REQUIRED' } else { 'STOPPED' }
+        SaveJson @{verdict=$stopVerdict;reason=$stopReason} (Join-Path $run 'stopped.json')
+    }
     throw
 } finally { if ($lock) { $lock.Dispose() } }
