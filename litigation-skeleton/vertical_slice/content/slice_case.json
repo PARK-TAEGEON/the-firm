@@ -315,6 +315,50 @@
       "output_type": "legal_source_discovery_events",
       "completion_semantics": "required_work_then_explicit_discovery",
       "legal_research_question_id": "VS-LRQ-001"
+    },
+    {
+      "id": "VS-TASKDEF-DRAFTING-001",
+      "version": "1",
+      "task_family": "drafting",
+      "purpose": "vs005.task_definition.purpose",
+      "eligible_actor_kinds": ["lawyer"],
+      "work_unit_kind": "work_block",
+      "required_work_units": 1,
+      "authorized_source_scopes": [],
+      "source_assertion_refs": [],
+      "known_gap_refs": ["VS-GAP-001"],
+      "output_type": "draft_work_product",
+      "completion_semantics": "required_work_then_explicit_draft_completion",
+      "document_type": "synthetic_response_brief",
+      "required_issue_id": "VS-ISSUE-001",
+      "package_member_ids": ["VS-PACKAGE-MEMBER-DOCUMENT-001", "VS-PACKAGE-MEMBER-EXHIBIT-001"],
+      "assertion_payload": {
+        "title": "vs005.document.title",
+        "summary": "vs005.document.summary",
+        "record_character": "party_assertion_not_fact_finding"
+      }
+    },
+    {
+      "id": "VS-TASKDEF-DRAFTING-MISMATCH-001",
+      "version": "1",
+      "task_family": "drafting",
+      "purpose": "vs005.task_definition.purpose",
+      "eligible_actor_kinds": ["lawyer"],
+      "work_unit_kind": "work_block",
+      "required_work_units": 1,
+      "authorized_source_scopes": [],
+      "source_assertion_refs": [],
+      "known_gap_refs": ["VS-GAP-001"],
+      "output_type": "draft_work_product",
+      "completion_semantics": "required_work_then_explicit_draft_completion",
+      "document_type": "synthetic_other_document",
+      "required_issue_id": "VS-ISSUE-001",
+      "package_member_ids": ["VS-PACKAGE-MEMBER-DOCUMENT-001", "VS-PACKAGE-MEMBER-EXHIBIT-001"],
+      "assertion_payload": {
+        "title": "vs005.document.title",
+        "summary": "vs005.document.summary",
+        "record_character": "party_assertion_not_fact_finding"
+      }
     }
   ],
   "task_instances": [
@@ -433,6 +477,87 @@
         "route": "",
         "provider_ref": ""
       }
+    }
+  ],
+  "package_members": [
+    {
+      "id": "VS-PACKAGE-MEMBER-DOCUMENT-001",
+      "matter_id": "VS-CASE-001",
+      "label": "vs005.package.document",
+      "member_kind": "finalized_document"
+    },
+    {
+      "id": "VS-PACKAGE-MEMBER-EXHIBIT-001",
+      "matter_id": "VS-CASE-001",
+      "label": "vs005.package.exhibit",
+      "member_kind": "synthetic_attachment"
+    },
+    {
+      "id": "VS-PACKAGE-MEMBER-FOREIGN-001",
+      "matter_id": "VS-FOREIGN-MATTER-001",
+      "label": "vs005.package.foreign",
+      "member_kind": "synthetic_foreign_attachment"
+    }
+  ],
+  "deadline_contexts": [
+    {
+      "id": "VS-DEADLINE-CONTEXT-001",
+      "matter_id": "VS-CASE-001",
+      "stage_id": "VS-STAGE-001",
+      "label": "vs005.deadline.label",
+      "context": "vs005.deadline.context"
+    }
+  ],
+  "record_inclusion_rules": [
+    {
+      "id": "VS-RECORD-RULE-001",
+      "matter_id": "VS-CASE-001",
+      "stage_id": "VS-STAGE-001",
+      "document_type": "synthetic_response_brief",
+      "target_id": "VS-TARGET-TRIAL-RECORD-001",
+      "route_id": "VS-ROUTE-ELECTRONIC-001",
+      "eligible_result_kind": "accepted_for_record"
+    },
+    {
+      "id": "VS-RECORD-RULE-MISMATCH-001",
+      "matter_id": "VS-CASE-001",
+      "stage_id": "VS-STAGE-001",
+      "document_type": "synthetic_response_brief",
+      "target_id": "VS-TARGET-TRIAL-RECORD-001",
+      "route_id": "VS-ROUTE-COUNTER-UNAUTHORIZED",
+      "eligible_result_kind": "accepted_for_record"
+    },
+    {
+      "id": "VS-RECORD-RULE-DOCUMENT-MISMATCH-001",
+      "matter_id": "VS-CASE-001",
+      "stage_id": "VS-STAGE-001",
+      "document_type": "synthetic_other_document",
+      "target_id": "VS-TARGET-TRIAL-RECORD-001",
+      "route_id": "VS-ROUTE-ELECTRONIC-001",
+      "eligible_result_kind": "accepted_for_record"
+    },
+    {
+      "id": "VS-RECORD-RULE-TARGET-MISMATCH-001",
+      "matter_id": "VS-CASE-001",
+      "stage_id": "VS-STAGE-001",
+      "document_type": "synthetic_response_brief",
+      "target_id": "VS-TARGET-OTHER-001",
+      "route_id": "VS-ROUTE-ELECTRONIC-001",
+      "eligible_result_kind": "accepted_for_record"
+    }
+  ],
+  "submission_rules": [
+    {
+      "id": "VS-SUBMISSION-RULE-001",
+      "matter_id": "VS-CASE-001",
+      "stage_id": "VS-STAGE-001",
+      "document_type": "synthetic_response_brief",
+      "target_id": "VS-TARGET-TRIAL-RECORD-001",
+      "route_id": "VS-ROUTE-ELECTRONIC-001",
+      "required_package_member_ids": ["VS-PACKAGE-MEMBER-DOCUMENT-001", "VS-PACKAGE-MEMBER-EXHIBIT-001"],
+      "supported_result_kinds": ["accepted_for_record", "rejected_defective"],
+      "deadline_context_id": "VS-DEADLINE-CONTEXT-001",
+      "record_inclusion_rule_id": "VS-RECORD-RULE-001"
     }
   ],
   "legal_sources": [

@@ -211,3 +211,27 @@ func legal_source_detail(source: Dictionary) -> String:
 		lines.append("[%s]" % localized_text(scope["label"]))
 		lines.append(localized_text(scope["content"]))
 	return "\n".join(lines)
+
+
+func submission_status_text(projection: Dictionary) -> String:
+	var lines: Array[String] = []
+	if projection["finalized_documents"].is_empty():
+		lines.append(localized_text("ui.vs005.no_document"))
+	else:
+		var document: Dictionary = projection["finalized_documents"][-1]
+		lines.append(localized_text("ui.vs005.document", [document["id"], document["version"],
+			document["argument_id"], document["argument_selection_event_id"]]))
+	for context in projection["submission_contexts"]:
+		lines.append(localized_text("ui.vs005.context", [context["target_id"], context["route_id"],
+			", ".join(context["required_package_member_ids"]), context["deadline_context_id"]]))
+	for attempt in projection["submission_attempts"]:
+		lines.append(localized_text("ui.vs005.attempt", [attempt["id"], attempt["document_id"],
+			attempt["document_version"], ", ".join(attempt["package_member_ids"])]))
+	for result in projection["procedural_results"]:
+		lines.append(localized_text("ui.vs005.result", [result["id"], result["kind"], result["reason"],
+			", ".join(result["missing_package_member_ids"])]))
+	for entry in projection["court_record_entries"]:
+		lines.append(localized_text("ui.vs005.record", [entry["id"], entry["document_id"],
+			entry["document_version"], entry["record_materialization_event_id"]]))
+	lines.append(localized_text("ui.vs005.boundary"))
+	return "\n".join(lines)

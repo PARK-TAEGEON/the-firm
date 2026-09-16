@@ -4,6 +4,7 @@ const SliceState = preload("res://vertical_slice/data/slice_state.gd")
 const WorkService = preload("res://vertical_slice/services/work_service.gd")
 const InvestigationService = preload("res://vertical_slice/services/investigation_service.gd")
 const LegalResearchService = preload("res://vertical_slice/services/legal_research_service.gd")
+const SubmissionService = preload("res://vertical_slice/services/submission_service.gd")
 
 const SUPPORTED_SCHEMA_VERSION := 1
 const FORBIDDEN_CONTENT_KEYS := [
@@ -18,6 +19,7 @@ var _state = SliceState.new()
 var _work_service = WorkService.new()
 var _investigation_service = InvestigationService.new()
 var _legal_research_service = LegalResearchService.new()
+var _submission_service = SubmissionService.new()
 
 
 func start_session(content: Dictionary, player_actor_id: String, player_team_id: String) -> Dictionary:
@@ -73,6 +75,18 @@ func start_session(content: Dictionary, player_actor_id: String, player_team_id:
 		candidate.legal_research_question_order.append(question["id"])
 	for recipe in content["legal_research_recipes"]:
 		candidate.legal_research_recipes[recipe["id"]] = recipe.duplicate(true)
+	for rule in content["submission_rules"]:
+		candidate.submission_rules[rule["id"]] = rule.duplicate(true)
+		candidate.submission_rule_order.append(rule["id"])
+	for rule in content["record_inclusion_rules"]:
+		candidate.record_inclusion_rules[rule["id"]] = rule.duplicate(true)
+		candidate.record_inclusion_rule_order.append(rule["id"])
+	for member in content["package_members"]:
+		candidate.package_members[member["id"]] = member.duplicate(true)
+		candidate.package_member_order.append(member["id"])
+	for deadline in content["deadline_contexts"]:
+		candidate.deadline_contexts[deadline["id"]] = deadline.duplicate(true)
+		candidate.deadline_context_order.append(deadline["id"])
 	for definition in content["task_definitions"]:
 		candidate.task_definitions[definition["id"]] = definition.duplicate(true)
 		candidate.task_definition_order.append(definition["id"])
@@ -137,6 +151,7 @@ func start_session(content: Dictionary, player_actor_id: String, player_team_id:
 	_work_service.bind_state(_state)
 	_investigation_service.bind_services(_state, _work_service)
 	_legal_research_service.bind_services(_state, _work_service)
+	_submission_service.bind_state(_state)
 	return {"ok": true, "session_id": candidate.session["id"]}
 
 
@@ -283,6 +298,53 @@ func select_argument(selection_event_id: String, argument_id: String, actor_id: 
 
 func legal_research_projection(viewer_actor_id: String, viewer_team_id: String) -> Dictionary:
 	return _legal_research_service.projection(viewer_actor_id, viewer_team_id)
+
+
+func execute_drafting_task(task_id: String, execution_id: String, actor_id: String,
+		team_id: String, time_slot_id: String, work_units: int) -> Dictionary:
+	return _work_service.execute_drafting_task(
+		task_id, execution_id, actor_id, team_id, time_slot_id, work_units)
+
+
+func create_drafting_task(task_definition_id: String, task_id: String, creation_event_id: String,
+		actor_id: String, team_id: String) -> Dictionary:
+	return _work_service.create_drafting_task(
+		task_definition_id, task_id, creation_event_id, actor_id, team_id)
+
+
+func complete_drafting_task(task_id: String, completion_id: String, work_product_id: String,
+		argument_id: String, selection_event_id: String, actor_id: String, team_id: String) -> Dictionary:
+	return _work_service.complete_drafting_task(task_id, completion_id, work_product_id,
+		argument_id, selection_event_id, actor_id, team_id)
+
+
+func finalize_document(document_id: String, document_version: String,
+		draft_work_product_id: String, actor_id: String, team_id: String) -> Dictionary:
+	return _submission_service.finalize_document(
+		document_id, document_version, draft_work_product_id, actor_id, team_id)
+
+
+func create_submission_attempt(attempt_id: String, document_id: String, document_version: String,
+		rule_id: String, target_id: String, route_id: String, package_member_ids: Array,
+		deadline_context_id: String, actor_id: String, team_id: String) -> Dictionary:
+	return _submission_service.create_submission_attempt(attempt_id, document_id, document_version,
+		rule_id, target_id, route_id, package_member_ids, deadline_context_id, actor_id, team_id)
+
+
+func materialize_procedural_result(result_id: String, attempt_id: String,
+		actor_id: String, team_id: String) -> Dictionary:
+	return _submission_service.materialize_procedural_result(result_id, attempt_id, actor_id, team_id)
+
+
+func materialize_court_record(materialization_event_id: String, entry_id: String,
+		document_id: String, document_version: String, attempt_id: String, result_id: String,
+		inclusion_rule_id: String, actor_id: String, team_id: String) -> Dictionary:
+	return _submission_service.materialize_court_record(materialization_event_id, entry_id,
+		document_id, document_version, attempt_id, result_id, inclusion_rule_id, actor_id, team_id)
+
+
+func submission_projection(viewer_actor_id: String, viewer_team_id: String) -> Dictionary:
+	return _submission_service.projection(viewer_actor_id, viewer_team_id)
 
 
 func read_legal_source(viewer_actor_id: String, viewer_team_id: String, legal_source_id: String,
@@ -457,6 +519,7 @@ func _validate_content(content: Dictionary, player_actor_id: String, player_team
 		"procedural_statuses", "task_definitions", "task_instances", "issues",
 		"review_analysis_options", "investigation_actions", "legal_sources",
 		"legal_research_questions", "legal_research_recipes",
+		"submission_rules", "record_inclusion_rules", "package_members", "deadline_contexts",
 	]:
 		if not content.get(key) is Array:
 			return "invalid_" + key
@@ -616,7 +679,7 @@ func _validate_content(content: Dictionary, player_actor_id: String, player_team
 		if not _required_strings(definition, [
 			"id", "version", "task_family", "purpose", "work_unit_kind",
 			"output_type", "completion_semantics",
-		]) or definition["task_family"] not in ["evidence_review", "investigation", "legal_research"] \
+		]) or definition["task_family"] not in ["evidence_review", "investigation", "legal_research", "drafting"] \
 				or not _positive_int(definition.get("required_work_units")) \
 				or not _nonempty_unique_string_list(definition.get("eligible_actor_kinds", [])) \
 				or not definition.get("authorized_source_scopes") is Array \
@@ -636,6 +699,13 @@ func _validate_content(content: Dictionary, player_actor_id: String, player_team
 				or not definition["authorized_source_scopes"].is_empty() \
 				or not definition["source_assertion_refs"].is_empty() \
 				or not _nonempty_string(definition.get("legal_research_question_id", ""))):
+			return "invalid_task_definition"
+		if definition["task_family"] == "drafting" and (definition["output_type"] != "draft_work_product" \
+				or not definition["authorized_source_scopes"].is_empty() \
+				or not definition["source_assertion_refs"].is_empty() \
+				or not _required_strings(definition, ["document_type", "required_issue_id"]) \
+				or not _nonempty_unique_string_list(definition.get("package_member_ids", [])) \
+				or not definition.get("assertion_payload") is Dictionary):
 			return "invalid_task_definition"
 		if not _claim_id(seen_ids, definition["id"]):
 			return "duplicate_task_definition_id"
@@ -900,6 +970,72 @@ func _validate_content(content: Dictionary, player_actor_id: String, player_team
 					return "invalid_factual_basis_requirement"
 		if recipe["kind"] == "argument" and recipe_ids.get(recipe["issue_analysis_recipe_id"], "") != "issue_analysis":
 			return "invalid_argument_recipe"
+
+	var package_member_ids: Dictionary = {}
+	for member_value in content["package_members"]:
+		if not member_value is Dictionary: return "invalid_package_member"
+		var member: Dictionary = member_value
+		if not _required_strings(member, ["id", "matter_id", "label", "member_kind"]):
+			return "invalid_package_member"
+		if not _claim_id(seen_ids, member["id"]): return "duplicate_package_member_id"
+		package_member_ids[member["id"]] = true
+	if package_member_ids.is_empty(): return "package_members_required"
+
+	var deadline_ids: Dictionary = {}
+	for deadline_value in content["deadline_contexts"]:
+		if not deadline_value is Dictionary: return "invalid_deadline_context"
+		var deadline: Dictionary = deadline_value
+		if not _required_strings(deadline, ["id", "matter_id", "stage_id", "label", "context"]) \
+				or deadline["matter_id"] != matter["id"] or deadline["stage_id"] != stage["id"]:
+			return "invalid_deadline_context"
+		if not _claim_id(seen_ids, deadline["id"]): return "duplicate_deadline_context_id"
+		deadline_ids[deadline["id"]] = true
+	if deadline_ids.is_empty(): return "deadline_context_required"
+
+	var inclusion_rule_ids: Dictionary = {}
+	for rule_value in content["record_inclusion_rules"]:
+		if not rule_value is Dictionary: return "invalid_record_inclusion_rule"
+		var rule: Dictionary = rule_value
+		if not _required_strings(rule, ["id", "matter_id", "stage_id", "document_type",
+				"target_id", "route_id", "eligible_result_kind"]) \
+				or rule["matter_id"] != matter["id"] or rule["stage_id"] != stage["id"] \
+				or rule["eligible_result_kind"] != "accepted_for_record":
+			return "invalid_record_inclusion_rule"
+		if not _claim_id(seen_ids, rule["id"]): return "duplicate_record_inclusion_rule_id"
+		inclusion_rule_ids[rule["id"]] = true
+	if inclusion_rule_ids.is_empty(): return "record_inclusion_rule_required"
+
+	var submission_rule_ids: Dictionary = {}
+	for rule_value in content["submission_rules"]:
+		if not rule_value is Dictionary: return "invalid_submission_rule"
+		var rule: Dictionary = rule_value
+		if not _required_strings(rule, ["id", "matter_id", "stage_id", "document_type",
+				"target_id", "route_id", "deadline_context_id", "record_inclusion_rule_id"]) \
+				or rule["matter_id"] != matter["id"] or rule["stage_id"] != stage["id"] \
+				or not _nonempty_unique_string_list(rule.get("required_package_member_ids", [])) \
+				or rule.get("supported_result_kinds", []) != ["accepted_for_record", "rejected_defective"] \
+				or not deadline_ids.has(rule["deadline_context_id"]) \
+				or not inclusion_rule_ids.has(rule["record_inclusion_rule_id"]):
+			return "invalid_submission_rule"
+		for member_id in rule["required_package_member_ids"]:
+			if not package_member_ids.has(member_id): return "submission_rule_package_member_invalid"
+			var required_member: Dictionary = content["package_members"][0]
+			for candidate_value in content["package_members"]:
+				if candidate_value["id"] == member_id: required_member = candidate_value; break
+			if required_member["matter_id"] != matter["id"]: return "submission_rule_package_member_invalid"
+		if not _claim_id(seen_ids, rule["id"]): return "duplicate_submission_rule_id"
+		submission_rule_ids[rule["id"]] = true
+	if submission_rule_ids.is_empty(): return "submission_rule_required"
+
+	for definition in definition_map.values():
+		if definition["task_family"] == "drafting":
+			if not issue_ids.has(definition["required_issue_id"]): return "drafting_issue_invalid"
+			for member_id in definition["package_member_ids"]:
+				if not package_member_ids.has(member_id): return "drafting_package_member_invalid"
+				var draft_member: Dictionary = content["package_members"][0]
+				for candidate_value in content["package_members"]:
+					if candidate_value["id"] == member_id: draft_member = candidate_value; break
+				if draft_member["matter_id"] != matter["id"]: return "drafting_package_member_invalid"
 
 	return ""
 
