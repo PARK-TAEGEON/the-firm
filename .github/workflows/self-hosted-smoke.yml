@@ -1,0 +1,16 @@
+﻿name: Self-hosted Smoke
+
+on:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: [self-hosted, Windows, X64]
+
+    steps:
+      - name: Show runner info
+        shell: powershell
+        run: |
+          Write-Host "RUNNER_NAME=$env:RUNNER_NAME"
+          Write-Host "COMPUTERNAME=$env:COMPUTERNAME"
+          Get-Location
