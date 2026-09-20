@@ -235,3 +235,23 @@ func submission_status_text(projection: Dictionary) -> String:
 			entry["document_version"], entry["record_materialization_event_id"]]))
 	lines.append(localized_text("ui.vs005.boundary"))
 	return "\n".join(lines)
+
+
+func adjudication_status_text(projection: Dictionary) -> String:
+	var lines: Array[String] = [localized_text("ui.vs006.boundary")]
+	for snapshot in projection["court_record_snapshots"]:
+		var refs: Array[String] = []
+		for ref in snapshot["court_record_entry_refs"]:
+			refs.append("%s@%s" % [ref["id"], ref["event_order"]])
+		lines.append(localized_text("ui.vs006.snapshot", [snapshot["id"],
+			", ".join(refs) if not refs.is_empty() else localized_text("ui.vs006.empty")]))
+	for finding in projection["court_fact_findings"]:
+		lines.append(localized_text("ui.vs006.finding", [finding["id"], finding["snapshot_id"],
+			localized_text("ui.vs006.status." + finding["status"]),
+			", ".join(finding["evaluated_scope_ids"]),
+			localized_text("ui.vs006.reason." + finding["reason_refs"][0])]))
+		lines.append(localized_text("ui.vs006.provenance", [finding["evaluation_id"],
+			finding["criterion_id"], finding["criterion_version"]]))
+	if projection["court_record_snapshots"].is_empty():
+		lines.append(localized_text("ui.vs006.before_capture"))
+	return "\n".join(lines)

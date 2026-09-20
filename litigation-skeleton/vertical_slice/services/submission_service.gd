@@ -196,6 +196,7 @@ func materialize_court_record(materialization_event_id: String, entry_id: String
 	entry["issue_analysis_id"] = document["issue_analysis_id"]
 	entry["argument_id"] = document["argument_id"]
 	entry["argument_selection_event_id"] = document["argument_selection_event_id"]
+	entry["factual_basis_refs"] = document["factual_basis_refs"].duplicate(true)
 	_state.record_materialization_events[materialization_event_id] = event.duplicate(true)
 	_state.record_materialization_order.append(materialization_event_id)
 	_state.court_record_entries[entry_id] = entry.duplicate(true)

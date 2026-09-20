@@ -36,6 +36,10 @@ VS-005의 `CourtRecordEntry`도 당사자 assertion을 보존하는 기록일 �
 & 'Godot 실행 파일의 절대 경로' --headless --path litigation-skeleton `
   --log-file ./vertical_slice/vs005-test-results.log `
   --script res://vertical_slice/tests/run_vs005_regressions.gd
+
+& 'Godot 실행 파일의 절대 경로' --headless --path litigation-skeleton `
+  --log-file ./vertical_slice/vs006-test-results.log `
+  --script res://vertical_slice/tests/run_vs006_regressions.gd
 ```
 
 playable 화면은 다음처럼 실행한다.
@@ -58,6 +62,7 @@ playable 화면은 다음처럼 실행한다.
 | `vertical_slice/services/investigation_service.gd` | 조사 prerequisite, deterministic authored InvestigationResult, explicit AcquisitionEvent와 공개 projection |
 | `vertical_slice/services/legal_research_service.gd` | research prerequisite, discovery/review/extraction/rule/interpretation/analysis/Argument materialization과 projection |
 | `vertical_slice/services/submission_service.gd` | FinalizedDocument, SubmissionAttempt, ProceduralResult, RecordMaterializationEvent, CourtRecordEntry mutation과 projection |
+| `vertical_slice/services/adjudication_service.gd` | VS-006의 명시적 CourtRecordSnapshot 캡처, 고정 EvidenceUse 도출, sufficiency trace와 CourtFactFinding atomic append |
 | `vertical_slice/presentation/slice_presenter.gd` | authorized projection을 UI 문자열/목록으로 변환 |
 | `vertical_slice/ui/main.tscn`, `main.gd` | Case Review부터 Submission & Record까지의 화면; service API만 호출 |
 | `vertical_slice/tests/run_slice_regressions.gd` | VS-001 접근·scope·provenance·불변성 회귀 |
@@ -65,6 +70,7 @@ playable 화면은 다음처럼 실행한다.
 | `vertical_slice/tests/run_vs003_regressions.gd` | VS-003 조사 outcome·atomicity·identity·provenance·exact-scope visibility·replay 회귀 |
 | `vertical_slice/tests/run_vs004_regressions.gd` | VS-004 단계 분리·atomicity·법률 source provenance·Argument 선택 이력·replay 회귀 |
 | `vertical_slice/tests/run_vs005_regressions.gd` | VS-005 finalization/submission/result/record 분리, defect, atomicity, provenance, deep-copy, replay 회귀 |
+| `vertical_slice/tests/run_vs006_regressions.gd` | VS-006 snapshot, 고정 criterion, provenance isolation, atomicity, history, replay와 범위 제외 회귀 |
 
 ## 강제하는 경계
 
@@ -94,8 +100,12 @@ playable 화면은 다음처럼 실행한다.
 - Submission & Record UI는 complete package와 authored exhibit-omission 두 선택만 제공하며, omission 결과인 `rejected_defective`를 확인할 수 있지만 CourtRecord에는 넣을 수 없다.
 - accepted result도 matching `RecordInclusionRule`을 적용하는 별도 atomic command 전에는 CourtRecord에 들어가지 않는다.
 - CourtRecord materialization은 정확히 하나의 RecordMaterializationEvent와 CourtRecordEntry를 함께 만들며 source provenance와 immutable history를 보존한다.
-- VS-005에는 Contribution, Criterion, admissibility, JII, ChoicePoint, judge interpretation, CourtFactFinding, adjudication 또는 Judgment가 없다.
+- 새 CourtRecordEntry는 resolved FinalizedDocument version의 complete ordered `factual_basis_refs`를 nested deep copy한다. 기존 entry는 backfill하지 않는다.
+- VS-006은 `VS-FACT-APPROVAL-001/1`과 `VS-CRITERION-APPROVAL-001/1`만 평가한다. exact approval source/scope가 있으면 `recognized`, 없으면 `not_established_on_record`이며 반대 사실을 만들지 않는다.
+- snapshot은 명시적 command 시점의 eligible CourtRecordEntry ID/event order를 고정한다. 이후 record materialization은 기존 snapshot을 변경하지 않는다.
+- evaluation은 snapshot entry 안의 보존된 basis만 읽고 private SourceMaterial, DraftWorkProduct 또는 FinalizedDocument로 누락 provenance를 복구하지 않는다.
+- VS-006에는 admissibility, generic criterion DSL, `recognized_limited`, ChoicePoint, JudgeProfile/JII, claim outcome, Judgment, appeal 또는 remedy가 없다.
 
 ## 범위
 
-현재 구현은 Case Review → explicit review task → ReviewWorkProduct → Issue 선택 → versioned CaseTheory → Investigation → bounded Legal Research → IssueAnalysis → Argument 선택 → Drafting Task/WorkProduct → FinalizedDocument → SubmissionAttempt → ProceduralResult → explicit CourtRecord materialization까지다. 제출 규칙은 이 synthetic case의 authored fixture이며 실제 한국 form/deadline/jurisdiction/service/admission 규칙이 아니다. generic legal search, substantive truth model, canonical Strategy, adjudication, CourtFactFinding, Judgment, save/load, appeal/remand, 대규모 NPC simulation, organization/business/world는 구현하지 않는다.
+현재 구현은 Case Review → explicit review task → ReviewWorkProduct → Issue 선택 → versioned CaseTheory → Investigation → bounded Legal Research → IssueAnalysis → Argument 선택 → Drafting Task/WorkProduct → FinalizedDocument → SubmissionAttempt → ProceduralResult → explicit CourtRecord materialization → explicit immutable snapshot → 하나의 synthetic proposition에 대한 bounded CourtFactFinding까지다. 제출·사실인정 규칙은 이 synthetic case의 authored fixture이며 실제 한국 form/deadline/jurisdiction/service/admission/proof 규칙이 아니다. generic legal search, substantive truth model, generic adjudication, Judgment, save/load, appeal/remand, 대규모 NPC simulation, organization/business/world는 구현하지 않는다.

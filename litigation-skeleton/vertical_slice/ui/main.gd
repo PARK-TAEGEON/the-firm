@@ -19,6 +19,7 @@ var _work_projection: Dictionary = {}
 var _investigation_projection: Dictionary = {}
 var _legal_projection: Dictionary = {}
 var _submission_projection: Dictionary = {}
+var _adjudication_projection: Dictionary = {}
 
 @onready var start_button: Button = %StartButton
 @onready var status_label: Label = %StatusLabel
@@ -82,6 +83,12 @@ var _submission_projection: Dictionary = {}
 @onready var submit_document_button: Button = %SubmitDocumentButton
 @onready var materialize_result_button: Button = %MaterializeResultButton
 @onready var materialize_record_button: Button = %MaterializeRecordButton
+@onready var adjudication_tab: ScrollContainer = %Adjudication
+@onready var adjudication_heading: Label = %AdjudicationHeading
+@onready var adjudication_status_label: Label = %AdjudicationStatusLabel
+@onready var capture_snapshot_button: Button = %CaptureSnapshotButton
+@onready var evaluate_fact_button: Button = %EvaluateFactButton
+@onready var refresh_adjudication_button: Button = %RefreshAdjudicationButton
 
 
 func _ready() -> void:
@@ -91,6 +98,7 @@ func _ready() -> void:
 	_localize_vs003_controls()
 	_localize_vs004_controls()
 	_localize_vs005_controls()
+	_localize_vs006_controls()
 	start_button.pressed.connect(_on_start_pressed)
 	open_button.pressed.connect(_on_open_pressed)
 	source_list.item_selected.connect(func(_index: int) -> void: open_button.disabled = false)
@@ -124,10 +132,14 @@ func _ready() -> void:
 	submit_document_button.pressed.connect(_on_submit_document_pressed)
 	materialize_result_button.pressed.connect(_on_materialize_result_pressed)
 	materialize_record_button.pressed.connect(_on_materialize_record_pressed)
+	capture_snapshot_button.pressed.connect(_on_capture_snapshot_pressed)
+	evaluate_fact_button.pressed.connect(_on_evaluate_fact_pressed)
+	refresh_adjudication_button.pressed.connect(_refresh_adjudication)
 	_set_work_controls_disabled(true)
 	_set_investigation_controls_disabled(true)
 	_set_legal_controls_disabled(true)
 	_set_submission_controls_disabled(true)
+	_set_adjudication_controls_disabled(true)
 	open_button.disabled = true
 	status_label.text = "사건을 시작하면 authorized 초기 자료와 review Task를 불러옵니다."
 
@@ -149,6 +161,7 @@ func _on_start_pressed() -> void:
 	_refresh_investigation()
 	_refresh_legal_research()
 	_refresh_submission()
+	_refresh_adjudication()
 
 
 func _refresh_case_file() -> void:
@@ -751,12 +764,46 @@ func _on_materialize_record_pressed() -> void:
 			"VS-RECORD-RULE-001", PLAYER_ACTOR_ID, PLAYER_TEAM_ID))
 
 
+func _on_capture_snapshot_pressed() -> void:
+	var sequence: int = _adjudication_projection.get("court_record_snapshots", []).size() + 1
+	var result := _service.capture_court_record_snapshot("VS-SNAPSHOT-UI-%03d" % sequence,
+		"VS-CASE-001", "VS-STAGE-001", PLAYER_ACTOR_ID, PLAYER_TEAM_ID)
+	if not result.get("ok", false): _show_error(_presenter.localized_text("ui.vs006.capture"), result); return
+	status_label.text = _presenter.localized_text("ui.vs006.action_completed") % \
+		_presenter.localized_text("ui.vs006.capture")
+	_refresh_adjudication()
+
+
+func _on_evaluate_fact_pressed() -> void:
+	var snapshots: Array = _adjudication_projection.get("court_record_snapshots", [])
+	if snapshots.is_empty(): return
+	var sequence: int = _adjudication_projection.get("court_fact_findings", []).size() + 1
+	var result := _service.evaluate_fact_proposition("VS-EVALUATION-UI-%03d" % sequence,
+		"VS-FINDING-UI-%03d" % sequence, snapshots[-1]["id"], "VS-FACT-APPROVAL-001", "1",
+		"VS-CRITERION-APPROVAL-001", "1", PLAYER_ACTOR_ID, PLAYER_TEAM_ID)
+	if not result.get("ok", false): _show_error(_presenter.localized_text("ui.vs006.evaluate"), result); return
+	status_label.text = _presenter.localized_text("ui.vs006.action_completed") % \
+		_presenter.localized_text("ui.vs006.evaluate")
+	_refresh_adjudication()
+
+
+func _refresh_adjudication() -> void:
+	var result := _service.adjudication_projection(PLAYER_ACTOR_ID, PLAYER_TEAM_ID)
+	if not result.get("ok", false): _show_error(_presenter.localized_text("ui.vs006.query"), result); return
+	_adjudication_projection = result["projection"]
+	adjudication_status_label.text = _presenter.adjudication_status_text(_adjudication_projection)
+	capture_snapshot_button.disabled = false
+	evaluate_fact_button.disabled = _adjudication_projection["court_record_snapshots"].is_empty()
+	refresh_adjudication_button.disabled = false
+
+
 func _apply_submission_action(label: String, result: Dictionary) -> void:
 	if not result.get("ok", false): _show_error(label, result); return
 	status_label.text = "%s 완료" % label
 	_refresh_work()
 	_refresh_legal_research()
 	_refresh_submission()
+	_refresh_adjudication()
 
 
 func _set_submission_controls_disabled(disabled: bool) -> void:
@@ -782,3 +829,19 @@ func _localize_vs005_controls() -> void:
 		pair[0].text = _presenter.localized_text(pair[1])
 	var tab_index := tabs.get_tab_idx_from_control(submission_tab)
 	if tab_index >= 0: tabs.set_tab_title(tab_index, _presenter.localized_text("ui.vs005.tab"))
+
+
+func _set_adjudication_controls_disabled(disabled: bool) -> void:
+	capture_snapshot_button.disabled = disabled
+	evaluate_fact_button.disabled = disabled
+	refresh_adjudication_button.disabled = disabled
+
+
+func _localize_vs006_controls() -> void:
+	adjudication_heading.text = _presenter.localized_text("ui.vs006.heading")
+	adjudication_status_label.text = _presenter.localized_text("ui.vs006.before_start")
+	capture_snapshot_button.text = _presenter.localized_text("ui.vs006.capture")
+	evaluate_fact_button.text = _presenter.localized_text("ui.vs006.evaluate")
+	refresh_adjudication_button.text = _presenter.localized_text("ui.vs006.refresh")
+	var tab_index := tabs.get_tab_idx_from_control(adjudication_tab)
+	if tab_index >= 0: tabs.set_tab_title(tab_index, _presenter.localized_text("ui.vs006.tab"))
