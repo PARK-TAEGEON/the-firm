@@ -1,23 +1,32 @@
-# VS Orchestrator stale-worktree fix
+# VS Orchestrator Git scope audit repair
 
-Purpose: safely resume VS-006 created at b91d2de before main advanced to 71f0718.
+Changed: start-vs.ps1, self-test.ps1, git-scope-self-test.ps1, README.md,
+REVIEW_PACKET.md, test-results.log, all under .agent/scripts.
 
-Changed files:
-- start-vs.ps1: shared boolean ancestry helper (0=true, 1=false, unexpected exit throws); clean behind worktree fast-forward with --ff-only before Planner. Dirty/ahead/diverged worktrees stop with BLOCKED and preserve HEAD/index/files.
-- self-test.ps1: real Git ancestry true/false/error fixtures; clean stale/current worktree fixtures; staged, unstaged, untracked, ahead and diverged refusal fixtures checking no agent calls and unchanged state.
-- README.md: documents safe synchronization and refusal behavior.
-- REVIEW_PACKET.md and test-results.log: current handoff and validation.
+All production Git entrypoints in start-vs.ps1 were inspected. Related resume,
+legacy-blocker and role-artifacts helpers use Invoke-FirmGit; test-vs.ps1 has no
+Git wrapper. Successful stdout alone reaches path/hash/porcelain consumers;
+stderr is retained as warning diagnostics, nonzero exits as failure diagnostics.
+Ancestor and show-ref retain expected 0/1 semantics; unexpected exits fail closed.
+No global/local user Git config changes or safecrlf suppression are needed.
 
-Validation: offline self-test on PowerShell 7 and Windows PowerShell 5.1; each 35 PASS fixture groups, 199 BOM-free parseable JSON/schema/event files, zero failures, exit 0. git diff --check passed.
+New test extracts the actual final scope guard and actual wrappers from AST.
+Real native Git emits CRLF stderr, clean scope passes, unauthorized untracked
+path fails, missing revision fails with code/diagnostics, ancestor checks pass.
+Disposable fixture commits/remotes only; no target commit/push or gameplay edits.
 
-Commands: pwsh -NoProfile -File .agent/scripts/self-test.ps1; powershell.exe -NoProfile -ExecutionPolicy Bypass -File .agent/scripts/self-test.ps1; git diff --check.
+Existing self-test expected stale 'BLOCKED: fixture' text; baseline fails too.
+Assertions now accept current '[other]' route prefix. AST function extraction
+includes new dependency. No production role/resume/closure logic changed.
 
-Preserved: predecessor PASS/integration detection, read-only/HEAD/index/scope/test hard gates, BOM-safe JSON, bounded design closure and reviewer fixes, archive/commit/optional publication behavior. Dirty worktrees remain refused even when at current main; detached unregistered task branches still require manual review.
+Regression results and checkpoint inspection: see accompanying output logs.
+Checkpoint has completed implementation-design-1/implementer; NEXT Tests cycle 0.
+Seal/evidence/identity/predecessor validation passes, but seven gameplay test logs
+changed since checkpoint. Current resume fails closed on these state hashes.
+Checkpoint is deliberately not resealed, logs not restored, design not replayed.
+Remote freshness was not fetched during inspection. Closure/reviewer loops,
+partial JSONL, BOM-safe JSON, PASS-only archive/commit/publish remain unchanged.
 
-Fixture-only: fake Codex/Godot and disposable local Git repositories/commits. No real gameplay tests required for this scripts-only change. No gameplay, design, production logs or prompts changed. No actual VS task run, real commit or push performed. Actual VS-006 inspected clean at b91d2de; synchronization is deferred until operator resumes.
-
-Resume:
-```powershell
-& 'C:\Users\Admin\Documents\ChatGPT\The Firm\.agent\scripts\start-vs.ps1' -VS 006 -Repository 'C:\Users\Admin\Documents\ChatGPT\The Firm' -WorktreeRoot 'C:\Users\Admin\Documents\ChatGPT\THE-FIRM-VS' -Godot 'C:\Users\Admin\Downloads\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe'
-```
-Normal resumed PASS retains the existing automatic task commit behavior; publishing requires -Publish.
+Final validation: PowerShell 5.1 and 7 each pass 75 existing fixture groups and
+5 new scope/Git groups, failure 0, exit 0. PS5.1 scope suite ran separately;
+PS7 invokes it through self-test. Diff whitespace and installation hashes pass.

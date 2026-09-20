@@ -1,40 +1,7 @@
-PowerShell 7: 35 PASS fixture groups; 199 BOM-free parseable JSON files; failures 0; exit 0.
-Windows PowerShell 5.1: failures 0; exit 0. Full output follows.
-PASS fixture: BOM + malformed JSON rejection
-PASS fixture: PASS
-PASS fixture: persisted archive + automatic predecessor + normal gate
-PASS fixture: PLANNER_BLOCKED
-PASS fixture: IMPLEMENTER_BLOCKED
-PASS fixture: TEST_FAIL
-PASS fixture: FIX REQUIRED
-PASS fixture: REVIEWER_BLOCKED
-PASS fixture: SCOPE_FAIL
-PASS fixture: DESIGN_SUCCESS
-PASS fixture: DESIGN_REPEAT
-PASS fixture: DESIGN_SCOPE
-PASS fixture: DESIGN_IGNORED_SCOPE
-PASS fixture: DESIGN_DELETE_SCOPE
-PASS fixture: FIX_SUCCESS
-PASS fixture: ancestor true + false + unexpected exit
-PASS fixture: worktree CLEAN
-PASS fixture: worktree STAGED
-PASS fixture: worktree UNSTAGED
-PASS fixture: worktree UNTRACKED
-PASS fixture: worktree AHEAD
-PASS fixture: worktree DIVERGED
-PASS fixture: worktree CURRENT
-PASS fixture: dry-run + smoke
-PASS fixture: predecessor gate
-PASS fixture: predecessor INVALID_PASS
-PASS fixture: predecessor CONFLICTING_PASS
-PASS fixture: predecessor MISSING_MERGE
-PASS fixture: predecessor WRONG_MERGE
-PASS fixture: predecessor UNMERGED
-PASS fixture: predecessor DESIGN_COMMIT
-PASS fixture: predecessor OVERRIDE
-PASS fixture: predecessor TRAVERSAL
-PASS fixture: historical archive + explicit overrides
-PASS fixture: 199 generated JSON/schema/event files are BOM-free and parseable
-Fixture files retained for inspection: C:\Users\Admin\AppData\Local\Temp\firm-orchestrator-test-46525ad6542943fdadb55e764157a3e9
-
-git diff --check: PASS; exit 0.
+VS Orchestrator scope audit repair
+PowerShell 5.1: 75 existing fixture groups PASS, exit 0; 5 Git/scope groups PASS, exit 0 (separate invocation).
+PowerShell 7: 75 existing fixture groups + 5 integrated Git/scope groups PASS, exit 0.
+No failed checks in final runs. Earlier stale BLOCKED-text assertion reproduced on baseline and corrected.
+Diff whitespace check PASS; installed automation hashes verified.
+No gameplay edits, target commits/pushes or user Git config changes.
+Checkpoint inspection BLOCKED: seven test-log state hashes differ; saved next phase Tests (cycle 0), design cycle 1 Implementer already safe.

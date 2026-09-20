@@ -1,4 +1,4 @@
-# VS Orchestrator v0.2 (Windows PowerShell 5.1+)
+# VS Orchestrator v0.3 (Windows PowerShell 5.1+)
 
 Run from the repository root:
 
@@ -67,7 +67,7 @@ a clean worktree. A clean HEAD behind latest origin/main is fast-forwarded with
 --ff-only before Planner/design closure; ancestry exit 1 is boolean false.
 Dirty worktrees (staged/unstaged/untracked), ahead or diverged HEADs stop with
 a BLOCKED diagnostic and preserve HEAD/index/files;
-there is no reset/rebase or resume of partial implementation across invocations.
+there is no reset/rebase. Use -Resume for a hash-validated prior checkpoint.
 Reviewer FIX REQUIRED invokes a focused Implementer fix within the frozen
 contract, then all required tests/smoke and a fresh read-only Reviewer. At most
 two fix cycles follow the initial review. Reviewer BLOCKED, Implementer BLOCKED,
@@ -75,7 +75,7 @@ failed tests/scope validation and unresolved third review stop immediately.
 Reviewer PASS remains the sole transition to archive/commit/publication.
 On unresolved FIX REQUIRED/BLOCKED, inspect saved files, resolve the issue and
 arrange a new clean reviewed run manually. After commit/push/PR failures, finish the remaining
-Git/gh action manually; do not rerun implementation on a committed task branch.
+Git/gh action with -Resume; commit intent reconciles an already-created commit and gh checks existing PRs before creation.
 
 Handoffs live in each target worktree at `.agent/runs/VS-XXX/<timestamp-id>/`:
 invocation, input prompts, schemas, final JSON verdicts, JSONL events, stderr,
@@ -132,3 +132,150 @@ covered. Fixture-only commits never touch the real project. Do not launch a full
 VS run just to test orchestration: normal PASS automatically commits, even without
 -Publish.
 
+
+
+## Crash resume
+Use the same VS, branch, repository and Godot parameters with -Resume. The latest
+run is selected under the VS lock; older runs are never silently substituted.
+-InspectResume validates and prints the resume phase without invoking agents,
+tests, commits or publication (it fetches main and imports pinned legacy metadata).
+All predecessor PASS/history gates are rechecked against fetched origin/main.
+A changed base blocks rather than rebasing an in-progress task.
+Durable checkpoints record completed Planner, design closure, Planner recheck,
+contract, each Implementer/tests/Reviewer cycle, PASS commit intent, completion
+and publication. Replay skips completed phases and keeps the original max-two
+closure/fix counters. SHA256 protects run evidence and the complete worktree
+snapshot; unknown files, changed content, index, HEAD or checkpoint seal block.
+No file is restored/deleted. Partial uncheckpointed code edits require manual
+review; a filename allowlist alone does not authorize changed bytes.
+Checkpoint replacement flushes to disk and is atomic; an interrupted seal write
+fails closed. checkpoint.json.bak is retained for manual inspection. The SHA256
+seal detects accidental/individual-file tampering; it is not a signature against
+an attacker able to rewrite both checkpoint and seal.
+The one legacy import is pinned to VS-006 run 20260916-203832-b1650e99, base
+947154c01f8cac5a2d034605643235fe3d63e791 and the exact inspected SHA256 values
+of the three owned files plus completed closure/READY/contract evidence.
+It preserves all prior artifacts. A valid recovered role result determines the next phase.
+Normal execution retains PASS-only automatic commit behavior; this development
+task does not run that command, commit or push the real repository.
+
+An interrupted agent's original input/schema/event/stderr files are retained;
+a new resumed-ROLE-id folder receives retry diagnostics. Its newly validated
+result is saved at the canonical result path for checkpoint replay.
+
+
+## Implementation BLOCKED correction
+Implementer now returns blocker_kind: none, design_closure, or other. Only an
+explicit design_closure BLOCKED can reopen document closure; missing/invalid
+classification fails closed. A valid environmental BLOCKED remains BLOCKED and cannot open design closure. Process/log diagnostics cannot override a valid authoritative result. Missing or invalid results stop as INFRASTRUCTURE.
+
+The implementation correction budget is two per run, independent of the existing
+two initial Planner closure cycles. Each correction is retained under
+implementation-design-1/ or implementation-design-2/, with the original blocking
+verdict, closure result/scope, Planner revalidation and revised contract snapshot.
+Unresolved closure/Planner design BLOCKED consumes the same budget; closure and
+Planner must BOTH be READY before implementation restarts. A non-design Planner
+hard blocker stops immediately. Each revised contract retains the bounded
+Reviewer fix loop and all regression, predecessor and PASS-only commit gates.
+
+Correction may change only the active VS Task Contract and VS-identified Markdown
+design/test documents (VS-XXX or VSXXX in the path). Existing broad Markdown and
+symlink scope audits still apply. Production code, executable tests, predecessor
+documents, unrelated governance and review archives remain forbidden to closure.
+For VS-006, closure can explicitly authorize the minimum factual_basis_refs
+preservation change in SubmissionService, or another allowed CourtRecord source;
+only the subsequent Implementer may make the authorized production change.
+
+Checkpoints seal design BLOCKED verdicts and each correction phase. Replay keeps
+the consumed budget and skips historical implementation once a later closure is
+sealed, so revised Accepted document bytes are checked against their new frozen
+contract rather than an obsolete snapshot. Interrupted retries retain prior
+inputs, schemas, events, stderr and result JSON in separate retry diagnostics.
+Uncheckpointed edits still stop for manual inspection; no reset/rebase/rollback.
+
+VS-006's existing checkpoint and worktree hashes validate against local origin/main 947154c. Its unsealed Implementer result parses and matches the checkpoint-bound legacy schema. It is BLOCKED, not READY, and has no blocker_kind. Recovery preserves that verdict without inferring a new classification: next phase is BLOCKED, with no Implementer retry, tests or Reviewer. Resolve the explicit contract/design contradiction separately before a newly authorized implementation.
+
+Resume from any directory:
+```powershell
+& 'C:\Users\Admin\Documents\ChatGPT\The Firm\.agent\scripts\start-vs.ps1' `
+  -VS 006 `
+  -Resume `
+  -Godot 'C:\Users\Admin\Downloads\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe'
+```
+The normal orchestrator commits only after Reviewer PASS. This upgrade itself
+does not commit, push, invoke gameplay agents or change gameplay files.
+
+## Authoritative role results and damaged JSONL
+Every planner, design-closure, implementer and reviewer call (including nested
+correction/fix cycles) validates its result against the exact saved schema:
+required fields, property types, string arrays, enums, unexpected properties,
+expected verdict, nonempty reason and blocker consistency. UTF-8 BOM input is
+accepted. Valid result JSON is authoritative even with nonzero CLI exit or log
+error text; a valid BLOCKED remains BLOCKED. Missing/invalid results alone cause
+INFRASTRUCTURE. Scope, read-only, HEAD/index and test gates remain independent.
+
+JSONL is parsed line by line. Only valid JSON lines are accepted. A malformed
+last nonempty line flags event_stream_partial=true; malformed interior lines
+flag event_stream_corrupt=true. Neither destroys a valid role result.
+ROLE.diagnostics.json records counts, raw stream SHA256, result validity and exit
+code (null when recovering an older run). ROLE.events.quarantine.json retains
+invalid line numbers, raw content and parse errors. Original JSONL/stderr/result
+bytes are preserved for inspection; no global raw-log string scan authorizes a
+failure or design transition.
+
+Before each process launch the host seals the exact input/schema and pre-role
+worktree state. On resume it first verifies the checkpoint seal, all existing
+evidence hashes, base/predecessor, complete file state, HEAD and index. A result
+left after that checkpoint can be validated against its sealed schema and
+registered without rerunning the role. Uncheckpointed code/document changes
+still require manual inspection; a result cannot authorize changed bytes.
+InspectResume computes recovery in memory without rewriting run artifacts.
+Recovery seals new result/diagnostic hashes on actual Resume; repeated Resume
+skips already completed work and keeps the design/fix budgets intact.
+A legacy BLOCKED lacking blocker_kind is retained as a hard BLOCKED, never
+retrospectively relabelled as design_closure. READY proceeds to tests; PASS is
+still the only commit/publish gate. This repair does not run a real VS task.
+
+Self-tests additionally cover authoritative BOM result plus final truncation,
+missing result plus truncation, complete JSONL, corrupt middle line, schema
+negative cases, valid result plus nonzero exit, recovery before role completion
+checkpoint and repeated resume without duplicate agents/commits. Intentionally
+damaged raw fixtures are retained outside the ordinary parseability audit or
+explicitly audited through the defensive parser instead.
+## Legacy BLOCKED migration (2026-09-16)
+
+A saved-schema-valid BLOCKED Planner/Implementer result without blocker_kind is
+never classified from reason keywords. The host invokes blocker-classifier with
+read-only sandbox and a strict two-field schema: verdict is exactly one of
+ design_contract, infrastructure, implementation, unknown; reason gives concise
+cited evidence. Inputs include the immutable result/schema, saved active contract,
+Accepted DEC status headers with complete file hashes, and invocation/run metadata.
+The separate legacy-<role>/binding.json and classifier schema/result/diagnostics
+are hashed in checkpoint evidence. The original BLOCKED result is unchanged.
+Repeated resume reuses the sealed classification; tampered evidence blocks replay.
+A crash before classification is sealed preserves prior I/O in a resumed directory.
+
+Only design_contract enters the existing bounded correction loop. Infrastructure
+stops as INFRASTRUCTURE, implementation stops for focused implementation handling,
+and unknown stops safely. Modern explicit blocker_kind routing and environmental
+vetoes remain unchanged. Initial Planner closure, implementation correction and
+Reviewer fixes retain their existing limit of two per loop. Predecessor/hash gates,
+partial JSONL handling, BOM-safe JSON and PASS-only completion remain in force.
+
+-Resume -PrepareLegacyResume performs migration and document correction/revalidation
+but stops before any pending Implementer, regression execution, archive/commit or
+publish. It requires Resume and rejects Publish. Use this to preserve gameplay
+while preparing the revised contract. Ordinary Resume restarts Implementer under
+that contract and retains the existing PASS-only automatic commit behavior.
+
+New fixtures cover all four outcomes (same contradiction text, different classifier
+verdict), tampered classifier bytes, repeated resume idempotence, and the exact
+current VS-006 legacy result pinned by SHA256. Codex/Godot remain injected in
+self-tests; the current VS-006 classifier/design-closure/Planner migration is real.
+
+Git scope audit: Invoke-FirmGitResult separates stdout, stderr and exit status.
+Invoke-FirmGit returns only stdout and emits successful stderr as warnings. No
+warning-text filtering or user Git configuration changes are used. Actual Git
+failures remain fatal; ancestor/show-ref use their documented 0/1 semantics.
+Run git-scope-self-test.ps1 for real CRLF-warning, clean/outside-scope and Git
+failure coverage; self-test.ps1 also invokes it. Tests use disposable local repos.
