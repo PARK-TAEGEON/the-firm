@@ -5,6 +5,7 @@ const WorkService = preload("res://vertical_slice/services/work_service.gd")
 const InvestigationService = preload("res://vertical_slice/services/investigation_service.gd")
 const LegalResearchService = preload("res://vertical_slice/services/legal_research_service.gd")
 const SubmissionService = preload("res://vertical_slice/services/submission_service.gd")
+const AdjudicationService = preload("res://vertical_slice/services/adjudication_service.gd")
 
 const SUPPORTED_SCHEMA_VERSION := 1
 const FORBIDDEN_CONTENT_KEYS := [
@@ -20,6 +21,7 @@ var _work_service = WorkService.new()
 var _investigation_service = InvestigationService.new()
 var _legal_research_service = LegalResearchService.new()
 var _submission_service = SubmissionService.new()
+var _adjudication_service = AdjudicationService.new()
 
 
 func start_session(content: Dictionary, player_actor_id: String, player_team_id: String) -> Dictionary:
@@ -81,6 +83,14 @@ func start_session(content: Dictionary, player_actor_id: String, player_team_id:
 	for rule in content["record_inclusion_rules"]:
 		candidate.record_inclusion_rules[rule["id"]] = rule.duplicate(true)
 		candidate.record_inclusion_rule_order.append(rule["id"])
+	for fact in content["fact_propositions"]:
+		if not candidate.fact_propositions.has(fact["id"]): candidate.fact_propositions[fact["id"]] = {}
+		candidate.fact_propositions[fact["id"]][fact["version"]] = fact.duplicate(true)
+		candidate.fact_proposition_order.append({"id": fact["id"], "version": fact["version"]})
+	for criterion in content["recognition_criteria"]:
+		if not candidate.recognition_criteria.has(criterion["id"]): candidate.recognition_criteria[criterion["id"]] = {}
+		candidate.recognition_criteria[criterion["id"]][criterion["version"]] = criterion.duplicate(true)
+		candidate.recognition_criterion_order.append({"id": criterion["id"], "version": criterion["version"]})
 	for member in content["package_members"]:
 		candidate.package_members[member["id"]] = member.duplicate(true)
 		candidate.package_member_order.append(member["id"])
@@ -152,6 +162,7 @@ func start_session(content: Dictionary, player_actor_id: String, player_team_id:
 	_investigation_service.bind_services(_state, _work_service)
 	_legal_research_service.bind_services(_state, _work_service)
 	_submission_service.bind_state(_state)
+	_adjudication_service.bind_state(_state)
 	return {"ok": true, "session_id": candidate.session["id"]}
 
 
@@ -347,6 +358,23 @@ func submission_projection(viewer_actor_id: String, viewer_team_id: String) -> D
 	return _submission_service.projection(viewer_actor_id, viewer_team_id)
 
 
+func capture_court_record_snapshot(snapshot_id: String, matter_id: String, stage_id: String,
+		actor_id: String, team_id: String) -> Dictionary:
+	return _adjudication_service.capture_court_record_snapshot(
+		snapshot_id, matter_id, stage_id, actor_id, team_id)
+
+
+func evaluate_fact_proposition(evaluation_id: String, finding_id: String, snapshot_id: String,
+		fact_id: String, fact_version: String, criterion_id: String, criterion_version: String,
+		actor_id: String, team_id: String) -> Dictionary:
+	return _adjudication_service.evaluate_fact_proposition(evaluation_id, finding_id, snapshot_id,
+		fact_id, fact_version, criterion_id, criterion_version, actor_id, team_id)
+
+
+func adjudication_projection(viewer_actor_id: String, viewer_team_id: String) -> Dictionary:
+	return _adjudication_service.projection(viewer_actor_id, viewer_team_id)
+
+
 func read_legal_source(viewer_actor_id: String, viewer_team_id: String, legal_source_id: String,
 		legal_source_version: String, scope_ids: Array) -> Dictionary:
 	return _legal_research_service.read_source(
@@ -520,6 +548,7 @@ func _validate_content(content: Dictionary, player_actor_id: String, player_team
 		"review_analysis_options", "investigation_actions", "legal_sources",
 		"legal_research_questions", "legal_research_recipes",
 		"submission_rules", "record_inclusion_rules", "package_members", "deadline_contexts",
+		"fact_propositions", "recognition_criteria",
 	]:
 		if not content.get(key) is Array:
 			return "invalid_" + key
@@ -1036,6 +1065,52 @@ func _validate_content(content: Dictionary, player_actor_id: String, player_team
 				for candidate_value in content["package_members"]:
 					if candidate_value["id"] == member_id: draft_member = candidate_value; break
 				if draft_member["matter_id"] != matter["id"]: return "drafting_package_member_invalid"
+
+	var fact_versions: Dictionary = {}
+	for fact_value in content["fact_propositions"]:
+		if not fact_value is Dictionary: return "invalid_fact_proposition"
+		var fact: Dictionary = fact_value
+		if not _required_strings(fact, ["id", "version", "matter_id", "stage_id", "statement"]) \
+				or fact["matter_id"] != matter["id"] or fact["stage_id"] != stage["id"] \
+				or fact["statement"] != "상대방 담당자가 목표 납품일 변경안을 승인했다." \
+				or fact.get("scope_ids", []) != ["approval_act"]:
+			return "invalid_fact_proposition"
+		if fact["id"] != "VS-FACT-APPROVAL-001" or fact["version"] != "1":
+			return "unsupported_fact_proposition"
+		if not _claim_id(seen_ids, fact["id"]): return "duplicate_fact_proposition_id"
+		fact_versions[fact["id"] + "|" + fact["version"]] = true
+	if fact_versions.size() != 1: return "single_fact_proposition_required"
+
+	var criterion_count := 0
+	for criterion_value in content["recognition_criteria"]:
+		if not criterion_value is Dictionary: return "invalid_recognition_criterion"
+		var criterion: Dictionary = criterion_value
+		if not _required_strings(criterion, ["id", "version", "fact_id", "fact_version",
+				"matter_id", "stage_id", "authority"]) \
+				or criterion["id"] != "VS-CRITERION-APPROVAL-001" or criterion["version"] != "1" \
+				or criterion["fact_id"] != "VS-FACT-APPROVAL-001" or criterion["fact_version"] != "1" \
+				or criterion["matter_id"] != matter["id"] or criterion["stage_id"] != stage["id"] \
+				or criterion["scope_ids"] != ["approval_act"] \
+				or criterion["authority"] != "synthetic_vs006_fixture" \
+				or criterion.get("recognized_limited_permitted", true) \
+				or criterion.get("judge_interpretation_permitted", true) \
+				or not criterion.get("choice_points", []).is_empty():
+			return "invalid_recognition_criterion"
+		if not _claim_id(seen_ids, criterion["id"]): return "duplicate_recognition_criterion_id"
+		var requirements: Array = criterion.get("requirements", [])
+		if requirements.size() != 1 or not requirements[0] is Dictionary:
+			return "invalid_recognition_criterion"
+		var requirement: Dictionary = requirements[0]
+		if requirement.get("id", "") != "approval_source_in_allowed_record" \
+				or requirement.get("target_scope_id", "") != "approval_act" \
+				or not requirement.get("mandatory", false) or requirement.get("severable", true) \
+				or requirement.get("basis_type", "") != "SourceMaterial" \
+				or requirement.get("source_id", "") != "VS-SOURCE-APPROVAL-001" \
+				or str(requirement.get("source_version", "")) != "1" \
+				or requirement.get("required_scope_id", "") != "approval_text":
+			return "invalid_recognition_criterion"
+		criterion_count += 1
+	if criterion_count != 1: return "single_recognition_criterion_required"
 
 	return ""
 

@@ -604,5 +604,42 @@
     {"id": "VS-RECIPE-ANALYSIS-002", "kind": "issue_analysis", "issue_id": "VS-ISSUE-001", "rule_recipe_ids": ["VS-RECIPE-RULE-002"], "interpretation_recipe_ids": ["VS-RECIPE-INT-002"], "factual_basis_requirements": [{"basis_type": "ReviewWorkProduct", "id": "VS-WP-REVIEW-001"}], "application": "vs004.analysis.002.application", "assumptions": ["vs004.analysis.002.assumption"], "challenges": ["vs004.analysis.002.challenge"]},
     {"id": "VS-RECIPE-ARG-001", "kind": "argument", "label": "vs004.argument.001.label", "position": "vs004.argument.001.position", "issue_id": "VS-ISSUE-001", "issue_analysis_recipe_id": "VS-RECIPE-ANALYSIS-001", "review_work_product_ids": ["VS-WP-REVIEW-001"], "known_gap_refs": ["VS-GAP-001"], "uses_investigation": true, "assumptions": ["vs004.argument.001.assumption"], "challenges": ["vs004.argument.001.challenge"]},
     {"id": "VS-RECIPE-ARG-002", "kind": "argument", "label": "vs004.argument.002.label", "position": "vs004.argument.002.position", "issue_id": "VS-ISSUE-001", "issue_analysis_recipe_id": "VS-RECIPE-ANALYSIS-002", "review_work_product_ids": ["VS-WP-REVIEW-001"], "known_gap_refs": ["VS-GAP-001"], "uses_investigation": false, "assumptions": ["vs004.argument.002.assumption"], "challenges": ["vs004.argument.002.challenge"]}
+  ],
+  "fact_propositions": [
+    {
+      "id": "VS-FACT-APPROVAL-001",
+      "version": "1",
+      "matter_id": "VS-CASE-001",
+      "stage_id": "VS-STAGE-001",
+      "statement": "상대방 담당자가 목표 납품일 변경안을 승인했다.",
+      "scope_ids": ["approval_act"]
+    }
+  ],
+  "recognition_criteria": [
+    {
+      "id": "VS-CRITERION-APPROVAL-001",
+      "version": "1",
+      "fact_id": "VS-FACT-APPROVAL-001",
+      "fact_version": "1",
+      "matter_id": "VS-CASE-001",
+      "stage_id": "VS-STAGE-001",
+      "scope_ids": ["approval_act"],
+      "authority": "synthetic_vs006_fixture",
+      "recognized_limited_permitted": false,
+      "choice_points": [],
+      "judge_interpretation_permitted": false,
+      "requirements": [
+        {
+          "id": "approval_source_in_allowed_record",
+          "target_scope_id": "approval_act",
+          "mandatory": true,
+          "severable": false,
+          "basis_type": "SourceMaterial",
+          "source_id": "VS-SOURCE-APPROVAL-001",
+          "source_version": "1",
+          "required_scope_id": "approval_text"
+        }
+      ]
+    }
   ]
 }

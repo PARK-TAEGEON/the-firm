@@ -62,6 +62,16 @@ var record_materialization_events: Dictionary = {}
 var record_materialization_order: Array = []
 var court_record_entries: Dictionary = {}
 var court_record_entry_order: Array = []
+var fact_propositions: Dictionary = {}
+var fact_proposition_order: Array = []
+var recognition_criteria: Dictionary = {}
+var recognition_criterion_order: Array = []
+var court_record_snapshots: Dictionary = {}
+var court_record_snapshot_order: Array = []
+var sufficiency_evaluation_traces: Dictionary = {}
+var sufficiency_evaluation_trace_order: Array = []
+var court_fact_findings: Dictionary = {}
+var court_fact_finding_order: Array = []
 var task_definitions: Dictionary = {}
 var task_definition_order: Array = []
 var tasks: Dictionary = {}
@@ -87,7 +97,7 @@ var journal: Array = []
 
 
 func snapshot() -> Dictionary:
-	return {
+	var result := {
 		"schema_version": 1,
 		"initialized": initialized,
 		"content_meta": content_meta.duplicate(true),
@@ -150,6 +160,14 @@ func snapshot() -> Dictionary:
 		"record_materialization_order": record_materialization_order.duplicate(true),
 		"court_record_entries": court_record_entries.duplicate(true),
 		"court_record_entry_order": court_record_entry_order.duplicate(true),
+		"fact_propositions": fact_propositions.duplicate(true),
+		"fact_proposition_order": fact_proposition_order.duplicate(true),
+		"recognition_criteria": recognition_criteria.duplicate(true),
+		"recognition_criterion_order": recognition_criterion_order.duplicate(true),
+		"court_record_snapshots": court_record_snapshots.duplicate(true),
+		"court_record_snapshot_order": court_record_snapshot_order.duplicate(true),
+		"sufficiency_evaluation_traces": sufficiency_evaluation_traces.duplicate(true),
+		"sufficiency_evaluation_trace_order": sufficiency_evaluation_trace_order.duplicate(true),
 		"task_definitions": task_definitions.duplicate(true),
 		"task_definition_order": task_definition_order.duplicate(true),
 		"tasks": tasks.duplicate(true),
@@ -173,3 +191,8 @@ func snapshot() -> Dictionary:
 		"time_allocations": time_allocations.duplicate(true),
 		"journal": journal.duplicate(true),
 	}
+	# Preserve the predecessor debug-snapshot absence invariant until VS-006 creates a finding.
+	if not court_fact_findings.is_empty():
+		result["court_fact_findings"] = court_fact_findings.duplicate(true)
+		result["court_fact_finding_order"] = court_fact_finding_order.duplicate(true)
+	return result
