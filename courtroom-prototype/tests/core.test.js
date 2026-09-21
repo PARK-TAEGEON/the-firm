@@ -41,7 +41,8 @@ test('working strategy changes preserve public commitments and flag possible mis
   const s = fresh(); establish(s, ['G_DISTANCE', 'G_DURATION']); select(s, ['P_DISTANCE_27M', 'P_OBSERVATION_SHORT']); ok(s, 'frame');
   const old = s.projection().state.commitments; const v = ok(s, 'strategy', { id: 'THEORY_INTENT' }); assert.deepEqual(v.state.commitments, old); assert.equal(v.strategy.preferred, false); assert.equal(v.strategy.potentialConflict, true); assert.match(v.strategy.relevance, /고의/);
 });
-test('theory B does not manufacture an intent finding', () => { const s = fresh(); ok(s, 'strategy', { id: 'THEORY_INTENT' }); establish(s); const v = ok(s, 'stop'); assert.equal(v.state.resolution.scope, 'IDENTITY'); assert.equal(v.state.resolution.code, 'WEAKENED'); });
+// v0.3 deliberately removes strong outcomes from facts-only Stop.
+test('theory B does not manufacture an intent finding', () => { const s = fresh(); ok(s, 'strategy', { id: 'THEORY_INTENT' }); establish(s); const v = ok(s, 'stop'); assert.equal(v.state.resolution.scope, 'IDENTITY'); assert.equal(v.state.resolution.code, 'DOUBT_RECORDED'); assert.deepEqual(v.state.resolution.strategy.unresolvedIssues, ['INTENT']); });
 test('resolution reads records, not question counts, selection, advocacy or question IDs', () => {
   const s = fresh(); establish(s, ['G_DISTANCE', 'G_DURATION']); const state = s.projection().state;
   const before = E.resolve(D, state); state.asked = Array(100).fill('statement'); state.selected = []; state.presses = []; state.records.advocacy = [{ id: 'adv-only' }];

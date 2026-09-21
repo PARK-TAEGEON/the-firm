@@ -61,6 +61,70 @@ const { createServer } = require('../serve');
     await page.screenshot({ path: path.join(__dirname, 'artifacts', 'mobile.png'), fullPage: true });
     await page.locator('[data-action="stop"]').click();
     check(await page.locator('.result-box').isVisible(), 'Mobile stop');
+    // Repetition -> counter -> scoped rebuttal -> reinforced admission, through UI.
+    await page.locator('#examination [data-action="reset"]').click();
+    await page.locator('[data-theory="THEORY_IDENTITY"]').click();
+    for (const id of ['G_DISTANCE', 'G_DURATION']) await page.locator(`[data-goal="${id}"]`).click();
+    for (const id of ['P_DISTANCE_27M', 'P_OBSERVATION_SHORT']) await page.locator(`[data-premise="${id}"]`).click();
+    await page.locator('[data-action="press"]').click(); await page.locator('[data-action="press"]').click();
+    await page.locator('[data-action="open-record"]').click();
+    check(await page.locator('#recordDialog').isVisible(), 'Fixed Record opens mobile sheet');
+    check(await page.locator('[data-counter]').isDisabled(), 'Counter response requires initial statement');
+    check((await page.locator('#recordDialog').innerText()).includes('최초 불확실'), 'Missing basis explained');
+    await page.keyboard.press('Escape');
+    check(!(await page.locator('#recordDialog').isVisible()), 'Record sheet Escape');
+    await page.locator('[data-goal="G_INITIAL"]').click();
+    await page.locator('[data-action="open-record"]').click(); await page.locator('[data-counter]').click();
+    check((await page.locator('#recordDialog').innerText()).includes('의미 제한됨'), 'Counter visibly qualified');
+    check((await page.locator('#recordDialog').innerText()).includes('6년'), 'Original counter retained');
+    check(await page.locator('[data-counter]').isDisabled(), 'Counter cannot be answered twice');
+    await page.locator('#closeRecord').click();
+    check(await page.evaluate(() => new Set([...document.querySelectorAll('[id]')].map(x => x.id)).size === document.querySelectorAll('[id]').length), 'Sheet does not clone IDs');
+    await page.locator('[data-premise="P_INITIAL_UNCERTAIN"]').click();
+    check((await page.locator('#pressureHint').innerText()).includes('근거 보강'), 'Reinforced preview');
+    await page.locator('[data-action="press"]').click();
+    check((await page.locator('.response-type').innerText()) === '인정', 'Reinforced Press works after previous presses');
+    await page.locator('[data-action="mobile-case"]').click();
+    check(await page.locator('#mobileCaseInfo').isVisible(), 'Mobile case information accessible');
+    check(await page.locator('[data-detail="case-issues"]').getAttribute('open') !== null, 'Mobile issues expanded');
+    check((await page.locator('#mobileCaseInfo').innerText()).includes('무죄 판결'), 'Client objective remains on mobile');
+    await page.locator('[data-action="stop"]').click();
+    check((await page.locator('.result-box h1').innerText()).includes('증인의 인정'), 'Strong admission outcome');
+    // Same prepared facts, two different conservative decisions.
+    for (const mode of ['safe', 'frame']) {
+      await page.locator('#examination [data-action="reset"]').click(); await page.locator('[data-theory="THEORY_IDENTITY"]').click();
+      for (const id of ['G_INITIAL', 'G_DURATION', 'G_DISTANCE']) await page.locator(`[data-goal="${id}"]`).click();
+      if (mode === 'frame') {
+        for (const id of ['P_INITIAL_UNCERTAIN', 'P_OBSERVATION_SHORT', 'P_DISTANCE_27M']) await page.locator(`[data-premise="${id}"]`).click();
+        await page.locator('[data-action="frame"]').click();
+      }
+      await page.locator('[data-action="stop"]').click();
+      check((await page.locator('.result-box h1').innerText()).includes(mode === 'safe' ? '안전하게 보존' : '논증으로 구축'), `${mode} has its own outcome`);
+      check((await page.locator('.result-box').innerText()).includes('식별 한계 인정 0건'), `${mode} does not invent admission`);
+    }
+    // Selection updates in place: exact DOM identity, keyboard focus, disclosure and scroll.
+    await page.setViewportSize({ width: 1440, height: 800 });
+    await page.locator('#examination [data-action="reset"]').click(); await page.locator('[data-theory="THEORY_IDENTITY"]').click();
+    for (const id of ['G_INITIAL', 'G_DURATION', 'G_DISTANCE']) await page.locator(`[data-goal="${id}"]`).click();
+    for (const id of ['P_INITIAL_UNCERTAIN', 'P_OBSERVATION_SHORT', 'P_DISTANCE_27M']) await page.locator(`[data-premise="${id}"]`).click();
+    await page.evaluate(() => {
+      const details = document.querySelector('#recordPanel details'); details.open = true;
+      window.uiBefore = { chip: document.querySelector('[data-premise="P_DISTANCE_27M"]'), details, record: document.querySelector('#recordPanel').firstElementChild };
+      window.scrollTo(0, 190); window.uiBefore.chip.focus({ preventScroll: true }); window.uiBefore.scroll = window.scrollY;
+    });
+    await page.keyboard.press('Space');
+    check(await page.evaluate(() => document.activeElement === window.uiBefore.chip), 'Keyboard focus preserved on selection');
+    check(await page.evaluate(() => window.uiBefore.details.isConnected && window.uiBefore.details.open), 'Expanded record DOM preserved');
+    check(await page.evaluate(() => document.querySelector('#recordPanel').firstElementChild === window.uiBefore.record), 'Record panel not rebuilt');
+    check(await page.evaluate(() => Math.abs(window.scrollY - window.uiBefore.scroll) < 2), 'Scroll preserved');
+    await page.keyboard.press('Space');
+    check(await page.locator('[data-premise="P_DISTANCE_27M"]').getAttribute('aria-pressed') === 'true', 'Keyboard reselect works');
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({ path: path.join(__dirname, 'artifacts', 'desktop-v03.png'), fullPage: true });
+    await page.setViewportSize({ width: 390, height: 844 }); await page.locator('[data-action="open-record"]').click();
+    await page.screenshot({ path: path.join(__dirname, 'artifacts', 'mobile-record-v03.png') });
+    await page.locator('#closeRecord').click();
+    check(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Final mobile has no horizontal overflow');
     // Test actual double-click distribution path without a local HTTP server.
     await page.goto(pathToFileURL(path.resolve(__dirname, '../index.html')).href);
     await page.locator('[data-theory="THEORY_IDENTITY"]').click();

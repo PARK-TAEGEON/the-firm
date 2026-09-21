@@ -13,11 +13,11 @@
       return projection();
     }
     function line(s, speaker, text, kind) { s.dialogue.push({ id: next(), speaker, text, kind }); }
-    function recordResponse(s, r, source, basis) {
+    function recordResponse(s, r, source, basis, provenance = {}) {
       line(s, d.witnesses[0].name, r.text, 'answer');
       s.lastResponseType = r.type;
       if (r.observation) s.witnessObservation = r.observation;
-      for (const id of r.adds) if (!E.recordIds(s).includes(id)) s.records.evidence.push({ id: next(), propositionId: id, witnessId: d.witnesses[0].id, source, basis: [...basis], responseId: r.id, testimony: r.text });
+      for (const id of r.adds) if (!E.recordIds(s).includes(id)) s.records.evidence.push({ id: next(), propositionId: id, witnessId: d.witnesses[0].id, source, basis: [...basis], responseId: r.id, testimony: r.text, ...provenance });
     }
     function commitPosition(s, kind) {
       const p = E.argument(d, s).plan;
@@ -48,14 +48,22 @@
           E.ensure(new Set(payload.ids).size === payload.ids.length && payload.ids.length <= p.max && payload.ids.every(id => E.recordIds(s).includes(id) && p.premises.includes(id)), '기록된 호환 전제만 선택할 수 있습니다.');
           s.selected = [...payload.ids];
         } else if (action === 'press') {
+          const pressure = E.pressure(d, s);
           const r = E.response(d, s);
           const p = E.argument(d, s).plan;
           const premiseText = s.selected.map(id => E.find(d.propositions, id).short).join(' · ');
           line(s, d.profile.roles.respondent, premiseText + '. ' + p.question, 'question');
           commitPosition(s, 'press');
           recordResponse(s, r, p.id, []);
-          if (s.presses.length) s.judgeObservation = '판사가 반복되는 결론 질문에 시선을 듭니다.';
-          s.presses.push({ id: next(), responseId: r.id, premises: [...s.selected] });
+          if (pressure.kind === 'repeated') s.judgeObservation = '판사가 반복되는 결론 질문에 시선을 듭니다.';
+          s.presses.push({ id: next(), responseId: r.id, planId: p.id, ...pressure, premises: [...s.selected] });
+        } else if (action === 'counter') {
+          const route = E.find(d.counterResponses, payload.id);
+          E.ensure(route && a.counters.some(c => c.id === route.id && c.available), '반박에 필요한 기록이 없거나 이미 대응했습니다.');
+          const target = s.records.evidence.find(r => r.propositionId === route.target);
+          const premiseRefs = route.requires.map(id => s.records.evidence.find(r => r.propositionId === id).id);
+          line(s, d.profile.roles.respondent, route.question, 'question');
+          recordResponse(s, E.find(d.responses, route.response), route.id, [], { qualifiesRecordId: target.id, premiseRefs });
         } else if (action === 'frame') {
           commitPosition(s, 'argument');
           line(s, d.profile.roles.respondent, E.argument(d, s).plan.statement, 'argument');
@@ -64,13 +72,15 @@
           line(s, d.profile.roles.factFinder, '신문을 마칩니다. 남은 기록을 확인하겠습니다.', 'closing');
         }
         s.history.push({ id: next(), action, payload: E.copy(payload) });
+        const view = projection(s);
         state = s;
-        return { ok: true, view: projection() };
+        return { ok: true, view };
       } catch (error) { serial = beforeSerial; return { ok: false, error: error.message }; }
     }
-    function projection() {
-      const s = E.copy(state), theory = E.find(d.theories, s.theoryId), plan = E.find(d.argumentPlans, s.planId);
+    function projection(source = state) {
+      const s = E.copy(source), theory = E.find(d.theories, s.theoryId), plan = E.find(d.argumentPlans, s.planId);
       return { state: s, case: E.copy(d), availability: E.availability(d, s), argument: E.copy(E.argument(d, s)),
+        pressure: E.pressure(d, s), assessment: E.copy(E.evaluateRecord(d, s.records, s.theoryId)),
         strategy: theory ? { ...E.copy(theory), preferred: theory.preferredPlans.includes(plan.id),
           potentialConflict: s.commitments.some(c => c.theoryId !== theory.id && !theory.contestedIssues.includes(c.issue)) } : null };
     }
