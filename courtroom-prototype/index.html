@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1220"><title>THE FIRM — Courtroom Core v0.2</title>
+  <link rel="stylesheet" href="ui/original.css"><link rel="stylesheet" href="ui/courtroom.css">
+</head>
+<body>
+  <div class="app">
+    <header class="masthead"><div class="brand">THE FIRM <small>COURTROOM / 0.2</small></div><div class="case-title" id="caseTitle"></div><div class="phase"><span class="dot"></span><b id="phaseLabel"></b></div></header>
+    <main class="main">
+      <aside class="side" id="casePanel" aria-label="사건과 전략"></aside>
+      <section class="court" aria-label="반대신문">
+        <div class="scene" id="scene" aria-live="polite"></div>
+        <div class="choices" id="examination"></div>
+      </section>
+      <aside class="side right" id="recordPanel" aria-label="참여자와 법정 기록"></aside>
+    </main>
+    <footer class="footer"><span>기록을 확보하고, 근거를 연결하고, 멈출 순간을 선택하세요.</span><button data-action="reset">처음부터</button></footer>
+  </div>
+  <dialog id="strategyDialog" aria-labelledby="strategyTitle"><div class="eyebrow">PLAN / 변호 전략</div><h2 id="strategyTitle">어떤 입장에서 시작할 것인가?</h2><p class="compact">공개한 논증은 전략을 바꿔도 기록에 남습니다.</p><div id="strategyChoices"></div><button class="plain" id="closeStrategy">닫기</button></dialog>
+  <dialog id="evidenceDialog" aria-labelledby="evidenceTitle"><div class="eyebrow">Evidence / 사건 자료</div><h2 id="evidenceTitle"></h2><p id="evidenceText" class="compact"></p><p class="note">사건 자료와 법정 증언 기록은 구분됩니다. ‘최초 진술’ 질문 시 이 자료를 제시합니다.</p><button class="plain" id="closeEvidence">닫기</button></dialog>
+  <div id="notification" role="status" aria-live="polite"></div>
+  <script src="data/case.js"></script><script src="engine/core.js"></script><script src="services/courtroom.js"></script><script src="ui/app.js"></script>
+</body>
+</html>

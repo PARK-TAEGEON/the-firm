@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1220">
+  <title>THE FIRM — 22시 14분, B동 창고</title>
+  <meta name="description" content="목격자의 증언을 흔들고, 적절한 순간에 반대신문을 마무리하세요.">
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink:#e8e0cf; --muted:#a8a69f; --dim:#737a84; --night:#080d16;
+      --panel:#101927; --panel2:#152131; --line:#2a394b; --gold:#c9a86a;
+      --gold2:#816943; --red:#a44d4d; --green:#5f8e7a; --paper:#d8c9aa;
+      --shadow:0 18px 50px rgba(0,0,0,.35); --radius:14px;
+    }
+    *{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--night);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+    body{background:radial-gradient(circle at 50% -20%,#1d2d43 0,transparent 42%),linear-gradient(180deg,#0c1421,#080d16 70%)}
+    button{font:inherit;color:inherit} button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+    .app{min-height:100vh;display:grid;grid-template-rows:auto 1fr auto;max-width:1600px;margin:auto}
+    .masthead{height:64px;display:flex;align-items:center;gap:24px;padding:0 28px;border-bottom:1px solid var(--line);background:rgba(7,12,20,.9);backdrop-filter:blur(12px);position:sticky;top:0;z-index:10}
+    .brand{font-family:Georgia,serif;font-weight:700;letter-spacing:.18em;color:var(--paper);white-space:nowrap}.brand small{font:600 10px Inter,sans-serif;color:var(--gold);letter-spacing:.14em;margin-left:9px}
+    .case-title{font-size:13px;color:var(--muted);border-left:1px solid var(--line);padding-left:22px;white-space:nowrap}
+    .phase{margin-left:auto;display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}.phase b{color:var(--ink);font-weight:650}.dot{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px var(--gold)}
+    .main{display:grid;grid-template-columns:260px minmax(420px,1fr) 286px;min-height:0}
+    .side{padding:22px 18px;border-right:1px solid var(--line);background:rgba(12,20,32,.74);overflow:auto}.side.right{border-right:0;border-left:1px solid var(--line)}
+    .section{margin-bottom:25px}.eyebrow{font-size:10px;font-weight:800;letter-spacing:.16em;color:var(--gold);text-transform:uppercase;margin-bottom:10px}.compact{font-size:13px;line-height:1.55;color:var(--muted)}
+    .theory{padding:12px;border:1px solid var(--gold2);border-radius:10px;background:linear-gradient(135deg,rgba(201,168,106,.12),rgba(201,168,106,.03));font-family:Georgia,serif;font-size:15px;line-height:1.45;color:var(--paper)}
+    .fact-list{display:grid;gap:8px}.fact{display:flex;gap:9px;align-items:flex-start;font-size:12px;line-height:1.42;color:var(--muted)}.fact i{width:6px;height:6px;background:var(--gold2);border-radius:50%;margin-top:6px;flex:0 0 auto}
+    .evidence{width:100%;text-align:left;border:1px solid var(--line);background:#111b29;border-radius:9px;padding:10px 11px;cursor:pointer}.evidence:hover{border-color:var(--gold2)}.evidence b{display:block;font-size:12px;margin-bottom:3px}.evidence span{font-size:11px;color:var(--dim)}
+    .court{display:grid;grid-template-rows:minmax(280px,1fr) auto;min-width:0;background:linear-gradient(180deg,rgba(22,31,44,.6),rgba(8,13,22,.85)),repeating-linear-gradient(90deg,transparent 0 75px,rgba(255,255,255,.01) 76px)}
+    .scene{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:38px 8%;text-align:center;overflow:auto}
+    .scene:before{content:"";position:absolute;inset:8% 12%;background:radial-gradient(ellipse at center,rgba(201,168,106,.08),transparent 60%);pointer-events:none}
+    .speaker{position:relative;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}.speaker:after{content:"";display:block;width:28px;height:1px;background:var(--gold2);margin:10px auto 0}
+    .statement{position:relative;margin:0;max-width:820px;font-family:Georgia,"Noto Serif KR",serif;font-size:clamp(23px,3vw,38px);line-height:1.45;font-weight:400;text-wrap:balance}.subline{position:relative;margin-top:18px;color:var(--muted);font-size:13px;line-height:1.6;max-width:650px}
+    .choices{border-top:1px solid var(--line);padding:18px max(22px,6%);background:rgba(8,13,21,.95)}
+    .prompt{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;font-size:12px;color:var(--muted)}.prompt b{color:var(--ink)}
+    .choice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.choice{min-height:92px;padding:13px 14px;border:1px solid var(--line);border-radius:11px;text-align:left;background:linear-gradient(180deg,#172334,#121b29);cursor:pointer;transition:.18s transform,.18s border-color}.choice:hover:not(:disabled){transform:translateY(-2px);border-color:var(--gold)}.choice:disabled{opacity:.42;cursor:not-allowed}.choice .num{float:right;color:var(--dim);font-size:11px}.choice b{display:block;font-size:13px;margin-bottom:6px}.choice span{display:block;color:var(--muted);font-size:11px;line-height:1.4}.choice.risk b{color:#dfb1a7}
+    .continue-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.continue-grid .choice{min-height:76px}.choice.stop{border-color:var(--gold2);background:linear-gradient(180deg,#251f19,#171713)}
+    .person{padding:11px 0;border-bottom:1px solid rgba(42,57,75,.7)}.person:last-child{border:0}.person-head{display:flex;justify-content:space-between;align-items:center;font-size:12px}.person-head b{font-size:13px}.person-state{font-size:11px;color:var(--muted);margin-top:5px}.meter{height:3px;background:#263344;margin-top:9px;border-radius:5px;overflow:hidden}.meter span{display:block;height:100%;background:var(--gold);transition:width .4s ease}.meter.red span{background:var(--red)}
+    .record{display:grid;gap:8px}.record-empty{font-size:12px;line-height:1.55;color:var(--dim);padding:12px;border:1px dashed var(--line);border-radius:9px}.record-item{border-left:2px solid var(--gold2);padding:7px 9px;background:rgba(255,255,255,.025);font-size:11px;line-height:1.45;color:var(--muted);animation:in .24s ease}.record-item b{display:block;color:var(--ink);font-size:12px;margin-bottom:2px}@keyframes in{from{opacity:0;transform:translateY(5px)}}
+    .footer{min-height:42px;display:flex;align-items:center;padding:8px 22px;border-top:1px solid var(--line);color:var(--dim);font-size:11px;gap:16px}.footer button{margin-left:auto;border:0;background:transparent;color:var(--muted);cursor:pointer;padding:5px 8px}.footer button:hover{color:var(--ink)}
+    .modal{position:fixed;inset:0;background:rgba(2,5,9,.78);display:none;align-items:center;justify-content:center;z-index:30;padding:20px}.modal.open{display:flex}.modal-card{width:min(560px,100%);background:#121c2a;border:1px solid var(--gold2);border-radius:14px;box-shadow:var(--shadow);padding:24px}.modal-card h2{font-family:Georgia,serif;margin:0 0 8px;font-size:24px}.modal-card p{color:var(--muted);font-size:13px;line-height:1.6}.modal-card button{width:100%;padding:12px;margin-top:8px;border:1px solid var(--line);border-radius:9px;background:#172435;text-align:left;cursor:pointer}.modal-card button:hover{border-color:var(--gold)}.modal-card button b{display:block;margin-bottom:4px}.modal-card button span{font-size:12px;color:var(--muted)}
+    .verdict{display:grid;gap:12px;margin:18px 0}.finding{padding:14px;border:1px solid var(--line);border-radius:10px;background:#0f1825}.finding strong{display:block;color:var(--gold);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}.finding p{margin:0}.actions{display:flex;gap:10px}.actions button{text-align:center}.toast{position:fixed;left:50%;bottom:55px;transform:translate(-50%,20px);background:#d9c69e;color:#111722;padding:9px 14px;border-radius:8px;font-size:12px;opacity:0;pointer-events:none;transition:.2s;z-index:40}.toast.show{opacity:1;transform:translate(-50%,0)}
+    .mobile-tabs{display:none}
+    @media(max-width:980px){.main{grid-template-columns:220px minmax(380px,1fr)}.side.right{display:none}.choice-grid{grid-template-columns:1fr}.choice{min-height:auto}.court{grid-template-rows:minmax(310px,1fr) auto}.scene{padding:28px 8%}}
+    @media(max-width:700px){.masthead{height:56px;padding:0 14px}.case-title{display:none}.brand small{display:none}.main{display:block}.side{display:none!important}.court{min-height:calc(100vh - 98px);grid-template-rows:minmax(300px,1fr) auto}.scene{padding:28px 20px}.statement{font-size:25px}.choices{padding:14px}.footer{display:none}.mobile-tabs{display:flex;position:sticky;bottom:0;z-index:12;height:48px;border-top:1px solid var(--line);background:#0c1420}.mobile-tabs button{flex:1;border:0;background:transparent;color:var(--muted);font-size:11px}.mobile-sheet{position:fixed;inset:56px 0 48px;background:#0d1622;z-index:11;padding:20px;overflow:auto;display:none}.mobile-sheet.open{display:block}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="masthead">
+    <div class="brand">THE FIRM <small>TRIAL PROTOTYPE</small></div>
+    <div class="case-title">사건 01 · 22시 14분, B동 창고</div>
+    <div class="phase"><span class="dot"></span><b id="phaseLabel">반대신문 준비</b></div>
+  </header>
+  <main class="main">
+    <aside class="side" id="casePanel">
+      <section class="section"><div class="eyebrow">Case Theory</div><div class="theory" id="theoryText">전략을 선택하세요.</div></section>
+      <section class="section"><div class="eyebrow">쟁점</div><div class="fact-list"><div class="fact"><i></i><span><b>Identity</b><br>피고인이 공격자인가?</span></div><div class="fact"><i></i><span><b>Intent</b><br>고의로 흉기를 사용했는가?</span></div></div></section>
+      <section class="section"><div class="eyebrow">핵심 사건정보</div><div class="fact-list"><div class="fact"><i></i><span>범행 추정 시각 22:14</span></div><div class="fact"><i></i><span>피고인 B동 출입 22:08–22:17</span></div><div class="fact"><i></i><span>목격 장소: 야외 흡연구역</span></div></div></section>
+      <section class="section"><div class="eyebrow">Evidence</div><button class="evidence" data-evidence><b>최초 경찰 진술</b><span>“김도윤 씨 같았습니다.”</span></button></section>
+    </aside>
+
+    <section class="court">
+      <div class="scene" aria-live="polite"><div class="speaker" id="speaker">재판장</div><h1 class="statement" id="statement">변호인, 반대신문을 시작하십시오.</h1><div class="subline" id="subline">목격자의 확신을 흔들되, 이미 얻은 기록을 스스로 무너뜨리지 마십시오.</div></div>
+      <div class="choices"><div class="prompt"><b id="promptTitle">신문 전략을 선택하세요</b><span id="turnCounter">준비</span></div><div id="choiceArea"></div></div>
+    </section>
+
+    <aside class="side right" id="statusPanel">
+      <section class="section"><div class="eyebrow">법정 참여자</div>
+        <div class="person"><div class="person-head"><b>재판장</b><span id="judgeMood">차분함</span></div><div class="person-state" id="judgeState">쟁점 중심의 질문을 기대함</div><div class="meter"><span id="judgeMeter" style="width:78%"></span></div></div>
+        <div class="person"><div class="person-head"><b>증인 · 서지훈</b><span id="witnessMood">긴장함</span></div><div class="person-state" id="witnessState">식별 경위에는 자신 있어 보임</div><div class="meter red"><span id="witnessMeter" style="width:26%"></span></div></div>
+        <div class="person"><div class="person-head"><b>검사</b><span id="prosecutorMood">관망</span></div><div class="person-state">유도신문과 반복 질문을 주시함</div></div>
+      </section>
+      <section class="section"><div class="eyebrow">Court Record</div><div class="record" id="record"><div class="record-empty">법정에서 확립한 사실이 여기에 짧게 기록됩니다.</div></div></section>
+    </aside>
+  </main>
+  <footer class="footer"><span>1–3 키로 질문 선택 · 언제 멈출지도 전략입니다.</span><button id="restart">처음부터</button></footer>
+  <nav class="mobile-tabs"><button data-sheet="case">사건</button><button data-sheet="record">기록</button><button id="mobileRestart">다시 시작</button></nav>
+</div>
+
+<div class="mobile-sheet" id="mobileSheet"></div>
+<div class="modal open" id="theoryModal" role="dialog" aria-modal="true">
+  <div class="modal-card"><div class="eyebrow">변호 전략 수립</div><h2>어떤 이야기를 법정에 세울 것인가?</h2><p>선택한 전략은 질문의 의미와 최종 사실 판단에 영향을 줍니다.</p>
+    <button data-theory="identity"><b>현장에 있었지만 범인은 아니다</b><span>목격 식별과 지문의 시간적 한계를 집중 공격한다.</span></button>
+    <button data-theory="intent"><b>접촉은 있었지만 공격 의도는 없었다</b><span>만남은 인정하고 고의성과 사건의 맥락을 다툰다.</span></button>
+  </div>
+</div>
+<div class="modal" id="infoModal"><div class="modal-card"><div class="eyebrow">증거 상세</div><h2>최초 경찰 진술서</h2><p>서지훈은 사건 직후 조사에서 “어두워서 얼굴은 정확히 못 봤지만, 체격과 걸음걸이가 김도윤 씨 같았다”고 진술했다. 법정에서는 “김도윤이었다고 확신한다”고 말하고 있다.</p><div class="actions"><button id="closeInfo">닫기</button></div></div></div>
+<div class="modal" id="resultModal"><div class="modal-card"><div class="eyebrow">Court Fact Finding</div><h2 id="resultTitle"></h2><div class="verdict" id="resultBody"></div><div class="actions"><button id="playAgain">다시 신문하기</button></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+  const CONTENT = {
+    theories: {
+      identity:{title:'현장에 있었지만 범인은 아니다',summary:'피고인의 B동 출입은 인정하되, 목격만으로 공격자를 특정할 수 없음을 보인다.'},
+      intent:{title:'접촉은 있었지만 공격 의도는 없었다',summary:'두 사람의 접촉 가능성은 인정하되, 계획적 공격과 고의는 입증되지 않았음을 보인다.'}
+    },
+    moves:[
+      {id:'distance',title:'관찰 거리를 확정한다',hint:'목격 조건을 구체적인 수치로 묶는다.',q:'증인이 있던 흡연구역에서 창고 출입구까지, 약 27미터였지요?',a:'네. 그 정도 거리는 됐을 겁니다.',record:['관찰 거리','약 27m'],pressure:14,judge:-2},
+      {id:'light',title:'조명 상태를 확인한다',hint:'야간의 시야 조건을 기록에 남긴다.',q:'그날 출입구 위 조명 하나는 꺼져 있었습니까?',a:'네, 한쪽은 꺼져 있었습니다. 그래도 사람 형태는 보였습니다.',record:['조명 상태','출입구 조명 일부 소등'],pressure:11,judge:-1},
+      {id:'statement',title:'최초 진술과 대조한다',hint:'“확신”이 언제 생겼는지 추궁한다.',q:'사건 직후에는 “김도윤 씨 같았다”고 진술했죠. 맞습니까?',a:'그때는 정신이 없었습니다. 하지만 지금 생각하면 김도윤 씨가 맞습니다.',record:['최초 진술','“김도윤 같았다”'],pressure:22,judge:1},
+      {id:'duration',title:'관찰 시간을 묻는다',hint:'실제로 본 시간이 얼마나 짧았는지 밝힌다.',q:'증인이 그 사람의 얼굴을 본 시간은 2초도 되지 않았지요?',a:'길지는 않았습니다. 1~2초쯤이었던 것 같습니다.',record:['관찰 시간','약 1–2초'],pressure:17,judge:-2},
+      {id:'certainty',title:'확신을 다시 압박한다',hint:'이미 유리한 답을 얻었다면 위험할 수 있다.',q:'그 조건에서도 피고인의 얼굴을 분명히 봤다는 겁니까?',a:'네. 간판 불빛이 얼굴 정면을 비췄습니다. 안경까지 또렷이 봤습니다.',record:['추가 조명','간판 불빛이 얼굴을 비춤'],pressure:-14,judge:17,risk:true},
+      {id:'repeat',title:'한 번 더 부정하게 한다',hint:'같은 결론을 반복시키는 고위험 질문이다.',q:'다른 사람일 가능성은 전혀 없습니까?',a:'없습니다. 저는 김도윤 씨와 6년을 함께 일했습니다.',record:['증인 확신','6년간 함께 근무'],pressure:-20,judge:20,risk:true}
+    ]
+  };
+  const $ = s => document.querySelector(s);
+  const state = {theory:null,asked:[],records:[],pressure:26,patience:78,overreach:false,finished:false};
+  const els={speaker:$('#speaker'),statement:$('#statement'),subline:$('#subline'),choices:$('#choiceArea'),phase:$('#phaseLabel'),prompt:$('#promptTitle'),turn:$('#turnCounter'),theory:$('#theoryText'),record:$('#record'),judgeMood:$('#judgeMood'),judgeState:$('#judgeState'),judgeMeter:$('#judgeMeter'),witnessMood:$('#witnessMood'),witnessState:$('#witnessState'),witnessMeter:$('#witnessMeter'),prosecutorMood:$('#prosecutorMood'),toast:$('#toast')};
+
+  function reset(){Object.assign(state,{theory:null,asked:[],records:[],pressure:26,patience:78,overreach:false,finished:false});renderRecord();updateStatus();$('#resultModal').classList.remove('open');$('#theoryModal').classList.add('open');els.theory.textContent='전략을 선택하세요.';showLine('재판장','변호인, 반대신문을 시작하십시오.','목격자의 확신을 흔들되, 이미 얻은 기록을 스스로 무너뜨리지 마십시오.');els.choices.innerHTML='';els.phase.textContent='반대신문 준비';els.turn.textContent='준비'}
+  function selectTheory(key){state.theory=key;$('#theoryModal').classList.remove('open');els.theory.innerHTML='<b>'+CONTENT.theories[key].title+'</b><div class="compact" style="margin-top:7px">'+CONTENT.theories[key].summary+'</div>';els.phase.textContent='서지훈 반대신문';renderMoves()}
+  function showLine(speaker,text,sub=''){els.speaker.textContent=speaker;els.statement.textContent=text;els.subline.textContent=sub}
+  function availableMoves(){
+    const safe=CONTENT.moves.filter(m=>!m.risk&&!state.asked.includes(m.id));
+    if(safe.length) return safe.slice(0,3);
+    return CONTENT.moves.filter(m=>m.risk&&!state.asked.includes(m.id)).slice(0,2);
+  }
+  function renderMoves(){
+    const moves=availableMoves(); els.prompt.textContent=state.asked.length?'다음 행동을 결정하세요':'첫 질문을 선택하세요';els.turn.textContent='질문 '+(state.asked.length+1);
+    let html=moves.map((m,i)=>'<button class="choice '+(m.risk?'risk':'')+'" data-move="'+m.id+'"><span class="num">'+(i+1)+'</span><b>'+m.title+'</b><span>'+m.hint+'</span></button>').join('');
+    if(state.asked.length>=2) html='<div class="continue-grid"><button class="choice stop" data-stop><b>여기서 신문을 마친다</b><span>현재까지 확보한 기록으로 판단을 요청합니다.</span></button><div class="choice" style="cursor:default"><b>신문 계속</b><span>아래 질문 중 하나를 선택하세요.</span></div></div><div class="choice-grid" style="margin-top:10px">'+html+'</div>';
+    else html='<div class="choice-grid">'+html+'</div>';
+    els.choices.innerHTML=html;
+    els.choices.querySelectorAll('[data-move]').forEach(b=>b.addEventListener('click',()=>ask(b.dataset.move)));
+    const stop=els.choices.querySelector('[data-stop]'); if(stop) stop.addEventListener('click',finish);
+  }
+  function ask(id){
+    if(state.finished)return; const move=CONTENT.moves.find(m=>m.id===id);state.asked.push(id);state.pressure=Math.max(0,Math.min(100,state.pressure+move.pressure));state.patience=Math.max(0,Math.min(100,state.patience-move.judge));if(move.risk)state.overreach=true;
+    showLine('변호인',move.q,'증인의 답변을 기다리는 중…');els.choices.querySelectorAll('button').forEach(b=>b.disabled=true);
+    setTimeout(()=>{showLine('증인 · 서지훈',move.a,move.risk?'검사가 미세하게 고개를 끄덕입니다.':'답변이 법정 기록에 남았습니다.');addRecord(move.record[0],move.record[1],move.risk);updateStatus();setTimeout(renderMoves,450)},620)
+  }
+  function addRecord(label,value,bad=false){state.records.push({label,value,bad});renderRecord();toast((bad?'불리한 기록 추가 · ':'법정 기록 추가 · ')+label)}
+  function renderRecord(){const html=state.records.map(r=>'<div class="record-item" style="border-color:'+(r.bad?'var(--red)':'var(--gold2)')+'"><b>'+r.label+'</b>'+r.value+'</div>').join('');els.record.innerHTML=html||'<div class="record-empty">법정에서 확립한 사실이 여기에 짧게 기록됩니다.</div>'}
+  function updateStatus(){els.witnessMeter.style.width=state.pressure+'%';els.judgeMeter.style.width=state.patience+'%';els.witnessMood.textContent=state.pressure>70?'동요함':state.pressure>45?'불안해함':'긴장함';els.witnessState.textContent=state.overreach?'추가 설명으로 자신감을 되찾음':state.pressure>55?'최초 진술 질문에서 말이 빨라짐':'식별 경위에는 자신 있어 보임';els.judgeMood.textContent=state.patience<45?'불쾌함':state.patience<65?'주의 깊음':'차분함';els.judgeState.textContent=state.patience<45?'반복 질문을 그만두길 바람':'쟁점 중심의 질문을 기대함';els.prosecutorMood.textContent=state.overreach?'여유':'관망'}
+  function finish(){
+    state.finished=true;els.phase.textContent='사실 판단';const strong=state.asked.includes('statement')&&state.asked.length>=3&&!state.overreach;const mixed=!state.overreach&&state.asked.length>=2;const title=strong?'목격 식별의 신빙성이 크게 흔들렸습니다':mixed?'합리적 의심의 여지가 남았습니다':'증인의 확신이 오히려 강화되었습니다';
+    const identity=strong?'낮음':mixed?'불확실':'상당함';const intent=state.theory==='intent'?(state.overreach?'판단 유보':'입증 부족'):'쟁점 외';
+    $('#resultTitle').textContent=title;$('#resultBody').innerHTML='<div class="finding"><strong>Identity</strong><p>피고인이 공격자라는 사실의 개연성: <b>'+identity+'</b></p></div><div class="finding"><strong>Intent</strong><p>고의적인 흉기 사용: <b>'+intent+'</b></p></div><div class="finding"><strong>변호 수행</strong><p>'+(strong?'유리한 기록을 만든 뒤 증인에게 회복할 기회를 주지 않았습니다.':mixed?'핵심 조건 일부는 확보했지만 최초 진술의 변화까지 충분히 연결하지 못했습니다.':'추가 질문이 증인에게 설명의 여지를 주었습니다. 멈추는 결정도 중요한 법정 행동입니다.')+'</p></div>';$('#resultModal').classList.add('open')
+  }
+  function toast(msg){els.toast.textContent=msg;els.toast.classList.add('show');setTimeout(()=>els.toast.classList.remove('show'),1600)}
+  function openSheet(type){const sheet=$('#mobileSheet');if(type==='case')sheet.innerHTML='<div class="eyebrow">사건과 전략</div>'+$('#casePanel').innerHTML;else sheet.innerHTML='<div class="eyebrow">상태와 기록</div>'+$('#statusPanel').innerHTML;sheet.classList.add('open');sheet.onclick=e=>{if(e.target===sheet)sheet.classList.remove('open')}}
+  document.querySelectorAll('[data-theory]').forEach(b=>b.addEventListener('click',()=>selectTheory(b.dataset.theory)));
+  document.querySelectorAll('[data-evidence]').forEach(b=>b.addEventListener('click',()=>$('#infoModal').classList.add('open')));
+  $('#closeInfo').onclick=()=>$('#infoModal').classList.remove('open');$('#playAgain').onclick=reset;$('#restart').onclick=reset;$('#mobileRestart').onclick=reset;
+  document.querySelectorAll('[data-sheet]').forEach(b=>b.onclick=()=>openSheet(b.dataset.sheet));
+  document.addEventListener('keydown',e=>{if(['1','2','3'].includes(e.key)&&!document.querySelector('.modal.open')){const buttons=[...els.choices.querySelectorAll('[data-move]')];buttons[Number(e.key)-1]?.click()}if(e.key==='Escape'){$('#infoModal').classList.remove('open');$('#mobileSheet').classList.remove('open')}});
+</script>
+</body>
+</html>
