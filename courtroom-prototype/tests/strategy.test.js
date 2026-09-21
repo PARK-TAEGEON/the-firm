@@ -4,27 +4,27 @@ const assert = require('node:assert/strict');
 const D = require('../data/case'), E = require('../engine/core');
 const { createService } = require('../services/courtroom');
 const pair = ['P_DISTANCE_27M', 'P_OBSERVATION_SHORT'], strong = [...pair, 'P_INITIAL_UNCERTAIN'];
-function cmd(s, action, payload) { const r = s.command(action, payload); assert.ok(r.ok, r.error); return r.view; }
+function cmd(s, action, payload) { const r = require('./settle-procedure')(s,s.command(action, payload)); assert.ok(r.ok, r.error); return r.view; }
 function fresh(theory = 'THEORY_IDENTITY') { const s = createService(D); cmd(s, 'strategy', { id: theory }); return s; }
 function facts(s, ids = ['G_DISTANCE', 'G_DURATION', 'G_INITIAL']) { ids.forEach(id => cmd(s, 'establish', { id, basis: D.goals.find(g => g.id === id).basis })); }
 const select = (s, ids = strong) => cmd(s, 'select', { ids });
 const result = s => cmd(s, 'stop').state.resolution;
 function rejected(s, action, payload) { const before = s.projection(); assert.equal(s.command(action, payload).ok, false); assert.deepEqual(s.projection(), before); }
 function familiarity(s) { facts(s, ['G_DISTANCE', 'G_DURATION']); select(s, pair); cmd(s, 'press'); cmd(s, 'press'); }
-test('Safe / Constructive / Aggressive have distinct payoffs and public commitments', () => {
+test('Safe / Constructive / Aggressive have distinct payoffs and advocacy records', () => {
   const safe = fresh(), frame = fresh(), press = fresh();
   for (const s of [safe, frame, press]) { facts(s); select(s); }
   const evidence = safe.projection().state.records.evidence; cmd(frame, 'frame'); cmd(press, 'press');
   const a = result(safe), b = result(frame), c = result(press);
   assert.deepEqual([a.code, b.code, c.code], ['DOUBT_RECORDED', 'WEAKENED', 'WITNESS_ADMISSION']);
   assert.deepEqual(safe.projection().state.records.evidence, evidence);
-  assert.equal(a.admissionRefs.length + a.framedArguments.length + a.activeCounterRefs.length + a.strategy.publicPositionRefs.length, 0);
+  assert.equal(a.admissionRefs.length + a.framedArguments.length + a.activeCounterRefs.length + a.strategy.argumentFrameRefs.length, 0);
   assert.equal(b.admissionRefs.length, 0); assert.equal(b.framedArguments.length, 1); assert.equal(b.framedArguments[0].reusable, true); assert.equal(b.strategy.development, 'developed');
   assert.equal(c.admissionRefs.length, 1); assert.equal(c.framedArguments.length, 0); assert.equal(c.strategy.development, 'developed');
 });
 test('Press can be worse than safe/framed play from identical premises', () => {
   const outcomes = ['stop', 'frame', 'press'].map(action => { const s = fresh(); facts(s, ['G_DISTANCE', 'G_LIGHTING']); select(s, ['P_DISTANCE_27M', 'P_LIGHTING_POOR']); if (action !== 'stop') cmd(s, action); return result(s); });
-  assert.deepEqual(outcomes.map(o => o.code), ['DOUBT_RECORDED', 'WEAKENED', 'CONFLICTING']); assert.deepEqual(outcomes.map(o => o.activeCounterRefs.length), [0, 0, 1]);
+  assert.deepEqual(outcomes.map(o => o.code), ['DOUBT_RECORDED', 'LIMITED_ARGUMENT', 'CONFLICTING']); assert.deepEqual(outcomes.map(o => o.activeCounterRefs.length), [0, 0, 1]);
 });
 test('reinforced Press with new selected basis obtains admission', () => {
   const s = fresh(); facts(s, ['G_DISTANCE', 'G_DURATION']); select(s, pair); cmd(s, 'press'); assert.equal(s.projection().state.lastResponseType, 'RESIST');
@@ -36,7 +36,7 @@ test('permutations and newly banked but unselected facts do not evade repetition
   assert.equal(s.projection().pressure.kind, 'repeated'); const first = s.projection().state.presses[0].signature, v = cmd(s, 'press');
   assert.equal(v.state.presses[1].signature, first); assert.equal(v.state.lastResponseType, 'EXPLAIN'); assert.ok(E.recordIds(v.state).includes('P_FAMILIARITY'));
 });
-test('subsets and restoring an earlier strong basis remain repeated', () => { const s = fresh(); facts(s); select(s); cmd(s, 'press'); select(s, pair); assert.equal(s.projection().pressure.kind, 'repeated'); cmd(s, 'press'); select(s); assert.equal(s.projection().pressure.kind, 'repeated'); assert.ok(result(s).activeCounterRefs.length); });
+test('subsets and restoring an earlier strong basis remain repeated', () => { const s = fresh(); facts(s); select(s); cmd(s, 'press'); select(s, pair); assert.equal(s.projection().pressure.kind, 'repeated'); cmd(s, 'press'); select(s); assert.equal(s.projection().pressure.kind, 'repeated'); assert.equal(result(s).activeCounterRefs.length,0); assert.ok(s.projection().state.records.procedural.some(r => r.outcome === 'sustained')); });
 test('incomparable new premise combination is not a simple repeat', () => { const s = fresh(); facts(s, D.goals.map(g => g.id)); select(s, pair); cmd(s, 'press'); select(s, ['P_LIGHTING_POOR', 'P_INITIAL_UNCERTAIN']); assert.equal(s.projection().pressure.kind, 'new_basis'); });
 test('counter requires both counter and initial statement; failures atomic', () => {
   const s = fresh(); rejected(s, 'counter', { id: 'COUNTER_INITIAL' }); facts(s, ['G_INITIAL']); rejected(s, 'counter', { id: 'COUNTER_INITIAL' });
@@ -57,13 +57,13 @@ test('qualification without provenance does not neutralize counter', () => {
   const s = fresh(); familiarity(s); facts(s, ['G_INITIAL']); cmd(s, 'counter', { id: 'COUNTER_INITIAL' }); const records = s.projection().state.records;
   records.evidence.find(r => r.propositionId === 'P_FAMILIARITY_LIMIT').premiseRefs = []; assert.equal(E.evaluateRecord(D, records, 'THEORY_IDENTITY').activeCounterRefs.length, 1);
 });
-test('same record/argument means core progress in A but peripheral public commitment in B', () => {
+test('same record/argument means core progress in A and peripheral argument in B without a major commitment', () => {
   const s = fresh(); facts(s); select(s); cmd(s, 'frame'); const records = s.projection().state.records;
   const a = E.evaluateRecord(D, records, 'THEORY_IDENTITY'), b = E.evaluateRecord(D, records, 'THEORY_INTENT');
   assert.equal(a.code, b.code); assert.equal(a.framedArguments[0].value, 'core'); assert.equal(b.framedArguments[0].value, 'peripheral');
-  assert.equal(a.strategy.development, 'developed'); assert.equal(b.strategy.development, 'peripheral'); assert.deepEqual(b.strategy.unresolvedIssues, ['INTENT']); assert.equal(b.strategy.publicPositionRefs.length, 1);
-  assert.equal(a.strategy.positionStatus, 'aligned'); assert.equal(b.strategy.positionStatus, 'review_required'); assert.equal(b.strategy.commitmentReviewRefs.length, 1);
-  const safe = fresh('THEORY_INTENT'); facts(safe); const safeResult = result(safe); assert.equal(safeResult.strategy.positionStatus, 'flexible'); assert.equal(safeResult.strategy.commitmentReviewRefs.length, 0);
+  assert.equal(a.strategy.development, 'developed'); assert.equal(b.strategy.development, 'peripheral'); assert.deepEqual(b.strategy.unresolvedIssues, ['INTENT']); assert.equal(b.strategy.argumentFrameRefs.length, 1);
+  assert.equal(a.strategy.positionStatus, 'no_major_commitment'); assert.equal(b.strategy.positionStatus, 'no_major_commitment'); assert.equal(b.strategy.majorCommitmentRefs.length, 0);
+  const safe = fresh('THEORY_INTENT'); facts(safe); const safeResult = result(safe); assert.equal(safeResult.strategy.positionStatus, 'no_major_commitment'); assert.equal(safeResult.strategy.commitmentReviewRefs.length, 0);
 });
 test('identification counter conflicts with A but not contact-conceding B', () => {
   const s = fresh(); familiarity(s); const records = s.projection().state.records;

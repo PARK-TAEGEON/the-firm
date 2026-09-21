@@ -1,36 +1,27 @@
-THE FIRM Courtroom Core v0.3 — 2026-09-21
+Courtroom Core v0.5 — latest verification 2026-09-22 KST
+Baseline actual v0.4 ZIP: Node 78/78, browser 51/51 before edits.
 
-FINAL RUN
-node --test courtroom-prototype/tests/core.test.js courtroom-prototype/tests/strategy.test.js
-  69 tests / 69 pass / 0 failures / exit 0
-  Prior suite: 52 cases retained; one obsolete facts-only Stop expectation updated.
-  New strategy suite: 17 cases.
+Current Node: 100 tests, 100 pass, 0 failures, exit 0.
+Current browser: 92 checks, 0 failures, exit 0 (Edge/Playwright, localhost + file URL).
+UI budget: 3 assertions pass, exit 0.
+  Same scene 1440x1080: visible non-whitespace characters 1004 -> 183.
+  Document 1080 -> 1080px; examination 624 -> 283px; lane bottom 863 -> 958px.
 
-NODE_PATH=<bundled Node packages> node courtroom-prototype/tests/browser.test.js
-  Microsoft Edge headless; desktop 1440x1080 and 1440x800; mobile 390x844
-  44 checks / 0 failures / exit 0 (prior 20 + new 24)
-  Safe/Frame/Press, reinforced attack, counter rebuttal, strategy switching,
-  exact DOM/focus/disclosure/scroll preservation, mobile Record sheet,
-  mobile issues/client objective, no duplicate IDs/overflow/page errors,
-  HTTP and direct file:// launch. Captures visually inspected.
+Unchanged Godot regressions (Godot 4.7.2 --headless --path litigation-skeleton --script):
+  tests/run_regressions.gd                            214 checks, 0 failures, exit 0
+  vertical_slice/tests/run_slice_regressions.gd        73 checks, 0 failures, exit 0
+  vertical_slice/tests/run_vs002_regressions.gd         72 checks, 0 failures, exit 0
+  vertical_slice/tests/run_vs003_regressions.gd        260 checks, 0 failures, exit 0
+  vertical_slice/tests/run_vs004_regressions.gd        256 checks, 0 failures, exit 0
+  vertical_slice/tests/run_vs005_regressions.gd        351 checks, 0 failures, exit 0
+  vertical_slice/tests/run_vs006_regressions.gd       1054 checks, 0 failures, exit 0
+  subtotal                                         2280 checks, 0 failures
+Godot main scene --headless --path litigation-skeleton --quit-after 3: exit 0.
+Total Node/browser/Godot regression: 2472 checks/tests, 0 failures, all exit 0.
+UI budget and main-scene smoke listed separately, not included in total.
 
-Godot 4.7.2 existing suites; source and tests unchanged
-  legacy: 214 checks / 0 failures / exit 0
-  VS-001: 73 checks / 0 failures / exit 0
-  VS-002: 72 checks / 0 failures / exit 0
-  VS-003: 260 checks / 0 failures / exit 0
-  VS-004: 256 checks / 0 failures / exit 0
-  VS-005: 351 checks / 0 failures / exit 0
-  VS-006: 1054 checks / 0 failures / exit 0
-  Total existing checks: 2280
-  Main-scene --quit-after 3 smoke: exit 0, no engine errors.
-  Executed with approved escalation for known Windows certificate-store sandbox restriction.
-
-Combined: 2393 tests/checks, 0 failures, all exit 0; plus clean main-scene smoke.
-Scoped whitespace/diff check: PASS.
-Raw output/captures: tests/artifacts/core-v03.log, Godot suite logs,
-  desktop-v03.png, mobile-record-v03.png (local, Git ignored).
-
-Development note: old B Stop test expected WEAKENED and initially failed;
-new required semantics are DOUBT_RECORDED with Intent unresolved.
-Final run contains no failing assertions or Godot engine errors.
+git diff --check -- courtroom-prototype .agent/tasks/COURTROOM-CORE-005.md: exit 0.
+Visual inspection: desktop normal/objection/address; mobile normal/record/objection screenshots.
+Raw local logs and screenshots: tests/artifacts/ (generated, ignored).
+No new legal standards, automatic judgment, AI, saving or next VS claimed.
+Resolved initial execution failures and exact commands: REVIEW_PACKET.md.

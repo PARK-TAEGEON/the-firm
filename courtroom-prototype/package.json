@@ -1,7 +1,11 @@
 {
   "name": "the-firm-courtroom-experiment",
-  "version": "0.3.0",
+  "version": "0.5.0",
   "private": true,
   "description": "Isolated, authored courtroom prototype; no Godot integration",
-  "scripts": { "test": "node --test tests/core.test.js tests/strategy.test.js", "start": "node serve.js", "test:browser": "node tests/browser.test.js" }
+  "scripts": {
+    "test": "node --test tests/core.test.js tests/strategy.test.js tests/inference.test.js tests/procedure.test.js",
+    "start": "node serve.js",
+    "test:browser": "node tests/browser.test.js"
+  }
 }
