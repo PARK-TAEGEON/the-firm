@@ -37,7 +37,7 @@ test('permutations and newly banked but unselected facts do not evade repetition
   assert.equal(v.state.presses[1].signature, first); assert.equal(v.state.lastResponseType, 'EXPLAIN'); assert.ok(E.recordIds(v.state).includes('P_FAMILIARITY'));
 });
 test('subsets and restoring an earlier strong basis remain repeated', () => { const s = fresh(); facts(s); select(s); cmd(s, 'press'); select(s, pair); assert.equal(s.projection().pressure.kind, 'repeated'); cmd(s, 'press'); select(s); assert.equal(s.projection().pressure.kind, 'repeated'); assert.equal(result(s).activeCounterRefs.length,0); assert.ok(s.projection().state.records.procedural.some(r => r.outcome === 'sustained')); });
-test('incomparable new premise combination is not a simple repeat', () => { const s = fresh(); facts(s, D.goals.map(g => g.id)); select(s, pair); cmd(s, 'press'); select(s, ['P_LIGHTING_POOR', 'P_INITIAL_UNCERTAIN']); assert.equal(s.projection().pressure.kind, 'new_basis'); });
+test('incomparable new premise combination is not a simple repeat', () => { const s = fresh(); facts(s, D.goals.filter(g=>g.witnessId===D.witnesses[0].id).map(g => g.id)); select(s, pair); cmd(s, 'press'); select(s, ['P_LIGHTING_POOR', 'P_INITIAL_UNCERTAIN']); assert.equal(s.projection().pressure.kind, 'new_basis'); });
 test('counter requires both counter and initial statement; failures atomic', () => {
   const s = fresh(); rejected(s, 'counter', { id: 'COUNTER_INITIAL' }); facts(s, ['G_INITIAL']); rejected(s, 'counter', { id: 'COUNTER_INITIAL' });
   const b = fresh(); familiarity(b); rejected(b, 'counter', { id: 'COUNTER_INITIAL' }); facts(b, ['G_INITIAL']); rejected(b, 'counter', { id: 'invalid' }); assert.ok(b.projection().availability.counters[0].available);

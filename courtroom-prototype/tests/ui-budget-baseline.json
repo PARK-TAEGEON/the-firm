@@ -1,0 +1,38 @@
+[
+  {
+    "viewport": "1440x1080",
+    "mode": "normal",
+    "visibleCharacters": 167,
+    "documentHeight": 1080,
+    "examinationHeight": 268,
+    "laneBottom": 958,
+    "horizontalOverflow": false
+  },
+  {
+    "viewport": "1440x1080",
+    "mode": "argument",
+    "visibleCharacters": 183,
+    "documentHeight": 1080,
+    "examinationHeight": 283,
+    "laneBottom": 958,
+    "horizontalOverflow": false
+  },
+  {
+    "viewport": "390x844",
+    "mode": "normal",
+    "visibleCharacters": 162,
+    "documentHeight": 1216,
+    "examinationHeight": 309,
+    "laneBottom": 810,
+    "horizontalOverflow": false
+  },
+  {
+    "viewport": "390x844",
+    "mode": "argument",
+    "visibleCharacters": 178,
+    "documentHeight": 1231,
+    "examinationHeight": 324,
+    "laneBottom": 825,
+    "horizontalOverflow": false
+  }
+]

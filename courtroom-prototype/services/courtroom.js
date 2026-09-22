@@ -7,18 +7,19 @@
     let serial = 0, session = 0, state;
     const next = () => d.id + ':runtime:' + (++serial);
     function reset() {
-      state = { session: ++session, phase: 'plan', theoryId: null, planId: d.argumentPlans[0].id, selected: [], asked: [], presses: [],
+      state = { session: ++session, phase: 'plan', theoryId: null, planId: d.witnesses[0].planId, selected: [], asked: [], presses: [],
+        witnessId:d.witnesses[0].id, visitedWitnesses:[], endedWitnesses:[], threadId:null, followupGoalId:null,
         records: { evidence: [], procedural: [], advocacy: [] }, pendingQuestion: null, history: [], resolution: null,
         witnessObservation: d.witnesses[0].initialObservation, judgeObservation: '쟁점 중심의 질문을 기다립니다.', lastResponseType: null,
         dialogue: [{ id: next(), speaker: d.profile.roles.factFinder, text: '변호인, 반대신문을 준비하십시오.', kind: 'opening' }] };
       return projection();
     }
-    function line(s, speaker, text, kind) { s.dialogue.push({ id: next(), speaker, text, kind }); }
+    function line(s, speaker, text, kind) { s.dialogue.push({ id: next(), speaker, text, kind, witnessId:s.witnessId }); }
     function recordResponse(s, r, source, basis, provenance = {}) {
-      line(s, d.witnesses[0].name, r.text, 'answer');
+      line(s, E.find(d.witnesses,s.witnessId).name, r.text, 'answer');
       s.lastResponseType = r.type;
       if (r.observation) s.witnessObservation = r.observation;
-      for (const id of r.adds) if (!E.recordIds(s).includes(id)) s.records.evidence.push({ id: next(), propositionId: id, witnessId: d.witnesses[0].id, source, basis: [...basis], responseId: r.id, testimony: r.text, ...provenance });
+      for (const id of r.adds) if (!E.recordIds(s).includes(id)) s.records.evidence.push({ id: next(), propositionId: id, witnessId: s.witnessId, source, basis: [...basis], responseId: r.id, testimony: r.text, ...provenance });
     }
     function commitPosition(s, kind) {
       const argument = E.argument(d, s), p = argument.plan, inference = argument.inference;
@@ -31,6 +32,7 @@
       if (action === 'establish') {
         const goal = E.find(d.goals,payload.id);
         recordResponse(s,E.find(d.responses,goal.response),goal.id,payload.basis); s.asked.push(goal.id);
+        s.followupGoalId=goal.followup||null;
       } else if (action === 'press') {
         const pressure = E.pressure(d,s), r = E.response(d,s), p = E.argument(d,s).plan;
         commitPosition(s,'press'); recordResponse(s,r,p.id,[]);
@@ -49,7 +51,7 @@
       const pending = { id: next(), action, payload: E.copy(payload), text, ruleId: opening.id, stage: 'objection',
         planId: s.planId, inferenceId: argument.inference?.id || null, premises: [...s.selected] };
       s.pendingQuestion = pending;
-      procedural(s,pending.id,'objection',{ ruleId: opening.id, title: opening.title, question: text });
+      procedural(s,pending.id,'objection',{ titleShort: action==='establish'?E.find(d.goals,payload.id).title:E.find(d.argumentPlans,s.planId).title, witnessId:s.witnessId, ruleId: opening.id, title: opening.title, question: text });
       line(s,d.profile.roles.claimant,opening.objection,'objection');
     }
     function respond(s, action, payload) {
@@ -57,7 +59,7 @@
       E.ensure(payload.pendingId === pending.id, '현재 질문에 대한 대응이 아닙니다.');
       E.ensure(options.actions.includes(payload.response), '현재 사용할 수 없는 대응입니다.');
       if (['basis','justify'].includes(payload.response)) P.checkBasis(d,s,payload);
-      const decision = P.rule(d,s,payload.response);
+      const decision = P.rule(d,s,payload.response,payload);
       const linked = ['basis','justify'].includes(payload.response);
       procedural(s,pending.id,'response',{ response: payload.response, basis: linked ? payload.basis.map(({kind,refId}) => ({kind,refId})) : [], issue: linked ? payload.issue : null, inferenceId: linked ? payload.inferenceId : null });
       if (decision.requestAddress) {
@@ -81,10 +83,23 @@
           E.ensure(E.find(d.theories, payload.id), '알 수 없는 전략입니다.');
           E.ensure(s.theoryId !== payload.id, '이미 선택한 전략입니다.');
           s.theoryId = payload.id; s.phase = 'examine';
+          if(!s.visitedWitnesses.includes(s.witnessId)){s.visitedWitnesses.push(s.witnessId);const w=E.find(d.witnesses,s.witnessId);if(w.directResponse)recordResponse(s,E.find(d.responses,w.directResponse),w.id,[],{examination:'direct'});}
+        } else if (action === 'witness') {
+          const w=E.find(d.witnesses,payload.id);E.ensure(w&&w.id!==s.witnessId,'현재 증인이거나 알 수 없는 증인입니다.');
+          s.witnessId=w.id;s.planId=w.planId;s.witnessObservation=w.initialObservation;s.lastResponseType=null;s.selected=[];s.threadId=null;s.followupGoalId=null;s.resolution=null;
+          s.phase=s.endedWitnesses.includes(w.id)?'resolved':'examine';
+          if(!s.visitedWitnesses.includes(w.id)){s.visitedWitnesses.push(w.id);if(w.directResponse)recordResponse(s,E.find(d.responses,w.directResponse),w.id,[],{examination:'direct'});else line(s,d.profile.roles.factFinder,w.name+' 증인, 질문에 답하십시오.','opening');}
+          else line(s,d.profile.roles.factFinder,w.name+' 신문 기록을 확인합니다.','opening');
+          if(s.phase==='resolved')s.resolution={id:next(),...E.resolve(d,s)};
+        } else if (action === 'thread') {
+          const t=E.find(d.threads,payload.id);E.ensure(t&&t.witnessId===s.witnessId,'현재 증인의 질문 방향이 아닙니다.');s.threadId=t.id;s.followupGoalId=null;
+        } else if (action === 'endThread') {
+          s.threadId=null;s.followupGoalId=null;
         } else if (action === 'establish') {
           const goal = E.find(d.goals, payload.id);
           E.ensure(goal && a.goals.some(item => item.id === goal.id && item.available), '이미 확보했거나 알 수 없는 사실입니다.');
           E.ensure(Array.isArray(payload.basis) && payload.basis.length === goal.basis.length && new Set(payload.basis).size === payload.basis.length && goal.basis.every(id => payload.basis.includes(id)), '질문의 증거 근거가 맞지 않습니다.');
+          s.threadId=d.threads.find(t=>t.goals.includes(goal.id)).id;s.followupGoalId=null;
           beginQuestion(s,'establish',payload,goal.question);
         } else if (action === 'select') {
           E.ensure(Array.isArray(payload.ids), '전제 목록이 필요합니다.');
@@ -105,7 +120,7 @@
           const pending = s.pendingQuestion;
           E.ensure(payload.pendingId === pending.id, '현재 허용된 질문이 아닙니다.');
           if (pending.narrowed) {
-            const narrowed = pending.action === 'press' ? d.procedure.narrowedPress : E.find(d.goals,pending.payload.id).procedure.narrowed;
+            const narrowed = pending.action === 'press' ? P.config(d,s).narrowedPress : E.find(d.goals,pending.payload.id).procedure.narrowed;
             line(s,d.profile.roles.respondent,narrowed.question,'question');
             const response = typeof narrowed.response === 'string' ? E.find(d.responses,narrowed.response) : { id: pending.ruleId, ...narrowed.response };
             recordResponse(s,response,pending.id,[],{ proceduralQuestionId: pending.id });
@@ -115,7 +130,7 @@
           commitPosition(s, 'argument');
           line(s, d.profile.roles.respondent, E.argument(d, s).inference.text, 'argument');
         } else if (action === 'stop') {
-          s.resolution = { id: next(), ...E.resolve(d, s) }; s.phase = 'resolved';
+          s.resolution = { id: next(), ...E.resolve(d, s) }; s.phase = 'resolved'; s.endedWitnesses.push(s.witnessId);s.threadId=null;s.followupGoalId=null;
           line(s, d.profile.roles.factFinder, '신문을 마칩니다. 남은 기록을 확인하겠습니다.', 'closing');
         }
         s.history.push({ id: next(), action, payload: E.copy(payload) });
@@ -127,7 +142,7 @@
     function projection(source = state) {
       const s = E.copy(source), theory = E.find(d.theories, s.theoryId), plan = E.find(d.argumentPlans, s.planId);
       return { state: s, case: E.copy(d), availability: E.availability(d, s), argument: E.copy(E.argument(d, s)),
-        pressure: E.pressure(d, s), procedure: E.copy(P.options(d,s)), assessment: E.copy(E.evaluateRecord(d, s.records, s.theoryId)),
+        pressure: E.pressure(d, s), procedure: E.copy(P.options(d,s)), assessment: E.copy(E.evaluateRecord(d, s.records, s.theoryId,s.planId)), assessments:d.argumentPlans.map(p=>E.evaluateRecord(d,s.records,s.theoryId,p.id)), witness:E.copy(E.find(d.witnesses,s.witnessId)), threads:E.copy(d.threads.filter(t=>t.witnessId===s.witnessId)),
         strategy: theory ? { ...E.copy(theory), preferred: theory.preferredPlans.includes(plan.id),
           potentialConflict: s.records.advocacy.filter(r => r.kind === 'major_commitment').some(c => c.theoryId !== theory.id && !theory.contestedIssues.includes(c.issue)) } : null };
     }

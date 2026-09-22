@@ -5,7 +5,7 @@ const D = require('../data/case');
 const E = require('../engine/core');
 const { createService } = require('../services/courtroom');
 const fresh = (d = D) => { const s = createService(d); ok(s, 'strategy', { id: d.theories[0].id }); return s; };
-const standardGoalIds = D.goals.filter(g => g.informationType !== 'mixed').map(g => g.id);
+const standardGoalIds = D.goals.filter(g => g.witnessId === D.witnesses[0].id && g.informationType !== 'mixed').map(g => g.id);
 function ok(s, action, payload) { const result = require('./settle-procedure')(s,s.command(action, payload)); assert.equal(result.ok, true, result.error); return result.view; }
 function establish(s, ids = standardGoalIds, d = D) { ids.forEach(id => { const g = d.goals.find(g => g.id === id); ok(s, 'establish', { id, basis: g.basis }); }); }
 function select(s, ids) { ok(s, 'select', { ids }); }
@@ -73,5 +73,5 @@ test('civil architecture smoke: all IDs and content replaced without engine edit
   function remap(v) { if (Array.isArray(v)) return v.map(remap); if (v && typeof v === 'object') return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, remap(x)])); if (typeof v === 'string' && /^[A-Z][A-Z0-9_]+$/.test(v) && !E.types.includes(v)) { if (!map.has(v)) map.set(v, 'CIVIL_' + (++count)); return map.get(v); } return v; }
   const civil = remap(d); civil.title = 'Test-only contract dispute'; civil.profile.roles.claimant = 'Plaintiff'; civil.profile.roles.respondent = 'Defendant';
   civil.issues[0].title = 'Breach'; civil.issues[1].title = 'Damages'; civil.propositions[0].text = 'Contract Exists'; civil.propositions[1].text = 'Breach'; civil.propositions[2].text = 'Damages';
-  const s = fresh(civil); establish(s, civil.goals.map(g => g.id), civil); select(s, civil.argumentPlans[0].premises); ok(s, 'frame'); const v = ok(s, 'stop'); assert.equal(v.state.resolution.type, 'adjudicated'); assert.equal(v.case.profile.roles.claimant, 'Plaintiff');
+  const s = fresh(civil); establish(s, civil.goals.filter(g=>g.witnessId===civil.witnesses[0].id).map(g => g.id), civil); select(s, civil.argumentPlans[0].premises); ok(s, 'frame'); const v = ok(s, 'stop'); assert.equal(v.state.resolution.type, 'adjudicated'); assert.equal(v.case.profile.roles.claimant, 'Plaintiff');
 });

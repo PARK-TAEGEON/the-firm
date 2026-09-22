@@ -14,15 +14,20 @@
       ensure(Array.isArray(d[key]), 'Missing collection: ' + key);
       for (const item of d[key]) { ensure(typeof item.id === 'string' && item.id && !ids.has(item.id), 'Duplicate or invalid ID'); ids.add(item.id); }
     }
-    ensure(d.witnesses.length === 1, 'This slice requires one witness');
+    ensure(d.witnesses.length > 0, 'Missing witness');
     ensure(d.profile.resolutionTypes.includes('adjudicated'), 'Missing adjudicated resolution');
     ensure(['plan', 'examine', 'resolved'].every(k => d.profile.phases[k]), 'Missing phase');
     ensure(['claimant', 'respondent', 'factFinder'].every(k => d.profile.roles[k]), 'Missing role');
     ensure(['establish', 'select', 'press', 'frame', 'stop', 'strategy'].every(k => d.profile.actions.includes(k)), 'Missing action');
     ensure(!d.counterResponses.length || d.profile.actions.includes('counter'), 'Missing counter action');
     const ref = (key, id) => ensure(find(d[key], id), 'Unknown ' + key + ' reference: ' + id);
+    d.witnesses.forEach(w => { ref('argumentPlans',w.planId); ensure(find(d.argumentPlans,w.planId).witnessId===w.id,'Witness/plan mismatch'); if(w.directResponse)ref('responses',w.directResponse); w.evidenceIds.forEach(id=>ref('evidence',id)); });
+    ensure(Array.isArray(d.threads),'Missing threads');
+    d.threads.forEach(t=>{ensure(t.id&&!ids.has(t.id),'Duplicate thread ID');ids.add(t.id);ref('witnesses',t.witnessId);ensure(t.goals.length&&new Set(t.goals).size===t.goals.length,'Invalid thread goals');t.goals.forEach(id=>{ref('goals',id);ensure(find(d.goals,id).witnessId===t.witnessId,'Foreign thread goal');});});
+    d.goals.forEach(g=>{ref('witnesses',g.witnessId);ensure(d.threads.filter(t=>t.goals.includes(g.id)).length===1,'Goal must have one thread');if(g.followup){ref('goals',g.followup);ensure(d.threads.some(t=>t.goals.includes(g.id)&&t.goals.includes(g.followup)),'Foreign follow-up');}});
     ensure(d.caseProfile && ['factualComplexity', 'legalComplexity', 'proceduralComplexity', 'adversarialIntensity'].every(key => typeof d.caseProfile[key] === 'string' && d.caseProfile[key]), 'Invalid case profile');
     d.propositions.forEach(p => {
+      ref('argumentPlans',p.planId);
       ensure(Array.isArray(p.tags) && new Set(p.tags).size === p.tags.length && p.tags.every(t => typeof t === 'string'), 'Invalid tags');
       if (p.side === 'counter') ensure(['contestable', 'hard'].includes(p.counterType) && typeof p.counterNote === 'string' && p.counterNote, 'Invalid counter metadata');
       if (p.qualifies) { ref('propositions', p.qualifies); ensure(find(d.propositions, p.qualifies).side === 'counter', 'Qualification must target counter'); }
@@ -44,9 +49,9 @@
     }
     ensure(d.argumentPlans.length > 0 && d.theories.length > 0, 'Missing plan or strategy');
     d.argumentPlans.forEach(p => {
-      ref('issues', p.issue);
+      ref('issues', p.issue); ref('witnesses',p.witnessId);
       ensure(Number.isInteger(p.min) && Number.isInteger(p.max) && p.min >= 2 && p.max <= 4 && p.min <= p.max && new Set(p.premises).size === p.premises.length, 'Invalid premise bounds');
-      p.premises.forEach(id => { ref('propositions', id); ensure(obtainable.has(id), 'Unreachable premise'); });
+      p.premises.forEach(id => { ref('propositions', id); ensure(obtainable.has(id), 'Unreachable premise'); ensure(find(d.propositions,id).planId===p.id,'Foreign premise'); });
       ensure(p.premises.length >= p.min, 'Unreachable plan');
       ensure(Array.isArray(p.inferenceVariants) && p.inferenceVariants.length > 0, 'Missing inference variants');
       const signatures = new Set();
@@ -60,12 +65,17 @@
       ensure(p.responseRules.length && Object.keys(p.responseRules.at(-1).when).length === 0, 'Missing response fallback');
       p.responseRules.forEach(r => { condition(r.when); ref('responses', r.response); });
     });
-    d.counterResponses.forEach(c => { ref('propositions', c.target); ref('responses', c.response); ensure(find(d.propositions, c.target).side === 'counter', 'Response target must be a counter'); c.requires.forEach(id => { ref('propositions', id); ensure(obtainable.has(id), 'Unreachable counter basis'); }); ensure(c.requires.length > 0 && new Set(c.requires).size === c.requires.length, 'Invalid counter basis'); ensure(find(d.responses, c.response).adds.some(id => find(d.propositions, id).qualifies === c.target), 'Missing linked qualification'); ensure(d.responses.some(r => r.adds.includes(c.target) && d.argumentPlans.some(p => p.responseRules.some(rule => rule.response === r.id))), 'Unreachable counter'); });
+    d.counterResponses.forEach(c => { ref('witnesses',c.witnessId); ensure(find(d.propositions,c.target)?.planId===find(d.witnesses,c.witnessId).planId,'Foreign counter route'); ref('propositions', c.target); ref('responses', c.response); ensure(find(d.propositions, c.target).side === 'counter', 'Response target must be a counter'); c.requires.forEach(id => { ref('propositions', id); ensure(obtainable.has(id), 'Unreachable counter basis'); }); ensure(c.requires.length > 0 && new Set(c.requires).size === c.requires.length, 'Invalid counter basis'); ensure(find(d.responses, c.response).adds.some(id => find(d.propositions, id).qualifies === c.target), 'Missing linked qualification'); ensure(d.responses.some(r => r.adds.includes(c.target) && d.argumentPlans.some(p => p.responseRules.some(rule => rule.response === r.id))), 'Unreachable counter'); });
     d.propositions.filter(p => p.counterType === 'hard').forEach(p => ensure(!d.counterResponses.some(c => c.target === p.id), 'Hard counter cannot have an immediate response route'));
     d.theories.forEach(t => { t.contestedIssues.forEach(id => ref('issues', id)); t.preferredPlans.forEach(id => ref('argumentPlans', id)); t.conflictTags.forEach(tag => ensure(tags.has(tag), 'Unknown conflict tag')); });
     ensure(d.resolutionRules.length && Object.keys(d.resolutionRules.at(-1).when).length === 0, 'Missing resolution fallback');
     ensure(new Set(d.resolutionRules.map(r => r.code)).size === d.resolutionRules.length, 'Duplicate resolution code');
     d.resolutionRules.forEach(r => condition(r.when, true));
+    d.argumentPlans.forEach(p=>{if(p.resolutionRules){ensure(p.resolutionRules.length&&Object.keys(p.resolutionRules.at(-1).when).length===0,'Missing plan resolution fallback');ensure(new Set(p.resolutionRules.map(r=>r.code)).size===p.resolutionRules.length,'Duplicate plan resolution code');p.resolutionRules.forEach(r=>condition(r.when,true));}
+      const responseIds=[...d.goals.filter(g=>g.witnessId===p.witnessId).map(g=>g.response),...p.responseRules.map(r=>r.response),...d.counterResponses.filter(c=>c.witnessId===p.witnessId).map(c=>c.response)];
+      const w=find(d.witnesses,p.witnessId);if(w.directResponse)responseIds.push(w.directResponse);
+      responseIds.forEach(id=>find(d.responses,id).adds.forEach(prop=>ensure(find(d.propositions,prop).planId===p.id,'Foreign response proposition')));
+    });
     return true;
   }
   const recordIds = s => s.records.evidence.map(r => r.propositionId);
@@ -83,7 +93,7 @@
       (c.absentTags || []).every(t => !recorded[t]) && has(recorded, c.recordTags) && has(selected, c.selectedTags);
   }
   function pressure(d, s) {
-    const target = d.witnesses[0].id;
+    const target = find(d.argumentPlans,s.planId).witnessId;
     const signature = JSON.stringify([s.planId, target, [...s.selected].sort()]);
     const prior = s.presses.filter(p => p.planId === s.planId && p.target === target);
     const repeated = prior.some(p => s.selected.every(id => p.premises.includes(id)));
@@ -92,7 +102,7 @@
   }
   function counterOptions(d, s) {
     const ids = recordIds(s);
-    return d.counterResponses.map(c => ({ id: c.id, target: c.target, visible: ids.includes(c.target),
+    return d.counterResponses.filter(c=>c.witnessId===find(d.argumentPlans,s.planId).witnessId).map(c => ({ id: c.id, target: c.target, visible: ids.includes(c.target),
       available: s.phase === 'examine' && !s.pendingQuestion && ids.includes(c.target) && c.requires.every(id => ids.includes(id)) && !find(d.responses, c.response).adds.every(id => ids.includes(id)),
       completed: find(d.responses, c.response).adds.every(id => ids.includes(id)), missing: c.requires.filter(id => !ids.includes(id)) }));
   }
@@ -108,14 +118,17 @@
     const active = s.phase === 'examine' && !s.pendingQuestion, a = argument(d, s);
     const duplicateFrame = s.records.advocacy.some(r => r.kind === 'argument' && r.planId === s.planId && r.theoryId === s.theoryId && r.inferenceId === a.inference?.id);
     return { establish: active, select: active, strategy: s.phase !== 'resolved' && !s.pendingQuestion, press: active && a.valid, frame: active && a.valid && !duplicateFrame, stop: active, counter: active && counterOptions(d, s).some(c => c.available), counters: counterOptions(d, s),
+      witness: s.phase !== 'plan' && !s.pendingQuestion, thread: active, endThread: active && !!s.threadId,
       respond: s.pendingQuestion?.stage === 'objection', address: s.pendingQuestion?.stage === 'address', answer: s.pendingQuestion?.stage === 'answer',
-      goals: d.goals.map(g => ({ id: g.id, available: active && !s.asked.includes(g.id) && find(d.responses, g.response).adds.some(id => !recordIds(s).includes(id)) })),
+      goals: d.goals.filter(g=>g.witnessId===a.plan.witnessId).map(g => ({ id: g.id, available: active && !s.asked.includes(g.id) && find(d.responses, g.response).adds.some(id => !recordIds(s).includes(id)) })),
       premises: d.propositions.map(p => ({ id: p.id, available: active && recordIds(s).includes(p.id) && a.plan.premises.includes(p.id) && (s.selected.includes(p.id) || s.selected.length < a.plan.max) })) };
   }
-  function response(d, s) { const p = argument(d, s).plan, ids = recordIds(s); const context = { ids, recorded: tagCounts(d, ids), selected: tagCounts(d, s.selected), repeated: pressure(d, s).kind === 'repeated' }; return find(d.responses, p.responseRules.find(r => matches(context, r.when)).response); }
-  // This entry point accepts only a court record snapshot and a theory identifier.
+  function response(d, s) { const p = argument(d, s).plan, ids = recordIds(s).filter(id=>find(d.propositions,id).planId===p.id); const context = { ids, recorded: tagCounts(d, ids), selected: tagCounts(d, s.selected), repeated: pressure(d, s).kind === 'repeated' }; return find(d.responses, p.responseRules.find(r => matches(context, r.when)).response); }
+  // This entry point evaluates a record snapshot within an explicit authored plan scope.
   // Lane selections, questions and transient press history cannot affect evaluation.
-  function evaluateRecord(d, records, theoryId) {
+  function evaluateRecord(d, records, theoryId, planId = d.argumentPlans[0].id) {
+    const contextPlan=find(d.argumentPlans,planId); ensure(contextPlan,'Unknown evaluation plan');
+    records={...records,evidence:records.evidence.filter(r=>find(d.propositions,r.propositionId)?.planId===planId),advocacy:records.advocacy.filter(r=>r.planId===planId||r.kind==='major_commitment')};
     const ids = records.evidence.map(r => r.propositionId), theory = find(d.theories, theoryId);
     const qualified = records.evidence.filter(r => {
       const p = find(d.propositions, r.propositionId), target = records.evidence.find(e => e.id === r.qualifiesRecordId);
@@ -138,7 +151,7 @@
       status: activeCounters.length ? 'contested' : 'supported', reusable: true }; });
     const admissionRefs = records.evidence.filter(r => find(d.propositions, r.propositionId).tags.includes('concession')).map(r => r.id);
     const conflicts = counters.filter(r => find(d.propositions, r.propositionId).tags.some(t => theory?.conflictTags.includes(t))).map(r => ({ recordId: r.id, propositionId: r.propositionId, qualified: qualified.includes(r.id) }));
-    const scope = d.argumentPlans[0].issue;
+    const scope = contextPlan.issue;
     const developed = framedArguments.some(a => a.value !== 'peripheral') || (admissionRefs.length > 0 && theory?.contestedIssues.includes(scope));
     const argumentFrames = records.advocacy.filter(r => r.kind === 'argument');
     const majorCommitments = records.advocacy.filter(r => r.kind === 'major_commitment');
@@ -150,12 +163,12 @@
       positionStatus: commitmentReviewRefs.length ? 'review_required' : majorCommitments.length ? 'committed' : 'no_major_commitment' };
     const rank = value => inferenceStrengths.indexOf(value);
     const frameStrength = framedArguments.reduce((best, item) => rank(item.strength) > rank(best) ? item.strength : best, null);
-    const rule = d.resolutionRules.find(r => matches({ ids, recorded: counts, frameStrength }, r.when));
+    const rule = (contextPlan.resolutionRules || d.resolutionRules).find(r => matches({ ids, recorded: counts, frameStrength }, r.when));
     return { type: 'adjudicated', scope, code: rule.code, title: rule.title, text: rule.text,
       evidenceRefs: records.evidence.map(r => r.id), advocacyRefs: records.advocacy.map(r => r.id), admissionRefs,
       activeCounterRefs: activeCounters.map(r => r.id), qualifiedCounterRefs: qualified, framedArguments, strategy, limitation: d.resolutionNotice };
   }
-  const resolve = (d, s) => evaluateRecord(d, s.records, s.theoryId);
+  const resolve = (d, s) => evaluateRecord(d, s.records, s.theoryId, find(d.witnesses,s.witnessId)?.planId);
   const api = { copy, find, ensure, validate, recordIds, argument, availability, pressure, response, evaluateRecord, resolve, types, inferenceStrengths };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.FirmEngine = api;
 })(globalThis);

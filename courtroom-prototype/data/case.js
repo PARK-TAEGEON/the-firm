@@ -95,6 +95,97 @@
       { when: {}, code: 'INSUFFICIENT', title: '식별 판단 자료가 부족합니다', text: '확보된 기록만으로는 이 쟁점의 판단을 닫기 어렵습니다. 상대 주장을 인정한 것은 아닙니다.' }
     ]
   };
+  // Explicit ownership lets the same engine examine two patterns in one case.
+  const d = caseDefinition;
+  d.profile.actions.push('witness','thread','endThread');
+  d.witnesses[0].planId = 'PLAN_IDENTIFICATION';
+  d.witnesses[0].role = '목격자';
+  d.witnesses[0].evidenceIds = ['E_INITIAL_STATEMENT'];
+  d.argumentPlans[0].witnessId = 'WITNESS_SJH';
+  d.goals.forEach(g => { g.witnessId = 'WITNESS_SJH'; });
+  d.propositions.forEach(p => { p.planId = 'PLAN_IDENTIFICATION'; });
+  d.counterResponses.forEach(c => { c.witnessId = 'WITNESS_SJH'; });
+  d.propositions.find(p=>p.id==='P_FAMILIARITY').qualificationText = '친분과 당시 식별의 확신은 구분됨.';
+  d.goals.find(g=>g.id==='G_LIGHTING').followup = 'G_LIGHT_SOURCE';
+  d.goals.find(g=>g.id==='G_LIGHT_SOURCE').followupLabel = '광원까지 확인';
+  d.goals.find(g=>g.id==='G_LIGHT_SOURCE').procedure.justification = '최초 진술의 조명 설명을 확인하려는 질문입니다.';
+  d.threads = [
+    { id:'THREAD_OBSERVATION', witnessId:'WITNESS_SJH', title:'관찰 조건', goals:['G_DISTANCE','G_DURATION','G_LIGHTING','G_LIGHT_SOURCE'] },
+    { id:'THREAD_STATEMENT', witnessId:'WITNESS_SJH', title:'진술 변화', goals:['G_INITIAL'] },
+    { id:'THREAD_ANALYSIS', witnessId:'WITNESS_HSY', title:'감식 한계', goals:['G_PRINT_TIME','G_PRINT_SCOPE'] },
+    { id:'THREAD_ACCESS', witnessId:'WITNESS_HSY', title:'접촉 경위', goals:['G_SHARED_KNIFE','G_PRIOR_USE'] }
+  ];
+  d.procedure.messages = { connected:'기록된 관찰 조건과 연결된 질문으로 허용합니다.', limited:'식별 결론 대신 관찰 조건에 한정하십시오.' };
+  d.witnesses.push({ id:'WITNESS_HSY', name:'한서윤', role:'감식 담당 수사관', planId:'PLAN_CONTACT_USE', initialObservation:'감식 보고서를 펴고 질문을 기다립니다.', directResponse:'R_FORENSIC_DIRECT', evidenceIds:['E_FORENSIC_REPORT','E_SHARED_INVENTORY','E_PRIOR_USE_STATEMENT'] });
+  d.issues.push({ id:'COMMISSION', title:'범행 당시 사용', question:'지문이 사건 당시 칼을 사용했다는 연결까지 뒷받침하는가?' });
+  d.theories[0].contestedIssues.push('COMMISSION'); d.theories[0].preferredPlans.push('PLAN_CONTACT_USE');
+  d.evidence.push(
+    { id:'E_FORENSIC_REPORT', title:'감식 보고서', text:'손잡이의 지문은 김도윤의 지문과 일치하고 칼날 혈액은 피해자의 혈액과 일치한다. 지문 생성 시점이나 두 흔적의 선후관계는 특정하지 않았다.' },
+    { id:'E_SHARED_INVENTORY', title:'공용 비품 기록', text:'문제의 칼은 직원 휴게실 공동 비품으로 기재되어 있다. 개인별 사용 시각은 관리하지 않았다.' },
+    { id:'E_PRIOR_USE_STATEMENT', title:'이전 사용 진술', text:'김도윤은 사건 이전 휴게실에서 과일을 깎을 때 이 칼을 사용한 적이 있다고 진술했다. 이 진술만으로 실제 접촉 시각이 확정되지는 않는다.' }
+  );
+  d.propositions.push(
+    {id:'P_FINGERPRINT_PRESENT',short:'손잡이의 피고인 지문',text:'칼 손잡이에서 김도윤의 지문이 검출되었다.',tags:['contact_finding'],side:'prosecution'},
+    {id:'P_VICTIM_BLOOD',short:'칼날의 피해자 혈액',text:'칼날에서 피해자의 혈액이 검출되었다.',tags:['blood_finding'],side:'prosecution'},
+    {id:'P_PRINT_TIME_UNKNOWN',short:'지문 시점 불명',text:'해당 지문이 언제 남았는지는 특정할 수 없다.',tags:['timing'],side:'support'},
+    {id:'P_SHARED_KNIFE',short:'공용 비품',text:'칼은 직원들이 공동 사용하는 휴게실 비품이었다.',tags:['shared'],side:'support'},
+    {id:'P_PRIOR_USE_POSSIBLE',short:'이전 사용 기회',text:'피고인이 사건 이전에 해당 칼을 사용할 기회가 있었다.',tags:['prior_access'],side:'support'},
+    {id:'P_PRINT_ONLY_CONTACT',short:'접촉까지 확인',text:'지문은 접촉 사실을 보여주지만 접촉 시점을 직접 특정하지 않는다.',tags:['analysis_scope'],side:'support'},
+    {id:'P_USE_TIME_LIMIT',short:'범행 당시 사용 연결의 한계',text:'증인은 지문만으로 사건 당시 피고인이 칼을 사용했다고 연결할 수 없음을 인정했다.',tags:['concession'],side:'support'}
+  );
+  d.propositions.filter(p=>!p.planId).forEach(p=>{p.planId='PLAN_CONTACT_USE';});
+  d.responses.push(
+    {id:'R_FORENSIC_DIRECT',type:'EXPLAIN',text:'범행에 사용된 것으로 추정되는 칼에서 피해자의 혈액과 피고인의 지문이 검출되었습니다.',adds:['P_FINGERPRINT_PRESENT','P_VICTIM_BLOOD']},
+    {id:'R_PRINT_TIME',type:'ADMIT',text:'아닙니다. 지문의 생성 시점까지는 특정할 수 없습니다.',adds:['P_PRINT_TIME_UNKNOWN']},
+    {id:'R_SHARED_KNIFE',type:'ADMIT',text:'현장 확인과 비품 기록상 직원 휴게실에서 함께 쓰던 칼입니다.',adds:['P_SHARED_KNIFE']},
+    {id:'R_PRIOR_USE',type:'ADMIT',text:'네. 근무 중 이용할 수 있었습니다. 다만 실제로 언제 썼는지까지 확인한 것은 아닙니다.',adds:['P_PRIOR_USE_POSSIBLE']},
+    {id:'R_PRINT_SCOPE',type:'ADMIT',text:'접촉했다는 점은 확인됩니다. 지문만으로 접촉 시각이나 당시 행동까지 알 수는 없습니다.',adds:['P_PRINT_ONLY_CONTACT']},
+    {id:'R_USE_TIME_CONCEDE',type:'ADMIT',text:'네. 이전 접촉 가능성도 있으므로 지문만으로 범행 당시 이 칼을 사용했다고 연결할 수는 없습니다. 혈액과 지문 검출 사실은 그대로입니다.',adds:['P_USE_TIME_LIMIT']},
+    {id:'R_USE_TIME_EXPLAIN',type:'EXPLAIN',text:'시점은 특정하지 못합니다. 그렇지만 피고인이 칼에 접촉했다는 감식 결과까지 없어지는 것은 아닙니다.',adds:[]},
+    {id:'R_USE_TIME_RESIST',type:'RESIST',text:'감식 결과와 그 해석의 한계를 이미 말씀드렸습니다.',adds:[]}
+  );
+  d.goals.push(
+    {id:'G_PRINT_TIME',witnessId:'WITNESS_HSY',title:'생성 시점을 묻는다',informationType:'favorable',question:'이 지문이 언제 남았는지는 확인할 수 있습니까?',basis:['E_FORENSIC_REPORT'],response:'R_PRINT_TIME'},
+    {id:'G_PRINT_SCOPE',witnessId:'WITNESS_HSY',title:'해석 범위를 확인',informationType:'favorable',question:'지문으로 확인되는 것은 접촉 사실이지, 접촉 시각이나 행동까지는 아니지요?',basis:['E_FORENSIC_REPORT'],response:'R_PRINT_SCOPE'},
+    {id:'G_SHARED_KNIFE',witnessId:'WITNESS_HSY',title:'누가 쓰던 칼인가',informationType:'favorable',question:'이 칼은 직원들이 공동 사용하는 휴게실 비품이었습니까?',basis:['E_SHARED_INVENTORY'],response:'R_SHARED_KNIFE'},
+    {id:'G_PRIOR_USE',witnessId:'WITNESS_HSY',title:'이전 사용 기회를 묻는다',informationType:'favorable',question:'김도윤도 사건 이전 근무 중 이 칼을 사용할 기회가 있었습니까?',basis:['E_PRIOR_USE_STATEMENT'],response:'R_PRIOR_USE'}
+  );
+  d.argumentPlans.push({id:'PLAN_CONTACT_USE',witnessId:'WITNESS_HSY',issue:'COMMISSION',title:'접촉과 범행 당시 사용의 구분',goal:'감식 결과가 말할 수 있는 범위 확인',min:2,max:4,
+    premises:['P_PRINT_TIME_UNKNOWN','P_SHARED_KNIFE','P_PRIOR_USE_POSSIBLE','P_PRINT_ONLY_CONTACT'],
+    question:'그렇다면 이 지문만으로 사건 당시 피고인이 이 칼을 사용했다고 말할 수는 없는 거죠?',
+    inferenceVariants:[
+      {id:'INF_PRINT_TIME_SHARED',premises:['P_PRINT_TIME_UNKNOWN','P_SHARED_KNIFE'],strength:'limited',title:'생성 시점 특정의 한계',text:'공용 칼의 지문이 범행 당시 생성되었다고 특정할 수 없다.'},
+      {id:'INF_PRINT_TIME_PRIOR',premises:['P_PRINT_TIME_UNKNOWN','P_PRIOR_USE_POSSIBLE'],strength:'strong',title:'이전 접촉 가능성',text:'지문 시점을 알 수 없고 이전 사용 기회가 있어 사건 이전의 정상 접촉을 배제할 수 없다.'},
+      {id:'INF_PRINT_TIME_SCOPE',premises:['P_PRINT_TIME_UNKNOWN','P_PRINT_ONLY_CONTACT'],strength:'limited',title:'접촉 시점을 말하지 않는 감식',text:'감식은 접촉 사실을 확인했지만 언제 접촉했는지는 확인하지 못했다.'},
+      {id:'INF_PRINT_SHARED_PRIOR',premises:['P_SHARED_KNIFE','P_PRIOR_USE_POSSIBLE'],strength:'limited',title:'통상적 접근 기회',text:'공용 비품을 사용할 기회가 있었다. 이 두 사실만으로 지문이 남은 시점은 알 수 없다.'},
+      {id:'INF_PRINT_SHARED_SCOPE',premises:['P_SHARED_KNIFE','P_PRINT_ONLY_CONTACT'],strength:'limited',title:'공용 물품과 접촉 흔적',text:'공용 물품의 접촉 흔적만으로 당시 행동을 직접 확인할 수는 없다.'},
+      {id:'INF_PRINT_PRIOR_SCOPE',premises:['P_PRIOR_USE_POSSIBLE','P_PRINT_ONLY_CONTACT'],strength:'strong',title:'접촉의 다른 경위',text:'감식의 접촉 확인과 사건 이전 사용 기회는 함께 고려되어야 한다.'},
+      {id:'INF_PRINT_TIME_SHARED_PRIOR',premises:['P_PRINT_TIME_UNKNOWN','P_SHARED_KNIFE','P_PRIOR_USE_POSSIBLE'],strength:'compelling',title:'범행 당시 사용으로 연결되지 않는 지문',text:'생성 시점이 불명인 공용 칼의 지문과 이전 사용 기회를 함께 보면 지문만으로 범행 당시 사용을 연결하기 어렵다.'},
+      {id:'INF_PRINT_TIME_SHARED_SCOPE',premises:['P_PRINT_TIME_UNKNOWN','P_SHARED_KNIFE','P_PRINT_ONLY_CONTACT'],strength:'strong',title:'공용 칼 감식의 시간적 한계',text:'공용 칼의 지문은 접촉을 보여주지만 범행 시각의 사용까지 특정하지 못한다.'},
+      {id:'INF_PRINT_TIME_PRIOR_SCOPE',premises:['P_PRINT_TIME_UNKNOWN','P_PRIOR_USE_POSSIBLE','P_PRINT_ONLY_CONTACT'],strength:'compelling',title:'이전 접촉을 배제하지 못하는 감식',text:'감식의 시간적 한계와 구체적인 이전 사용 기회를 연결하면 정상 접촉 가능성을 배제할 수 없다.'},
+      {id:'INF_PRINT_SHARED_PRIOR_SCOPE',premises:['P_SHARED_KNIFE','P_PRIOR_USE_POSSIBLE','P_PRINT_ONLY_CONTACT'],strength:'strong',title:'접촉 흔적의 제한된 의미',text:'공용 비품에 대한 이전 접근 가능성이 있어 접촉 흔적을 범행 행동과 동일시할 수 없다.'},
+      {id:'INF_PRINT_ALL',premises:['P_PRINT_TIME_UNKNOWN','P_SHARED_KNIFE','P_PRIOR_USE_POSSIBLE','P_PRINT_ONLY_CONTACT'],strength:'compelling',title:'접촉과 범행 사용의 구분',text:'지문 검출 사실은 유지되지만 시간적 한계와 이전 정상 접촉 가능성 때문에 범행 당시 사용으로의 연결에는 공백이 남는다.'}
+    ],
+    responseRules:[{when:{repeated:true},response:'R_USE_TIME_RESIST'},{when:{selectedTags:{timing:1,prior_access:1,shared:1}},response:'R_USE_TIME_CONCEDE'},{when:{selectedTags:{timing:1,prior_access:1,analysis_scope:1}},response:'R_USE_TIME_CONCEDE'},{when:{},response:'R_USE_TIME_EXPLAIN'}],
+    procedure:{
+      messages:{connected:'감식의 해석 범위를 확인하는 질문으로 허용합니다.',limited:'접촉 시점의 한계까지만 확인하십시오.'},
+      narrowedPress:{question:'감식으로 지문 생성 시점은 특정하지 못했다는 뜻이지요?',response:{type:'ADMIT',text:'네. 생성 시점은 특정하지 못했습니다. 그 이상의 결론에는 답하지 않겠습니다.',adds:[]}},
+      basisChoice:{inferenceIds:['INF_PRINT_TIME_SHARED'],min:1,max:2,requiredCoverage:['analysis'],candidates:[
+        {kind:'evidence',sourceId:'E_FORENSIC_REPORT',coverage:['analysis']},
+        {kind:'evidence',sourceId:'E_SHARED_INVENTORY',coverage:['access']},
+        {kind:'record',sourceId:'P_PRINT_TIME_UNKNOWN',coverage:['analysis']},
+        {kind:'evidence',sourceId:'E_PRIOR_USE_STATEMENT',coverage:['access']}
+      ]}
+    },
+    resolutionRules:[
+      {when:{recordTags:{concession:1}},code:'USE_LIMIT_ADMITTED',title:'범행 당시 사용 연결의 한계를 인정받았습니다',text:'접촉 사실은 남지만 그 시점과 행동까지 연결할 수 없다는 증언을 확보했습니다.'},
+      {when:{frameStrength:'compelling'},code:'USE_LINK_WEAKENED',title:'접촉과 범행 사용을 구분하는 논점을 남겼습니다',text:'지문 검출을 부정하지 않고 이전 접촉 가능성과 시간적 한계를 함께 연결했습니다.'},
+      {when:{frameStrength:'strong'},code:'PRIOR_CONTACT_ARGUMENT',title:'이전 접촉 가능성을 논점으로 남겼습니다',text:'정상적인 이전 접촉을 배제할 수 없다는 논증입니다. 실제 접촉 시점을 확정하지는 않습니다.'},
+      {when:{frameStrength:'limited'},code:'LIMITED_USE_ARGUMENT',title:'감식 해석에 제한적인 논점을 남겼습니다',text:'감식의 일부 한계를 기록했지만 범행 당시 사용 전체를 부정한 것은 아닙니다.'},
+      {when:{any:[{recordTags:{timing:1}},{recordTags:{analysis_scope:1}},{recordTags:{shared:1}},{recordTags:{prior_access:1}}]},code:'ANALYSIS_FACTS',title:'감식과 접촉 경위의 사실을 남겼습니다',text:'확보한 사실만 보존했습니다. 논증이나 증인의 결론 인정은 별도입니다.'},
+      {when:{},code:'FORENSIC_UNCHALLENGED',title:'검출 결과에 관한 기본 증언이 남았습니다',text:'피해자 혈액과 피고인 지문이 검출되었다는 증언입니다. 이 결과만으로 사건의 유무죄를 판정하지 않습니다.'}
+    ]
+  });
   if (typeof module !== 'undefined' && module.exports) module.exports = caseDefinition;
   else root.FirmCase = caseDefinition;
 })(globalThis);

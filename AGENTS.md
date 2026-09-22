@@ -108,3 +108,8 @@ Task Contract와 Accepted design document가 충돌하면 구현을 멈추고 �
 - no next-stage work started
 
 Reviewer PASS 전에는 다음 VS task로 진행하지 않는다.
+
+## Courtroom web prototype
+
+- `courtroom-prototype/` 작업 전 repository root의 `DESIGN.md`와 해당 active Task Contract를 읽는다.
+- `DESIGN.md`는 별도 웹 프로토타입의 기준이며 Godot Accepted litigation design을 대체하지 않는다. 새 요청의 변경점만 적용하고 문서도 함께 갱신한다.

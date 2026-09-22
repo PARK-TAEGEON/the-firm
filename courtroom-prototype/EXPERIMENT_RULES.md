@@ -1,13 +1,13 @@
-# Courtroom Core v0.5 — 사건 전용 시연 규칙
+# Courtroom Core v0.6 — 사건 전용 시연 규칙
 
-이 규칙은 B동 창고 목격자 반대신문 실험만을 위한 authored data다. 실제 법률 판단이나 정식 THE FIRM 설계를 자동으로 변경하지 않는다.
+이 규칙은 B동 창고의 두 증인 반대신문 실험만을 위한 authored data다. 실제 법률 판단이나 정식 THE FIRM 설계를 자동으로 변경하지 않는다.
 
 ## 기록
 
 - 답변과 Proposition을 구분한다. 증언 기록은 객관적 진실 확정이 아니다.
 - 같은 Proposition은 Evidence Record에 한 번만 기록한다.
 - Argument Frame은 Evidence가 아니라 Advocacy Record에 남는다.
-- 최종 평가는 Evidence Record, Advocacy Record, 현재 Theory ID만 읽는다. 선택 상태, 질문 수, Press 횟수, 렌더링 상태는 읽지 않는다.
+- 최종 평가는 Evidence Record, Advocacy Record, 현재 Theory ID와 명시된 authored Plan 범위만 읽는다. 선택 상태, 질문 수, Press 횟수, 렌더링 상태는 읽지 않는다.
 
 ## Inference Variant
 
@@ -69,7 +69,7 @@ Argument Frame과 Press record는 하위 advocacy다. CaseTheory 수준의 Major
 
 ## 미구현
 
-다중 증인/plan, 플레이어 이의제기, 판사 관계·편향, 상대 CaseTheory AI, Closing/Verdict, 협상, 항소, 저장, 실제 민사 플레이, 복잡성 기반 난이도, 범용 법률 추론, Godot 통합.
+세 번째 증인/다중 plan, 플레이어 이의제기, 판사 관계·편향, 상대 CaseTheory AI, Closing/Verdict, 협상, 항소, 저장, 실제 민사 플레이, 복잡성 기반 난이도, 범용 법률 추론, Godot 통합.
 
 ## v0.5 절차: 사건 전용 규칙
 
@@ -86,3 +86,33 @@ Narrow Press는 관찰 조건 확인만 남기며 식별 한계 Admission·새 P
 Pending question은 질문 ID, 기존 행동과 payload, 선택 전제·Inference를 고정한다. 이의/설명/답변 대기 중에는 전략 전환·전제 선택·새 질문·Frame·Stop을 잠근다. 새 질문, response, ruling, 제한·철회·instruction은 절차 기록에 연결된다. 판사 허용은 별도 service transaction이며 증거를 만들지 않는다. 이어지는 answer command만 기존 resolver를 실행한다. UI는 허용 후 answer를 즉시 호출하므로 사용자에게 추가 확인 클릭을 요구하지 않는다.
 
 Sustained / Withdrawn / Limited / Overruled를 지원한다. Reformulated는 별도 상태 없이 Narrow→Limited로 표현한다. Procedural Record는 기록 평가의 증거·논증으로 집계하지 않는다. 실패한 명령은 전체 상태와 ID 할당을 보존한다.
+
+## v0.6: 두 증인, 같은 법정 문법
+
+증인은 서지훈(목격자)과 한서윤(감식 담당 수사관) 두 명이다. 각 Witness는 하나의 Argument Plan, 사건 자료, 질문 Thread를 참조한다. 질문/Counter route는 witnessId, Proposition은 planId로 소유 범위를 명시한다. 이는 한 사건의 두 패턴을 격리하는 최소 범위 지정이며 다중 사건/종합 판결 시스템이 아니다.
+
+한서윤에게 처음 진입하면 작성된 검찰 주신문 답변 `R_FORENSIC_DIRECT`를 한 번 기록한다. 지문 검출과 피해자 혈액은 `examination: direct`, 실제 witnessId, source witness ID를 보존한다. 이후 반대신문으로 시간적 한계와 공용 사용·이전 사용 기회를 확립한다. 검출 사실 자체를 지우거나 범행 시점을 자동 추정하지 않는다.
+
+감식 논증 역시 exact-premise Inference 11개, 기존 responseRules matcher, Frame, Press signature를 사용한다. 시점+공용은 limited, 시점+이전 기회는 strong, 시점+공용+이전 기회는 compelling이다. 감식 범위까지 포함한 다른 조합도 각각 문장을 작성했다. 시점+이전 기회에 공용 또는 해석 범위를 함께 선택한 Press는 범행 당시 사용 연결의 한계 인정을 얻는다. 나머지는 한계를 설명하거나 반복 답변을 한다. 이는 사건 전용 authored response다.
+
+평가는 `evaluateRecord(definition, records, theoryId, planId)`로 범위를 명시한다. 일시적인 lane 선택/질문 수/절차 성공은 평가에 쓰지 않는다. 다른 증인의 concession/counter가 현재 논점의 결론으로 섞이지 않는다. Theory A에서는 식별과 범행 당시 사용이 core, Theory B에서는 두 논증 모두 peripheral이다. 두 신문을 합친 유무죄/고의 판단은 없다.
+
+### Thread와 종료
+
+관찰 조건 / 진술 변화, 감식 한계 / 접촉 경위를 자유롭게 오갈 수 있다. Thread 순서는 필수 조건이 아니며 답한 질문을 다 소진할 필요가 없다. `thread`는 현재 방향을 정하고 `endThread`는 그 방향과 follow-up을 접는다. CourtRecord는 변하지 않는다. `stop`은 현재 증인 신문을 닫는다. 다른 증인으로 이동해도 기존 기록과 Press history는 보존하고, 닫힌 신문은 열람만 가능하다.
+
+조명 답변 후의 `G_LIGHT_SOURCE`는 선택적 follow-up이다. 멈추거나 다른 Thread로 가면 간판 불빛 기록이 생기지 않는다. 더 물으면 조명 제한과 불리한 간판 불빛이 남는다. 이 판단을 모든 질문 뒤에 강요하지 않는다.
+
+### 한 장면의 선택 근거
+
+`INF_PRINT_TIME_SHARED`로 결론을 요구하여 형식 이의가 생긴 장면 하나에서 1~2개 근거를 선택한다. 후보는 감식 보고서, 공용 비품 기록, 확보한 지문 시점 불명 Record, 이전 사용 진술이다. 없는 증언 Record는 후보가 되지 않는다.
+
+후보의 authored coverage 중 `analysis`가 있으면 분석의 한계를 묻는 원 질문을 정당화한다. 단순 `access` 근거만 있으면 감식 결론의 범위를 설명하지 못하므로 제한 질문으로 바뀐다. 자동 정답 선택은 없고, 선택한 typed refs만 response record에 저장한다. 보고서/기록 자체가 증인 답변 대신 새로운 Evidence를 생성하지 않는다. 기본 프로필은 연결된 질문을 허용하고, strict fixture는 같은 근거도 좁혀 허용한다. 이 mapping은 게임 실험용이며 일반 증거능력/법률 기준이 아니다.
+
+기존 한 후보 질문은 자동 연결한다. 기존 고정 전제 연결은 필수 ref set을 그대로 확인하며 매번 선택기를 만들지 않는다. 반복 확인은 그대로 요청/좁히기/철회, 선택 근거 장면은 근거 연결/좁히기/철회로 중복 대응을 줄인다.
+
+### 표현
+
+기본은 기록 요약, 논점 구성 중에만 해당 법정 기록의 호환 사실을 선택 버튼으로 바꾼다. 중앙에는 선택한 근거와 Inference를 보여준다. 모바일은 기존 기록 sheet를 재사용한다. 질문과 답변은 증인별로 연결한다. 절차 저장 구조는 평평한 event 배열 그대로이며 UI만 questionId별 transaction 하나로 접는다.
+
+범용성의 남은 한계: 현재는 증인당 Plan 하나, Proposition 소유 Plan 하나다. 여러 Plan이 동일 Proposition을 공유하거나 여러 증언을 종합 평가하는 것은 다음 설계 결정이 필요하다. 이 버전에서 미리 추상화하지 않았다. v0.5의 '다중 증인 미구현' 범위는 정확히 두 명까지 이번 요청으로 해제되었다.
