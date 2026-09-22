@@ -4,7 +4,7 @@
   const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const strength = { limited:'제한적', strong:'강함', compelling:'매우 강함' };
   const actionNames = { maintain:'그대로 요청', basis:'이 기록을 근거로', narrow:'좁혀 묻기', withdraw:'철회', justify:'기록 연결' };
-  let filter = 'all', noticeTimer, argumentOpen=false, basisPicked=[];
+  let filter = 'all', noticeTimer, argumentOpen=false, claimOpen=false, basisPicked=[];
   const button = (action,label,enabled=true,title='') => `<button class="plain" data-action="${action}" ${enabled?'':'disabled'} ${title?`title="${esc(title)}"`:''}>${esc(label)}</button>`;
   function updateLane(v) {
     const x = scrollX, y = scrollY;
@@ -16,24 +16,26 @@
     if(!$('.conclusion'))return;
     $('#selectedRecord').textContent=v.state.selected.map(id=>v.case.propositions.find(p=>p.id===id).short).join(' + ');
     $('.conclusion').textContent = a.valid ? '→ '+a.inference.title : '';
-    $('.conclusion').title = a.valid ? `${strength[a.inference.strength]} · ${a.inference.text}` : a.reason;
-    $('#inferenceDetail').innerHTML = a.valid ? `<summary>논증 상세</summary><p>${esc(a.inference.text)}</p><p>${esc(strength[a.inference.strength])} · ${v.strategy.preferred?'핵심 쟁점':'보조 쟁점'}</p>` : '';
+    $('.conclusion').title = a.valid ? a.inference.text : '';
+    $('#inferenceDetail').innerHTML = a.valid ? `<summary>논증 상세</summary><p>${esc(a.inference.text)}</p>` : '';
     $('#inferenceDetail').hidden = !a.valid;
-    for (const act of ['press','frame']) $(`[data-action="${act}"]`).disabled = !v.availability[act];
+    for (const act of ['press','frame']) $(`[data-action="${act}"]`) && ($(`[data-action="${act}"]`).disabled = !v.availability[act]);
     scrollTo(x,y);
   }
   function recordHTML(v) {
     const d = v.case, s = v.state;
     const transactions=new Map();
     for(const event of s.records.procedural){if(!transactions.has(event.questionId))transactions.set(event.questionId,{id:event.questionId,events:[]});transactions.get(event.questionId).events.push(event);}
-    const entries = [...['evidence','advocacy'].flatMap(layer => s.records[layer].map(r => ({r,layer}))),...[...transactions.values()].map(r=>({r,layer:'procedural'}))].sort((a,b) => Number(a.r.id.split(':').at(-1))-Number(b.r.id.split(':').at(-1)));
+    const testimonyRows=new Map();
+    for(const r of s.records.evidence){const prior=testimonyRows.get(r.propositionId);if(prior){prior.testimony+=' '+r.testimony;prior.relations.push(...(r.relations||[]));}else testimonyRows.set(r.propositionId,{...r,relations:[...(r.relations||[])]});}
+    const entries = [...[...testimonyRows.values()].map(r=>({r,layer:'evidence'})),...s.records.advocacy.map(r=>({r,layer:'advocacy'})),...[...transactions.values()].map(r=>({r,layer:'procedural'}))].sort((a,b) => Number(a.r.id.split(':').at(-1))-Number(b.r.id.split(':').at(-1)));
     return `<div class="record-tools"><label for="recordFilter">법정 기록</label><select id="recordFilter" aria-label="기록 종류">${[['all','전체'],['evidence','증언'],['advocacy','논증'],['procedural','절차']].map(([id,name])=>`<option value="${id}" ${id===filter?'selected':''}>${name}</option>`).join('')}</select></div><div class="record-stack">${entries.filter(e=>filter==='all'||e.layer===filter).map(({r,layer})=>{
-      let title, body;
+      let title, body, selection='';
       if (layer==='evidence') {
         const prop = d.propositions.find(p=>p.id===r.propositionId), qualified = v.assessments.some(a=>a.qualifiedCounterRefs.includes(r.id));
         title = prop.short;
-        if(argumentOpen&&!v.procedure&&s.phase==='examine'&&v.argument.plan.premises.includes(prop.id))title='<button class="chip" data-premise="'+prop.id+'" aria-pressed="'+s.selected.includes(prop.id)+'" '+(v.availability.premises.find(x=>x.id===prop.id).available?'':'disabled')+'>'+esc(prop.short)+'</button>';
-        body = `<p>${esc(prop.text)}</p><p>${esc(r.testimony)}</p>${qualified?'<p>'+esc(prop.qualificationText||'기록의 의미가 제한됨.')+'</p>':''}${prop.counterNote?`<p>${esc(prop.counterNote)}</p>`:''}<small>${esc(d.witnesses.find(w=>w.id===r.witnessId).name)}${r.basis.length?' · '+r.basis.map(id=>esc(d.evidence.find(e=>e.id===id).title)).join(', '):''}</small>`;
+        if(argumentOpen&&!claimOpen&&!v.procedure&&s.phase==='examine'&&v.argument.plan.premises.includes(prop.id))selection='<button class="chip material" data-premise="'+prop.id+'" aria-pressed="'+s.selected.includes(prop.id)+'" '+(v.availability.premises.find(x=>x.id===prop.id).available?'':'disabled')+' aria-label="'+esc(prop.short)+' 근거로">근거</button>';
+        body = `<p>${esc(prop.text)}</p><p>${esc(r.testimony)}</p>${(r.relations||[]).map(rel=>{const prior=s.records.evidence.find(e=>e.id===rel.recordRef);return '<p>'+esc(d.propositions.find(p=>p.id===prior?.propositionId)?.short)+' — '+esc({qualification:'범위를 한정함',clarification:'뜻을 설명함',contradiction:'앞선 진술과 충돌',retreat:'앞선 진술을 물림'}[rel.kind])+'</p>';}).join('')}${qualified?'<p>'+esc(prop.qualificationText||'기록의 의미가 제한됨.')+'</p>':''}${prop.counterNote?`<p>${esc(prop.counterNote)}</p>`:''}<small>${esc(d.witnesses.find(w=>w.id===r.witnessId).name)}${r.basis.length?' · '+r.basis.map(id=>esc(d.evidence.find(e=>e.id===id).title)).join(', '):''}</small>`;
         for (const c of v.availability.counters.filter(c=>c.target===prop.id&&c.visible&&!c.completed)) body += `<button class="plain" data-counter="${esc(c.id)}" ${c.available?'':'disabled'}>${esc(d.counterResponses.find(x=>x.id===c.id).title)}</button>${c.missing.length?`<p>필요한 기록: ${c.missing.map(id=>esc(d.propositions.find(p=>p.id===id).short)).join(', ')}</p>`:''}`;
       } else if (layer==='advocacy') {
         const plan = d.argumentPlans.find(p=>p.id===r.planId), inf = plan?.inferenceVariants.find(i=>i.id===r.inferenceId);
@@ -45,13 +47,13 @@
         title=(opening?.titleShort||'질문')+' · '+(ruling?outcome[ruling.outcome]:'이의 중');
         body=r.events.map(e=>'<p>'+esc(e.kind==='objection'?e.title:e.kind==='response'?actionNames[e.response]:e.question||e.original||e.text||'')+(e.basis?.length?' · '+e.basis.map(b=>{const x=b.kind==='evidence'?d.evidence.find(x=>x.id===b.refId):s.records.evidence.find(x=>x.id===b.refId);return esc(b.kind==='evidence'?x?.title:d.propositions.find(p=>p.id===x?.propositionId)?.short);}).join(' + '):'')+'</p>').join('');
       }
-      return `<details class="record-item ${layer}" data-detail="${esc(r.id)}"><summary>${layer==='evidence'&&title.startsWith('<button')?title:esc(title)}</summary>${body}</details>`;
+      return `<div class="record-row"><details class="record-item ${layer}" data-detail="${esc(r.id)}"><summary>${esc(title)}</summary>${body}</details>${selection}</div>`;
     }).join('')||'<p class="note">기록 없음</p>'}</div>`;
   }
   function render() {
     const expanded = new Set([...document.querySelectorAll('details[open][data-detail]')].map(e=>e.dataset.detail));
     const saved = {x:scrollX,y:scrollY,record:$('#recordDialog').scrollTop};
-    const focused = document.activeElement, focusAttr = ['data-premise','data-action','data-goal','data-counter','data-response','data-thread','data-basis','data-witness'].find(k=>focused?.hasAttribute(k));
+    const focused = document.activeElement, focusAttr = ['data-claim','data-premise','data-action','data-goal','data-counter','data-response','data-thread','data-basis','data-witness'].find(k=>focused?.hasAttribute(k));
     const focusValue = focusAttr?focused.getAttribute(focusAttr):null;
     const v = service.projection(), s = v.state, d = v.case;
     $('#caseTitle').textContent = d.title; $('#phaseLabel').textContent = s.phase==='plan'?'반대신문 준비':v.witness.name+' · '+(s.phase==='resolved'?'신문 종료':v.witness.role);
@@ -71,15 +73,16 @@
     else if (s.phase==='plan') $('#examination').innerHTML = button('open-strategy','전략 선택');
     else {
       const t=v.threads.find(t=>t.id===s.threadId), follow=s.followupGoalId&&d.goals.find(g=>g.id===s.followupGoalId&&v.availability.goals.some(a=>a.id===g.id&&a.available));
-      const topics='<div class="thread-nav">'+v.threads.map(t=>'<button class="plain" data-thread="'+t.id+'" aria-pressed="'+(s.threadId===t.id)+'">'+esc(t.title)+'</button>').join('')+'</div>';
+      const topics='<div class="thread-nav">'+v.threads.map(t=>{const remaining=t.goals.filter(id=>v.availability.goals.some(g=>g.id===id&&g.available)); if(!remaining.length || (remaining.length===1&&s.threadId===t.id))return ''; if(remaining.length===1){const g=d.goals.find(g=>g.id===remaining[0]);return '<button class="plain" data-goal="'+g.id+'">'+esc(g.title)+'</button>';} return '<button class="plain" data-thread="'+t.id+'" aria-pressed="'+(s.threadId===t.id)+'">'+esc(t.title)+'</button>';}).join('')+'</div>';
       const goals=t?'<div class="thread-questions">'+(follow?'<button class="plain" data-goal="'+follow.id+'">'+esc(follow.followupLabel)+'</button>'+button('endThread','다른 논점으로'):t.goals.filter(id=>v.availability.goals.some(g=>g.id===id&&g.available)).map(id=>{const g=d.goals.find(g=>g.id===id);return '<button class="plain" data-goal="'+g.id+'" title="'+esc(g.question)+'">'+esc(g.title)+'</button>';}).join('')+button('endThread','이 논점은 여기까지'))+'</div>':'';
       const recorded=v.argument.plan.premises.filter(id=>s.records.evidence.some(r=>r.propositionId===id));
+      const claims=claimOpen?'<div class="claim-questions">'+v.argument.plan.claimVariants.map(c=>'<button class="claim-question" data-claim="'+c.id+'">'+esc(c.question)+'</button>').join('')+'</div><div class="decisions">'+button('close-claims','질문으로')+button('stop','신문을 마친다')+'</div>':null;
       const lane=argumentOpen?'<div class="lane">'+button('choose-record','기록에서 고른다')+'<p id="selectedRecord"></p><p class="conclusion"></p><details id="inferenceDetail" data-detail="inference"></details></div><div class="decisions">'+button('close-argument','질문으로')+button('frame','이 논점을 남긴다',v.availability.frame)+button('press','확답을 요구한다',v.availability.press)+'</div>':'';
-      $('#examination').innerHTML=argumentOpen?lane:topics+goals+'<div class="decisions flow-actions">'+button('stop','신문을 마친다')+button('compose','기록을 연결한다',recorded.length>=v.argument.plan.min)+'</div>';
-      if(argumentOpen)updateLane(v);
+      $('#examination').innerHTML=claims || (argumentOpen?lane:topics+goals+'<div class="decisions flow-actions">'+button('stop','신문을 마친다')+button('compose','기록을 연결한다',recorded.length>=v.argument.plan.min)+button('press','확답을 요구한다')+'</div>');
+      if(argumentOpen&&!claimOpen)updateLane(v);
     }
     $('#recordPanel').innerHTML = recordHTML(v);
-    if(argumentOpen&&!v.procedure&&s.phase==='examine')updateLane(v);
+    if(argumentOpen&&!claimOpen&&!v.procedure&&s.phase==='examine')updateLane(v);
     $('#strategyChoices').innerHTML = d.theories.map(t=>`<button class="choice" data-theory="${esc(t.id)}" ${s.theoryId===t.id?'disabled':''}><b>${esc(t.title)}</b></button>`).join('');
     $('#closeStrategy').hidden = s.phase==='plan';
     document.querySelectorAll('details[data-detail]').forEach(e=>{e.open=expanded.has(e.dataset.detail);});
@@ -100,6 +103,7 @@
     else {
       if (r.view.procedure) closeDialogs();
       if(action==='witness'||action==='thread'||action==='endThread')argumentOpen=false;
+      claimOpen=false;
       basisPicked=[];
       render();
       const changes=r.view.state.dialogue.slice(before).filter(l=>['answer','objection','ruling','instruction'].includes(l.kind));
@@ -111,7 +115,8 @@
   document.addEventListener('click',event=>{
     const b=event.target.closest('button'); if(!b||b.disabled)return;
     const v=service.projection(), o=v.procedure;
-    if(b.dataset.witness)run('witness',{id:b.dataset.witness});
+    if(b.dataset.claim)run('press',{claimId:b.dataset.claim});
+    else if(b.dataset.witness)run('witness',{id:b.dataset.witness});
     else if(b.dataset.thread)run('thread',{id:b.dataset.thread});
     else if(b.hasAttribute('data-basis')){const i=Number(b.dataset.basis);if(basisPicked.includes(i))basisPicked=basisPicked.filter(x=>x!==i);else if(basisPicked.length<o.basisMax)basisPicked.push(i);document.querySelectorAll('[data-basis]').forEach(e=>{const picked=basisPicked.includes(Number(e.dataset.basis));e.setAttribute('aria-pressed',String(picked));e.disabled=!picked&&basisPicked.length>=o.basisMax;});document.querySelectorAll('[data-response]').forEach(e=>{if(['basis','justify'].includes(e.dataset.response))e.disabled=basisPicked.length<o.basisMin;});}
     else if(b.dataset.goal){const g=v.case.goals.find(g=>g.id===b.dataset.goal);run('establish',{id:g.id,basis:g.basis});}
@@ -120,12 +125,14 @@
     else if(b.dataset.response){const response=b.dataset.response;run(o.stage==='address'?'address':'respond',{pendingId:o.pendingId,response,...(['basis','justify'].includes(response)?{basis:(o.pickBasis?o.basis.filter((_,i)=>basisPicked.includes(i)):o.basis).map(({kind,refId})=>({kind,refId})),issue:o.issue,inferenceId:o.inferenceId}:{})});}
     else if(b.dataset.theory){run('strategy',{id:b.dataset.theory});$('#strategyDialog').close();}
     else if(b.dataset.evidence){const e=v.case.evidence.find(e=>e.id===b.dataset.evidence);$('#evidenceTitle').textContent=e.title;$('#evidenceText').textContent=e.text;openDialog('#evidenceDialog');}
+    else if(b.dataset.action==='press'){if(!v.argument.plan.claimVariants?.length){run('press');return;}claimOpen=true;render();document.querySelector('[data-claim]')?.focus({preventScroll:true});}
+    else if(b.dataset.action==='close-claims'){claimOpen=false;render();}
     else if(b.dataset.action==='compose'){argumentOpen=true;filter='all';render();document.querySelector('[data-premise]')?.focus({preventScroll:true});}
     else if(b.dataset.action==='close-argument'){argumentOpen=false;render();document.querySelector('[data-action=compose]')?.focus({preventScroll:true});}
     else if(b.dataset.action==='open-strategy')openDialog('#strategyDialog');
     else if(['open-record','choose-record'].includes(b.dataset.action)){closeDialogs();$('#recordSheet').appendChild($('#recordPanel'));$('#recordDialog').showModal();}
     else if(b.dataset.action==='mobile-case'){const el=$('#mobileCaseInfo');el.querySelector('details').open=true;el.scrollIntoView({block:'center'});el.focus({preventScroll:true});}
-    else if(b.dataset.action==='reset'){closeDialogs();service.reset();filter='all';argumentOpen=false;basisPicked=[];$('#announcement').textContent='';$('#notification').textContent='';render();openDialog('#strategyDialog');}
+    else if(b.dataset.action==='reset'){closeDialogs();service.reset();filter='all';argumentOpen=false;claimOpen=false;basisPicked=[];$('#announcement').textContent='';$('#notification').textContent='';render();openDialog('#strategyDialog');}
     else if(b.dataset.action)run(b.dataset.action);
   });
   document.addEventListener('change',e=>{if(e.target.id==='recordFilter'){filter=e.target.value;render();$('#recordFilter').focus({preventScroll:true});}});

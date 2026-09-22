@@ -1,17 +1,17 @@
-Courtroom Core v0.6 — latest verification 2026-09-22 KST
-Base: v0.5 commit 1758a5a; original reference and old releases preserved.
+Courtroom Core v0.65 — latest verification 2026-09-22 KST
+Base c0a62e1 (v0.6). Active contract COURTROOM-CORE-065.
 
-Node: 132 tests (100 existing + 32 new), 132 pass, 0 failures, exit 0.
-Browser: 92 existing checks + 47 flow checks = 139, 0 failures, exit 0.
-UI budget: 14 checks, 0 failures, exit 0 (counted separately).
-  1440x1080 normal:   chars 167 -> 185, document 1080 -> 1080px
-  1440x1080 argument: chars 183 -> 205, document 1080 -> 1080px
-  390x844 normal:     chars 162 -> 173, document 1216 -> 1148px
-  390x844 argument:   chars 178 -> 200, document 1231 -> 1272px
-  Enforced: +30 chars maximum; height +10% maximum; no horizontal overflow;
-  desktop document and lane within 1080px.
+npm test: 160 tests, 160 pass, 0 fail, exit 0.
+  132 previous tests + 28 tactical tests.
+npm run test:browser: 87 compatibility + 47 flow + 35 actual tactical = 169 checks, 0 fail, exit 0.
+npm run test:budget: 14 checks, 0 fail, exit 0.
+  Desktop normal: chars 185 -> 189; document 1080 -> 1080; examination 189 -> 187.
+  Desktop argument: chars 205 -> 212; document 1080 -> 1080; examination 217 -> 213.
+  Mobile normal: chars 173 -> 176; document 1148 -> 1136; examination 181 -> 179.
+  Mobile argument: chars 200 -> 206; document 1272 -> 1194; examination 251 -> 237.
+  No horizontal overflow. Desktop lane bottom 960px within 1080px.
 
-Godot 4.7.2 unchanged regression runners (--headless --path litigation-skeleton --script):
+Godot unchanged --headless --path litigation-skeleton --script:
   tests/run_regressions.gd                        214 checks, 0 failures, exit 0
   vertical_slice/tests/run_slice_regressions.gd    73 checks, 0 failures, exit 0
   vertical_slice/tests/run_vs002_regressions.gd     72 checks, 0 failures, exit 0
@@ -19,15 +19,12 @@ Godot 4.7.2 unchanged regression runners (--headless --path litigation-skeleton 
   vertical_slice/tests/run_vs004_regressions.gd    256 checks, 0 failures, exit 0
   vertical_slice/tests/run_vs005_regressions.gd    351 checks, 0 failures, exit 0
   vertical_slice/tests/run_vs006_regressions.gd   1054 checks, 0 failures, exit 0
-  subtotal                                      2280 checks, 0 failures
+  Total 2280 checks, 0 failures.
 Godot --headless --path litigation-skeleton --quit-after 3: exit 0.
 
-Regression total: 2551 checks/tests, 0 failures, all exit 0.
-Including 14 UI budget assertions: 2565 checks/tests. Smoke listed separately.
-Authored v0.5 eyewitness inferences/response rules/responses/resolution rules unchanged.
-Fingerprint IDs renamed fixture passes; no fingerprint-specific engine/service ID branches.
-Scoped git diff --check: exit 0.
-Visual inspection: flow, follow-up, forensic argument, procedure transaction, multi-basis,
-mobile materials sheet and mobile procedural response screenshots.
-Raw generated evidence: tests/artifacts/ (ignored).
-Resolved intermediate failures and exact scope/limitations: REVIEW_PACKET.md.
+Regression total 2609; including UI budget 2623; failures 0. Smoke separate.
+Scoped git diff reviewed; diff --check exit 0 before commit.
+Actual browser inspected: desktop claim questions, overreach with retained record, mobile claims.
+Bundled Pretendard loaded via HTTP and offline file://; blocked font fallback remains playable.
+Noto Serif KR is optional installed font, not bundled. No immersion user study.
+Raw evidence: tests/artifacts/ (ignored). Review and 12 answers: REVIEW_PACKET.md.

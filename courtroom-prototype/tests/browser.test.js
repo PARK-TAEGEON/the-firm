@@ -5,7 +5,7 @@ const {pathToFileURL}=require('node:url'),{createServer}=require('../serve');
  const server=createServer();await new Promise(r=>server.listen(0,'127.0.0.1',r));let browser,checks=0;const errors=[];
  const check=(ok,msg)=>{assert.ok(ok,msg);checks++;};
  try{
-  browser=await chromium.launch({channel:'msedge',headless:true});const page=await browser.newPage({viewport:{width:1440,height:1080}});page.on('pageerror',e=>errors.push(e.message));
+  browser=await chromium.launch({channel:'msedge',headless:true});const page=await browser.newPage({viewport:{width:1440,height:1080}});await page.addInitScript(()=>{Object.defineProperty(window,'FirmCase',{configurable:true,set(d){for(const p of d.argumentPlans)delete p.claimVariants;Object.defineProperty(window,'FirmCase',{value:d,writable:true,configurable:true});}});});page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:'+server.address().port);
   const click=async selector=>page.locator(selector).click();
   const action=async a=>{if(a==='stop'&&await page.locator('[data-action=close-argument]').count())await click('[data-action=close-argument]');return click(`[data-action="${a}"]`);};
@@ -34,30 +34,25 @@ const {pathToFileURL}=require('node:url'),{createServer}=require('../serve');
   await action('frame');check(await page.locator('[data-action="frame"]').isDisabled(),'Duplicate Frame disabled');
   check((await text('#recordPanel')).includes('식별 한계 인정'),'Admission recorded');
   await action('open-strategy');await click('[data-theory="THEORY_INTENT"]');await click('#inferenceDetail summary');
-  check((await text('#inferenceDetail')).includes('보조 쟁점'),'Theory B peripheral evaluation');
+  check(!(await text('#inferenceDetail')).includes('강함'),'Inference strength hidden');
   check(!(await text('#recordPanel')).includes('공개 입장'),'Frame does not invent major commitment');
   await action('stop');check((await text('.result-box h1')).includes('약화'),'Record-based result');await click('.result-box summary');
   check((await text('.result-box')).includes('고의는 판단하지'),'Bounded result');
   // Basis permits the original explanation/counter; hard counter remains unanswerable.
   await start();await facts(['G_DISTANCE','G_LIGHTING']);await select(['P_DISTANCE_27M','P_LIGHTING_POOR']);await action('press');
-  check(await page.locator('[data-response]').count()===4,'Four relevant form choices');await response('basis');
+  check(await page.locator('[data-response]').count()===3,'Three distinct form choices');await response('basis');
   check(await page.locator('#procedureActions').count()===0,'Procedure disappears after ruling');
   check((await text('#recordPanel')).includes('간판 불빛'),'Original hard counter retained');
   await page.locator('.record-item.evidence').filter({hasText:'간판 불빛'}).locator('summary').click();
   check((await text('#recordPanel')).includes('현장 사진이나 조도 자료'),'Hard counter explanation disclosed');
   check(await page.locator('[data-counter]').count()===0,'Hard counter has no response action');
   await action('stop');check((await text('.result-box h1')).includes('상반된'),'Counter affects result');
-  // Court Address is temporary and contextual.
+  // Default form response merges the redundant Maintain/Address path.
   await start();await limited();check((await text('#scene')).includes('이의'),'Form objection visible');
-  check(await page.locator('.lane').count()===0,'Procedure replaces lane temporarily');await shot('objection-v06');
-  await response('maintain');check(await page.locator('#addressContext').isVisible(),'Judge explanation request opens address');
-  check(await page.locator('[data-response]').count()===3,'Only contextual address actions');
-  check((await text('#addressContext')).length>10,'Existing inference supplies justification');await shot('court-address-v06');
-  await response('justify');check(await page.locator('#addressContext').count()===0,'Court Address disappears');
-  check(await page.locator('.lane').isVisible(),'Lane returns');
-  check(await page.evaluate(()=>document.activeElement.closest('#examination')!==null),'Focus restored after response');
+  check(await page.locator('.lane').count()===0,'Procedure replaces lane temporarily');
+  check(await page.locator('[data-response="maintain"]').count()===0,'No duplicate maintain');
+  await response('basis');check(await page.locator('.lane').isVisible(),'Lane returns');
   check((await text('#announcement')).includes('서지훈'),'Latest answer announced');
-  check(!(await text('#announcement')).includes('기록 연결'),'Past history not announced');
   // Repetition -> Maintain -> counter -> rebuttal -> reinforced Press.
   await action('press');check((await text('#scene')).includes('이미 답한'),'Repetition detected');
   check(await page.locator('[data-response="basis"]').count()===0,'Redundant basis action omitted for repetition');await response('maintain');

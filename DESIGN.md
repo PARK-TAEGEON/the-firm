@@ -1,6 +1,6 @@
 # THE FIRM — Courtroom prototype design
 
-Status: v0.6 implementation baseline, authorized web experiment. Applies only to `courtroom-prototype/`. Read with the active `.agent/tasks/COURTROOM-CORE-006.md`. The repository's Accepted Godot documents retain authority over litigation-skeleton. This file does not introduce a next VS.
+Status: v0.65 implementation baseline, authorized web experiment. Applies only to `courtroom-prototype/`. Read with the active `.agent/tasks/COURTROOM-CORE-065.md`. The repository's Accepted Godot documents retain authority over litigation-skeleton. This file does not introduce a next VS.
 
 ## Stable intent
 
@@ -27,3 +27,12 @@ One forensic form objection permits 1–2 selected bases. Analysis report or rec
 No third witness, new case, Opening/Closing/Verdict, player objection system, relationships, jury, civil case, negotiation, appeal, staff, generic natural-language generation or expert battle. Witness answers and inferences are authored fixtures, not scientific measurement or legal advice. Exact mappings live in `courtroom-prototype/data/case.js`; demo-specific policy lives in `EXPERIMENT_RULES.md`.
 
 Before implementing a later request: read this file, the current Task Contract and relevant repository rules; inspect the current code and prior review. Reuse stable grammar, implement only requested deltas, test new invariants and prior regressions, update this design and REVIEW_PACKET. Unresolved formal game design stays TBD. Do not interpret this file as authorization to start v0.7.
+
+
+## v0.65 tactical grammar
+
+Explicit admissions are evidence-record commitments scoped to the speaking witness. Later qualification/clarification/contradiction/retreat links the original record; testimony is never silently overwritten. Authored question routes inspect recorded commitments, not question index or a bonus. Supports and rehabilitation opportunities are record metadata, without UI meters or Redirect implementation.
+
+Press may name an authored claim variant independently of an exact inference. This permits a premature conclusion question with no established premises. Frame still requires an exact authored inference. Claim variants show actual question sentences. Narrow confirmation, prior-contact possibility, offense-time use and an excessive non-use conclusion have different authored routes. Existing basis signatures remain intact; explicit claim repetition is scoped to that claim. Legacy no-claim commands remain available to regression fixtures.
+
+No generic legal conclusion generator is implied. Claim routes and their conflicts are case-authored content. All adverse effects remain in the record and can be replayed without transient question state. Stop adds no reward. The favorable concession survives overreach alongside its recorded limitation.

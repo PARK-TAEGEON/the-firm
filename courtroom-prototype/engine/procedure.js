@@ -5,9 +5,10 @@
   function validate(d) {
     E.ensure(d.procedure && Array.isArray(d.procedure.rules), 'Missing procedure definitions');
     const p = d.procedure;
+    E.ensure(!p.formResponseMode || ['basis','address'].includes(p.formResponseMode),'Invalid form response mode');
     E.ensure(['standard', 'strict'].includes(p.judge.proceduralStrictness) && ['patient', 'firm'].includes(p.judge.tolerance) && ['broad', 'narrow'].includes(p.judge.advocacyLatitude), 'Invalid judge profile');
     E.ensure(p.rules.length === 3 && new Set(p.rules.map(r => r.kind)).size === 3, 'Three authored procedural openings required');
-    const allIds = [...d.threads.map(t=>t.id), d.id, d.profile.id, d.client.id, ...['parties','issues','theories','witnesses','evidence','propositions','goals','responses','argumentPlans','counterResponses'].flatMap(k => d[k].map(x => x.id)), ...d.argumentPlans.flatMap(x => x.inferenceVariants.map(v => v.id))];
+    const allIds = [...d.threads.map(t=>t.id), d.id, d.profile.id, d.client.id, ...['parties','issues','theories','witnesses','evidence','propositions','goals','responses','argumentPlans','counterResponses'].flatMap(k => d[k].map(x => x.id)), ...d.argumentPlans.flatMap(x => [...x.inferenceVariants,...(x.claimVariants||[])].map(v => v.id))];
     p.rules.forEach(r => { E.ensure(r.id && !allIds.includes(r.id) && ['repetition','foundation','form'].includes(r.kind) && r.title && r.objection, 'Invalid procedure rule'); allIds.push(r.id); });
     E.ensure(['respond','address','answer'].every(a => d.profile.actions.includes(a)), 'Missing procedural commands');
     E.ensure(p.narrowedPress.question && E.types.includes(p.narrowedPress.response.type) && p.narrowedPress.response.adds.length === 0, 'Narrowed pressure cannot create conclusion evidence');
@@ -31,8 +32,8 @@
   function opening(d, s, action, payload) {
     let kind;
     if (action === 'press') {
-      if (E.pressure(d,s).kind === 'repeated') kind = 'repetition';
-      else if (E.argument(d,s).inference.strength === 'limited') kind = 'form';
+      if (E.pressure(d,s,payload.claimId).kind === 'repeated') kind = 'repetition';
+      else if ((!payload.claimId || E.find(E.argument(d,s).plan.claimVariants||[],payload.claimId)?.procedure==='inference') && E.argument(d,s).inference?.strength === 'limited') kind = 'form';
     } else if (action === 'establish') {
       const meta = E.find(d.goals,payload.id).procedure;
       if (meta && meta.foundationRefs.some(id => !E.recordIds(s).includes(id))) kind = 'foundation';
@@ -50,7 +51,7 @@
     const choice=plan.procedure?.basisChoice;
     const pick=rule.kind==='form'&&choice?.inferenceIds.includes(p.inferenceId);
     if(pick)basis=choice.candidates.flatMap(c=>{const record=c.kind==='record'?s.records.evidence.find(r=>r.propositionId===c.sourceId):null;if(c.kind==='record'&&!record)return [];return [{kind:c.kind,refId:record?.id||c.sourceId,title:c.kind==='record'?E.find(d.propositions,c.sourceId).short:E.find(d.evidence,c.sourceId).title}];});
-    return { pendingId: p.id, stage: p.stage, objection: rule.title, actions: p.stage === 'objection' ? (rule.kind === 'repetition' ? ['maintain','narrow','withdraw'] : pick ? ['basis','narrow','withdraw'] : ['maintain','basis','narrow','withdraw']) : p.stage === 'address' ? ['justify','narrow','withdraw'] : [],
+    return { pendingId: p.id, stage: p.stage, objection: rule.title, actions: p.stage === 'objection' ? (rule.kind === 'repetition' ? ['maintain','narrow','withdraw'] : pick ? ['basis','narrow','withdraw'] : rule.kind==='form' ? [config(d,s).formResponseMode==='address'?'maintain':'basis','narrow','withdraw'] : ['maintain','basis','narrow','withdraw']) : p.stage === 'address' ? ['justify','narrow','withdraw'] : [],
       basis, pickBasis: !!pick && basis.length>1, basisMin: pick?choice.min:basis.length, basisMax: pick?choice.max:basis.length, issue: plan.issue, inferenceId: inference?.id || null,
       justification: rule.kind === 'foundation' ? meta.justification : inference?.text,
       question: p.text };
@@ -69,7 +70,7 @@
       { outcome: 'overruled', proceed: true, text: '최초 진술과의 대조 질문을 허용합니다.', reason: 'prior_statement_basis' } :
       { outcome: 'sustained', proceed: false, text: '전제를 먼저 확인하십시오.', reason: 'missing_foundation' };
     if (kind === 'repetition') {
-      const previous = s.presses.filter(p => p.planId === pending.planId && pending.premises.every(id => p.premises.includes(id))).at(-1);
+      const previous = s.presses.filter(p => p.planId === pending.planId && (p.claimId||null)===(pending.payload.claimId||null) && pending.premises.every(id => p.premises.includes(id))).at(-1);
       const answer = previous && E.find(d.responses,previous.responseId);
       const clarification = answer && ['RESIST','EXPLAIN'].includes(answer.type);
       if (clarification && judge.tolerance === 'patient') return { outcome: 'overruled', proceed: true, text: '이전 답변의 확인 범위에서 허용합니다.', reason: 'ambiguous_answer_clarification' };

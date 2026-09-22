@@ -2,37 +2,37 @@
   {
     "viewport": "1440x1080",
     "mode": "normal",
-    "visibleCharacters": 167,
+    "visibleCharacters": 185,
     "documentHeight": 1080,
-    "examinationHeight": 268,
-    "laneBottom": 958,
+    "examinationHeight": 189,
+    "laneBottom": null,
     "horizontalOverflow": false
   },
   {
     "viewport": "1440x1080",
     "mode": "argument",
-    "visibleCharacters": 183,
+    "visibleCharacters": 205,
     "documentHeight": 1080,
-    "examinationHeight": 283,
+    "examinationHeight": 217,
     "laneBottom": 958,
     "horizontalOverflow": false
   },
   {
     "viewport": "390x844",
     "mode": "normal",
-    "visibleCharacters": 162,
-    "documentHeight": 1216,
-    "examinationHeight": 309,
-    "laneBottom": 810,
+    "visibleCharacters": 173,
+    "documentHeight": 1148,
+    "examinationHeight": 181,
+    "laneBottom": null,
     "horizontalOverflow": false
   },
   {
     "viewport": "390x844",
     "mode": "argument",
-    "visibleCharacters": 178,
-    "documentHeight": 1231,
-    "examinationHeight": 324,
-    "laneBottom": 825,
+    "visibleCharacters": 200,
+    "documentHeight": 1272,
+    "examinationHeight": 251,
+    "laneBottom": 804,
     "horizontalOverflow": false
   }
 ]

@@ -15,3 +15,24 @@ body{word-break:keep-all;overflow-wrap:anywhere}.record-item{animation:none}
 .lane>[data-action="choose-record"]{display:none}.record-item summary .chip{margin:0;text-align:left}.record-item summary:has(.chip){display:flex;align-items:center;gap:8px}.record-item summary:has(.chip)::before{content:'›';font-size:14px;color:var(--muted)}.record-item[open] summary:has(.chip)::before{content:'⌄'}#selectedRecord:empty::before{content:'법정 기록에서 근거를 고른다';color:var(--dim)}
 @media(max-width:700px){.lane>[data-action="choose-record"]{display:inline-block}#selectedRecord:empty{display:none}}
 @media(max-width:700px){body:has(#procedureActions) .mobile-access{display:none}#procedureActions{scroll-margin-bottom:20px}.procedure-buttons:has(button:nth-child(3):last-child){grid-template-columns:repeat(3,1fr)}.procedure-buttons .plain{min-width:0}}
+
+/* v0.65: information and actions have separate visual roles. */
+body,button,select,input {font-family:Pretendard,'Noto Sans KR','Malgun Gothic',sans-serif;font-weight:400;}
+button.plain,.chip,.evidence {font-weight:500;}
+.decisions button {font-weight:600;}
+.statement {font-family:'Noto Serif KR','Batang',serif;font-weight:400;line-height:1.65;}
+.claim-questions {display:grid;gap:6px;}
+.claim-question {text-align:left;line-height:1.5;padding:10px 12px;background:transparent;color:inherit;border:1px solid var(--line,#d5cdbf);border-radius:3px;font-size:14px;font-weight:400;cursor:pointer;}
+.claim-question:hover,.claim-question:focus-visible {background:#253347;}
+.record-item summary {font-weight:400;}
+.material {margin:2px 0 7px 16px;max-width:calc(100% - 16px);}
+
+@font-face {font-family:Pretendard;src:url('./fonts/PretendardVariable.woff2') format('woff2');font-weight:100 900;font-display:swap;}
+.record-row {display:flex;align-items:flex-start;gap:4px;}
+.record-row>.record-item {flex:1;min-width:0;}
+.record-row>.material {flex:none;margin:5px 0;padding:5px 7px;font-size:11px;}
+.brand,.result-box h1,dialog h2 {font-family:Pretendard,'Malgun Gothic',sans-serif;}
+
+.theory,.brand small {font-family:Pretendard,'Malgun Gothic',sans-serif;}
+.flow-actions {grid-template-columns:repeat(3,1fr);}
+.chip[aria-pressed="true"] {font-weight:500;}

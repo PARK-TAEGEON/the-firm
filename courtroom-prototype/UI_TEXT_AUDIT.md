@@ -1,53 +1,26 @@
-# v0.6 UI budget / text audit
+# v0.65 UI text audit
 
-## 같은 상태에서의 비교
+Audited actual rendered desktop/mobile screens and new strings in ui/app.js and data/case.js. No new permanent panel, tutorial, completion mark, strength badge, risk label or gauge.
 
-실제 v0.5 ZIP과 v0.6을 Edge에서 비교했다. Theory A, 거리·관찰 시간·최초 진술을 확보한 상태다. normal은 논점 구성 전, argument는 세 전제를 선택한 상태다. v0.5는 논점 토큰이 상시 노출되던 버전이다.
+- Retained four authored question sentences per witness: the wording is the player's scope decision, so shortening to “좁음/넓음” would remove necessary information.
+- Reused “확답을 요구한다”, “신문을 마친다”, “질문으로”, “이 논점을 남긴다”. Normal screen adds only the conclusion-entry action.
+- Removed pre-Press strength from conclusion tooltip and inference detail. Core/peripheral label also removed from that detail; theory remains in the case panel and record evaluation.
+- Removed default form “그대로 요청 → 기록 연결” duplicate. The existing address engine is exercised separately by an authored fixture with no competing direct-basis route.
+- Single remaining question is a direct intention control. Exhausted topics disappear; no completion badge.
+- “근거” is the short sibling selection control in composition only; accessible label includes the record's name. Disclosure still opens testimony. Selection controls are hidden during claim choice.
+- Relation wording (“범위를 한정함”, “뜻을 설명함”, “앞선 진술과 충돌”, “앞선 진술을 물림”) appears only in record detail. It identifies how the new testimony relates to earlier testimony; no permanent status label.
+- Narrative and excessive-conclusion statements retain the distinction between inability to prove use and proof of non-use. Removing that distinction would conceal the consequence of the question.
+- Still removable: repeated premise text inside advocacy detail and generic “이번 신문…” hard-counter explanation. Left in collapsed detail for provenance; neither is an always-visible instruction. No further always-visible explanatory sentence was added.
 
-공백을 뺀 표시 text node를 세며 닫힌 details/dialog, script, sr-only는 제외한다. viewport 아래의 펼쳐진 내용도 포함한다. 같은 글꼴/창 크기에서 비교하며 모든 장면의 평균을 뜻하지 않는다.
+Measured with the same three facts and viewports as released v0.6, fonts ready:
 
-| 화면 | 표시 문자 v0.5→v0.6 | 문서 높이 v0.5→v0.6 |
-|---|---:|---:|
-| 1440×1080 기본 | 167→185 (+18) | 1080→1080px |
-| 1440×1080 논점 구성 | 183→205 (+22) | 1080→1080px |
-| 390×844 기본 | 162→173 (+11) | 1216→1148px |
-| 390×844 논점 구성 | 178→200 (+22) | 1231→1272px |
+| View | v0.6 chars → v0.65 | Document px | Examination px |
+|---|---:|---:|---:|
+| Desktop normal | 185 → 189 | 1080 → 1080 | 189 → 187 |
+| Desktop argument | 205 → 212 | 1080 → 1080 | 217 → 213 |
+| Mobile normal | 173 → 176 | 1148 → 1136 | 181 → 179 |
+| Mobile argument | 200 → 206 | 1272 → 1194 | 251 → 237 |
 
-실제 질문 대사와 두 증인의 이동 수단이 추가되었다. 데스크톱 행동 영역은 기본 268→189px, 논점 구성 283→217px다. Lane 하단 958px로 행동 버튼과 함께 첫 화면 안에 남는다. 모바일 기본 높이는 약 5.6% 감소, 논점 구성은 약 3.3% 증가한다.
+No horizontal overflow; desktop lane ends at 960px within 1080px. Claim choice is a temporary four-question list and is not included in the ordinary-screen character budget. Mobile full-page captures require scrolling; this is not a claim that every action fits one phone viewport. Screens inspected: claim choice, successful admission/overreach, mobile claims and record material sheet.
 
-명시적 예산: 이 동일 장면 표시 문자 증가는 30자 이하, 문서 높이 증가 10% 이하, 데스크톱 높이 1080px 이하 및 Lane viewport 내부, 가로 overflow 없음. 4상태 총 14개 assertion으로 검사한다. baseline 수치는 `tests/ui-budget-baseline.json`, 재측정 도구는 `tests/ui-budget.js`다. 과거 배포본 경로를 세 번째 인자로 주면 동일 방식으로 다시 측정할 수 있다.
-
-새 증인과 이전 신문의 기록이 누적된 모든 상태를 위 표와 동일시하지 않는다. 누적 기록은 한 목록에서 필터·상세로 관리한다. 이의 중에는 중앙을 재사용하며 모바일 하단 이동 바를 잠시 감춰 절차 행동을 가리지 않는다. 두 팝업을 중첩하지 않는다.
-
-## 표시 구조
-
-- 평소 질문 방향 2개. 선택한 방향의 아직 물을 수 있는 의도만 보인다. 강제 순서/완료 체크 없음.
-- 논점 구성 전에는 자료 토큰 0개. 구성 중에는 기존 CourtRecord의 호환 사실 자체가 버튼으로 바뀐다. 별도 토큰 은행을 복제하지 않는다.
-- 중앙에는 선택 근거의 연결식과 결론. 데스크톱은 오른쪽 기록, 모바일은 기존 기록 sheet에서 선택한다.
-- 복수 Basis 후보 4개는 한 장면에만 나타나고 선택은 1~2개다. 자동 선택이나 점수 표시 없음.
-- 하나의 절차 질문은 목록에서 하나의 transaction. 펼치면 원래 event와 실제 선택 refs를 확인한다.
-- 작은 live region은 최신 답변·이의·판사 결정만 알린다. 기록 선택 시 전체 기록을 다시 읽지 않는다.
-
-## 모든 새 UI 문구 감사
-
-| 문구/범주 | 결정 |
-|---|---|
-| 서지훈 / 한서윤, 목격자 / 감식 담당 수사관 | 신문 대상 식별에 필요. 이름 이동 버튼과 현재 발언자의 역할만. |
-| 관찰 조건 / 진술 변화 / 감식 한계 / 접촉 경위 | 질문 방향 선택에 필요. 별도 Thread 제목·진행률 설명 삭제. |
-| 생성 시점을 묻는다 / 해석 범위를 확인 / 누가 쓰던 칼인가 / 이전 사용 기회를 묻는다 | 시스템 용어 대신 변호사의 의도. 아래 부연문 없음. |
-| 광원까지 확인 / 다른 논점으로 | mixed answer를 열지 결정하는 순간에만. 위험/추천 배지 없음. |
-| 이 논점은 여기까지 / 신문을 마친다 | 종료 범위가 달라 구분 유지. 내부 Stop 용어 삭제. |
-| 기록을 연결한다 / 이 논점을 남긴다 / 확답을 요구한다 / 질문으로 | 논점 모드 진입·보존·증인 결론 요구·복귀에 필요. Frame/Press 라벨 제거. |
-| 기록에서 고른다 | 모바일에서 기존 기록 sheet를 여는 버튼. 데스크톱에서는 숨김. |
-| 법정 기록에서 근거를 고른다 | 데스크톱 논점 모드의 빈 선택일 때만. 선택하면 연결식으로 대체. |
-| 실제 질문과 답변 | 무엇을 묻고 어떤 답을 받았는지 알기 위해 유지. 과거 전체 대화는 접힘. |
-| 감식 보고서 / 공용 비품 기록 / 이전 사용 진술 / 지문 시점 불명 | 실제 출처/기록. 현재 증인 자료와 복수 근거 장면에 필요. 내부 ID 숨김. |
-| 그대로 요청 / 이 기록을 근거로 / 좁혀 묻기 / 철회 | 맥락에 맞는 행동만. 복수 근거 장면에는 중복 ‘그대로 요청’ 없음. |
-| 질문 제목 · 이의 기각/질문 차단/범위 제한/질문 철회 | 하나의 접힌 transaction 제목으로만. 별도 상태 배지 없음. |
-| 감식 Inference 제목·문장 11개 | 정확한 선택 조합에 하나만 표시. 본문·강도·핵심/보조 평가는 펼침. |
-| 감식 결과 제목·설명 6개 | 신문 종료 후 해당 결과 하나만. 설명은 접힌 기록 검토 안. |
-| 새 validation 오류 문구 | 실패한 service 명령에만. 정상 플레이에 debug 정보 없음. |
-
-제거한 중복: 중앙 토큰 목록과 오른쪽 기록의 이중 재료 표시, 이의/응답/설명 요청/판단 각각의 목록 줄, Frame/Press/Counter/Basis 영문 행동명, 주제 아래 설명·진행률·완료 상태. 선택 색과 aria-pressed는 실제 선택 조작만 표현한다. 장식 체크·성공/실패 배지·판사 게이지·추천 행동 없음.
-
-화면 검토와 자동 브라우저 조작은 수행했지만, 초심자 플레이테스트를 하지 않았다. ‘신문하는 느낌’과 근거 선택의 학습성은 실제 사용자 검증이 남는다.
+Pretendard variable font is bundled from official v1.3.9; SIL OFL accompanies it. Source: https://github.com/orioncactus/pretendard/tree/v1.3.9 . No runtime external font requests. Noto Serif KR is not bundled: installed font or Batang/serif fallback is used. Visual separation was inspected; no user study of immersion was performed.

@@ -116,3 +116,17 @@ Sustained / Withdrawn / Limited / Overruled를 지원한다. Reformulated는 별
 기본은 기록 요약, 논점 구성 중에만 해당 법정 기록의 호환 사실을 선택 버튼으로 바꾼다. 중앙에는 선택한 근거와 Inference를 보여준다. 모바일은 기존 기록 sheet를 재사용한다. 질문과 답변은 증인별로 연결한다. 절차 저장 구조는 평평한 event 배열 그대로이며 UI만 questionId별 transaction 하나로 접는다.
 
 범용성의 남은 한계: 현재는 증인당 Plan 하나, Proposition 소유 Plan 하나다. 여러 Plan이 동일 Proposition을 공유하거나 여러 증언을 종합 평가하는 것은 다음 설계 결정이 필요하다. 이 버전에서 미리 추상화하지 않았다. v0.5의 '다중 증인 미구현' 범위는 정확히 두 명까지 이번 요청으로 해제되었다.
+
+## v0.65 — authored tactical extension
+
+This section supersedes earlier descriptions of one fixed UI Press question and duplicate form responses. Existing no-claim service calls retain the v0.6 resolver for compatibility fixtures; the shipped UI always chooses a claim variant.
+
+- `responses[].commitments` names explicit admitted propositions also present in `adds`. Service evidence records carry `commitment`, with the speaker and response provenance. Later relations use runtime record refs and one of qualification/clarification/contradiction/retreat. Original records are immutable; contradiction/retreat release that commitment from later route matching. These meanings are authored, not inferred from natural language.
+- `goals[].responseRoutes` and `argumentPlans[].claimVariants[].routes` use the same recorded-commitment/tag matcher. The prior-use opportunity proposition is distinct from the inability to exclude earlier contact. Asking prior use after timing establishes both; asking it earlier only establishes opportunity. A later explicit possibility claim can obtain the missing lock.
+- Claim variants are actual questions, not strength levels. Explicit claims can be asked with no selected premises. Frame still requires an exact authored inference. Different claim IDs are different questions; repetitions and reinforced supersets keep the original canonical basis signature within one claim. Procedure checks the same claim when finding its preceding answer.
+- The broad variant uses existing form handling when the selected inference is limited. With no inference it can open a narrative response directly. The forensic pair still exposes multi-basis selection. Default form actions are basis/narrow/withdraw. An `address` content fixture retains maintain → Court Address as the sole substantive route, without exposing both equivalent routes together.
+- Both witnesses have narrow confirmation, intermediate limitation, bounded concession, excessive negation, and premature narrative responses. An existing narrative changes a later bounded concession to a qualified explanation. No numeric risk or question-order score exists.
+- Support effects and rehabilitation opportunities live on evidence records. Replay derives current support states and refs. They do not start Redirect and do not alter fingerprint identity/blood findings. Premature narrative and overreach counters are hard within this bounded slice; no fabricated immediate rebuttal is supplied.
+- Duplicate proposition testimony is grouped only for display. Selection is a sibling of disclosure. No commitment badge or permanent argument map. UI has a bundled Pretendard and optional installed Noto Serif KR/Batang fallback for spoken statements only.
+
+No formal game rule, actual evidentiary admissibility standard, scientific fingerprint-dating model, automatic judgment or general-purpose witness AI is added. Further recovery from narrative hard counters, Redirect and whole-case valuation remain TBD/out of scope.

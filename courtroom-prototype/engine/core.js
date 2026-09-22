@@ -38,8 +38,9 @@
     const obtainable = new Set(d.goals.flatMap(g => find(d.responses, g.response).adds));
     const tags = new Set(d.propositions.flatMap(p => p.tags));
     function condition(c, recordOnly = false) {
-      const allowed = recordOnly ? ['any', 'absent', 'recordTags', 'absentTags', 'frameStrength'] : ['any', 'repeated', 'absent', 'selectedTags', 'recordTags', 'absentTags'];
+      const allowed = recordOnly ? ['any', 'absent', 'recordTags', 'absentTags', 'frameStrength'] : ['any', 'repeated', 'absent', 'selectedTags', 'recordTags', 'absentTags', 'commitments'];
       ensure(c && Object.keys(c).every(k => allowed.includes(k)), 'Unknown rule condition');
+      (c.commitments || []).forEach(id => ref('propositions', id));
       if (c.any) { ensure(c.any.length > 0, 'Empty rule alternatives'); c.any.forEach(child => condition(child, recordOnly)); }
       if ('repeated' in c) ensure(typeof c.repeated === 'boolean', 'Invalid boolean condition');
       if ('frameStrength' in c) ensure(inferenceStrengths.includes(c.frameStrength), 'Invalid frame strength');
@@ -76,12 +77,29 @@
       const w=find(d.witnesses,p.witnessId);if(w.directResponse)responseIds.push(w.directResponse);
       responseIds.forEach(id=>find(d.responses,id).adds.forEach(prop=>ensure(find(d.propositions,prop).planId===p.id,'Foreign response proposition')));
     });
+    for (const r of d.responses) {
+      ensure(r.type!=='CONTRADICT'||r.relations?.length,'Contradiction requires an explicit relation');
+      for (const id of r.commitments || []) { ref('propositions',id); ensure(r.adds.includes(id),'Commitment must be testified'); }
+      for (const rel of r.relations || []) { ref('propositions',rel.propositionId); ensure(['qualification','clarification','contradiction','retreat'].includes(rel.kind),'Invalid commitment relation'); }
+      for (const effect of r.supportEffects || []) { ref('propositions',effect.propositionId); ensure(['active','qualified','contradicted','unsupported'].includes(effect.status),'Invalid support state'); }
+      ensure(!r.rehabilitationOpportunity || typeof r.rehabilitationOpportunity==='boolean','Invalid rehabilitation opportunity');
+    }
+    const routes = (rules,plan) => {
+      ensure(rules.length && Object.keys(rules.at(-1).when).length===0,'Missing tactical fallback');
+      for (const rule of rules) { condition(rule.when); ref('responses',rule.response); const response=find(d.responses,rule.response);
+        [...(rule.when.commitments||[]),...response.adds,...(response.relations||[]).map(x=>x.propositionId),...(response.supportEffects||[]).map(x=>x.propositionId)].forEach(id=>ensure(find(d.propositions,id).planId===plan.id,'Foreign tactical proposition'));
+      }
+    };
+    for (const p of d.argumentPlans) for (const claim of p.claimVariants || []) {
+      ensure(claim.id&&!ids.has(claim.id)&&claim.question,'Invalid claim'); ids.add(claim.id); routes(claim.routes,p);
+    }
+    for (const g of d.goals) if(g.responseRoutes) routes(g.responseRoutes,find(d.argumentPlans,find(d.witnesses,g.witnessId).planId));
     return true;
   }
   const recordIds = s => s.records.evidence.map(r => r.propositionId);
   function tagCounts(d, ids) {
     const counts = Object.create(null);
-    for (const id of ids) for (const tag of find(d.propositions, id).tags) counts[tag] = (counts[tag] || 0) + 1;
+    for (const id of new Set(ids)) for (const tag of find(d.propositions, id).tags) counts[tag] = (counts[tag] || 0) + 1;
     return counts;
   }
   function matches(context, c) {
@@ -89,13 +107,14 @@
     const has = (actual, needed) => Object.entries(needed || {}).every(([tag, n]) => (actual[tag] || 0) >= n);
     return (!c.any || c.any.some(v => matches(context, v))) &&
       (!('repeated' in c) || c.repeated === repeated) && (!('frameStrength' in c) || c.frameStrength === frameStrength) &&
+      (c.commitments || []).every(id => (context.commitments || []).includes(id)) &&
       (c.absent || []).every(id => !ids.includes(id)) &&
       (c.absentTags || []).every(t => !recorded[t]) && has(recorded, c.recordTags) && has(selected, c.selectedTags);
   }
-  function pressure(d, s) {
+  function pressure(d, s, claimId = null) {
     const target = find(d.argumentPlans,s.planId).witnessId;
     const signature = JSON.stringify([s.planId, target, [...s.selected].sort()]);
-    const prior = s.presses.filter(p => p.planId === s.planId && p.target === target);
+    const prior = s.presses.filter(p => p.planId === s.planId && p.target === target && (p.claimId || null) === claimId);
     const repeated = prior.some(p => s.selected.every(id => p.premises.includes(id)));
     const reinforced = !repeated && prior.some(p => p.premises.length < s.selected.length && p.premises.every(id => s.selected.includes(id)));
     return { signature, target, kind: repeated ? 'repeated' : reinforced ? 'reinforced' : prior.length ? 'new_basis' : 'first' };
@@ -117,13 +136,26 @@
   function availability(d, s) {
     const active = s.phase === 'examine' && !s.pendingQuestion, a = argument(d, s);
     const duplicateFrame = s.records.advocacy.some(r => r.kind === 'argument' && r.planId === s.planId && r.theoryId === s.theoryId && r.inferenceId === a.inference?.id);
-    return { establish: active, select: active, strategy: s.phase !== 'resolved' && !s.pendingQuestion, press: active && a.valid, frame: active && a.valid && !duplicateFrame, stop: active, counter: active && counterOptions(d, s).some(c => c.available), counters: counterOptions(d, s),
+    return { establish: active, select: active, strategy: s.phase !== 'resolved' && !s.pendingQuestion, press: active && (a.valid || !!a.plan.claimVariants?.length), frame: active && a.valid && !duplicateFrame, stop: active, counter: active && counterOptions(d, s).some(c => c.available), counters: counterOptions(d, s),
       witness: s.phase !== 'plan' && !s.pendingQuestion, thread: active, endThread: active && !!s.threadId,
       respond: s.pendingQuestion?.stage === 'objection', address: s.pendingQuestion?.stage === 'address', answer: s.pendingQuestion?.stage === 'answer',
       goals: d.goals.filter(g=>g.witnessId===a.plan.witnessId).map(g => ({ id: g.id, available: active && !s.asked.includes(g.id) && find(d.responses, g.response).adds.some(id => !recordIds(s).includes(id)) })),
       premises: d.propositions.map(p => ({ id: p.id, available: active && recordIds(s).includes(p.id) && a.plan.premises.includes(p.id) && (s.selected.includes(p.id) || s.selected.length < a.plan.max) })) };
   }
-  function response(d, s) { const p = argument(d, s).plan, ids = recordIds(s).filter(id=>find(d.propositions,id).planId===p.id); const context = { ids, recorded: tagCounts(d, ids), selected: tagCounts(d, s.selected), repeated: pressure(d, s).kind === 'repeated' }; return find(d.responses, p.responseRules.find(r => matches(context, r.when)).response); }
+  function commitments(s) {
+    const active=new Map();
+    for(const r of s.records.evidence.filter(r=>r.witnessId===s.witnessId)) {
+      for(const rel of r.relations||[]) if(['contradiction','retreat'].includes(rel.kind)) active.delete(rel.recordRef);
+      if(r.commitment)active.set(r.id,r.propositionId);
+    }
+    return [...new Set(active.values())];
+  }
+  function routeResponse(d,s,rules) {
+    const ids=recordIds(s).filter(id=>find(d.propositions,id).planId===s.planId);
+    const context={ids,recorded:tagCounts(d,ids),selected:tagCounts(d,s.selected),commitments:commitments(s)};
+    return find(d.responses,rules.find(r=>matches(context,r.when)).response);
+  }
+  function response(d, s, claimId = null) { if(claimId){const claim=find(argument(d,s).plan.claimVariants||[],claimId);ensure(claim,'Unknown claim');return routeResponse(d,s,claim.routes);} const p = argument(d, s).plan, ids = recordIds(s).filter(id=>find(d.propositions,id).planId===p.id); const context = { ids, recorded: tagCounts(d, ids), selected: tagCounts(d, s.selected), repeated: pressure(d, s).kind === 'repeated' }; return find(d.responses, p.responseRules.find(r => matches(context, r.when)).response); }
   // This entry point evaluates a record snapshot within an explicit authored plan scope.
   // Lane selections, questions and transient press history cannot affect evaluation.
   function evaluateRecord(d, records, theoryId, planId = d.argumentPlans[0].id) {
@@ -164,11 +196,14 @@
     const rank = value => inferenceStrengths.indexOf(value);
     const frameStrength = framedArguments.reduce((best, item) => rank(item.strength) > rank(best) ? item.strength : best, null);
     const rule = (contextPlan.resolutionRules || d.resolutionRules).find(r => matches({ ids, recorded: counts, frameStrength }, r.when));
-    return { type: 'adjudicated', scope, code: rule.code, title: rule.title, text: rule.text,
+    const commitmentRelations=records.evidence.flatMap(r=>(r.relations||[]).filter(rel=>records.evidence.some(target=>target.id===rel.recordRef&&target.commitment&&target.witnessId===r.witnessId)).map(rel=>({sourceRef:r.id,...rel})));
+    const supportStates=Object.fromEntries(records.evidence.map(r=>[r.id,'active']));
+    for(const r of records.evidence) for(const effect of r.supportEffects||[]) if(Object.hasOwn(supportStates,effect.recordRef))supportStates[effect.recordRef]=effect.status;
+    return { type: 'adjudicated', commitmentRelations, supportStates, rehabilitationRefs:records.evidence.filter(r=>r.rehabilitationOpportunity).map(r=>r.id), scope, code: rule.code, title: rule.title, text: rule.text,
       evidenceRefs: records.evidence.map(r => r.id), advocacyRefs: records.advocacy.map(r => r.id), admissionRefs,
       activeCounterRefs: activeCounters.map(r => r.id), qualifiedCounterRefs: qualified, framedArguments, strategy, limitation: d.resolutionNotice };
   }
   const resolve = (d, s) => evaluateRecord(d, s.records, s.theoryId, find(d.witnesses,s.witnessId)?.planId);
-  const api = { copy, find, ensure, validate, recordIds, argument, availability, pressure, response, evaluateRecord, resolve, types, inferenceStrengths };
+  const api = { copy, find, ensure, validate, recordIds, argument, availability, pressure, response, routeResponse, commitments, evaluateRecord, resolve, types, inferenceStrengths };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.FirmEngine = api;
 })(globalThis);

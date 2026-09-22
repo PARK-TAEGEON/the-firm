@@ -19,24 +19,26 @@
       line(s, E.find(d.witnesses,s.witnessId).name, r.text, 'answer');
       s.lastResponseType = r.type;
       if (r.observation) s.witnessObservation = r.observation;
-      for (const id of r.adds) if (!E.recordIds(s).includes(id)) s.records.evidence.push({ id: next(), propositionId: id, witnessId: s.witnessId, source, basis: [...basis], responseId: r.id, testimony: r.text, ...provenance });
+      const relations=(r.relations||[]).flatMap(rel=>{const target=s.records.evidence.find(e=>e.witnessId===s.witnessId&&e.propositionId===rel.propositionId&&e.commitment);return target?[{kind:rel.kind,recordRef:target.id}]:[];});
+      const supportEffects=(r.supportEffects||[]).flatMap(effect=>{const target=s.records.evidence.find(e=>e.witnessId===s.witnessId&&e.propositionId===effect.propositionId);return target?[{recordRef:target.id,status:effect.status}]:[];});
+      for (const id of r.adds) if (!E.recordIds(s).includes(id) || r.relations?.length || (r.commitments?.includes(id)&&!E.commitments(s).includes(id))) s.records.evidence.push({ id: next(), propositionId: id, witnessId: s.witnessId, source, basis: [...basis], responseId: r.id, testimony: r.text, commitment:!!r.commitments?.includes(id), relations, supportEffects, rehabilitationOpportunity:!!r.rehabilitationOpportunity, ...provenance });
     }
-    function commitPosition(s, kind) {
+    function commitPosition(s, kind, claim = null) {
       const argument = E.argument(d, s), p = argument.plan, inference = argument.inference;
       const item = { id: next(), kind, theoryId: s.theoryId, planId: p.id, issue: p.issue, premises: [...s.selected],
-        inferenceId: inference.id, text: kind === 'argument' ? inference.text : p.question };
+        inferenceId: inference?.id || null, claimId:claim?.id || null, text: kind === 'argument' ? inference.text : claim?.question || p.question };
       s.records.advocacy.push(item);
     }
     function procedural(s, questionId, kind, fields) { s.records.procedural.push({ id: next(), questionId, kind, ...E.copy(fields) }); }
     function performQuestion(s, action, payload) {
       if (action === 'establish') {
         const goal = E.find(d.goals,payload.id);
-        recordResponse(s,E.find(d.responses,goal.response),goal.id,payload.basis); s.asked.push(goal.id);
+        recordResponse(s,goal.responseRoutes?E.routeResponse(d,s,goal.responseRoutes):E.find(d.responses,goal.response),goal.id,payload.basis); s.asked.push(goal.id);
         s.followupGoalId=goal.followup||null;
       } else if (action === 'press') {
-        const pressure = E.pressure(d,s), r = E.response(d,s), p = E.argument(d,s).plan;
-        commitPosition(s,'press'); recordResponse(s,r,p.id,[]);
-        s.presses.push({ id: next(), responseId: r.id, planId: p.id, ...pressure, premises: [...s.selected] });
+        const pressure = E.pressure(d,s,payload.claimId), r = E.response(d,s,payload.claimId), p = E.argument(d,s).plan;
+        commitPosition(s,'press',E.find(p.claimVariants||[],payload.claimId)); recordResponse(s,r,p.id,[]);
+        s.presses.push({ id: next(), responseId: r.id, planId: p.id, claimId:payload.claimId || null, ...pressure, premises: [...s.selected] });
       } else {
         const route = E.find(d.counterResponses,payload.id), target = s.records.evidence.find(r => r.propositionId === route.target);
         const premiseRefs = route.requires.map(id => s.records.evidence.find(r => r.propositionId === id).id);
@@ -109,7 +111,9 @@
         } else if (action === 'press') {
           const p = E.argument(d, s).plan;
           const premiseText = s.selected.map(id => E.find(d.propositions, id).short).join(' · ');
-          beginQuestion(s,'press',payload,premiseText + '. ' + p.question);
+          const claim=E.find(p.claimVariants||[],payload.claimId);
+          E.ensure(payload.claimId?!!claim:E.argument(d,s).valid,'현재 질문의 결론 범위를 선택하십시오.');
+          beginQuestion(s,'press',payload,claim?claim.question:premiseText + '. ' + p.question);
         } else if (action === 'counter') {
           const route = E.find(d.counterResponses, payload.id);
           E.ensure(route && a.counters.some(c => c.id === route.id && c.available), '반박에 필요한 기록이 없거나 이미 대응했습니다.');
