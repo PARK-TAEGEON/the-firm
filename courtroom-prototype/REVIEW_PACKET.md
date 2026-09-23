@@ -67,3 +67,15 @@ Intermediate failures resolved: three old tests assumed duplicate form Maintain;
 All testimony, claims, inferences, support transitions and response routes are authored case fixtures. There is no semantic NLP contradiction detector: an author declares relation meaning; validator verifies structure and ownership. Existing direct testimony is still seeded authored input. Hard narrative/overreach counters have no new immediate rebuttal route in this slice. Actual rehabilitation/Redirect, Closing valuation and whole-case victory are not implemented. Address-only and strict-judge variants are test data, with no judge-selection UI.
 
 Godot skeleton/accepted rules, Opening/Closing/Verdict, third witness, new case, civil, Re-cross, jury, Frame slots, RNG/AI, relationship scores and staff were not touched. Unrelated automation modifications present at start remain untouched. No scope-external refactor, publishing or push.
+
+## 2026-09-23 — Documentation and v0.65 baseline freeze
+
+Purpose: preserve the accepted four-document draft from the referenced design conversation, reconcile CURRENT with the existing v0.65 code, and define v0.7 without implementing it.
+
+Changes: added repository-root docs/DESIGN.md (principles), docs/CURRENT.md (verified implementation and outstanding debt), docs/IMPLEMENT.md (future v0.7 delta), docs/REVIEW.md (fixed review standard). Appended this handoff and test-results.log under repository AGENTS.md requirements. Root DESIGN.md and all runtime/test source remain unchanged.
+
+Baseline: df648a1e7a73a5d63bed0308a1441ebde1666abd. Local v0.65 ZIP SHA-256 AA38FDE794B752636F21FEEF39B870B00A796087B5B3BE0424ACD9CA8D03E455 matches the independent review supplied in conversation 6ab0a8af-5d50-83ee-a96c-22d554ef97b6. That later review reported no P0/P1; the earlier review-not-obtained statement above describes the original implementation handoff. This documentation task is not a new independent product review.
+
+Verification rerun: npm test — 160 pass; npm run test:browser — 87 + 47 + 35 = 169 checks; npm run test:budget — 14 checks. Total 343 tests/checks, 0 failures, all exit 0. Browser runs used bundled Playwright with Edge. Existing tests only; no new runtime invariant or tests introduced. Godot suites were not rerun for this documentation-only change. No new manual human playtest claimed.
+
+Remaining authored/fixture limitations: response routes and relations are authored; legacy browser tests use compatibility fixtures. Opening/public Major Commitment creation and persistent strategy-conflict records remain future work. Relation duplication/first-match targeting, procedure three-rule constraint and Claim UX are documented, not fixed. No v0.65.1/v0.7, Godot, UI, automation, publishing or push work performed. Existing unrelated user changes are excluded from the commit.
