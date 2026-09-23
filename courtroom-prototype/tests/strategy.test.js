@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const D = require('../data/case'), E = require('../engine/core');
+const D = require('./case-v065'), E = require('../engine/core');
 const { createService } = require('../services/courtroom');
 const pair = ['P_DISTANCE_27M', 'P_OBSERVATION_SHORT'], strong = [...pair, 'P_INITIAL_UNCERTAIN'];
 function cmd(s, action, payload) { const r = require('./settle-procedure')(s,s.command(action, payload)); assert.ok(r.ok, r.error); return r.view; }

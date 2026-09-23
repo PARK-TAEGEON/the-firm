@@ -36,3 +36,9 @@ Explicit admissions are evidence-record commitments scoped to the speaking witne
 Press may name an authored claim variant independently of an exact inference. This permits a premature conclusion question with no established premises. Frame still requires an exact authored inference. Claim variants show actual question sentences. Narrow confirmation, prior-contact possibility, offense-time use and an excessive non-use conclusion have different authored routes. Existing basis signatures remain intact; explicit claim repetition is scoped to that claim. Legacy no-claim commands remain available to regression fixtures.
 
 No generic legal conclusion generator is implied. Claim routes and their conflicts are case-authored content. All adverse effects remain in the record and can be replayed without transient question state. Stop adds no reward. The favorable concession survives overreach alongside its recorded limitation.
+
+## v0.7 authorized delta
+
+The active web contract is `.agent/tasks/COURTROOM-CORE-070.md`, following `/docs/IMPLEMENT.md` and the user's explicit v0.7 request. Its Opening and Strategy scope supersedes the historical v0.65 exclusion of Opening above; all other frozen-core boundaries remain.
+
+Opening composes authored admission, contest, emphasis and argument-introduction fragments. It records an opening_position and separate major_commitment entries in case-scoped Advocacy only. A Frame never creates a major commitment. Working Strategy uses the existing theory command. Explicit authored position conflicts append commitment_conflict records referencing the original commitment and strategy revision; a mere change of issue priority is not a factual contradiction. Case-wide read projection joins commitments through issues to recorded arguments and evidence, and reads current theory priority and client objectives. No numerical penalties, verdict or generic legal inference.

@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const D = require('../data/case');
+const D = require('./case-v065');
 const E = require('../engine/core');
 const { createService } = require('../services/courtroom');
 const fresh = (d = D) => { const s = createService(d); ok(s, 'strategy', { id: d.theories[0].id }); return s; };

@@ -36,3 +36,8 @@ button.plain,.chip,.evidence {font-weight:500;}
 .theory,.brand small {font-family:Pretendard,'Malgun Gothic',sans-serif;}
 .flow-actions {grid-template-columns:repeat(3,1fr);}
 .chip[aria-pressed="true"] {font-weight:500;}
+
+/* Opening reuses the examination action area. */
+.opening-group {border:0;padding:0;margin:0 0 12px;min-width:0;}
+.opening-group legend {font-size:13px;margin-bottom:5px;color:var(--muted);}
+.opening-group .chip {margin:0 5px 5px 0;white-space:normal;text-align:left;}

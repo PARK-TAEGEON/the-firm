@@ -2,8 +2,9 @@
   'use strict';
   const E = typeof module !== 'undefined' && module.exports ? require('../engine/core.js') : root.FirmEngine;
   const P = typeof module !== 'undefined' && module.exports ? require('../engine/procedure.js') : root.FirmProcedure;
+  const O = typeof module !== 'undefined' && module.exports ? require('../engine/opening.js') : root.FirmOpening;
   function createService(definition) {
-    const d = E.copy(definition); E.validate(d); P.validate(d);
+    const d = E.copy(definition); E.validate(d); P.validate(d); O.validate(d);
     let serial = 0, session = 0, state;
     const next = () => d.id + ':runtime:' + (++serial);
     function reset() {
@@ -11,7 +12,7 @@
         witnessId:d.witnesses[0].id, visitedWitnesses:[], endedWitnesses:[], threadId:null, followupGoalId:null,
         records: { evidence: [], procedural: [], advocacy: [] }, pendingQuestion: null, history: [], resolution: null,
         witnessObservation: d.witnesses[0].initialObservation, judgeObservation: '쟁점 중심의 질문을 기다립니다.', lastResponseType: null,
-        dialogue: [{ id: next(), speaker: d.profile.roles.factFinder, text: '변호인, 반대신문을 준비하십시오.', kind: 'opening' }] };
+        dialogue: [{ id: next(), speaker: d.profile.roles.factFinder, text: d.opening ? '변호인, 개회사를 준비하십시오.' : '변호인, 반대신문을 준비하십시오.', kind: 'opening' }] };
       return projection();
     }
     function line(s, speaker, text, kind) { s.dialogue.push({ id: next(), speaker, text, kind, witnessId:s.witnessId }); }
@@ -84,8 +85,25 @@
         if (action === 'strategy') {
           E.ensure(E.find(d.theories, payload.id), '알 수 없는 전략입니다.');
           E.ensure(s.theoryId !== payload.id, '이미 선택한 전략입니다.');
-          s.theoryId = payload.id; s.phase = 'examine';
-          if(!s.visitedWitnesses.includes(s.witnessId)){s.visitedWitnesses.push(s.witnessId);const w=E.find(d.witnesses,s.witnessId);if(w.directResponse)recordResponse(s,E.find(d.responses,w.directResponse),w.id,[],{examination:'direct'});}
+          const fromTheoryId = s.theoryId;
+          s.theoryId = payload.id;
+          if (d.opening && O.replay(d,s.records).opening) {
+            const revision = {id:next(),kind:'strategy_revision',scope:'case',fromTheoryId,theoryId:s.theoryId,text:E.find(d.theories,s.theoryId).workingStrategy};
+            s.records.advocacy.push(revision);
+            for (const c of O.conflicts(d,s.records,s.theoryId)) s.records.advocacy.push({id:next(),kind:'commitment_conflict',scope:'case',commitmentRef:c.id,revisionRef:revision.id,theoryId:s.theoryId,issue:c.issue,text:c.text+' 현재 전략: '+revision.text});
+          }
+          s.phase = d.opening && !O.replay(d,s.records).opening ? 'opening' : 'examine';
+          if(s.phase==='examine'&&!s.visitedWitnesses.includes(s.witnessId)){s.visitedWitnesses.push(s.witnessId);const w=E.find(d.witnesses,s.witnessId);if(w.directResponse)recordResponse(s,E.find(d.responses,w.directResponse),w.id,[],{examination:'direct'});}
+        } else if (action === 'opening') {
+          const choices = O.selection(d,payload.ids);
+          const opening = {id:next(),kind:'opening_position',scope:'case',theoryId:s.theoryId,choiceIds:choices.map(c=>c.id),text:choices.map(c=>c.text).join(' ')};
+          s.records.advocacy.push(opening);
+          for (const c of choices) s.records.advocacy.push({id:next(),kind:'major_commitment',scope:'case',openingRef:opening.id,theoryId:s.theoryId,choiceId:c.id,issue:c.issue,planId:c.planId||null,position:c.position||null,text:c.text});
+          // An initially inconsistent private plan is recorded too, never silently repaired.
+          for (const c of O.conflicts(d,s.records,s.theoryId)) s.records.advocacy.push({id:next(),kind:'commitment_conflict',scope:'case',commitmentRef:c.id,openingRef:opening.id,theoryId:s.theoryId,issue:c.issue,text:c.text+' 현재 전략: '+E.find(d.theories,s.theoryId).workingStrategy});
+          line(s,d.profile.roles.respondent,opening.text,'opening_position');
+          s.phase='examine';s.visitedWitnesses.push(s.witnessId);
+          const w=E.find(d.witnesses,s.witnessId);if(w.directResponse)recordResponse(s,E.find(d.responses,w.directResponse),w.id,[],{examination:'direct'});
         } else if (action === 'witness') {
           const w=E.find(d.witnesses,payload.id);E.ensure(w&&w.id!==s.witnessId,'현재 증인이거나 알 수 없는 증인입니다.');
           s.witnessId=w.id;s.planId=w.planId;s.witnessObservation=w.initialObservation;s.lastResponseType=null;s.selected=[];s.threadId=null;s.followupGoalId=null;s.resolution=null;
@@ -145,10 +163,10 @@
     }
     function projection(source = state) {
       const s = E.copy(source), theory = E.find(d.theories, s.theoryId), plan = E.find(d.argumentPlans, s.planId);
-      return { state: s, case: E.copy(d), availability: E.availability(d, s), argument: E.copy(E.argument(d, s)),
+      return { caseRecord: O.replay(d,s.records,s.theoryId), state: s, case: E.copy(d), availability: E.availability(d, s), argument: E.copy(E.argument(d, s)),
         pressure: E.pressure(d, s), procedure: E.copy(P.options(d,s)), assessment: E.copy(E.evaluateRecord(d, s.records, s.theoryId,s.planId)), assessments:d.argumentPlans.map(p=>E.evaluateRecord(d,s.records,s.theoryId,p.id)), witness:E.copy(E.find(d.witnesses,s.witnessId)), threads:E.copy(d.threads.filter(t=>t.witnessId===s.witnessId)),
         strategy: theory ? { ...E.copy(theory), preferred: theory.preferredPlans.includes(plan.id),
-          potentialConflict: s.records.advocacy.filter(r => r.kind === 'major_commitment').some(c => c.theoryId !== theory.id && !theory.contestedIssues.includes(c.issue)) } : null };
+          potentialConflict: O.conflicts(d,s.records,theory.id).length > 0 } : null };
     }
     reset();
     return Object.freeze({ command, projection, reset });

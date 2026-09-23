@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'), assert=require('node:assert/strict');
-const D=require('../data/case'), E=require('../engine/core'), {createService}=require('../services/courtroom');
+const D=require('./case-v065'), E=require('../engine/core'), {createService}=require('../services/courtroom');
 function cmd(s,a,p){const r=s.command(a,p);assert.ok(r.ok,r.error);return r.view;}
 function fresh(profile={},address=false){const d=structuredClone(D);Object.assign(d.procedure.judge,profile);if(address)d.procedure.formResponseMode="address";const s=createService(d);cmd(s,'strategy',{id:'THEORY_IDENTITY'});return s;}
 function fact(s,id){const g=D.goals.find(g=>g.id===id);return cmd(s,'establish',{id,basis:g.basis});}

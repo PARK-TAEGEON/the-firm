@@ -1,5 +1,5 @@
 'use strict';
-const test=require('node:test'),assert=require('node:assert/strict'),D=require('../data/case'),E=require('../engine/core'),{createService}=require('../services/courtroom');
+const test=require('node:test'),assert=require('node:assert/strict'),D=require('./case-v065'),E=require('../engine/core'),{createService}=require('../services/courtroom');
 function command(s,a,p){const r=s.command(a,p);assert.ok(r.ok,r.error);return r.view;}
 function fresh(forensic=true,d=D){const s=createService(d);command(s,'strategy',{id:d.theories[0].id});if(forensic)command(s,'witness',{id:d.witnesses[1].id});return s;}
 function fact(s,id){const g=D.goals.find(g=>g.id===id);return command(s,'establish',{id,basis:g.basis});}

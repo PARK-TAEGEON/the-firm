@@ -1,6 +1,6 @@
 (function(root){
 'use strict';
-// Final authored definition; no late mutation blocks.
+// Authored case data; no runtime mutations.
 const caseDefinition = {
   "id": "CASE_B_WAREHOUSE",
   "title": "22시 14분, B동 창고",
@@ -44,7 +44,8 @@ const caseDefinition = {
     "phases": {
       "plan": "반대신문 준비",
       "examine": "서지훈 반대신문",
-      "resolved": "신문 종료"
+      "resolved": "신문 종료",
+      "opening": "개회사 준비"
     },
     "actions": [
       "establish",
@@ -59,7 +60,8 @@ const caseDefinition = {
       "answer",
       "witness",
       "thread",
-      "endThread"
+      "endThread",
+      "opening"
     ],
     "resolutionTypes": [
       "adjudicated",
@@ -110,7 +112,8 @@ const caseDefinition = {
         "counter"
       ],
       "workingStrategy": "목격자의 식별 신빙성 약화",
-      "relevance": "핵심 전략 · 식별 쟁점을 직접 다툽니다."
+      "relevance": "핵심 전략 · 식별 쟁점을 직접 다툽니다.",
+      "workingPositions": {}
     },
     {
       "id": "THEORY_INTENT",
@@ -127,7 +130,10 @@ const caseDefinition = {
       "preferredPlans": [],
       "conflictTags": [],
       "workingStrategy": "고의 쟁점 중심 · 식별 조건은 보조적으로 확인",
-      "relevance": "보조 전략 · 식별 의문만으로 고의가 부정되지는 않습니다."
+      "relevance": "보조 전략 · 식별 의문만으로 고의가 부정되지는 않습니다.",
+      "workingPositions": {
+        "contact": "admitted"
+      }
     }
   ],
   "witnesses": [
@@ -1894,7 +1900,91 @@ const caseDefinition = {
         "G_PRIOR_USE"
       ]
     }
-  ]
+  ],
+  "opening": {
+    "options": [
+      {
+        "id": "OPEN_PRESENT",
+        "group": "admit",
+        "label": "B동에 있었다",
+        "text": "피고인이 B동에 있었던 사실은 다투지 않습니다.",
+        "issue": "IDENTITY"
+      },
+      {
+        "id": "OPEN_CONTACT",
+        "group": "admit",
+        "label": "피해자와 접촉했다",
+        "text": "피고인이 피해자와 접촉한 사실은 인정합니다.",
+        "issue": "INTENT",
+        "position": {
+          "key": "contact",
+          "value": "admitted"
+        }
+      },
+      {
+        "id": "OPEN_NO_CONTACT",
+        "group": "contest",
+        "label": "피해자를 만났다는 점",
+        "text": "피고인은 피해자를 만나지 않았다는 입장입니다.",
+        "issue": "IDENTITY",
+        "position": {
+          "key": "contact",
+          "value": "denied"
+        }
+      },
+      {
+        "id": "OPEN_IDENTITY",
+        "group": "contest",
+        "label": "공격자 동일성",
+        "text": "피고인이 공격자였다는 점을 다툽니다.",
+        "issue": "IDENTITY"
+      },
+      {
+        "id": "OPEN_INTENT",
+        "group": "contest",
+        "label": "고의적인 공격",
+        "text": "고의적인 공격이었다는 점을 다툽니다.",
+        "issue": "INTENT"
+      },
+      {
+        "id": "OPEN_SIGHT",
+        "group": "emphasize",
+        "label": "목격 식별",
+        "text": "목격 식별의 한계에 주목해 주십시오.",
+        "issue": "IDENTITY"
+      },
+      {
+        "id": "OPEN_TIME",
+        "group": "emphasize",
+        "label": "지문 시점",
+        "text": "지문이 남은 시점의 한계를 살펴보겠습니다.",
+        "issue": "COMMISSION"
+      },
+      {
+        "id": "OPEN_INTENT_FOCUS",
+        "group": "emphasize",
+        "label": "고의",
+        "text": "고의 여부를 중심으로 다투겠습니다.",
+        "issue": "INTENT"
+      },
+      {
+        "id": "OPEN_SIGHT_ARGUMENT",
+        "group": "introduce",
+        "label": "관찰 조건과 식별 정확성",
+        "text": "관찰 조건이 식별의 정확성을 뒷받침하는지 신문하겠습니다.",
+        "issue": "IDENTITY",
+        "planId": "PLAN_IDENTIFICATION"
+      },
+      {
+        "id": "OPEN_TIME_ARGUMENT",
+        "group": "introduce",
+        "label": "접촉과 범행 당시 사용",
+        "text": "접촉 흔적이 범행 당시 사용을 입증하는지 신문하겠습니다.",
+        "issue": "COMMISSION",
+        "planId": "PLAN_CONTACT_USE"
+      }
+    ]
+  }
 };
 if(typeof module !== 'undefined' && module.exports) module.exports=caseDefinition; else root.FirmCase=caseDefinition;
 })(globalThis);

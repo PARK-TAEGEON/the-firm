@@ -24,3 +24,11 @@ Measured with the same three facts and viewports as released v0.6, fonts ready:
 No horizontal overflow; desktop lane ends at 960px within 1080px. Claim choice is a temporary four-question list and is not included in the ordinary-screen character budget. Mobile full-page captures require scrolling; this is not a claim that every action fits one phone viewport. Screens inspected: claim choice, successful admission/overreach, mobile claims and record material sheet.
 
 Pretendard variable font is bundled from official v1.3.9; SIL OFL accompanies it. Source: https://github.com/orioncactus/pretendard/tree/v1.3.9 . No runtime external font requests. Noto Serif KR is not bundled: installed font or Batang/serif fallback is used. Visual separation was inspected; no user study of immersion was performed.
+
+## v0.7 Opening text audit (2026-09-23)
+
+Opening reuses #scene and #examination: four short legends (인정 / 다툼 / 강조 / 소개할 논증), authored position fragments, one action 이 입장으로 시작. No finished-speech choices, checkmarks, badges, numerical gauges, recommended opening or tutorial panel. Selection uses existing chip styling and aria-pressed.
+
+CourtRecord disclosure titles add 개회사 / 공개 입장 / 전략 변경 / 공개 입장과 충돌. Full statements and conflict text appear inside existing collapsed record details. No additional permanent panel. Errors appear only after invalid submission. Focus is restored after opening selection/strategy changes; the opening speech uses the small existing live region.
+
+Existing examination budget unchanged: desktop 195/218 visible characters (normal/argument), mobile 183/213; no horizontal overflow. Opening screenshots checked at 1440×1080, 1280×720 and 390×844. Mobile uses existing vertical scrolling; no new overlay or navigation system.

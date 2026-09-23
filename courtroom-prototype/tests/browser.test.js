@@ -5,7 +5,7 @@ const {pathToFileURL}=require('node:url'),{createServer}=require('../serve');
  const server=createServer();await new Promise(r=>server.listen(0,'127.0.0.1',r));let browser,checks=0;const errors=[];
  const check=(ok,msg)=>{assert.ok(ok,msg);checks++;};
  try{
-  browser=await chromium.launch({channel:'msedge',headless:true});const page=await browser.newPage({viewport:{width:1440,height:1080}});await page.addInitScript(()=>{Object.defineProperty(window,'FirmCase',{configurable:true,set(d){for(const p of d.argumentPlans)delete p.claimVariants;Object.defineProperty(window,'FirmCase',{value:d,writable:true,configurable:true});}});});page.on('pageerror',e=>errors.push(e.message));
+  browser=await chromium.launch({channel:'msedge',headless:true});const page=await browser.newPage({viewport:{width:1440,height:1080}});await page.addInitScript(()=>{Object.defineProperty(window,'FirmCase',{configurable:true,set(d){delete d.opening;for(const p of d.argumentPlans)delete p.claimVariants;Object.defineProperty(window,'FirmCase',{value:d,writable:true,configurable:true});}});});page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:'+server.address().port);
   const click=async selector=>page.locator(selector).click();
   const action=async a=>{if(a==='stop'&&await page.locator('[data-action=close-argument]').count())await click('[data-action=close-argument]');return click(`[data-action="${a}"]`);};

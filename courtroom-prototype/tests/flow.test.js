@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs');
-const D=require('../data/case'),E=require('../engine/core'),{createService}=require('../services/courtroom');
+const D=require('./case-v065'),E=require('../engine/core'),{createService}=require('../services/courtroom');
 const pair=['P_PRINT_TIME_UNKNOWN','P_SHARED_KNIFE'],strong=[...pair,'P_PRIOR_USE_POSSIBLE'];
 function cmd(s,a,p){const r=s.command(a,p);assert.ok(r.ok,r.error);return r.view;}
 function fresh(d=D){const s=createService(d);cmd(s,'strategy',{id:d.theories[0].id});cmd(s,'witness',{id:d.witnesses[1].id});return s;}
