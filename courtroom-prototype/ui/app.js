@@ -2,7 +2,6 @@
   'use strict';
   const service = FirmService.createService(FirmCase), $ = q => document.querySelector(q);
   const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const strength = { limited:'제한적', strong:'강함', compelling:'매우 강함' };
   const actionNames = { maintain:'그대로 요청', basis:'이 기록을 근거로', narrow:'좁혀 묻기', withdraw:'철회', justify:'기록 연결' };
   let filter = 'all', noticeTimer, argumentOpen=false, claimOpen=false, basisPicked=[], openingDraft=[], closingDraft={issueIds:[],argumentIds:[],evidenceRefs:[],counterRefs:[],positions:[]};
   const button = (action,label,enabled=true,title='') => `<button class="plain" data-action="${action}" ${enabled?'':'disabled'} ${title?`title="${esc(title)}"`:''}>${esc(label)}</button>`;
@@ -51,26 +50,29 @@
       return `<div class="record-row"><details class="record-item ${layer}" data-detail="${esc(r.id)}"><summary>${esc(title)}</summary>${body}</details>${selection}</div>`;
     }).join('')||'<p class="note">기록 없음</p>'}</div>`;
   }
-  function render() {
-    const expanded = new Set([...document.querySelectorAll('details[open][data-detail]')].map(e=>e.dataset.detail));
-    const saved = {x:scrollX,y:scrollY,record:$('#recordDialog').scrollTop,panel:$('#recordPanel').scrollTop};
+  function render(preserve=true) {
+    const expanded = new Set(preserve?[...document.querySelectorAll('details[open][data-detail]')].map(e=>e.dataset.detail):[]);
+    const saved = preserve?{x:scrollX,y:scrollY,record:$('#recordDialog').scrollTop,panel:$('#recordPanel').scrollTop}:{x:0,y:0,record:0,panel:0};
     const focused = document.activeElement, focusAttr = ['data-closing-issue','data-closing-argument','data-closing-evidence','data-closing-counter','data-closing-position','data-opening','data-claim','data-premise','data-action','data-goal','data-counter','data-response','data-thread','data-basis','data-witness'].find(k=>focused?.hasAttribute(k));
     const focusValue = focusAttr?focused.getAttribute(focusAttr):null;
     const v = service.projection(), s = v.state, d = v.case;
+    document.body.classList.toggle('planning-phase',['opening','closing'].includes(s.phase));
     document.body.classList.toggle('closing-phase',['closing','closed','verdict'].includes(s.phase));
     $('#caseTitle').textContent = d.title; $('#phaseLabel').textContent = s.phase==='verdict'?d.profile.phases.verdict:s.phase==='closed'?'최종변론':s.phase==='closing'?'최종변론 준비':s.phase==='plan'?'변호 전략':s.phase==='opening'?'개회사 준비':v.witness.name+' · '+(s.phase==='resolved'?'신문 종료':v.witness.role);
-    $('#casePanel').innerHTML = `<section class="section witnesses">${d.witnesses.map(w=>`<button class="plain" data-witness="${w.id}" aria-pressed="${s.witnessId===w.id}" ${!v.availability.witness||s.witnessId===w.id?'disabled':''}>${esc(w.name)}</button>`).join('')}</section><section class="section"><div class="theory">${esc(v.strategy?.title||'변호 전략')}</div>${button('open-strategy','전략',v.availability.strategy)}<details data-detail="theory"><summary>입장</summary>${v.strategy?`<p>${esc(v.strategy.relevance)}</p><p>${v.strategy.concessions.map(esc).join(' · ')}</p>`:''}</details></section><section class="section" id="mobileCaseInfo" tabindex="-1"><details data-detail="case-issues"><summary>쟁점 · 의뢰인 목표</summary>${d.issues.map(i=>`<p>${esc(i.question)}</p>`).join('')}<p>${esc(d.client.name)} · ${esc(d.clientObjectives.primary)}</p><p>${d.facts.map(esc).join('<br>')}</p></details></section><section class="section">${d.evidence.filter(e=>v.witness.evidenceIds.includes(e.id)).map(e=>`<button class="evidence" data-evidence="${esc(e.id)}">${esc(e.title)}</button>`).join('')}</section>`;
+    const witnessPhase=['examine','resolved'].includes(s.phase);
+    $('#casePanel').innerHTML = `${witnessPhase?`<section class="section witnesses">${d.witnesses.map(w=>`<button class="plain" data-witness="${w.id}" aria-pressed="${s.witnessId===w.id}" ${!v.availability.witness||s.witnessId===w.id?'disabled':''}>${esc(w.name)}</button>`).join('')}</section>`:''}<section class="section"><div class="theory">${esc(v.strategy?.title||'변호 전략')}</div>${v.availability.strategy?button('open-strategy','전략'):''}<details data-detail="theory"><summary>입장</summary>${v.strategy?`<p>${esc(v.strategy.relevance)}</p><p>${v.strategy.concessions.map(esc).join(' · ')}</p>`:''}</details></section><section class="section" id="mobileCaseInfo" tabindex="-1"><details data-detail="case-issues"><summary>쟁점 · 의뢰인 목표</summary>${d.issues.map(i=>`<p>${esc(i.question)}</p>`).join('')}<p>${esc(d.client.name)} · ${esc(d.clientObjectives.primary)}</p><p>${d.facts.map(esc).join('<br>')}</p></details></section>${witnessPhase?`<section class="section">${d.evidence.filter(e=>v.witness.evidenceIds.includes(e.id)).map(e=>`<button class="evidence" data-evidence="${esc(e.id)}">${esc(e.title)}</button>`).join('')}</section>`:''}`;
     const latest = s.dialogue.at(-1), previous = s.dialogue.at(-2);
     const history = `<details class="history" data-detail="dialogue"><summary>대화</summary>${s.dialogue.map(l=>`<p><b>${esc(l.speaker)}</b> ${esc(l.text)}</p>`).join('')}</details>`;
     if (s.resolution) {
       const r = s.resolution;
-      $('#scene').innerHTML = `<div class="result-box"><h1>${esc(r.title)}</h1><details data-detail="result"><summary>기록 검토</summary><p>${esc(r.text)}</p><p>${r.framedArguments.map(a=>esc(a.title)+' · '+esc(strength[a.strength])).join('<br>')}</p><p>${r.strategy.unresolvedIssues.length?'남은 쟁점: '+r.strategy.unresolvedIssues.map(id=>esc(d.issues.find(i=>i.id===id).title)).join(', '):'이 쟁점의 근거 확보'}</p><p>${esc(r.limitation)}</p></details></div>${history}`;
+      $('#scene').innerHTML = `<div class="result-box"><h1>${esc(r.title)}</h1><details data-detail="result"><summary>기록 검토</summary><p>${esc(r.text)}</p><p>${r.framedArguments.map(a=>esc(a.title)).join('<br>')}</p></details></div>${history}`;
     } else {
       $('#scene').innerHTML = `${latest.kind==='answer'&&s.dialogue.findLast(l=>l.kind==='question'&&l.witnessId===s.witnessId)?`<p class="question-echo">${esc(s.dialogue.findLast(l=>l.kind==='question'&&l.witnessId===s.witnessId).text)}</p>`:''}${latest.kind==='answer'&&previous?.kind==='ruling'?`<p class="court-notice">${esc(previous.text)}</p>`:''}<div class="speaker">${esc(latest.speaker)}</div><h1 class="statement">${esc(latest.text)}</h1>${history}`;
     }
+    if(s.phase==='examine'&&latest.kind==='opening_position')$('#scene').innerHTML='<h1>'+esc(v.witness.name)+' 증인</h1>'+history;
     if(s.phase==='verdict') {
       const j=v.adjudication;
-      $('#scene').innerHTML='<div class="result-box verdict-result"><h1>'+esc(j.verdict.title)+'</h1><p>'+esc(j.verdict.text)+'</p>'+j.findings.filter(f=>f.required).map(f=>'<section><h2>'+esc(f.title)+'</h2><p>'+esc(f.reasoning)+'</p><details data-detail="finding-'+esc(f.issue)+'"><summary>판단 근거</summary>'+f.evidenceRefs.map(id=>{const r=s.records.evidence.find(r=>r.id===id);return '<p>'+esc(d.propositions.find(p=>p.id===r.propositionId).text)+'</p>';}).join('')+(f.evidenceRefs.length?'':'<p>기록된 증언 없음</p>')+'</details></section>').join('')+'</div>';
+      $('#scene').innerHTML='<div class="result-box verdict-result"><h1>'+esc(j.verdict.title)+'</h1>'+j.findings.filter(f=>f.required).map(f=>'<section><h2>'+esc(f.title)+'</h2><p>'+esc(f.reasoning)+'</p><details data-detail="finding-'+esc(f.issue)+'"><summary>판단 근거</summary>'+f.evidenceRefs.map(id=>{const r=s.records.evidence.find(r=>r.id===id);return '<p>'+esc(d.propositions.find(p=>p.id===r.propositionId).text)+'</p>';}).join('')+(f.evidenceRefs.length?'':'<p>기록된 증언 없음</p>')+'</details></section>').join('')+'<p class="verdict-summary">'+esc(j.verdict.text)+'</p></div>';
       $('#examination').innerHTML=button('open-record','법정 기록')+button('reset','처음부터');
     } else if(s.phase==='closing') {
       $('#scene').innerHTML='<h1>최종변론 준비</h1>';
@@ -78,7 +80,7 @@
       const args=c.arguments.filter(a=>closingDraft.issueIds.includes(a.issue));
       $('#examination').innerHTML='<fieldset class="opening-group"><legend>중심 쟁점</legend>'+d.issues.map(i=>chip('issue',i.id,i.title,closingDraft.issueIds.includes(i.id))).join('')+'</fieldset>'+
         '<details data-detail="closing-arguments"><summary>사용할 논증</summary>'+args.map(a=>chip('argument',a.id,a.title,closingDraft.argumentIds.includes(a.id))).join('')+(!args.length?'<p>연결할 논증 없음</p>':'')+'</details>'+
-        '<details data-detail="closing-citations"><summary>인용과 약점 대응</summary>'+button('choose-record','기록에서 고른다')+'<p>'+closingDraft.evidenceRefs.map(id=>esc(c.evidence.find(e=>e.id===id).title)).join(' · ')+'</p><p>'+closingDraft.counterRefs.map(id=>esc(c.counters.find(e=>e.id===id).title)).join(' · ')+'</p></details>'+
+        '<div class="closing-citations">'+button('choose-record','인용과 반박을 고른다')+'</div>'+
         '<details data-detail="closing-positions"><summary>개회사 입장</summary>'+c.commitments.map(p=>{const picked=closingDraft.positions.find(x=>x.commitmentRef===p.id);return '<label class="closing-position">'+esc(p.text)+'<select data-closing-position="'+p.id+'" aria-label="'+esc(p.text)+' 처리"><option value="">다루지 않음</option><option value="maintain" '+(picked?.mode==='maintain'?'selected':'')+'>유지</option>'+d.opening.options.filter(o=>o.id!==p.choiceId&&(o.issue===p.issue||o.position&&p.position&&o.position.key===p.position.key)).map(o=>'<option value="'+o.id+'" '+(picked?.choiceId===o.id?'selected':'')+'>수정: '+esc(o.label)+'</option>').join('')+'</select></label>';}).join('')+'</details>'+
         '<div class="decisions">'+button('preview-closing','변론 미리보기',closingDraft.issueIds.length>0)+'</div>';
     } else if(s.phase==='closed') {
@@ -90,7 +92,10 @@
     } else if (v.procedure) {
       const o = v.procedure;
       $('#examination').innerHTML = `<div id="procedureActions">${o.stage==='address'?`<p id="addressContext">${esc(o.justification)}</p>`:''}<details data-detail="pending-question"><summary>질문과 근거</summary><p>${esc(o.question)}</p><p>${o.basis.map(b=>esc(b.title)).join(' · ')}</p></details><div id="basisChoices">${o.pickBasis?`<p class="basis-question">${esc(o.question)}</p><div class="basis-options" role="group" aria-label="질문에 연결할 근거, 최대 두 개">${o.basis.map((b,i)=>`<button class="chip" data-basis="${i}" aria-pressed="${basisPicked.includes(i)}" ${basisPicked.length>=o.basisMax&&!basisPicked.includes(i)?'disabled':''}>${esc(b.title)}</button>`).join('')}</div>`:''}</div><div class="procedure-buttons">${o.actions.map(action=>`<button class="plain" data-response="${action}" ${o.pickBasis&&['basis','justify'].includes(action)&&(basisPicked.length<o.basisMin||basisPicked.length>o.basisMax)?'disabled':''} title="${action==='narrow'?'원 결론 대신 관찰 조건만 확인':action==='basis'?'현재 질문에 연결된 기록 제시':''}">${actionNames[action]}</button>`).join('')}</div></div>`;
-    } else if (s.phase==='resolved') $('#examination').innerHTML = (v.availability.beginClosing?button('beginClosing','최종변론을 준비한다'):'')+(v.availability.deliverVerdict?button('deliverVerdict','판결을 듣는다'):'')+button('reset','다시 신문');
+    } else if (s.phase==='resolved') {
+      const next=d.witnesses.find(w=>!s.endedWitnesses.includes(w.id));
+      $('#examination').innerHTML=(next&&v.availability.witness?button('next-witness',next.name+'에게 묻는다'):'')+(v.availability.beginClosing?button('beginClosing','최종변론을 준비한다'):'')+(v.availability.deliverVerdict?button('deliverVerdict','판결을 듣는다'):'')+button('reset','다시 시작');
+    }
     else if (s.phase==='plan') $('#examination').innerHTML = button('open-strategy','전략 선택');
     else {
       const t=v.threads.find(t=>t.id===s.threadId), follow=s.followupGoalId&&d.goals.find(g=>g.id===s.followupGoalId&&v.availability.goals.some(a=>a.id===g.id&&a.available));
@@ -102,6 +107,7 @@
       $('#examination').innerHTML=claims || (argumentOpen?lane:topics+goals+'<div class="decisions flow-actions">'+button('stop','신문을 마친다')+button('compose','기록을 연결한다',recorded.length>=v.argument.plan.min)+button('press','확답을 요구한다')+'</div>');
       if(argumentOpen&&!claimOpen)updateLane(v);
     }
+    document.querySelector('footer').hidden=['resolved','closed','verdict'].includes(s.phase);
     $('#recordPanel').innerHTML = recordHTML(v);
     if(argumentOpen&&!claimOpen&&!v.procedure&&s.phase==='examine')updateLane(v);
     $('#strategyChoices').innerHTML = d.theories.map(t=>`<button class="choice" data-theory="${esc(t.id)}" ${s.theoryId===t.id?'disabled':''}><b>${esc(t.title)}</b></button>`).join('');
@@ -110,10 +116,12 @@
     if (focusAttr) { const b = [...document.querySelectorAll(`[${focusAttr}]`)].find(e=>e.getAttribute(focusAttr)===focusValue); if (b&&!b.disabled) b.focus({preventScroll:true}); else if(focusAttr==='data-response') $('#examination .decisions button:not(:disabled)')?.focus({preventScroll:true}); }
     scrollTo(saved.x,saved.y); $('#recordDialog').scrollTop=saved.record;$('#recordPanel').scrollTop=saved.panel;
   }
+  const dialogOpeners=new Map();
+  function rememberOpener(dialog) { const e=document.activeElement;dialogOpeners.set(dialog.id,e?.dataset.action?{action:e.dataset.action}:e?.dataset.evidence?{evidence:e.dataset.evidence}:e?.id?{id:e.id}:null); }
   function closeDialogs() { document.querySelectorAll('dialog[open]').forEach(d=>d.close()); if ($('#recordSheet').contains($('#recordPanel'))) $('.main').appendChild($('#recordPanel')); }
-  function openDialog(selector) { closeDialogs(); $(selector).showModal(); }
+  function openDialog(selector) { rememberOpener($(selector));closeDialogs(); $(selector).showModal(); }
   function run(action,payload) {
-    const before = service.projection().state.dialogue.length;
+    const prior=service.projection().state, before=prior.dialogue.length;
     let r = service.command(action,payload);
     if (!r.ok) { clearTimeout(noticeTimer); $('#notification').textContent=r.error; noticeTimer=setTimeout(()=>{$('#notification').textContent='';},2400); return; }
     // Ruling and witness execution are distinct service transactions. No extra
@@ -123,13 +131,13 @@
     if (action==='select') updateLane(r.view);
     else {
       if (r.view.procedure) closeDialogs();
-      if(action==='witness'||action==='thread'||action==='endThread')argumentOpen=false;
+      if(prior.phase!==r.view.state.phase||action==='witness'||action==='thread'||action==='endThread')argumentOpen=false;
       claimOpen=false;
       basisPicked=[];
       render();
       const changes=r.view.state.dialogue.slice(before).filter(l=>['answer','objection','ruling','instruction','opening_position','closing_position','verdict'].includes(l.kind));
       $('#announcement').textContent=changes.slice(-2).map(l=>`${l.speaker}: ${l.text}`).join(' ');
-      if(action==='deliverVerdict') { const heading=$('#scene h1');heading.tabIndex=-1;heading.focus({preventScroll:true});heading.scrollIntoView({block:'center'}); }
+      if(prior.phase!==r.view.state.phase||action==='witness') { const heading=$('#scene h1');heading.tabIndex=-1;heading.focus({preventScroll:true});$('#scene').scrollTop=0;scrollTo(0,Math.max(0,scrollY+heading.getBoundingClientRect().top-document.querySelector('.masthead').getBoundingClientRect().height-16)); }
       else if (r.view.procedure) $('#procedureActions button:not(:disabled)')?.focus({preventScroll:true});
       else if(action==='deliverVerdict'||action==='beginClosing'||action==='submitClosing'||action==='opening'||action==='strategy'||action==='witness'||action==='endThread')$('#examination button:not(:disabled)')?.focus({preventScroll:true});
     }
@@ -142,6 +150,7 @@
     else if(b.dataset.action==='preview-closing'){
       try{const draft=FirmClosing.synthesize(v.case,v.state.records,v.state.theoryId,closingDraft);$('#notification').textContent='';$('#closingPreviewText').textContent=draft.text;openDialog('#closingPreview');}catch(e){$('#notification').textContent=e.message;}
     }
+    else if(b.dataset.action==='next-witness'){const next=v.case.witnesses.find(w=>!v.state.endedWitnesses.includes(w.id));if(next)run('witness',{id:next.id});}
     else if(b.dataset.action==='submitClosing'){closeDialogs();run('submitClosing',closingDraft);}
     else if(b.dataset.opening){const id=b.dataset.opening;openingDraft=openingDraft.includes(id)?openingDraft.filter(x=>x!==id):[...openingDraft,id];render();}
     else if(b.dataset.action==='opening')run('opening',{ids:openingDraft});
@@ -153,22 +162,23 @@
     else if(b.dataset.premise){event.preventDefault();const id=b.dataset.premise;run('select',{ids:v.state.selected.includes(id)?v.state.selected.filter(x=>x!==id):[...v.state.selected,id]});}
     else if(b.dataset.counter)run('counter',{id:b.dataset.counter});
     else if(b.dataset.response){const response=b.dataset.response;run(o.stage==='address'?'address':'respond',{pendingId:o.pendingId,response,...(['basis','justify'].includes(response)?{basis:(o.pickBasis?o.basis.filter((_,i)=>basisPicked.includes(i)):o.basis).map(({kind,refId})=>({kind,refId})),issue:o.issue,inferenceId:o.inferenceId}:{})});}
-    else if(b.dataset.theory){run('strategy',{id:b.dataset.theory});$('#strategyDialog').close();$('#examination button:not(:disabled)')?.focus({preventScroll:true});}
+    else if(b.dataset.theory){dialogOpeners.delete('strategyDialog');$('#strategyDialog').close();run('strategy',{id:b.dataset.theory});}
     else if(b.dataset.evidence){const e=v.case.evidence.find(e=>e.id===b.dataset.evidence);$('#evidenceTitle').textContent=e.title;$('#evidenceText').textContent=e.text;openDialog('#evidenceDialog');}
     else if(b.dataset.action==='press'){if(!v.argument.plan.claimVariants?.length){run('press');return;}claimOpen=true;render();document.querySelector('[data-claim]')?.focus({preventScroll:true});}
     else if(b.dataset.action==='close-claims'){claimOpen=false;render();}
     else if(b.dataset.action==='compose'){argumentOpen=true;filter='all';render();document.querySelector('[data-premise]')?.focus({preventScroll:true});}
     else if(b.dataset.action==='close-argument'){argumentOpen=false;render();document.querySelector('[data-action=compose]')?.focus({preventScroll:true});}
     else if(b.dataset.action==='open-strategy')openDialog('#strategyDialog');
-    else if(['open-record','choose-record'].includes(b.dataset.action)){closeDialogs();$('#recordSheet').appendChild($('#recordPanel'));$('#recordDialog').showModal();}
+    else if(['open-record','choose-record'].includes(b.dataset.action)){rememberOpener($('#recordDialog'));closeDialogs();$('#recordSheet').appendChild($('#recordPanel'));$('#recordDialog').showModal();}
     else if(b.dataset.action==='mobile-case'){const el=$('#mobileCaseInfo');el.querySelector('details').open=true;el.scrollIntoView({block:'center'});el.focus({preventScroll:true});}
-    else if(b.dataset.action==='reset'){closeDialogs();service.reset();openingDraft=[];closingDraft={issueIds:[],argumentIds:[],evidenceRefs:[],counterRefs:[],positions:[]};filter='all';argumentOpen=false;claimOpen=false;basisPicked=[];$('#announcement').textContent='';$('#notification').textContent='';render();openDialog('#strategyDialog');}
+    else if(b.dataset.action==='reset'){dialogOpeners.clear();closeDialogs();$('#closingPreviewText').textContent='';service.reset();openingDraft=[];closingDraft={issueIds:[],argumentIds:[],evidenceRefs:[],counterRefs:[],positions:[]};filter='all';argumentOpen=false;claimOpen=false;basisPicked=[];$('#announcement').textContent='';$('#notification').textContent='';render(false);openDialog('#strategyDialog');}
     else if(b.dataset.action)run(b.dataset.action);
   });
   document.addEventListener('change',e=>{if(e.target.hasAttribute('data-closing-position')){const id=e.target.dataset.closingPosition,value=e.target.value;closingDraft.positions=closingDraft.positions.filter(x=>x.commitmentRef!==id);if(value)closingDraft.positions.push({commitmentRef:id,mode:value==='maintain'?'maintain':'revise',...(value==='maintain'?{}:{choiceId:value})});}else if(e.target.id==='recordFilter'){filter=e.target.value;render();$('#recordFilter').focus({preventScroll:true});}});
   $('#closeClosingPreview').onclick=()=>$('#closingPreview').close();
   $('#closeStrategy').onclick=()=>$('#strategyDialog').close(); $('#closeEvidence').onclick=()=>$('#evidenceDialog').close(); $('#closeRecord').onclick=()=>$('#recordDialog').close();
   $('#recordDialog').addEventListener('close',()=>{if(!$('#recordDialog').open&&$('#recordSheet').contains($('#recordPanel')))$('.main').appendChild($('#recordPanel'));});
+  document.querySelectorAll('dialog').forEach(dialog=>dialog.addEventListener('close',()=>{const ref=dialogOpeners.get(dialog.id);dialogOpeners.delete(dialog.id);if(!ref||document.querySelector('dialog[open]'))return;const target=[...document.querySelectorAll('button')].find(e=>ref.action?e.dataset.action===ref.action:ref.evidence?e.dataset.evidence===ref.evidence:e.id===ref.id);if(target&&!target.disabled)target.focus({preventScroll:true});}));
   $('#strategyDialog').addEventListener('cancel',e=>{if(service.projection().state.phase==='plan')e.preventDefault();});
   render(); openDialog('#strategyDialog');
 })();

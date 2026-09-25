@@ -56,3 +56,15 @@ button.plain,.chip,.evidence {font-weight:500;}
 .verdict-result h2 { font-size: 1rem; margin: 1.1rem 0 .35rem; }
 .verdict-result p { font-size: .95rem; line-height: 1.6; }
 .verdict-result details { font-size: .85rem; }
+
+/* Phase changes bring the current decision into view below the sticky header. */
+#scene h1 {scroll-margin-top:80px;}
+.closing-citations {margin:12px 0;}
+.verdict-summary {margin-top:1.2rem;padding-top:.8rem;border-top:1px solid var(--line);}
+footer[hidden] {display:none;}
+@media(max-width:700px){#scene h1 {scroll-margin-top:72px;}.closing-position select {max-width:100%;}#examination .plain {min-height:40px;}}
+
+.planning-phase .court {grid-template-rows:auto 1fr;align-content:start;}
+.planning-phase #scene {min-height:0;padding-top:20px;padding-bottom:20px;}
+.planning-phase #scene h1 {font-size:25px;margin:.4em 0;}
+#examination > .plain + .plain {margin-left:8px;}

@@ -6,13 +6,14 @@ const {pathToFileURL}=require('node:url'),{createServer}=require('../serve');
  const check=(ok,msg)=>{assert.ok(ok,msg);checks++;};
  try{
   browser=await chromium.launch({channel:'msedge',headless:true});const page=await browser.newPage({viewport:{width:1440,height:1080}});await page.addInitScript(()=>{Object.defineProperty(window,'FirmCase',{configurable:true,set(d){delete d.opening;for(const p of d.argumentPlans)delete p.claimVariants;Object.defineProperty(window,'FirmCase',{value:d,writable:true,configurable:true});}});});page.on('pageerror',e=>errors.push(e.message));
+  await page.addInitScript(()=>Object.defineProperty(window,'FirmService',{configurable:true,set(api){Object.defineProperty(window,'FirmService',{value:{createService(d){const service=api.createService(d);window.inspectCourt=()=>service.projection();return service;}}});}}));
   await page.goto('http://127.0.0.1:'+server.address().port);
   const click=async selector=>page.locator(selector).click();
   const action=async a=>{if(a==='stop'&&await page.locator('[data-action=close-argument]').count())await click('[data-action=close-argument]');return click(`[data-action="${a}"]`);};
   const response=async a=>click(`[data-response="${a}"]`);
   const facts=async ids=>{if(await page.locator('[data-action=close-argument]').count())await click('[data-action=close-argument]');for(const id of ids){if(!await page.locator(`[data-goal="${id}"]`).count()){const t=require('../data/case').threads.find(t=>t.goals.includes(id));await click(`[data-thread="${t.id}"]`);}await click(`[data-goal="${id}"]`);}};
   const select=async ids=>{if(await page.locator('[data-action=compose]').count())await click('[data-action=compose]');for(const id of ids)await click(`[data-premise="${id}"]`);};
-  const start=async()=>{await click('footer [data-action="reset"]');await click('[data-theory="THEORY_IDENTITY"]');};
+  const start=async()=>{await page.locator('[data-action="reset"]:visible').first().click();await click('[data-theory="THEORY_IDENTITY"]');};
   const limited=async()=>{await facts(['G_DISTANCE','G_DURATION']);await select(['P_DISTANCE_27M','P_OBSERVATION_SHORT']);await action('press');};
   const text=async selector=>page.locator(selector).innerText();
   const shot=async name=>page.screenshot({path:path.join(__dirname,'artifacts',name+'.png'),fullPage:true});
@@ -37,7 +38,7 @@ const {pathToFileURL}=require('node:url'),{createServer}=require('../serve');
   check(!(await text('#inferenceDetail')).includes('강함'),'Inference strength hidden');
   check(!(await text('#recordPanel')).includes('공개 입장'),'Frame does not invent major commitment');
   await action('stop');check((await text('.result-box h1')).includes('약화'),'Record-based result');await click('.result-box summary');
-  check((await text('.result-box')).includes('고의는 판단하지'),'Bounded result');
+  check(await page.evaluate(()=>{const v=inspectCourt();return v.state.phase==='resolved'&&v.assessment.scope==='IDENTITY'&&v.adjudication===null;}),'Witness result is scope-bounded, not a case verdict');
   // Basis permits the original explanation/counter; hard counter remains unanswerable.
   await start();await facts(['G_DISTANCE','G_LIGHTING']);await select(['P_DISTANCE_27M','P_LIGHTING_POOR']);await action('press');
   check(await page.locator('[data-response]').count()===3,'Three distinct form choices');await response('basis');

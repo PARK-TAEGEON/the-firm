@@ -85,3 +85,14 @@ Verdict paths: recorded facts/admission/counter + selected Closing, sparse Closi
 Node: required issue/burden/proof/doubt combinations, synthetic positive and opposing proof, counter qualification, explicit witness conflict, record segregation, atomic rejection, no adjudication profile, partial/unknown validation.
 Original budget: desktop 195/218, mobile 183/213 visible characters. Desktop/mobile verdict screenshots visually reviewed.
 Positive proof and burden variations are synthetic fixtures; shipped real paths lack complete proof and remain not_guilty. Independent review pending.
+
+v0.9.1 polish — 2026-09-25
+npm test: Node 228, 0 failures, exit 0.
+npm run test:browser: 1189 (87+47+35+52+37+58+67+208+598), 0 failures, exit 0.
+npm run test:budget: 75 (14 unchanged examination + 61 whole-flow budget), 0 failures, exit 0.
+Total unique checks: 1492. Budget runner repeats 187 already-covered A-path assertions, excluded from total.
+Pre-polish v0.9 A/B/C/D comparison: 424 checks, not counted in final total.
+Desktop large/short/mobile: actual A/B/C/D + A reset to second Theory. Synthetic D guilty through engine/service/UI; shipped not_guilty unchanged.
+Original scope assertion replaced removed disclaimer text with actual IDENTITY scope/no verdict; reset/citation selectors follow new visible UI, no gameplay assertion removed.
+Neutral artifacts: ui-budget-examination-current.json, ui-budget-flow-current.json. Original examination baseline retained, full-flow v0.9 comparator committed.
+Frozen data/service/engines hash-identical to baseline. Existing user changes excluded. Independent review pending.

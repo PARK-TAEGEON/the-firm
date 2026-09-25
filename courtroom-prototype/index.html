@@ -2,12 +2,12 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0b1220"><title>THE FIRM — Courtroom Core v0.9</title>
+  <meta name="theme-color" content="#0b1220"><title>THE FIRM — Courtroom Core v0.9.1</title>
   <link rel="stylesheet" href="ui/original.css"><link rel="stylesheet" href="ui/courtroom.css">
 </head>
 <body>
   <div class="app">
-    <header class="masthead"><div class="brand">THE FIRM <small>COURTROOM / 0.9</small></div><div class="case-title" id="caseTitle"></div><div class="phase"><b id="phaseLabel"></b></div></header>
+    <header class="masthead"><div class="brand">THE FIRM <small>COURTROOM</small></div><div class="case-title" id="caseTitle"></div><div class="phase"><b id="phaseLabel"></b></div></header>
     <main class="main">
       <aside class="side" id="casePanel" aria-label="사건과 전략"></aside>
       <section class="court" aria-label="법정 진행">
@@ -20,7 +20,7 @@
   </div>
   <dialog id="strategyDialog" aria-labelledby="strategyTitle"><h2 id="strategyTitle">변호 전략</h2><div id="strategyChoices"></div><button class="plain" id="closeStrategy">닫기</button></dialog>
   <dialog id="evidenceDialog" aria-labelledby="evidenceTitle"><h2 id="evidenceTitle"></h2><p id="evidenceText" class="compact"></p><button class="plain" id="closeEvidence">닫기</button></dialog>
-  <dialog id="closingPreview" aria-labelledby="closingPreviewTitle"><h2 id="closingPreviewTitle">최종변론</h2><p id="closingPreviewText" class="closing-speech"></p><button class="plain" id="closeClosingPreview">돌아가서 수정</button><button class="plain" data-action="submitClosing">이 변론을 남긴다</button></dialog>
+  <dialog id="closingPreview" aria-labelledby="closingPreviewTitle"><h2 id="closingPreviewTitle">최종변론</h2><p id="closingPreviewText" class="closing-speech"></p><button class="plain" id="closeClosingPreview">수정</button><button class="plain" data-action="submitClosing">이 변론을 남긴다</button></dialog>
   <div id="notification" role="status" aria-live="polite"></div>
   <div id="announcement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
   <nav class="mobile-access" aria-label="빠른 이동"><button class="plain" data-action="mobile-case">쟁점 · 의뢰인 목표</button><button class="plain" data-action="open-record">법정 기록</button></nav>

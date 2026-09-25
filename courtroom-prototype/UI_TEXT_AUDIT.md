@@ -47,3 +47,29 @@ Final version-label budget: desktop 197/220 characters, mobile 183/213. Original
 ## v0.9 adjudication UI audit
 
 판결을 듣는다 is the one phase-local action after Closing or completed no-Closing examinations. The courtroom center shows the authored outcome and required-issue reasoning; 판단 근거 disclosures list only recorded testimony. Existing record panel gets a collapsed 판결 item. No new persistent panel, score/checkmark/strength/recommendation or long judgment. Mobile decision title receives focus and is scrolled clear of the sticky header. Verdict center budget: under 280 characters collapsed; original examination budget retained. Desktop/short/mobile screenshots inspected.
+
+## v0.9.1 full-flow text audit
+
+Audited Theory, Opening, question/Claim, CourtRecord, objection/basis, witness completion, Closing preview/publication, Findings/Verdict and reset at desktop/short/mobile. Authored testimony, question options, case facts and reasoning are unchanged; substantive record text is never edited to simplify an outcome.
+
+| Text/element | Decision and purpose |
+| --- | --- |
+| Witness tabs and exhibit cards outside examination | Hidden; these referred to the last witness during Opening/Closing/Verdict. Existing case/record remain. |
+| Disabled 전략 button | Removed when strategy is unavailable; no repeated status explanation. |
+| Opening speech as first witness headline | Moved out of the current headline; original speech remains in dialogue/record. Witness name identifies who receives the next question. |
+| Large empty preparation headline space | Reduced in Opening/Closing; choices become visible sooner. |
+| Claim questions | Kept actual question sentences. No difficulty labels, correct-answer hints, checkmarks or new claims. |
+| Closing 인용과 약점 대응 disclosure + 기록에서 고른다 | Replaced with one 인용과 반박을 고른다 action. Removes one navigation click per opening of citations. |
+| Repeated chosen citation titles outside CourtRecord | Removed; actual selected records retain aria-pressed. No automatic evidence selection. |
+| 개회사 입장 / 사용할 논증 | Kept collapsed; meaningful player decisions with full record trace preserved. |
+| 돌아가서 수정 | Shortened to 수정; action unchanged. |
+| Witness result 강함/제한적, remaining-issue grading and long resolutionNotice | Removed from disclosure; scoped result reasoning/Frame titles remain. Test checks actual issue scope and absence of verdict instead of the removed disclaimer. |
+| 다시 신문 | Replaced with 다시 시작 to reflect whole-run reset. Duplicate footer reset hidden when center reset exists. |
+| COURTROOM / version | Visible version removed; package and document title retain version. |
+| Verdict title + issue findings + short conclusion | Kept, reordered to put final reasoning after findings. Evidence detail stays closed. No new rewritten facts. |
+| CourtRecord summaries / full testimony / procedural transactions | Kept because records differ even when summary labels repeat. No trace deduplication. |
+| Validation errors and objection/basis actions | Kept transient and contextual, never a permanent tutorial panel. |
+| CaseTheory / objectives / case facts | Kept in existing disclosure; no score or recommended strategy. |
+| aria-live / region labels | 법정 진행 stays phase-neutral. Announcements stay limited to actual utterances; selection/reset checks retained. |
+
+New text: [next witness name]에게 묻는다 exposes an existing action; no new system. Full-flow visible text is no greater than v0.9 in every sampled phase/viewport. Record-only semantics and engine/data hashes are unchanged.

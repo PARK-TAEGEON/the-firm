@@ -2,7 +2,7 @@
 
 ## Current Version
 
-v0.9 (`courtroom-prototype/package.json`: `0.9.0`) — Independent Reviewer PASS (사용자 전달, 2026-09-25)
+v0.9.1 (`courtroom-prototype/package.json`: `0.9.1`) — UI/UX polish, 독립 리뷰 대기
 
 기존 저장소 `The Firm`의 웹 프로토타입을 사용한다. Godot `litigation-skeleton/`은 별도 프로젝트다.
 
@@ -22,13 +22,24 @@ v0.9 (`courtroom-prototype/package.json`: `0.9.0`) — Independent Reviewer PASS
 
 이번 버전의 구현 범위는:
 
-> CourtRecord → CourtFactFinding → Verdict (Judge factfinder)
+> CaseTheory → Opening → Examination → Closing → FactFinding/Verdict → reset 전체 흐름 polish
 
 이다.
 
 ---
 
 ## Implemented
+
+### v0.9.1 UI/UX polish
+
+- Opening/Closing/판결에서 증인 이동 및 마지막 증인 증거 버튼을 숨기고 사용 불가능한 전략 버튼을 제거한다. 3열과 기존 사건·기록 영역은 유지한다.
+- 신문 종료 후 중앙에서 다음 미종료 증인에게 이동한다. 기존 witness 명령만 사용하며, 원하면 측면에서 다른 기록을 검토할 수 있다. 증인 종료는 최종 판결과 구분된 상태로 유지한다.
+- Opening 공개 직후 첫 증인의 이름과 질문 선택에 집중한다. 이미 공개한 발언은 기존 대화/기록 disclosure에서 확인한다. 준비 화면의 큰 빈 제목 영역을 줄인다.
+- Closing 인용/반박 선택은 기록 sheet로 바로 연결한다. 중간 disclosure와 선택한 인용 제목의 중복 목록을 없애며 선택 상태는 기록의 aria-pressed로 유지한다. 자동 인용이나 논증 선택은 추가하지 않았다.
+- 증인 결과의 strength 번역, 중복 쟁점 평가·개발자 범위 설명을 제거한다. 결과의 실질 설명과 기록은 유지한다. Verdict는 제목, 쟁점별 reasoning, 마지막 결과 문장 순서이며 근거는 접힌 상태다. 판정 엔진과 reasoning 데이터는 변경하지 않았다.
+- 단계/증인이 바뀔 때 현재 제목으로 focus/scroll을 이동한다. 같은 단계의 선택은 기존 focus/scroll/details를 보존한다. 재렌더된 record sheet를 닫아도 실제 호출 버튼으로 focus를 돌린다.
+- reset 시 기존 엔진 reset에 더해 펼침·스크롤·Closing 미리보기·dialog opener 상태를 비운다. 새 run에서 이전 Opening/commitment/witness/Closing/verdict marker가 누출되지 않는다.
+- footer와 중앙의 중복 reset을 한 곳만 표시하고 다시 신문을 다시 시작으로 바꿨다. 상시 버전 문자열을 제거했으며 HTML title/package에는 0.9.1을 유지한다.
 
 ### CourtFactFinding / Verdict
 
@@ -237,13 +248,13 @@ Arguments can be Core / Peripheral depending on current Theory.
 
 ## Current Scope and Deferred Work
 
-v0.9 Independent Reviewer PASS (사용자 전달, 2026-09-25). v0.8.1은 사용자 전달 Independent Reviewer PASS 기준점이다. 이전 기준점 v0.7.1은 Independent Review PASS (2026-09-25 사용자 전달).
+v0.9.1 polish 구현, 독립 리뷰 대기. v0.9은 사용자 전달 Independent Reviewer PASS 기준점이다. v0.8.1은 사용자 전달 Independent Reviewer PASS 기준점이다. 이전 기준점 v0.7.1은 Independent Review PASS (2026-09-25 사용자 전달).
 
 Focus:
 
-- CourtRecord 기반 issue별 CourtFactFinding
-- required issue / burden / standard 기반 Verdict
-- Opening → Examination → Closing → 판결 연결
+- 전체 단계 전환과 모바일 full-flow polish
+- phase 전용 UI 정리와 텍스트 감소
+- focus/scroll/modal/reset 및 전체 버전 회귀 유지
 - 기존 Major Commitment / Strategy Revision / v0.65 신문 회귀 유지
 
 Do not implement yet:
@@ -362,3 +373,17 @@ Node 228 (기존 198 + 판정 30), Browser 591 (기존 383 + 판정 208), UI bud
 ## v0.9 accepted baseline
 
 구현 commit f143986. 사용자 전달 Independent Reviewer PASS를 CURRENT에 반영한 기준점을 courtroom-core-v0.9 tag로 고정한다. v0.9.1은 UI/UX 후속 교정이다.
+
+## v0.9.1 verification and UX assessment — 2026-09-25
+
+기준점 courtroom-core-v0.9 → 839628409b3563cbe13473b5cc855cd1db173ba8 (구현 f143986 + 사용자 전달 Independent Reviewer PASS 기록). 판정·신문·Opening·Closing·Procedure 엔진, services/courtroom.js, data/case.js는 v0.9과 byte-identical이다.
+
+실제 UI A/B/C/D 경로를 large 1440×1080, short 1280×720, mobile 390×844에서 실행한다. A는 Theory A → 두 증인 → Closing → Verdict → reset → Theory B로 다시 끝까지 진행한다. B는 Peripheral Argument, C는 Opening/Strategy 및 Closing 충돌 보존, D는 test-only direct testimony와 complete proof route의 guilty UI다. Shipped case는 여전히 not_guilty이며 새 사건이나 유죄 경로를 추가하지 않았다. FactFinding과 Verdict는 원래의 한 결과 화면을 유지하며 클릭만 늘리는 중간 화면이 없다.
+
+Budget artifact는 ui-budget-examination-current.json / ui-budget-flow-current.json으로 변경했다. 과거 ui-budget-baseline.json의 14개 examination 비교를 그대로 유지한다. 추가 61개 검사는 Opening/Examination/Closing/Verdict × 3화면을 v0.9에서 실제 같은 A 경로로 캡처한 tests/ui-flow-baseline.json과 비교한다. 각 상태의 텍스트는 v0.9 이하, 높이는 기존처럼 10% 허용, 가로 넘침 없음, 상시 aside는 2개로 고정한다. tests/artifacts의 과거 생성물은 역사 자료이며 새 실행은 오래된 버전 이름으로 생성하지 않는다.
+
+관찰: 가장 어색한 신문 종료→다음 증인 이동을 중앙 행동으로 드러냈다. 모바일의 이전 증인 자료/빈 제목 영역 때문에 현재 선택이 밀리던 문제를 줄였다. Opening 높이 1210→903, Closing 1345→931, Verdict 1300→1043px. 모바일 본문 문자 수는 Opening 161→148, Closing 213→190, Verdict 270→241로 감소했고, examination은 187자로 유지했다(대표 A 경로).
+
+남은 P2: 여러 Closing 전제를 하나씩 연결하는 조작과 누적 CourtRecord disclosure 탐색은 반복 클릭감이 남는다. 자동 선택이나 기록 병합은 이번 범위에서 하지 않았다. 검증된 경로의 진행을 막는 UI 문제는 발견되지 않았지만 사람의 몰입/재미를 증명한 것은 아니다. v1.0 polish 후보로 고정해 독립 리뷰와 사용자 플레이테스트를 받을 수 있으며 최종 v1.0 승인과는 구분한다. 전체 Save/Load, 새 콘텐츠·판정·증인 mechanic은 없다.
+
+최종 검증: Node 228, Browser 1189 (기존 591 + full-flow 598), UI budget 75 (기존 14 + 확장 61), 총 1492개의 고유 검사, 실패 0. 각 npm 명령 exit 0. budget 실행에서 같은 A 흐름 187개 assertion을 추가 재실행하지만 총계에 중복 합산하지 않는다. v0.9 원본 A/B/C/D 기준 캡처의 424개 검사는 비교 자료로 별도이며 최종 회귀 총계에 포함하지 않는다. Node 재실행 뒤 최종 변경은 UI/test/CSS뿐이며 engine/service/data의 hash 불변을 확인했다.

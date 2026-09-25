@@ -1,43 +1,46 @@
-# v0.9 Independent Review Request
+# v0.9.1 Independent Review Request
 
-Status: implementation verified, independent review pending. Baseline tag courtroom-core-v0.8.1 → 529371f3679318154d8508daf11d6f2785113508 (user-reported Independent Reviewer PASS, implementation d54006d).
+Status: polish implementation verified; independent review pending. Baseline courtroom-core-v0.9 → 839628409b3563cbe13473b5cc855cd1db173ba8, implementation f143986. PASS was reported by the user.
 
-## What changed
-CourtRecord now feeds a separate Judge finding/decision layer. It reads local Evidence, admissions, active/qualified counters, witness relations and support states, retaining Frame/Opening/Closing and procedural references as separate context. Proof uses authored exact premise sets and explicit doubts/conflicts, without point totals or argument-strength conversion.
+## Purpose and changes
+Full-play UI/UX polish only. All engine modules, services/courtroom.js and shipped data/case.js are byte-identical to v0.9. The case still has no complete guilty proof path; no mechanic/rule/content was added.
 
-CaseDefinition.adjudication declares finding rules, required issues, burden party, standard, all_required decision rule and outcome labels. Currently only judge and beyond_reasonable_doubt are supported; invalid/partial configurations fail construction. No general legal rule language or additional proceeding is introduced.
-
-The service adds profile-aware deliverVerdict availability/command. It is enabled after both witnesses and published Closing, or after both examinations when Closing is absent. It appends one verdict_delivered judicial Procedural record with fixed input refs/version; all Evidence/Advocacy and prior Procedural remain identical. Replay reads those referenced records and the fixed definition, not UI/history/session or later records. Missing refs/version mismatch fail explicitly.
-
-The center displays the outcome and two short required-issue findings, with expandable evidence. The existing record panel contains the judicial decision. No new permanent panel, gauge, score or recommendation. Verdict heading gains focus and is scrolled clear of the mobile sticky header.
+- Central next-witness action reuses witness command after examination ends.
+- Opening/Closing/Verdict hide last-witness tabs/exhibits and unavailable strategy control. Same three columns, no new panel.
+- Compact Opening/Closing title area; after Opening, first witness name replaces repeated Opening speech as current headline. Original speech remains in dialogue/record.
+- Closing citation/counter selection opens existing record sheet directly: one fewer click, no duplicate selected-title list, no automatic choice.
+- Remove strength labels, repeated issue grading and long developer scope disclaimer from witness-result details. Scoped substantive result remains; regression verifies actual issue scope and absence of verdict.
+- Keep concise issue findings and final verdict sentence on one screen; no artificial FactFinding intermediate phase.
+- Phase/witness changes focus and scroll to current heading below sticky header. Same-phase selection retains focus/details/scroll. Dialog close restores focus to a rebuilt opener.
+- Reset clears presentation disclosures, scroll, hidden Closing preview and opener references, alongside unchanged engine reset. Duplicate reset control hidden; clearer 다시 시작 label.
+- Neutral budget artifact names and full-flow comparisons against v0.9.
 
 ## Files
-- courtroom-prototype/engine/adjudication.js: validation, availability, issue findings, decision rule, referenced-input replay.
-- courtroom-prototype/data/case.js: minimal authored adjudication definition, verdict phase/action.
-- courtroom-prototype/services/courtroom.js: additive decision command and projection; original response/Opening/Closing mutation code unchanged.
-- courtroom-prototype/ui/app.js, ui/courtroom.css, index.html: phase-local result/disclosure, procedural record presentation, focus and module load.
-- courtroom-prototype/package.json: 0.9.0, new test scripts.
-- courtroom-prototype/tests/adjudication.test.js, browser-adjudication.test.js: new invariants and browser journeys.
-- courtroom-prototype/tests/opening.test.js, browser-commitment-scope.test.js: reverse INTENT fixture opts out of adjudication because its remapped issue cannot use original IDENTITY rules; original assertions retained.
-- docs/CURRENT.md, root DESIGN.md, .agent/tasks/COURTROOM-CORE-090.md, REVIEW_REQUEST.md and prototype review/log/text audit: implementation and handoff.
-
-## Reviewer priorities
-1. Evidence vs Advocacy vs Procedure: a public admission is never witness evidence; winning an objection cannot prove a fact. Decision only adds a judicial marker.
-2. Exact recorded premise routes, explicit doubts, qualification provenance and unresolved contradictions; scope cannot leak in either direction.
-3. Closing changes argument context, never evidence or the proof finding. Sparse Closing cannot invent absent identity/intent testimony.
-4. Required issues/burden and all_required outcome; synthetic positive paths clearly separated from shipped content.
-5. Record-only replay using frozen input references, no silent mutation and atomic invalid commands.
-6. no-Closing and no-adjudication profiles, partial config rejection, existing examination and Closing regression.
+Production: ui/app.js, ui/courtroom.css, index.html, package.json.
+Tests: browser-full-flow.test.js, alternate-verdict-fixture.js, ui-flow-budget.js, ui-flow-baseline.json, ui-budget.js; existing browser scripts updated only for new visible reset/citation path, removed disclaimer semantics or neutral screenshot naming. Existing gameplay assertions retained.
+Documentation: docs/CURRENT.md, root DESIGN.md, .agent/tasks/COURTROOM-CORE-091.md, REVIEW_REQUEST.md, prototype REVIEW_PACKET.md/UI_TEXT_AUDIT.md/test-results.log.
 
 ## Verification
-Commands from courtroom-prototype: npm test; npm run test:browser; npm run test:budget. Browser: Playwright with installed Edge, bundled NODE_PATH where needed. Detailed totals are recorded in test-results.log and CURRENT.md.
-Browser paths: recorded facts + admission/counter + selected Closing argument; sparse Closing; no-Closing direct decision. Each at 1440×1080, 1280×720, 390×844; mobile direct-file mode. Existing all-version browser paths retained. Checks include unchanged Evidence/Advocacy, one judicial marker, reference replay, issue isolation, context, heading focus/visibility, record sheet, no overflow/new panel, and verdict center under 280 characters. Desktop/mobile PNGs visually inspected.
+Node 228; Browser 1189 (591 existing + 598 full-flow); UI budget 75 (14 historical examination + 61 full-flow). Total 1492 unique checks, 0 failures; npm test, npm run test:browser and npm run test:budget exit 0. Budget command additionally reruns 187 A-path assertions already covered above; not counted twice. Baseline v0.9 run: 424 checks, separate comparison evidence.
 
-## Limits requiring attention
-The shipped record contains no complete proof path for attacker identity or offense-time use. Its required issues therefore fail proof on all current real journeys; only reasons, limitations and advocacy context differ. This is deliberate preservation of existing evidence, not a claim that guilt/innocence has been fully authored. Positive proof, opposing proof and burden/required-issue variation are synthetic fixtures only. Identity background statements, exhibits available in the sidebar and Opening admissions are not silently entered as evidence.
+A/B/C/D all run at 1440×1080, 1280×720, 390×844. A plays through reset and a second Theory B run; B uses Peripheral argument; C keeps Strategy and Closing conflicts; D injects test-only direct testimony and proof routes, then uses normal UI/service/engine to render guilty. Shipped A/B/C render not_guilty. Existing localhost/direct-file, keyboard selection, procedure, no-Closing and record-only replay tests remain. No-adjudication compatibility remains in the existing Node suite.
 
-INTENT has no evidence and is outside required issues for this narrow slice. This is not a complete criminal law model. Only one proof standard is supported; unsupported standards fail validation. Same-version CaseDefinition is needed with saved CourtRecord; full UI/session save/load remains out of scope. Explicit authored doubts and linked contradictions are handled; semantic contradiction discovery is not implemented. Existing relation metadata debt remains.
+Reset checks empty record layers, witness history, public commitments, Closing/adjudication projections and draft choices, exactly one new Opening/Closing/verdict marker, new runtime IDs, no prior conflicts or hidden preview. Phase checks verify current heading focus/visibility, no stale witness controls, one or zero open modals and no overflow. Closing sheet returns focus and preserves disclosure. Desktop/mobile PNGs inspected.
 
-No Jury/Sentencing/Appeal/Settlement/Civil/Redirect/Opponent Closing AI/long-form judgment/Staff/multi-agent/Orca. No push. Unrelated user changes preserved. Historical docs/IMPLEMENT.md v0.7 exclusions are superseded only by the explicit v0.9 request and current task contract.
+## Budget comparison
+Neutral generated files: tests/artifacts/ui-budget-examination-current.json and ui-budget-flow-current.json. Historical ui-budget-baseline.json remains intact. New ui-flow-baseline.json was captured using the same A path on v0.9. All sampled phase text <= v0.9, height <= prior +10%, no overflow, exactly two existing aside panels. Historical artifacts are not deleted or reinterpreted.
 
-Final verification: Node 228 (198 prior + 30 new), Browser 591 (383 prior + 208 new), UI budget 14; total 833 checks, 0 failures, exit 0 for all commands. Original examination budget: desktop 195/218, mobile 183/213 characters. Opposing complete proof routes are retained as unresolved conflicts; party evidence side mappings live in case data. Full regressions rerun after final changes. Independent review pending.
+Representative A mobile: Opening 161→148 chars / 1210→903px; Closing 213→190 / 1345→931px; Verdict 270→241 / 1300→1043px; examination 187 chars unchanged. Desktop A: Opening 173→156, Closing 225→198, Verdict 282→249 chars. Original examination budget is desktop 191/214 and mobile 183/213 chars. Mobile touch targets add only 4–6px to examination height and stay within the unchanged baseline limit.
+
+## Direct answers to the eight requested questions
+1. Does it play continuously like one game? On tested A/B/C/D paths, yes; setup through verdict, reset and a fresh theory run complete without a dead end. This is observed functional flow, not a substitute for human enjoyment testing.
+2. Most awkward transition? End of examination sent the player to the sidebar to find the next witness. An in-place action now exposes that next step; Closing citations also lose one nested navigation click.
+3. Remaining click-heavy part? Choosing multiple premises for Closing and opening repeated CourtRecord summaries. Automatic citation or record merging would change decisions/trace behavior, so they remain P2.
+4. Removed text/elements? Stale witness/exhibit controls, disabled strategy button, duplicated Opening headline, citation disclosure and repeated selection titles, result strength/grading/scope boilerplate, duplicate reset, visible version. Preview return label shortened.
+5. Is Verdict concise? Yes: outcome title, two short issue findings, final result sentence; evidence remains collapsed and no extra phase or panel is added.
+6. Biggest mobile friction? Old witness information and empty title space pushed current choices down; compact phase views and explicit focus/scroll reduce it. Record sheets remain the main interaction cost.
+7. Must-fix UI/UX before v1.0? No blocker found in tested paths. Repeated citation/record navigation needs human playtest feedback, and multi-browser/native mobile testing is not claimed.
+8. Can it be fixed as a v1.0 polish candidate? Yes, as a candidate for independent review and human playtest; not final v1.0 approval or a claim of varied shipped verdict outcomes.
+
+## Review focus / limits
+Confirm same-phase focus and scroll remain stable, phase focus is not hidden by sticky header, reset leaks nothing, direct citation shortcut never auto-selects evidence, and no engine/data diff exists. Review full text audit for deletions vs preserved substantive record text. D is a clearly labelled synthetic fixture only. No Save/Load, new case, proof route, witness mechanic or excluded system. Unrelated user changes remain untouched; no push.

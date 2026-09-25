@@ -1,0 +1,98 @@
+[
+  {
+    "viewport": "1440x1080",
+    "phase": "opening",
+    "visibleCharacters": 173,
+    "documentHeight": 1080,
+    "horizontalOverflow": false,
+    "panels": 2
+  },
+  {
+    "viewport": "1440x1080",
+    "phase": "examination",
+    "visibleCharacters": 199,
+    "documentHeight": 1080,
+    "horizontalOverflow": false,
+    "panels": 2
+  },
+  {
+    "viewport": "1440x1080",
+    "phase": "closing",
+    "visibleCharacters": 225,
+    "documentHeight": 1080,
+    "horizontalOverflow": false,
+    "panels": 2
+  },
+  {
+    "viewport": "1440x1080",
+    "phase": "verdict",
+    "visibleCharacters": 282,
+    "documentHeight": 1080,
+    "horizontalOverflow": false,
+    "panels": 2
+  },
+  {
+    "viewport": "1280x720",
+    "phase": "opening",
+    "visibleCharacters": 173,
+    "documentHeight": 743,
+    "horizontalOverflow": false,
+    "panels": 2
+  },
+  {
+    "viewport": "1280x720",
+    "phase": "examination",
+    "visibleCharacters": 199,
+    "documentHeight": 720,
+    "horizontalOverflow": false,
+    "panels": 2
+  },
+  {
+    "viewport": "1280x720",
+    "phase": "closing",
+    "visibleCharacters": 225,
+    "documentHeight": 720,
+    "horizontalOverflow": false,
+    "panels": 2
+  },
+  {
+    "viewport": "1280x720",
+    "phase": "verdict",
+    "visibleCharacters": 282,
+    "documentHeight": 720,
+    "horizontalOverflow": false,
+    "panels": 2
+  },
+  {
+    "viewport": "390x844",
+    "phase": "opening",
+    "visibleCharacters": 161,
+    "documentHeight": 1210,
+    "horizontalOverflow": false,
+    "panels": 2
+  },
+  {
+    "viewport": "390x844",
+    "phase": "examination",
+    "visibleCharacters": 187,
+    "documentHeight": 1275,
+    "horizontalOverflow": false,
+    "panels": 2
+  },
+  {
+    "viewport": "390x844",
+    "phase": "closing",
+    "visibleCharacters": 213,
+    "documentHeight": 1345,
+    "horizontalOverflow": false,
+    "panels": 2
+  },
+  {
+    "viewport": "390x844",
+    "phase": "verdict",
+    "visibleCharacters": 270,
+    "documentHeight": 1300,
+    "horizontalOverflow": false,
+    "panels": 2
+  }
+]

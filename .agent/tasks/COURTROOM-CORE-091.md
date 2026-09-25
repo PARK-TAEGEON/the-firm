@@ -1,0 +1,6 @@
+# Courtroom Core v0.9.1 polish contract
+
+User-authorized polish of the full Theory → Opening → Examination → Closing → Findings/Verdict → reset flow. Baseline courtroom-core-v0.9 at 8396284 records user-reported Independent Reviewer PASS.
+Allowed: ui/app.js, ui/courtroom.css, index.html, package version/scripts, tests/fixtures/budget artifacts, CURRENT/DESIGN/review/audit/log documentation. Engines, services and shipped case data must remain byte-identical.
+Reuse three columns. Remove phase-stale witness UI, redundant explanations and nested citation navigation; expose next witness in existing action area. Preserve player-selected Closing citations. Improve phase focus/scroll and reset presentation isolation, no new panel/system. Findings/Verdict remain one existing view with no artificial intermediate screen.
+Browser A/B/C/D at desktop/short/mobile, both verdicts via test-only alternate evidence; full historical regression, no-Closing/no-adjudication and record replay. Neutral budget artifact names with original examination baseline checks plus whole-flow budgets and v0.9 text comparison. Final report must answer user's eight polish questions, distinguish observed UX from human playtest confidence. No case content/rule/mechanic changes, Save/Load or excluded systems.
