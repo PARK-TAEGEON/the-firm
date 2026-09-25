@@ -2,7 +2,7 @@
 
 ## Current Version
 
-v0.8.1 (`courtroom-prototype/package.json`: `0.8.1`) — PASS 후보, 독립 리뷰 대기
+v0.8.1 (`courtroom-prototype/package.json`: `0.8.1`) — Independent Reviewer PASS (사용자 전달, 2026-09-25)
 
 기존 저장소 `The Firm`의 웹 프로토타입을 사용한다. Godot `litigation-skeleton/`은 별도 프로젝트다.
 
@@ -227,7 +227,7 @@ Arguments can be Core / Peripheral depending on current Theory.
 
 ## Current Scope and Deferred Work
 
-v0.8.1 교정 및 회귀 검증 완료, PASS 후보·독립 리뷰 대기. 기준점 v0.7.1은 Independent Review PASS (2026-09-25 사용자 전달).
+v0.8.1 Independent Reviewer PASS (사용자 전달, 2026-09-25). 기준점 v0.7.1은 Independent Review PASS (2026-09-25 사용자 전달).
 
 Focus:
 
@@ -322,6 +322,10 @@ Closing은 optional profile lifecycle이다. closing/closed phase와 beginClosin
 
 검증: Node 198, Browser 383 (기존 316 + profile/dedupe 67), UI budget 14, 총 595, 실패 0. 신규 Node 10개: 정상 profile, absent profile, phase/action partial 및 lifecycle 요소별 누락, revision-only 및 maintain/revise 혼합 중복. 수정 전 8개가 버그를 재현했으며 수정 후 전체 통과. Browser는 large/short/mobile에서 full/none profile, 두 증인 종료, Closing preview/publication 중복 제거, 2 revision/2 conflict 보존, Evidence/Procedural 불변과 replay를 확인한다. 기존 형사사건, v0.65/v0.7.1/v0.8 회귀와 direct-file 경로도 재실행했다.
 
-상태는 구현자 PASS 후보이며 독립 리뷰 PASS를 주장하지 않는다. No-Closing/partial은 테스트 fixture이며 새 사건이 아니다. 문자열이 정확히 같은 최종 입장만 중복 제거하며 의미상 유사한 다른 문장을 합치지 않는다. 기존 authored inference/relation 부채와 범위 제외 항목은 유지한다. 사용자 최신 요청과 .agent/tasks/COURTROOM-CORE-081.md를 적용하며 docs/IMPLEMENT.md의 과거 v0.7 원문은 보존한다.
+v0.8.1 Independent Reviewer PASS는 사용자 전달 결과다(2026-09-25). 이 작업에서 별도 독립 리뷰를 수행한 것은 아니다. No-Closing/partial은 테스트 fixture이며 새 사건이 아니다. 문자열이 정확히 같은 최종 입장만 중복 제거하며 의미상 유사한 다른 문장을 합치지 않는다. 기존 authored inference/relation 부채와 범위 제외 항목은 유지한다. 사용자 최신 요청과 .agent/tasks/COURTROOM-CORE-081.md를 적용하며 docs/IMPLEMENT.md의 과거 v0.7 원문은 보존한다.
 
 최종 UI 측정: desktop normal/argument 197/220자(0.8.1 버전 표기로 각 2자 증가), mobile 183/213자. 기존 한도 14개 모두 통과. 새 profile resolved/closed 화면은 large/short/mobile에서 확인했으며 모바일 resolved PNG도 직접 검토했다.
+
+## v0.8.1 accepted baseline
+
+v0.8.1 구현 commit d54006d. 사용자 전달 Independent Reviewer PASS를 이 문서에 반영하고 courtroom-core-v0.8.1 tag로 고정한다. v0.9는 후속 별도 구현이다.
