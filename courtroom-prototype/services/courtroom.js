@@ -4,8 +4,9 @@
   const P = typeof module !== 'undefined' && module.exports ? require('../engine/procedure.js') : root.FirmProcedure;
   const O = typeof module !== 'undefined' && module.exports ? require('../engine/opening.js') : root.FirmOpening;
   const C = typeof module !== 'undefined' && module.exports ? require('../engine/closing.js') : root.FirmClosing;
+  const J = typeof module !== 'undefined' && module.exports ? require('../engine/adjudication.js') : root.FirmAdjudication;
   function createService(definition) {
-    const d = E.copy(definition); E.validate(d); P.validate(d); O.validate(d);
+    const d = E.copy(definition); E.validate(d); P.validate(d); O.validate(d); J.validate(d);
     let serial = 0, session = 0, state;
     const next = () => d.id + ':runtime:' + (++serial);
     function reset() {
@@ -77,13 +78,20 @@
       if (!decision.proceed) { s.pendingQuestion = null; return; }
       pending.stage = 'answer'; pending.narrowed = !!decision.narrowed;
     }
+    const availability = s => ({...E.availability(d,s),deliverVerdict:J.available(d,s)});
     function command(action, payload = {}) {
       const beforeSerial = serial;
       try {
         E.ensure(d.profile.actions.includes(action), '허용되지 않은 행동입니다.');
-        const s = E.copy(state), a = E.availability(d, s);
+        const s = E.copy(state), a = availability(s);
         E.ensure(a[action], '현재 상태에서는 실행할 수 없습니다.');
-        if (action === 'beginClosing') {
+        if (action === 'deliverVerdict') {
+          const decision=J.evaluate(d,s.records);
+          const inputRefs=Object.fromEntries(['evidence','advocacy','procedural'].map(layer=>[layer,s.records[layer].map(r=>r.id)]));
+          s.records.procedural.push({id:next(),kind:'verdict_delivered',scope:'case',definitionVersion:d.adjudication.version,inputRefs});
+          s.phase='verdict';s.resolution=null;s.selected=[];
+          line(s,d.profile.roles.factFinder,decision.verdict.text,'verdict');
+        } else if (action === 'beginClosing') {
           s.records.advocacy.push({id:next(),kind:'closing_started',scope:'case',theoryId:s.theoryId,text:'최종변론을 준비합니다.'});
           s.phase='closing';s.resolution=null;s.selected=[];
         } else if (action === 'submitClosing') {
@@ -174,7 +182,7 @@
     }
     function projection(source = state) {
       const s = E.copy(source), theory = E.find(d.theories, s.theoryId), plan = E.find(d.argumentPlans, s.planId);
-      return { closing: C.replay(d,s.records), closingCatalog:C.catalog(d,s.records,s.theoryId), caseRecord: O.replay(d,s.records,s.theoryId), state: s, case: E.copy(d), availability: E.availability(d, s), argument: E.copy(E.argument(d, s)),
+      return { adjudication:J.replay(d,s.records), closing: C.replay(d,s.records), closingCatalog:C.catalog(d,s.records,s.theoryId), caseRecord: O.replay(d,s.records,s.theoryId), state: s, case: E.copy(d), availability: availability(s), argument: E.copy(E.argument(d, s)),
         pressure: E.pressure(d, s), procedure: E.copy(P.options(d,s)), assessment: E.copy(E.evaluateRecord(d, s.records, s.theoryId,s.planId)), assessments:d.argumentPlans.map(p=>E.evaluateRecord(d,s.records,s.theoryId,p.id)), witness:E.copy(E.find(d.witnesses,s.witnessId)), threads:E.copy(d.threads.filter(t=>t.witnessId===s.witnessId)),
         strategy: theory ? { ...E.copy(theory), preferred: theory.preferredPlans.includes(plan.id),
           potentialConflict: O.conflicts(d,s.records,theory.id).length > 0 } : null };

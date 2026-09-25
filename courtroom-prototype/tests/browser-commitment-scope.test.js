@@ -5,7 +5,7 @@ try{for(const width of [1440,390])for(const issue of ['IDENTITY','INTENT']){
  const page=await browser.newPage({viewport:{width,height:width===1440?1080:844}});page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(issue=>{
   // Reverse direction uses an explicit scope fixture; no new Intent case content is shipped.
-  if(issue==='INTENT')Object.defineProperty(window,'FirmCase',{configurable:true,set(d){d.argumentPlans[0].issue='INTENT';for(const c of d.opening.options)if(c.planId===d.argumentPlans[0].id)c.issue='INTENT';Object.defineProperty(window,'FirmCase',{value:d});}});
+  if(issue==='INTENT')Object.defineProperty(window,'FirmCase',{configurable:true,set(d){delete d.adjudication;delete d.profile.phases.verdict;d.profile.actions=d.profile.actions.filter(a=>a!=='deliverVerdict');d.argumentPlans[0].issue='INTENT';for(const c of d.opening.options)if(c.planId===d.argumentPlans[0].id)c.issue='INTENT';Object.defineProperty(window,'FirmCase',{value:d});}});
   Object.defineProperty(window,'FirmService',{configurable:true,set(api){Object.defineProperty(window,'FirmService',{value:{createService(d){const s=api.createService(d);window.inspectCourt=()=>s.projection();return s;}}});}});
  },issue);
  const click=q=>page.locator(q).click(),action=a=>click(`[data-action="${a}"]`),view=()=>page.evaluate(()=>inspectCourt());

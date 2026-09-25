@@ -56,7 +56,7 @@ test('same examination commands yield identical semantic evidence and outcomes w
 for (const issue of ['IDENTITY','INTENT']) test(`${issue} counter reviews only same-issue public commitments after Opening and strategy revision`,()=>{
  const d=E.copy(D);
  // Reverse direction is a scope fixture, not newly authored Intent gameplay.
- if(issue==='INTENT') { d.argumentPlans[0].issue='INTENT'; for(const c of d.opening.options)if(c.planId===d.argumentPlans[0].id)c.issue='INTENT'; }
+ if(issue==='INTENT') { delete d.adjudication; delete d.profile.phases.verdict; d.profile.actions=d.profile.actions.filter(a=>a!=='deliverVerdict'); d.argumentPlans[0].issue='INTENT'; for(const c of d.opening.options)if(c.planId===d.argumentPlans[0].id)c.issue='INTENT'; }
  const s=createService(d);cmd(s,'strategy',{id:'THEORY_IDENTITY'});open(s,['OPEN_IDENTITY','OPEN_INTENT','OPEN_NO_CONTACT']);
  const original=s.projection().caseRecord.commitments;
  cmd(s,'strategy',{id:'THEORY_INTENT'});

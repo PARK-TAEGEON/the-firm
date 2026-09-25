@@ -43,3 +43,7 @@ Closing preparation choices remain below 100 visible characters when collapsed. 
 
 Accessible courtroom name: 法廷 phase-neutral Korean 법정 진행, replacing 반대신문. No visible instructional text or panel added. Identical final public-position sentences occur once in generated speech; source revision/conflict disclosure remains complete. Existing UI budget retained.
 Final version-label budget: desktop 197/220 characters, mobile 183/213. Original budget limits unchanged, all 14 pass. Mobile no-Closing resolved screenshot visually reviewed.
+
+## v0.9 adjudication UI audit
+
+판결을 듣는다 is the one phase-local action after Closing or completed no-Closing examinations. The courtroom center shows the authored outcome and required-issue reasoning; 판단 근거 disclosures list only recorded testimony. Existing record panel gets a collapsed 판결 item. No new persistent panel, score/checkmark/strength/recommendation or long judgment. Mobile decision title receives focus and is scrolled clear of the sticky header. Verdict center budget: under 280 characters collapsed; original examination budget retained. Desktop/short/mobile screenshots inspected.

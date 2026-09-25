@@ -2,7 +2,7 @@
 
 ## Current Version
 
-v0.8.1 (`courtroom-prototype/package.json`: `0.8.1`) — Independent Reviewer PASS (사용자 전달, 2026-09-25)
+v0.9 (`courtroom-prototype/package.json`: `0.9.0`) — 구현 검증 완료, 독립 리뷰 대기
 
 기존 저장소 `The Firm`의 웹 프로토타입을 사용한다. Godot `litigation-skeleton/`은 별도 프로젝트다.
 
@@ -22,13 +22,23 @@ v0.8.1 (`courtroom-prototype/package.json`: `0.8.1`) — Independent Reviewer PA
 
 이번 버전의 구현 범위는:
 
-> v0.8.1 교정: ProceedingProfile Closing gating, 발언 중복 제거, 접근성 이름
+> CourtRecord → CourtFactFinding → Verdict (Judge factfinder)
 
 이다.
 
 ---
 
 ## Implemented
+
+### CourtFactFinding / Verdict
+
+- engine/adjudication.js가 고정 CaseDefinition과 세 CourtRecord 층을 읽고 issue별 사실판단을 만든다. 증언 참조, 양측 기록, admission, active/qualified counter, witness relation, support state, unresolved witness contradiction, Frame/Closing 맥락과 절차 참조를 분리한다.
+- authored proof/doubt premise 조합만 사용한다. 질문 수·선택 UI·논증 strength·점수 합산을 판정에 쓰지 않는다. 절차상 성공이나 Opening/Closing 문장은 사실이 아니다.
+- CaseDefinition.adjudication에 requiredIssues, 각 burden party/standard, decisionRule, factFinder와 결과 문구를 선언한다. 현재 지원은 judge, beyond_reasonable_doubt, all_required뿐이다. 부분/알 수 없는 선언과 타 issue 전제는 construction에서 거부한다.
+- 각 필수 쟁점에서 완전한 증거 경로가 성립하고 해당 부담에 반하는 기록된 의문 및 미해결 증언 모순이 없어야 입증된다. 필수 쟁점 하나라도 미입증이면 notSatisfied 결과다. 결과 코드와 형사 문구는 데이터에만 존재한다.
+- 두 증인 종료와 Closing 확정 후 판결을 듣는다. Closing 없는 profile은 두 증인 종료 뒤 resolved를 유지하고 바로 판결을 요청할 수 있다. 판정 설정 자체가 없는 profile은 종전 종료를 유지한다.
+- 판결 명령은 Evidence/Advocacy와 기존 Procedural을 보존하고 Procedural에 verdict_delivered 하나를 추가한다. 입력 layer별 record refs와 definitionVersion을 보관하며 replay는 참조 당시 입력만 읽는다. 후속 기록은 과거 판결을 바꾸지 않으며 참조 누락/버전 불일치는 오류다. UI/history/session 상태는 사용하지 않는다.
+- 중앙 화면에 필수 쟁점의 짧은 판단과 결과를 표시하고 증거 상세는 disclosure로 접는다. 기존 기록 패널에 판결 항목을 추가한다. 새로운 상시 패널·점수·게이지는 없다.
 
 ### Closing / Case-wide Argument Synthesis
 
@@ -39,7 +49,7 @@ v0.8.1 (`courtroom-prototype/package.json`: `0.8.1`) — Independent Reviewer PA
 - 선택한 쟁점의 Counter는 다루지 않아도 synthesis에 남는다. 다루는 Counter는 실제 Qualification이 있을 때 그 내용을 인용하며, 없으면 한계가 남음을 발언한다. Witness relation의 후속 설명도 연결하고 중복 문장은 제거한다.
 - Closing은 Evidence/Procedural을 변경하지 않는다. 선택과 생성 문장을 closing_position 하나에 기록하며, 유지/수정된 공개 입장, closing_revision, 실제 명시적 position 충돌의 commitment_conflict는 원 Commitment/Closing을 참조한다. 기존 Strategy Revision/Conflict는 그대로 보존한다.
 - Closing replay는 기록된 selection/theoryId와 CourtRecord만 읽는다. priorConflictRefs는 Closing 이전 기록으로 제한한다. UI draft, 질문 횟수, 신문 선택 상태를 읽지 않는다.
-- Client Objective 전체 구조를 읽기 결과에 포함하고, 실제 문장에는 primary 요청을 사용한다. 목표 달성이나 유무죄는 판단하지 않는다.
+- Client Objective 전체 구조를 읽기 결과에 포함하고, 실제 문장에는 primary 요청을 사용한다. Closing 자체는 목표 달성이나 유무죄를 판단하지 않는다. v0.9의 별도 판정 층이 사건 기록을 읽는다.
 - 공개 입장 수정은 기존 authored option 중 같은 issue 또는 같은 position key에 연결되는 조각으로 제한한다. Opening용 미래형 조각에는 별도 closingText를 사용한다.
 - Closing 준비와 확정 후 증인 이동/신문/전략 변경은 잠긴다. 확정 전에는 선택과 미리보기를 수정할 수 있다. 전체 세션 저장/불러오기는 여전히 범위 밖이다.
 
@@ -227,18 +237,16 @@ Arguments can be Core / Peripheral depending on current Theory.
 
 ## Current Scope and Deferred Work
 
-v0.8.1 Independent Reviewer PASS (사용자 전달, 2026-09-25). 기준점 v0.7.1은 Independent Review PASS (2026-09-25 사용자 전달).
+v0.9 판정 층 구현, 독립 리뷰 대기. v0.8.1은 사용자 전달 Independent Reviewer PASS 기준점이다. 이전 기준점 v0.7.1은 Independent Review PASS (2026-09-25 사용자 전달).
 
 Focus:
 
-- Closing 선택 구성과 문장 종합
-- Case-wide Argument Synthesis
-- Opening → Examination → Closing 연결
+- CourtRecord 기반 issue별 CourtFactFinding
+- required issue / burden / standard 기반 Verdict
+- Opening → Examination → Closing → 판결 연결
 - 기존 Major Commitment / Strategy Revision / v0.65 신문 회귀 유지
 
 Do not implement yet:
-- Verdict
-- Court Fact Finding
 - Jury
 - Settlement
 - Appeal
@@ -278,6 +286,7 @@ Product direction remains a human decision.
 | 경로 (저장소 루트 기준) | 역할 |
 | --- | --- |
 | `courtroom-prototype/data/case.js` | 사건, 두 증인, Theory, authored 질문·응답·추론 데이터 |
+| `courtroom-prototype/engine/adjudication.js` | 판정 설정 검증, issue별 사실판단, Verdict 및 입력 참조 replay |
 | `courtroom-prototype/engine/closing.js` | 사건 전체 후보, 선택 검증, Closing 문장 종합 및 기록 재생 |
 | `courtroom-prototype/engine/opening.js` | Opening 검증, 명시적 전략 충돌, 사건 기록 재생과 연결 |
 | `courtroom-prototype/engine/core.js` | 검증, 추론, commitment routing, 기록 기반 평가 |
@@ -329,3 +338,23 @@ v0.8.1 Independent Reviewer PASS는 사용자 전달 결과다(2026-09-25). 이 
 ## v0.8.1 accepted baseline
 
 v0.8.1 구현 commit d54006d. 사용자 전달 Independent Reviewer PASS를 이 문서에 반영하고 courtroom-core-v0.8.1 tag로 고정한다. v0.9는 후속 별도 구현이다.
+
+## v0.9 implementation and verification — 2026-09-25
+
+기준 태그 courtroom-core-v0.8.1 → 529371f3679318154d8508daf11d6f2785113508. 사용자 전달 Independent Reviewer PASS를 CURRENT에 기록한 commit이며 구현 기준은 d54006d다. 태그는 변경하지 않는다.
+
+검증 결과는 루트 REVIEW_REQUEST.md와 courtroom-prototype/test-results.log를 따른다. 기존 v0.65/v0.7.1/v0.8/v0.8.1 회귀와 신규 판정 검사를 모두 실행한다. 역방향 INTENT 오염 회귀 fixture에서만 판정 설정을 제거했다. 해당 fixture는 원래 식별 plan의 issue를 INTENT로 바꾸므로 원 사건의 판정 전제와 맞지 않으며, 원래 Opening/전략/신문 검사 assertion은 유지했다.
+
+주요 제한: 현재 출시 데이터는 공격자 동일성과 범행 시각 사용에 대한 완전한 입증 경로가 없다. 배경 설명·Opening admission을 Evidence로 승격하지 않으므로 현재 실제 경로의 최종 결과는 입증 실패이며 판단 근거/의문/반박 맥락이 경로에 따라 달라진다. 유죄를 억지로 만들기 위해 증거를 추가하지 않았다. 입증 성공 및 다른 부담/필수 쟁점에 따른 결과 전환은 synthetic proof fixture에서만 검증한다. 고의는 판단 자료가 없고 이번 slice의 필수 쟁점에서 제외되며 전체 형사법 요소를 재현하지 않는다.
+
+이는 authored 판정 규칙이며 범용 법률 엔진이나 실제 법적 판단을 표방하지 않는다. 다른 증명 기준은 자동 추측하지 않고 거부한다. 저장된 CourtRecord replay에는 같은 버전 CaseDefinition도 필요하며 UI 전체 저장/불러오기는 범위 밖이다. 기존 relation metadata 중복/최초 참조 부채는 그대로다. Jury/Sentencing/Appeal/Settlement/Civil/Redirect/상대 Closing AI/Staff/다중 에이전트·Orca는 구현하지 않았다.
+
+사용자 v0.9 요청과 .agent/tasks/COURTROOM-CORE-090.md가 이번 범위다. docs/IMPLEMENT.md의 과거 v0.7 원문과 위 과거 검증 이력의 미구현 목록은 역사적 기록이며 현재 v0.9 기능을 부정하지 않는다.
+
+## 최종 검증 결과 (2026-09-25)
+
+Node 228 (기존 198 + 판정 30), Browser 591 (기존 383 + 판정 208), UI budget 14: 총 833, 실패 0, 각 명령 exit 0. 기존 v0.65/v0.7.1/v0.8/v0.8.1 회귀 유지. 판정 browser는 recorded/sparse/no-Closing 3경로 × large/short/mobile 3화면이며 mobile direct-file 포함. 쟁점별 Evidence/Counter/Qualification과 Closing context, 절차 판결 표식, JSON replay, 제목 focus/가림 방지, 기존 record sheet, 무패널 추가/가로 넘침 없음, 중앙 본문 280자 미만을 확인했다.
+
+신문 budget: desktop normal/argument 195/218자, mobile 183/213자. 법정 영역은 기존 판결 전환 때만 바뀐다. 검토 중 양측의 완전한 상충 입증 경로가 동시에 성립하면 둘 다 미해결로 남기도록 보완했고, 양측 Evidence 분류도 case mapping에서 읽도록 했다. 해당 positive/negative 회귀 포함 전체 재실행.
+
+판정은 필수 쟁점의 부담을 읽으며 같은 CourtRecord/definition이면 같은 결과다. supporting/opposingEvidence는 claimant/respondent에 대응하고 Counter는 별도 목록으로 보존한다. 이번 구현은 독립 리뷰 대기 상태다.

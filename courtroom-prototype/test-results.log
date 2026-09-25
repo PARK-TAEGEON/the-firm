@@ -75,3 +75,13 @@ New Node: 10; valid pre-fix failures: 8. Fixtures: absent/partial Closing; shipp
 All historical v0.65/v0.7.1/v0.8 tests retained. Evidence/Procedural invariant and record-only replay pass.
 Implementation PASS candidate; independent review pending.
 Final version label budget: desktop 197/220, mobile 183/213; 14/14 pass.
+
+v0.9 — 2026-09-25
+npm test: Node 228 checks (198 existing + 30 adjudication), 0 failures, exit 0.
+npm run test:browser: 591 checks (87+47+35+52+37+58+67+208), 0 failures, exit 0.
+npm run test:budget: 14 checks, 0 failures, exit 0.
+Total 833. Large 1440x1080, short 1280x720, mobile 390x844; localhost/direct-file.
+Verdict paths: recorded facts/admission/counter + selected Closing, sparse Closing, no-Closing direct decision. Evidence/Advocacy invariant, exactly one Procedural decision marker, saved-reference replay, same-issue scope, focus/title visibility, original record sheet, no overflow/new panels, concise center.
+Node: required issue/burden/proof/doubt combinations, synthetic positive and opposing proof, counter qualification, explicit witness conflict, record segregation, atomic rejection, no adjudication profile, partial/unknown validation.
+Original budget: desktop 195/218, mobile 183/213 visible characters. Desktop/mobile verdict screenshots visually reviewed.
+Positive proof and burden variations are synthetic fixtures; shipped real paths lack complete proof and remain not_guilty. Independent review pending.

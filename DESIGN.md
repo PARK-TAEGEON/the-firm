@@ -56,3 +56,13 @@ After both examinations end, Closing composes selected issues, recorded-premise 
 ## v0.8.1 correction
 
 Optional Closing requires the complete closing/closed phases and beginClosing/submitClosing actions, or none. Partial declarations fail construction. Availability respects the profile and existing lifecycle prerequisites. Generated public-position speech deduplicates identical final text; all original positions, revisions and conflicts remain append-only. Main courtroom accessible name is phase-neutral. No gameplay redesign or additional panels.
+
+## v0.9 authorized adjudication delta
+
+Active contract: .agent/tasks/COURTROOM-CORE-090.md. User authorized CourtFactFinding and Verdict supersede historical exclusions above. v0.8.1 Independent Reviewer PASS is fixed at tag courtroom-core-v0.8.1 (529371f), reported by user.
+
+Judge findings derive issue-local evidence and validated counter/qualification/relationship metadata, with separate advocacy and procedural context. Authored exact evidence premise routes and doubt routes replace scores. Each required issue specifies a burden party and beyond_reasonable_doubt standard; all_required is the only decision rule. A complete proof route without recorded opposing doubt or unresolved witness contradiction satisfies that burden. Outcome labels live in case data. Closing selections, speaking strength and procedural success cannot supply facts.
+
+Current authored record contains no complete proof of attacker identity or offense-time use: production outcomes remain failure of proof. Do not promote unrecorded background or Opening admissions into evidence. Positive proof and burden variations are synthetic tests only, not new case content. This narrow slice does not adjudicate intent.
+
+After completed Closing, or both examinations where Closing is absent, deliverVerdict appends only a judicial Procedural marker referencing frozen input records and definition version. Evidence/Advocacy and original Procedural remain unchanged. Record replay needs the fixed definition, never UI/history. Optional verdict config, phase and action must be coherent. Central result UI and existing record disclosures are reused. All deferred systems stay excluded.

@@ -1,12 +1,12 @@
 {
   "name": "the-firm-courtroom-experiment",
-  "version": "0.8.1",
+  "version": "0.9.0",
   "private": true,
   "description": "Isolated, authored courtroom prototype; no Godot integration",
   "scripts": {
-    "test": "node --test tests/core.test.js tests/strategy.test.js tests/inference.test.js tests/procedure.test.js tests/flow.test.js tests/tactics.test.js tests/opening.test.js tests/closing.test.js tests/closing-profile.test.js",
+    "test": "node --test tests/core.test.js tests/strategy.test.js tests/inference.test.js tests/procedure.test.js tests/flow.test.js tests/tactics.test.js tests/opening.test.js tests/closing.test.js tests/closing-profile.test.js tests/adjudication.test.js",
     "start": "node serve.js",
-    "test:browser": "node tests/browser.test.js && node tests/browser-flow.test.js && node tests/browser-tactics.test.js && node tests/browser-opening.test.js && node tests/browser-commitment-scope.test.js && node tests/browser-closing.test.js && node tests/browser-closing-profile.test.js",
+    "test:browser": "node tests/browser.test.js && node tests/browser-flow.test.js && node tests/browser-tactics.test.js && node tests/browser-opening.test.js && node tests/browser-commitment-scope.test.js && node tests/browser-closing.test.js && node tests/browser-closing-profile.test.js && node tests/browser-adjudication.test.js",
     "test:budget": "node tests/ui-budget.js v065"
   }
 }

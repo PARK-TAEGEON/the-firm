@@ -47,7 +47,8 @@ const caseDefinition = {
       "plan": "반대신문 준비",
       "examine": "서지훈 반대신문",
       "resolved": "신문 종료",
-      "opening": "개회사 준비"
+      "opening": "개회사 준비",
+      "verdict": "판결"
     },
     "actions": [
       "beginClosing",
@@ -65,7 +66,8 @@ const caseDefinition = {
       "witness",
       "thread",
       "endThread",
-      "opening"
+      "opening",
+      "deliverVerdict"
     ],
     "resolutionTypes": [
       "adjudicated",
@@ -1998,6 +2000,129 @@ const caseDefinition = {
         "issue": "COMMISSION",
         "planId": "PLAN_CONTACT_USE",
         "closingText": "접촉 흔적과 범행 당시 사용은 구분해야 합니다."
+      }
+    ]
+  },
+  "adjudication": {
+    "version": "case-finding-v1",
+    "factFinder": "judge",
+    "evidenceSides": {"claimant": ["prosecution"], "respondent": ["support", "defense"]},
+    "decisionRule": "all_required",
+    "requiredIssues": [
+      {
+        "issue": "IDENTITY",
+        "burden": "claimant",
+        "standard": "beyond_reasonable_doubt"
+      },
+      {
+        "issue": "COMMISSION",
+        "burden": "claimant",
+        "standard": "beyond_reasonable_doubt"
+      }
+    ],
+    "outcomes": {
+      "satisfied": {
+        "code": "guilty",
+        "title": "유죄",
+        "text": "검찰이 필요한 쟁점을 합리적 의심 없이 입증했다."
+      },
+      "notSatisfied": {
+        "code": "not_guilty",
+        "title": "무죄",
+        "text": "검찰이 필요한 쟁점을 입증하지 못했다."
+      }
+    },
+    "issues": [
+      {
+        "issue": "IDENTITY",
+        "proof": {
+          "claimant": [],
+          "respondent": []
+        },
+        "doubts": [
+          {
+            "id": "DOUBT_SIGHT_CONDITIONS",
+            "against": "claimant",
+            "all": [
+              "P_DISTANCE_27M",
+              "P_OBSERVATION_SHORT"
+            ],
+            "text": "멀고 짧은 관찰로 식별에 한계가 남는다."
+          },
+          {
+            "id": "DOUBT_SIGHT_INITIAL",
+            "against": "claimant",
+            "all": [
+              "P_INITIAL_UNCERTAIN"
+            ],
+            "text": "최초 진술의 불확실성이 남는다."
+          },
+          {
+            "id": "DOUBT_SIGHT_ADMISSION",
+            "against": "claimant",
+            "all": [
+              "P_IDENTIFICATION_LIMIT"
+            ],
+            "text": "증인이 얼굴 식별의 한계를 인정했다."
+          }
+        ],
+        "reasoning": {
+          "missing": "기록된 진술만으로 피고인을 공격자로 확정할 연결이 부족하다.",
+          "doubt": "관찰 조건과 진술에 남은 의문으로 공격자 식별을 확정하기 어렵다.",
+          "proven": "공격자 식별의 연결이 기록으로 뒷받침되고 반대 근거가 해소되었다."
+        }
+      },
+      {
+        "issue": "COMMISSION",
+        "proof": {
+          "claimant": [],
+          "respondent": []
+        },
+        "doubts": [
+          {
+            "id": "DOUBT_PRINT_TIMING",
+            "against": "claimant",
+            "all": [
+              "P_PRINT_TIME_UNKNOWN"
+            ],
+            "text": "지문이 남은 시점을 특정하지 못한다."
+          },
+          {
+            "id": "DOUBT_PRIOR_CONTACT",
+            "against": "claimant",
+            "all": [
+              "P_SHARED_KNIFE",
+              "P_PRIOR_USE_POSSIBLE"
+            ],
+            "text": "공용 칼에 대한 이전 접촉 가능성이 남는다."
+          },
+          {
+            "id": "DOUBT_USE_ADMISSION",
+            "against": "claimant",
+            "all": [
+              "P_USE_TIME_LIMIT"
+            ],
+            "text": "감식관이 범행 당시 사용 연결의 한계를 인정했다."
+          }
+        ],
+        "reasoning": {
+          "missing": "범행 당시 사용을 입증할 기록의 연결이 부족하다.",
+          "doubt": "범행 당시 사용을 연결하는 시점이나 접촉 경위의 의문이 남는다.",
+          "proven": "범행 당시 사용의 연결이 기록으로 뒷받침되고 반대 근거가 해소되었다."
+        }
+      },
+      {
+        "issue": "INTENT",
+        "proof": {
+          "claimant": [],
+          "respondent": []
+        },
+        "doubts": [],
+        "reasoning": {
+          "missing": "고의를 판단할 증언이 기록에 없다.",
+          "doubt": "고의에 관한 의문이 해소되지 않았다.",
+          "proven": "고의가 기록으로 뒷받침된다."
+        }
       }
     ]
   }
