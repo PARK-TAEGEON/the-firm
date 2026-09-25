@@ -213,7 +213,7 @@ Arguments can be Core / Peripheral depending on current Theory.
 
 ## Current Scope and Deferred Work
 
-v0.7.1 교차 쟁점 검토 오염 수정 완료, 재리뷰와 사용자 플레이테스트 대기
+v0.7.1 Independent Review PASS — 2026-09-25 사용자 전달 결과. 사용자 플레이테스트는 별도.
 
 Focus:
 
@@ -286,4 +286,8 @@ v0.7 검증 (2026-09-23): Node 168, Browser 221 (87 + 47 + 35 + 52), UI budget 1
 
 ## v0.7.1 verification — 2026-09-25
 
-Node 175, Browser 258 (87 + 47 + 35 + 52 + 37), UI budget 14, 총 447 모두 통과. 신규 오염/priority 회귀 5개는 수정 전 실패하고 수정 후 통과했다. 추가 validation/progression 검사 2개도 통과했다. 기존 Opening A/B/C와 v0.65 examination 회귀를 모두 재실행했다. 교차 쟁점 브라우저는 데스크톱·모바일에서 Opening → 전략 변경 → 실제 counter → record-only replay → Stop을 검증했다. 반대 방향은 INTENT plan scope fixture임을 구분한다. UI 레이아웃 변경은 없으며 버전만 0.7.1로 갱신했다. 독립 재리뷰는 아직 수행하지 않았다.
+Node 175, Browser 258 (87 + 47 + 35 + 52 + 37), UI budget 14, 총 447 모두 통과. 신규 오염/priority 회귀 5개는 수정 전 실패하고 수정 후 통과했다. 추가 validation/progression 검사 2개도 통과했다. 기존 Opening A/B/C와 v0.65 examination 회귀를 모두 재실행했다. 교차 쟁점 브라우저는 데스크톱·모바일에서 Opening → 전략 변경 → 실제 counter → record-only replay → Stop을 검증했다. 반대 방향은 INTENT plan scope fixture임을 구분한다. UI 레이아웃 변경은 없으며 버전만 0.7.1로 갱신했다. 독립 리뷰 결과: PASS (2026-09-25 사용자 전달). 이 작업에서 새로 독립 리뷰를 수행한 것은 아니다.
+
+## Accepted baseline
+
+v0.7.1 Independent Review PASS (사용자 전달, 2026-09-25). 구현 commit: 2b499e1. Git tag courtroom-core-v0.7.1은 이 PASS 기록을 포함하는 기준점 commit을 가리킨다. v0.8은 별도 후속 구현이다.
