@@ -52,3 +52,46 @@ test('same examination commands yield identical semantic evidence and outcomes w
  for(const s of [a,b]){cmd(s,'strategy',{id:'THEORY_IDENTITY'});if(s===b)open(s);for(const id of ['G_DISTANCE','G_DURATION','G_INITIAL'])cmd(s,'establish',{id,basis:D.goals.find(g=>g.id===id).basis});cmd(s,'select',{ids:['P_DISTANCE_27M','P_OBSERVATION_SHORT','P_INITIAL_UNCERTAIN']});cmd(s,'press',{claimId:'CLAIM_SIGHT_LIMIT'});cmd(s,'press',{claimId:'CLAIM_SIGHT_EXCESS'});cmd(s,'stop');}
  const semantic=s=>s.projection().state.records.evidence.map(({propositionId,testimony,commitment,rehabilitationOpportunity})=>({propositionId,testimony,commitment,rehabilitationOpportunity}));assert.deepEqual(semantic(a),semantic(b));assert.equal(a.projection().assessment.code,b.projection().assessment.code);
 });
+
+for (const issue of ['IDENTITY','INTENT']) test(`${issue} counter reviews only same-issue public commitments after Opening and strategy revision`,()=>{
+ const d=E.copy(D);
+ // Reverse direction is a scope fixture, not newly authored Intent gameplay.
+ if(issue==='INTENT') { d.argumentPlans[0].issue='INTENT'; for(const c of d.opening.options)if(c.planId===d.argumentPlans[0].id)c.issue='INTENT'; }
+ const s=createService(d);cmd(s,'strategy',{id:'THEORY_IDENTITY'});open(s,['OPEN_IDENTITY','OPEN_INTENT','OPEN_NO_CONTACT']);
+ const original=s.projection().caseRecord.commitments;
+ cmd(s,'strategy',{id:'THEORY_INTENT'});
+ assert.deepEqual(s.projection().assessment.strategy.commitmentReviewRefs,[], 'priority change and factual strategy conflict are not evidentiary challenges');
+ for(const id of ['G_DISTANCE','G_DURATION'])cmd(s,'establish',{id,basis:d.goals.find(g=>g.id===id).basis});
+ cmd(s,'press',{claimId:'CLAIM_SIGHT_LIMIT'});cmd(s,'press',{claimId:'CLAIM_SIGHT_EXCESS'});
+ const v=s.projection(), same=original.filter(c=>c.issue===issue).map(c=>c.id), foreign=original.filter(c=>c.issue!==issue).map(c=>c.id);
+ assert.ok(v.assessment.activeCounterRefs.length>0);assert.deepEqual(v.assessment.strategy.commitmentReviewRefs,same);
+ assert.ok(foreign.every(id=>!v.assessment.strategy.commitmentReviewRefs.includes(id)));
+ assert.deepEqual(v.caseRecord.commitments,original);assert.equal(v.caseRecord.conflicts.length,1,'authored strategy conflict preserved separately');
+ const records=JSON.parse(JSON.stringify(v.state.records));
+ for(const theory of d.theories) assert.deepEqual(E.evaluateRecord(d,records,theory.id,d.argumentPlans[0].id).strategy.commitmentReviewRefs,same,'evidentiary review independent of priority');
+ assert.deepEqual(O.replay(d,records),v.caseRecord);
+ const other=E.evaluateRecord(d,records,'THEORY_INTENT',d.argumentPlans[1].id);assert.deepEqual(other.strategy.commitmentReviewRefs,[],'other plan does not import counter');
+});
+
+test('peripheral Frame keeps priority without challenging its same-issue commitment',()=>{
+ const s=fresh();open(s,['OPEN_IDENTITY']);for(const id of ['G_DISTANCE','G_DURATION','G_INITIAL'])cmd(s,'establish',{id,basis:D.goals.find(g=>g.id===id).basis});
+ cmd(s,'select',{ids:['P_DISTANCE_27M','P_OBSERVATION_SHORT','P_INITIAL_UNCERTAIN']});cmd(s,'frame');
+ const a=s.projection();assert.equal(a.assessment.framedArguments[0].value,'core');
+ const b=cmd(s,'strategy',{id:'THEORY_INTENT'});assert.equal(b.assessment.framedArguments[0].value,'peripheral');assert.deepEqual(b.assessment.strategy.commitmentReviewRefs,[]);assert.equal(b.assessment.strategy.positionStatus,'committed');
+});
+
+for(const issue of ['IDENTITY','INTENT'])test(`record-only ${issue} counter cannot contaminate the opposite issue`,()=>{
+ const d=E.copy(D);d.argumentPlans[0].issue=issue;
+ const records={evidence:[{id:'counter',propositionId:'P_SIGN_LIGHT'}],procedural:[],advocacy:[{id:'identity-public',kind:'major_commitment',issue:'IDENTITY'},{id:'intent-public',kind:'major_commitment',issue:'INTENT'}]};
+ const result=E.evaluateRecord(d,records,'THEORY_IDENTITY',d.argumentPlans[0].id);
+ assert.deepEqual(result.activeCounterRefs,['counter']);assert.deepEqual(result.strategy.commitmentReviewRefs,[issue==='IDENTITY'?'identity-public':'intent-public']);
+});
+
+test('all theories must explicitly declare every position key, including unspecified',()=>{
+ for(const change of [d=>delete d.theories[0].workingPositions.contact,d=>d.theories[0].workingPositions.contact='',d=>d.theories[0].workingPositions.contact=null,d=>d.theories[0].workingPositions=[],d=>d.theories[1].workingPositions.extra='admitted',d=>d.opening.options[0].position={key:'new-key',value:'denied'}]){const d=E.copy(D);change(d);assert.throws(()=>createService(d),/Every theory/);}
+ const s=fresh();assert.equal(open(s,['OPEN_NO_CONTACT']).caseRecord.activeConflictRefs.length,0);assert.equal(cmd(s,'strategy',{id:'THEORY_INTENT'}).caseRecord.activeConflictRefs.length,1);assert.equal(cmd(s,'strategy',{id:'THEORY_IDENTITY'}).caseRecord.activeConflictRefs.length,0);
+});
+
+test('case-wide links explicitly represent issue progression, not evidentiary support',()=>{
+ const s=fresh();const v=open(s,['OPEN_IDENTITY']);assert.equal(v.caseRecord.links[0].relationKind,'issue_progression');assert.deepEqual(v.caseRecord.links[0].arguments,[]);assert.equal(v.state.records.evidence.length,0);
+});

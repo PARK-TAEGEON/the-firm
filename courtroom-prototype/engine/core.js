@@ -187,7 +187,8 @@
     const developed = framedArguments.some(a => a.value !== 'peripheral') || (admissionRefs.length > 0 && theory?.contestedIssues.includes(scope));
     const argumentFrames = records.advocacy.filter(r => r.kind === 'argument');
     const majorCommitments = records.advocacy.filter(r => r.kind === 'major_commitment');
-    const commitmentReviewRefs = majorCommitments.filter(r => !theory?.contestedIssues.includes(r.issue) || activeCounters.length > 0).map(r => r.id);
+    // Evidentiary review is local to the evaluated issue; theory priority is independent.
+    const commitmentReviewRefs = majorCommitments.filter(r => r.issue === scope && activeCounters.length > 0).map(r => r.id);
     const strategy = { theoryId, priorityIssues: theory?.contestedIssues || [], framedArguments,
       development: developed ? (activeCounters.length ? 'contested' : 'developed') : framedArguments.length || admissionRefs.length ? 'peripheral' : 'facts_only',
       unresolvedIssues: (theory?.contestedIssues || []).filter(issue => issue !== scope || !developed || activeCounters.length > 0), conflicts,

@@ -2,7 +2,7 @@
 
 ## Current Version
 
-v0.7 (`courtroom-prototype/package.json`: `0.7.0`)
+v0.7.1 (`courtroom-prototype/package.json`: `0.7.1`)
 
 기존 저장소 `The Firm`의 웹 프로토타입을 사용한다. Godot `litigation-skeleton/`은 별도 프로젝트다.
 
@@ -22,7 +22,7 @@ v0.7 (`courtroom-prototype/package.json`: `0.7.0`)
 
 이번 버전의 구현 범위는:
 
-> Opening / Major Commitment / Strategy Revision
+> 교차 쟁점 Major Commitment 검토 오염 수정 (Opening / Strategy / Examination 유지)
 
 이다.
 
@@ -128,9 +128,16 @@ Arguments can be Core / Peripheral depending on current Theory.
 - Major Commitment의 저장 원본은 records.advocacy 하나다. caseRecord는 복사된 읽기 전용 projection이다.
 - Working Strategy 변경은 기존 strategy 명령을 사용한다. 공개 이후 strategy_revision을 누적하며, authored workingPositions와 충돌하면 원 commitment와 revision을 참조하는 commitment_conflict를 추가한다.
 - 단순 우선 쟁점 변경은 사실적 충돌로 간주하지 않는다. 기존 접촉 부인에서 접촉 인정 전략으로 바꾸면 충돌이 남는다. 원래 전략으로 돌아가도 과거 충돌은 삭제되지 않는다.
-- engine/opening.js의 replay는 CourtRecord만으로 Opening, 공개 입장, 최신 전략과 충돌을 재생한다. 공개 입장 → Issue → Frame → 실제 Evidence 참조를 제공한다.
+- engine/opening.js의 replay는 CourtRecord만으로 Opening, 공개 입장, 최신 전략과 충돌을 재생한다. 공개 입장 → Issue → Frame → 실제 Evidence 참조를 제공한다. links의 relationKind는 issue_progression이며, 공개 입장의 증거상 입증을 뜻하지 않는다.
 - Client Objectives와 현재 Theory priority를 projection에서 읽으며, 점수나 자동 패널티는 없다.
 - 준비 단계의 미공개 선택은 UI draft다. 공개 후 재작성 명령은 허용하지 않는다.
+
+### v0.7.1 correction
+
+- commitmentReviewRefs는 현재 evaluation scope와 같은 issue의 Major Commitment만 포함하며, 해당 plan의 active counter가 있을 때만 검토 대상으로 삼는다.
+- Core / Peripheral 및 unresolvedIssues 평가는 종전 그대로다. priority 변경과 authored strategy conflict는 evidentiary challenge와 별도로 남는다.
+- 모든 Theory는 Opening 및 workingPositions에서 사용하는 position key에 값 또는 명시적 unspecified를 선언해야 한다. 누락·빈 값은 validation 오류이며, unspecified는 충돌을 만들지 않는다.
+- IDENTITY → INTENT 및 INTENT → IDENTITY 차단, 같은 쟁점의 정상 검토, priority 분리, 기록 보존·replay 회귀를 추가했다. INTENT counter는 테스트 전용 scope fixture이며 실제 사건에 고의 증거나 새 신문을 추가하지 않았다.
 
 ### UI
 
@@ -206,7 +213,7 @@ Arguments can be Core / Peripheral depending on current Theory.
 
 ## Current Scope and Deferred Work
 
-v0.7 구현 완료, 독립 리뷰와 사용자 플레이테스트 대기
+v0.7.1 교차 쟁점 검토 오염 수정 완료, 재리뷰와 사용자 플레이테스트 대기
 
 Focus:
 
@@ -276,3 +283,7 @@ v0.7 검증 (2026-09-23): Node 168, Browser 221 (87 + 47 + 35 + 52), UI budget 1
 실행은 index.html 직접 열기 또는 npm start 후 http://127.0.0.1:4173/이다. 테스트 상세는 courtroom-prototype/test-results.log와 REVIEW_PACKET.md, 리뷰 요청은 루트 REVIEW_REQUEST.md에 있다.
 
 법정 응답·충돌 의미는 authored 데이터이며 범용 법률 추론, 실제 재주신문·유무죄 판정은 없다. Intent 논증을 위한 새 증거/증인은 추가하지 않았다. 전체 신문 상태의 저장/불러오기는 범위 밖이며, 기록 재생은 Opening/전략과 논증의 읽기 projection이다. Godot 테스트는 변경 범위 밖이므로 재실행하지 않았다. 독립 Reviewer PASS와 사람의 재미 평가는 아직 확보하지 않았다.
+
+## v0.7.1 verification — 2026-09-25
+
+Node 175, Browser 258 (87 + 47 + 35 + 52 + 37), UI budget 14, 총 447 모두 통과. 신규 오염/priority 회귀 5개는 수정 전 실패하고 수정 후 통과했다. 추가 validation/progression 검사 2개도 통과했다. 기존 Opening A/B/C와 v0.65 examination 회귀를 모두 재실행했다. 교차 쟁점 브라우저는 데스크톱·모바일에서 Opening → 전략 변경 → 실제 counter → record-only replay → Stop을 검증했다. 반대 방향은 INTENT plan scope fixture임을 구분한다. UI 레이아웃 변경은 없으며 버전만 0.7.1로 갱신했다. 독립 재리뷰는 아직 수행하지 않았다.

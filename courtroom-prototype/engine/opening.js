@@ -14,7 +14,8 @@
       if(c.planId) E.ensure(E.find(d.argumentPlans,c.planId)?.issue===c.issue,'Invalid opening plan');
       if(c.position) E.ensure(typeof c.position.key==='string' && typeof c.position.value==='string','Invalid opening position');
     }
-    for (const t of d.theories) E.ensure(t.workingPositions && Object.values(t.workingPositions).every(v=>typeof v==='string'),'Missing working positions');
+    const positionKeys = new Set([...d.opening.options.flatMap(c=>c.position?[c.position.key]:[]), ...d.theories.flatMap(t=>Object.keys(t.workingPositions||{}))]);
+    for (const t of d.theories) E.ensure(t.workingPositions && !Array.isArray(t.workingPositions) && [...positionKeys].every(key=>Object.hasOwn(t.workingPositions,key) && typeof t.workingPositions[key]==='string' && t.workingPositions[key].trim().length>0),'Every theory must declare each working position value or unspecified');
   }
   function selection(d, ids) {
     E.ensure(Array.isArray(ids) && ids.length && new Set(ids).size===ids.length,'공개할 입장을 선택하십시오.');
@@ -29,7 +30,7 @@
   }
   function conflicts(d,records,theoryId) {
     const positions=E.find(d.theories,theoryId)?.workingPositions||{};
-    return records.advocacy.filter(c=>c.kind==='major_commitment' && c.position && Object.hasOwn(positions,c.position.key) && positions[c.position.key]!==c.position.value);
+    return records.advocacy.filter(c=>c.kind==='major_commitment' && c.position && Object.hasOwn(positions,c.position.key) && positions[c.position.key]!=='unspecified' && positions[c.position.key]!==c.position.value);
   }
   // All public positions and links are derived from persisted records, never UI draft/history.
   function replay(d,records,theoryId) {
@@ -41,7 +42,8 @@
     return E.copy({opening,commitments,revisions,conflicts:records.advocacy.filter(r=>r.kind==='commitment_conflict'),
       activeConflictRefs:conflicts(d,records,currentTheoryId).map(c=>c.id),theoryId:currentTheoryId,
       workingStrategy:theory?.workingStrategy||null,clientObjectives:d.clientObjectives,
-      links:commitments.map(c=>({commitmentRef:c.id,issue:c.issue,
+      // Issue progression is a navigation relation, not proof of the public claim.
+      links:commitments.map(c=>({relationKind:'issue_progression',commitmentRef:c.id,issue:c.issue,
         priority:theory?.contestedIssues.includes(c.issue)?'core':'peripheral',
         arguments:records.advocacy.filter(a=>a.kind==='argument'&&a.issue===c.issue).map(a=>({recordRef:a.id,planId:a.planId,
           evidenceRefs:records.evidence.filter(e=>a.premises.includes(e.propositionId)&&E.find(d.propositions,e.propositionId)?.planId===a.planId).map(e=>e.id)}))}))});

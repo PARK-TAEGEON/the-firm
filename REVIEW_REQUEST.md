@@ -1,34 +1,34 @@
-# THE FIRM v0.7 — Review Request
+# THE FIRM v0.7.1 — Review Request
 
-## Scope and implementation
+## Correction
 
-Review against docs/DESIGN.md, IMPLEMENT.md and REVIEW.md. v0.65 baseline tag remains unchanged. Opening now composes admission, contest, emphasis and argument-introduction fragments, then enters existing examination. Review whether those choices feel like constructing a legal position.
+Review the patch against docs/DESIGN.md, CURRENT.md, IMPLEMENT.md, REVIEW.md and the user's v0.7.1 correction request. Base: v0.7 commit 6a76c57. No next-stage features.
 
-- data/case.js: authored opening options and Theory workingPositions.
-- engine/opening.js: validates options, detects explicit factual contradictions, replays case-wide public state and joins commitments → issues → framed arguments → evidence references. Client Objectives and current issue priority are read here.
-- services/courtroom.js: case-scoped opening_position / major_commitment / strategy_revision / commitment_conflict records. Major Commitment source of truth is records.advocacy. Revisions preserve every earlier public position and evidence item. Conflicts link commitmentRef and revisionRef (or openingRef for an initially inconsistent private plan).
-- engine/core.js: Opening phase availability and witness navigation gate only; examination evaluation/routing/pressure unchanged. engine/procedure.js unchanged.
-- ui/app.js, ui/courtroom.css, index.html: existing scene/action space becomes Opening composition, existing record details show public positions and conflicts. Focus preservation and live announcements, no gauge/badge/new panel.
-- package.json, tests/*: version and regression harness, new opening suites, explicit examination-only compatibility fixture.
-- docs/CURRENT.md, root DESIGN.md, .agent/tasks/COURTROOM-CORE-070.md, scoped REVIEW_PACKET.md / UI_TEXT_AUDIT.md / test-results.log: actual state and handoff.
+The prior commitmentReviewRefs filter used an OR between non-priority issue and any scoped active counter. Consequently, an IDENTITY counter could request review of an INTENT public commitment and a priority change alone could request evidentiary review. The filter now requires commitment.issue === evaluation scope AND an active counter in the evaluated plan. All case-wide Major Commitment references remain available; only evidentiary review references are narrowed. Core/Peripheral, unresolvedIssues, record storage and authored Strategy Revision conflicts are unchanged.
+
+## Changed files
+
+- courtroom-prototype/engine/core.js: scoped evidentiary review filter only.
+- courtroom-prototype/engine/opening.js: every Theory declares every used position key with a nonempty value or explicit unspecified; unspecified does not conflict. links carry relationKind: issue_progression to distinguish issue navigation from evidentiary proof.
+- courtroom-prototype/data/case.js: Theory A explicitly declares contact: unspecified.
+- courtroom-prototype/tests/opening.test.js: 7 tests for both counter directions, same-issue positive control, priority independence, preserved public records/strategy conflicts/replay, validation and link semantics.
+- courtroom-prototype/tests/browser-commitment-scope.test.js: desktop/mobile Opening → Strategy Revision → counter → replay → Stop in both directions.
+- courtroom-prototype/package.json, index.html: 0.7.1 and new browser suite.
+- docs/CURRENT.md, root DESIGN.md, .agent/tasks/COURTROOM-CORE-071.md, courtroom-prototype/REVIEW_PACKET.md, test-results.log, this request: current status and review evidence.
 
 ## Verification
 
-All three package scripts exit 0: Node 168 tests, Browser 221 checks (87 + 47 + 35 + 52), UI budget 14 checks. Total 403 checks/tests, zero failures. Original v0.65 Node invariants run through an Opening-disabled fixture; original browser basic/flow retains compatibility fixtures. Actual shipped tactical browser runs through Opening. A new semantic equivalence test compares examination evidence and outcome with/without Opening.
+Five regression tests reproduced the bug before the fix and pass afterward. Full npm test: 175 pass, 0 fail. npm run test:browser: 258 checks (87 basic + 47 flow + 35 tactics + 52 opening + 37 cross-issue), 0 fail. npm run test:budget: 14 checks, 0 fail. All exit 0; total 447 checks/tests.
 
-Browser A/B/C each run at 1440×1080, 1280×720 and 390×844:
-- A: Identity Opening → eyewitness argument → both examinations closed, strategy retained, public position linked to three evidence records.
-- B: no-contact Opening → testimony → Intent strategy revision, original records unchanged and conflict visible in CourtRecord.
-- C: Intent Opening with contact admission → identity Frame remains peripheral; direct file mode.
+Existing Opening A/B/C, Strategy Revision, record-only replay and v0.65 examination tests rerun. Core/Peripheral stays core/peripheral for the same Frame across Theory A/B; that priority change alone leaves commitmentReviewRefs empty. Active counter reviews same-issue commitments under either Theory and never the other issue. Existing public positions and explicit strategy conflict remain unchanged.
 
-Screenshots inspected for Opening and revision layouts. Existing budget thresholds retained; no horizontal overflow. Node tests cover atomic invalid/contradictory choices, duplicate submission, historical conflicts across strategy changes, record-only replay, referenced links, definition validation, evidence isolation and Frame distinction.
+Browser uses actual UI actions and observes production projections. Existing Opening tests cover large/short/mobile and direct file mode. New counter suite covers desktop/mobile and both directions. Reverse INTENT counter uses the existing examination with a test-only INTENT plan scope; it is not an authored Intent gameplay addition. Existing basic/flow and Node examination fixtures retain their documented compatibility behavior.
 
-## Review priorities / remaining limits
+## Boundaries and review questions
 
-1. Validate Advocacy single source of truth, append-only conflicts and replay without transient state.
-2. Check priority changes versus actual factual contradictions; only authored workingPositions determine the latter.
-3. Assess composition and record density through human playtest. A selected introduced argument is a public promise, not established testimony or a Frame.
-4. Existing relation duplication/first-target selection and procedure fixed rule set are deferred unchanged.
-5. No new Intent evidence/witness, generic contradiction engine, whole-session save/load, Closing, Verdict or next-stage features.
-
-Independent Reviewer PASS and human playtest are pending. No product decisions inferred from this request. Existing user automation changes were excluded. Godot remains untouched and its tests were not rerun.
+- No UI layout redesign, choice limit, new Commitment slot, Closing, Verdict or FactFinding.
+- Review remains issue-level, not semantic proof that a particular counter contradicts every same-issue public statement. No generic legal reasoning introduced.
+- links are issue progression; nested evidenceRefs are argument premises, not automatic proof of the public commitment.
+- Existing relation metadata duplication/first-target debt remains deferred.
+- No Godot change or Godot test run. Existing user automation edits preserved and excluded from commit.
+- Independent re-review and human playtest remain pending. Verify cross-issue isolation and priority separation first.

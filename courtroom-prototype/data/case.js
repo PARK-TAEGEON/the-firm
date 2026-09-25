@@ -113,7 +113,7 @@ const caseDefinition = {
       ],
       "workingStrategy": "목격자의 식별 신빙성 약화",
       "relevance": "핵심 전략 · 식별 쟁점을 직접 다툽니다.",
-      "workingPositions": {}
+      "workingPositions": {"contact": "unspecified"}
     },
     {
       "id": "THEORY_INTENT",
