@@ -52,3 +52,7 @@ Active contract: `.agent/tasks/COURTROOM-CORE-071.md`, authorized by the user’
 Active contract: `.agent/tasks/COURTROOM-CORE-080.md`; the explicit v0.8 request supersedes the historical Closing exclusion. v0.7.1 Independent Review PASS was reported by the user and fixed at tag courtroom-core-v0.7.1 (839b201).
 
 After both examinations end, Closing composes selected issues, recorded-premise authored inferences, cited evidence/admissions, chosen counter treatment and kept/revised public positions. Unselected arguments never enter speech. Existing per-plan assessments supply priority/counter/qualification and Frame references. Closing adds Advocacy only, with record-only replay and explicit references for revisions/conflicts; no evidence, fact finding or verdict. Current theory/objectives inform the read model without scores. Existing center/record UI is reused with disclosures and a speech preview. Other frozen grammar and excluded systems remain unchanged.
+
+## v0.8.1 correction
+
+Optional Closing requires the complete closing/closed phases and beginClosing/submitClosing actions, or none. Partial declarations fail construction. Availability respects the profile and existing lifecycle prerequisites. Generated public-position speech deduplicates identical final text; all original positions, revisions and conflicts remain append-only. Main courtroom accessible name is phase-neutral. No gameplay redesign or additional panels.

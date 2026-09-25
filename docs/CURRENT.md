@@ -2,7 +2,7 @@
 
 ## Current Version
 
-v0.8 (`courtroom-prototype/package.json`: `0.8.0`)
+v0.8.1 (`courtroom-prototype/package.json`: `0.8.1`) — PASS 후보, 독립 리뷰 대기
 
 기존 저장소 `The Firm`의 웹 프로토타입을 사용한다. Godot `litigation-skeleton/`은 별도 프로젝트다.
 
@@ -22,7 +22,7 @@ v0.8 (`courtroom-prototype/package.json`: `0.8.0`)
 
 이번 버전의 구현 범위는:
 
-> Closing + Case-wide Argument Synthesis (v0.7.1 accepted baseline 위의 구현)
+> v0.8.1 교정: ProceedingProfile Closing gating, 발언 중복 제거, 접근성 이름
 
 이다.
 
@@ -227,7 +227,7 @@ Arguments can be Core / Peripheral depending on current Theory.
 
 ## Current Scope and Deferred Work
 
-v0.8 구현/회귀 검증 완료, 독립 리뷰 대기. 기준점 v0.7.1은 Independent Review PASS (2026-09-25 사용자 전달).
+v0.8.1 교정 및 회귀 검증 완료, PASS 후보·독립 리뷰 대기. 기준점 v0.7.1은 Independent Review PASS (2026-09-25 사용자 전달).
 
 Focus:
 
@@ -313,3 +313,15 @@ Node 188 (기존 175 + Closing 13), Browser 316 (87 + 47 + 35 + 52 + 37 + Closin
 v0.8 제한: authored inference와 public position 조각의 종합이며 범용 법률 추론이 아니다. Counter 대응은 recorded qualification 인용 또는 한계 인정이며 새로운 반박/증거를 만들지 않는다. 아직 모든 공개 입장의 의미상 모순을 해석하지 않으며, 명시적 position key/value 충돌과 선택한 수정 흔적을 보존한다. 판결/CFF/Jury/Settlement/Appeal/Redirect/Civil/Staff와 다중 에이전트·Orca는 구현하지 않았다. 기존 relation metadata 부채는 그대로다.
 
 구현 범위는 사용자 v0.8 요청과 .agent/tasks/COURTROOM-CORE-080.md를 따른다. docs/IMPLEMENT.md는 기존 v0.7 원문으로 보존했다. 상세 리뷰 요청은 루트 REVIEW_REQUEST.md, 검증 로그는 courtroom-prototype/test-results.log에 있다.
+
+## v0.8.1 correction — 2026-09-25
+
+Closing은 optional profile lifecycle이다. closing/closed phase와 beginClosing/submitClosing action을 모두 선언하거나 모두 생략한다. 일부만 선언한 profile은 service construction에서 거부한다. availability는 해당 phase/action 선언과 기존 진행 조건을 함께 확인한다. Closing 없는 fixture는 두 증인 종료 후 resolved를 유지하며 Closing 진입 버튼이 없고 submit 버튼도 노출되지 않는다.
+
+최종 공개 입장 문장은 동일 text당 한 번 출력한다. 유지와 수정이 같은 문장으로 합쳐지면 수정 표현을 사용한다. 모든 positions, closing_revision, commitment_conflict와 원 Commitment는 그대로 보존한다. evidence/procedural 및 record-only replay 계약도 유지한다. 법정 중앙 section 접근성 이름은 법정 진행으로 변경했다. 마지막 증인 context와 레이아웃은 그대로다.
+
+검증: Node 198, Browser 383 (기존 316 + profile/dedupe 67), UI budget 14, 총 595, 실패 0. 신규 Node 10개: 정상 profile, absent profile, phase/action partial 및 lifecycle 요소별 누락, revision-only 및 maintain/revise 혼합 중복. 수정 전 8개가 버그를 재현했으며 수정 후 전체 통과. Browser는 large/short/mobile에서 full/none profile, 두 증인 종료, Closing preview/publication 중복 제거, 2 revision/2 conflict 보존, Evidence/Procedural 불변과 replay를 확인한다. 기존 형사사건, v0.65/v0.7.1/v0.8 회귀와 direct-file 경로도 재실행했다.
+
+상태는 구현자 PASS 후보이며 독립 리뷰 PASS를 주장하지 않는다. No-Closing/partial은 테스트 fixture이며 새 사건이 아니다. 문자열이 정확히 같은 최종 입장만 중복 제거하며 의미상 유사한 다른 문장을 합치지 않는다. 기존 authored inference/relation 부채와 범위 제외 항목은 유지한다. 사용자 최신 요청과 .agent/tasks/COURTROOM-CORE-081.md를 적용하며 docs/IMPLEMENT.md의 과거 v0.7 원문은 보존한다.
+
+최종 UI 측정: desktop normal/argument 197/220자(0.8.1 버전 표기로 각 2자 증가), mobile 183/213자. 기존 한도 14개 모두 통과. 새 profile resolved/closed 화면은 large/short/mobile에서 확인했으며 모바일 resolved PNG도 직접 검토했다.

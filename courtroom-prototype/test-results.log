@@ -65,3 +65,13 @@ Total 518. Playwright Edge headless with bundled NODE_PATH.
 Closing 1440x1080 / 1280x720 / 390x844, mobile direct file: prepare, select, cite, counter, revise, preview/cancel/submit and record-only replay verified. Screenshots inspected.
 During development short-height record overflow was fixed and duplicate qualification prose removed; final suites pass.
 No Godot tests (unchanged); no independent v0.8 PASS claimed.
+
+v0.8.1 correction verification — 2026-09-25
+npm test: 198 checks, 0 failures, exit 0.
+npm run test:browser: 383 checks (87+47+35+52+37+58+67), 0 failures, exit 0.
+npm run test:budget: 14 checks, 0 failures, exit 0.
+Total: 595. Profile/dedupe browser and budget rerun after version-label correction.
+New Node: 10; valid pre-fix failures: 8. Fixtures: absent/partial Closing; shipped full profile unchanged.
+All historical v0.65/v0.7.1/v0.8 tests retained. Evidence/Procedural invariant and record-only replay pass.
+Implementation PASS candidate; independent review pending.
+Final version label budget: desktop 197/220, mobile 183/213; 14/14 pass.

@@ -17,6 +17,8 @@
     ensure(d.witnesses.length > 0, 'Missing witness');
     ensure(d.profile.resolutionTypes.includes('adjudicated'), 'Missing adjudicated resolution');
     ensure(['plan', 'examine', 'resolved'].every(k => d.profile.phases[k]), 'Missing phase');
+    const closingDeclarations = [d.profile.phases.closing, d.profile.phases.closed, d.profile.actions.includes('beginClosing'), d.profile.actions.includes('submitClosing')];
+    ensure(closingDeclarations.every(Boolean) || closingDeclarations.every(x => !x), 'Incomplete Closing profile');
     ensure(['claimant', 'respondent', 'factFinder'].every(k => d.profile.roles[k]), 'Missing role');
     ensure(['establish', 'select', 'press', 'frame', 'stop', 'strategy'].every(k => d.profile.actions.includes(k)), 'Missing action');
     ensure(!d.counterResponses.length || d.profile.actions.includes('counter'), 'Missing counter action');
@@ -136,7 +138,7 @@
   function availability(d, s) {
     const active = s.phase === 'examine' && !s.pendingQuestion, a = argument(d, s);
     const duplicateFrame = s.records.advocacy.some(r => r.kind === 'argument' && r.planId === s.planId && r.theoryId === s.theoryId && r.inferenceId === a.inference?.id);
-    return { beginClosing: s.phase==='resolved' && !s.pendingQuestion && d.witnesses.every(w=>s.endedWitnesses.includes(w.id)), submitClosing:s.phase==='closing' && !s.pendingQuestion, opening: s.phase === 'opening' && !s.pendingQuestion, establish: active, select: active, strategy: ['plan','opening','examine'].includes(s.phase) && !s.pendingQuestion, press: active && (a.valid || !!a.plan.claimVariants?.length), frame: active && a.valid && !duplicateFrame, stop: active, counter: active && counterOptions(d, s).some(c => c.available), counters: counterOptions(d, s),
+    return { beginClosing: !!d.profile.phases.closing && d.profile.actions.includes('beginClosing') && s.phase==='resolved' && !s.pendingQuestion && d.witnesses.every(w=>s.endedWitnesses.includes(w.id)), submitClosing:!!d.profile.phases.closing && !!d.profile.phases.closed && d.profile.actions.includes('submitClosing') && s.phase==='closing' && !s.pendingQuestion, opening: s.phase === 'opening' && !s.pendingQuestion, establish: active, select: active, strategy: ['plan','opening','examine'].includes(s.phase) && !s.pendingQuestion, press: active && (a.valid || !!a.plan.claimVariants?.length), frame: active && a.valid && !duplicateFrame, stop: active, counter: active && counterOptions(d, s).some(c => c.available), counters: counterOptions(d, s),
       witness: ['examine','resolved'].includes(s.phase) && !s.pendingQuestion, thread: active, endThread: active && !!s.threadId,
       respond: s.pendingQuestion?.stage === 'objection', address: s.pendingQuestion?.stage === 'address', answer: s.pendingQuestion?.stage === 'answer',
       goals: d.goals.filter(g=>g.witnessId===a.plan.witnessId).map(g => ({ id: g.id, available: active && !s.asked.includes(g.id) && find(d.responses, g.response).adds.some(id => !recordIds(s).includes(id)) })),

@@ -32,7 +32,9 @@ function synthesize(d,records,theoryId,input){
  const conflicts=c.commitments.flatMap(original=>positions.filter(p=>original.position&&p.position&&original.position.key===p.position.key&&original.position.value!==p.position.value).map(p=>({commitmentRef:original.id,choiceId:p.choiceId,issue:original.issue,text:original.text+' 최종 입장: '+p.text})));
  const relevantCounters=c.counters.filter(x=>issueIds.includes(x.issue));
  const qualifications=c.assessments.flatMap(a=>a.commitmentRelations).filter(r=>evidenceRefs.includes(r.recordRef)||evidenceRefs.includes(r.sourceRef));
- const lines=[issueIds.map(id=>E.find(d.issues,id).title).join(' · ')+' 쟁점을 중심으로 말씀드리겠습니다.',...positions.map(p=>p.mode==='maintain'?'개회사에서 밝힌 입장을 유지합니다. '+p.text:'개회사에서 밝힌 입장을 수정합니다. '+p.text),
+ // Deduplicate spoken positions only; every source position/revision/conflict remains in the record.
+ const spokenPositions=[...new Set(positions.map(p=>p.text))].map(text=>({text,mode:positions.some(p=>p.text===text&&p.mode==='revise')?'revise':'maintain'}));
+ const lines=[issueIds.map(id=>E.find(d.issues,id).title).join(' · ')+' 쟁점을 중심으로 말씀드리겠습니다.',...spokenPositions.map(p=>p.mode==='maintain'?'개회사에서 밝힌 입장을 유지합니다. '+p.text:'개회사에서 밝힌 입장을 수정합니다. '+p.text),
  ...evidence.map(e=>'기록된 증언을 인용합니다. '+e.text),...args.map(a=>a.text),
  ...[...new Set(qualifications.map(q=>q.sourceRef))].filter(id=>!counterRefs.includes(id)&&!evidenceRefs.includes(id)).map(id=>'이 진술에는 후속 설명이 남아 있습니다. '+E.find(c.evidence,id).text),
  ...counters.map(x=>'불리한 기록도 다루겠습니다. '+x.text+(x.qualified?' 다만 기록된 한정도 함께 보아야 합니다. '+x.qualificationRefs.map(id=>E.find(c.evidence,id).text).join(' '):' 이 한계는 기록에 남아 있습니다.')),

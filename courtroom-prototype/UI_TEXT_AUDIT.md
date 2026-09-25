@@ -38,3 +38,8 @@ Existing examination budget unchanged: desktop 195/218 visible characters (norma
 Center/action region becomes 최종변론 준비; 중심 쟁점 chips plus three disclosures: 사용할 논증 / 인용과 약점 대응 / 개회사 입장. CourtRecord gains phase-local 인용 / 다룬다 buttons, with original witness records kept readable. Public-position select offers omission, maintenance or authored fragments, never complete final speeches. Preview assembles the selected material and can be edited before publication. No badges, scores, strength/recommendation text or permanent panel. Closing-specific fragments avoid promises to conduct future examination.
 
 Closing preparation choices remain below 100 visible characters when collapsed. Existing examination budget remains desktop 195/218 and mobile 183/213 visible characters. Existing record panel scroll is bounded only in Closing, including mobile sheet; selection focus and panel scroll preserved. Long final speech is content, not tutorial/status explanation; repeated qualification sentences are removed. Large/short/mobile screenshots reviewed.
+
+## v0.8.1 correction audit
+
+Accessible courtroom name: 法廷 phase-neutral Korean 법정 진행, replacing 반대신문. No visible instructional text or panel added. Identical final public-position sentences occur once in generated speech; source revision/conflict disclosure remains complete. Existing UI budget retained.
+Final version-label budget: desktop 197/220 characters, mobile 183/213. Original budget limits unchanged, all 14 pass. Mobile no-Closing resolved screenshot visually reviewed.
