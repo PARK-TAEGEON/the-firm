@@ -46,3 +46,9 @@ Opening composes authored admission, contest, emphasis and argument-introduction
 ## v0.7.1 correction
 
 Active contract: `.agent/tasks/COURTROOM-CORE-071.md`, authorized by the user’s correction request. commitmentReviewRefs requires the same issue as the current evaluation scope and an active counter in that plan. Theory priority is not an evidentiary challenge. Authored strategy conflict remains separate and append-only. Every theory explicitly declares each position key, using unspecified when uncommitted. Case-wide links are marked issue_progression, not proof of a commitment. No UI redesign or new gameplay scope.
+
+## v0.8 authorized Closing delta
+
+Active contract: `.agent/tasks/COURTROOM-CORE-080.md`; the explicit v0.8 request supersedes the historical Closing exclusion. v0.7.1 Independent Review PASS was reported by the user and fixed at tag courtroom-core-v0.7.1 (839b201).
+
+After both examinations end, Closing composes selected issues, recorded-premise authored inferences, cited evidence/admissions, chosen counter treatment and kept/revised public positions. Unselected arguments never enter speech. Existing per-plan assessments supply priority/counter/qualification and Frame references. Closing adds Advocacy only, with record-only replay and explicit references for revisions/conflicts; no evidence, fact finding or verdict. Current theory/objectives inform the read model without scores. Existing center/record UI is reused with disclosures and a speech preview. Other frozen grammar and excluded systems remain unchanged.

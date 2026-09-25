@@ -55,3 +55,13 @@ Total: 447 checks/tests. Edge headless, bundled Playwright NODE_PATH.
 Existing Opening/Strategy/replay/v0.65 Examination regressions rerun.
 Cross-issue desktop/mobile paths pass both directions; reverse INTENT scope is a test fixture, not production gameplay.
 No Godot tests run (outside scope); independent re-review pending.
+
+v0.8 verification — 2026-09-25
+Baseline: courtroom-core-v0.7.1 tag at 839b201; user-reported Independent Review PASS.
+npm test: 188 tests (175 previous + 13 Closing), 0 failures, exit 0.
+npm run test:browser: 316 checks (87 + 47 + 35 + 52 + 37 + 58), 0 failures, exit 0.
+npm run test:budget: 14 checks, 0 failures, exit 0.
+Total 518. Playwright Edge headless with bundled NODE_PATH.
+Closing 1440x1080 / 1280x720 / 390x844, mobile direct file: prepare, select, cite, counter, revise, preview/cancel/submit and record-only replay verified. Screenshots inspected.
+During development short-height record overflow was fixed and duplicate qualification prose removed; final suites pass.
+No Godot tests (unchanged); no independent v0.8 PASS claimed.

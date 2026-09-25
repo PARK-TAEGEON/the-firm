@@ -3,6 +3,7 @@
   const E = typeof module !== 'undefined' && module.exports ? require('../engine/core.js') : root.FirmEngine;
   const P = typeof module !== 'undefined' && module.exports ? require('../engine/procedure.js') : root.FirmProcedure;
   const O = typeof module !== 'undefined' && module.exports ? require('../engine/opening.js') : root.FirmOpening;
+  const C = typeof module !== 'undefined' && module.exports ? require('../engine/closing.js') : root.FirmClosing;
   function createService(definition) {
     const d = E.copy(definition); E.validate(d); P.validate(d); O.validate(d);
     let serial = 0, session = 0, state;
@@ -82,7 +83,17 @@
         E.ensure(d.profile.actions.includes(action), '허용되지 않은 행동입니다.');
         const s = E.copy(state), a = E.availability(d, s);
         E.ensure(a[action], '현재 상태에서는 실행할 수 없습니다.');
-        if (action === 'strategy') {
+        if (action === 'beginClosing') {
+          s.records.advocacy.push({id:next(),kind:'closing_started',scope:'case',theoryId:s.theoryId,text:'최종변론을 준비합니다.'});
+          s.phase='closing';s.resolution=null;s.selected=[];
+        } else if (action === 'submitClosing') {
+          const result=C.synthesize(d,s.records,s.theoryId,payload);
+          const closing={id:next(),kind:'closing_position',scope:'case',theoryId:s.theoryId,selection:E.copy(payload),text:result.text};
+          s.records.advocacy.push(closing);
+          for(const p of result.positions.filter(p=>p.mode==='revise'))s.records.advocacy.push({id:next(),kind:'closing_revision',scope:'case',closingRef:closing.id,...p});
+          for(const c of result.conflicts)s.records.advocacy.push({id:next(),kind:'commitment_conflict',scope:'case',closingRef:closing.id,theoryId:s.theoryId,...c});
+          s.phase='closed';line(s,d.profile.roles.respondent,result.text,'closing_position');
+        } else if (action === 'strategy') {
           E.ensure(E.find(d.theories, payload.id), '알 수 없는 전략입니다.');
           E.ensure(s.theoryId !== payload.id, '이미 선택한 전략입니다.');
           const fromTheoryId = s.theoryId;
@@ -163,7 +174,7 @@
     }
     function projection(source = state) {
       const s = E.copy(source), theory = E.find(d.theories, s.theoryId), plan = E.find(d.argumentPlans, s.planId);
-      return { caseRecord: O.replay(d,s.records,s.theoryId), state: s, case: E.copy(d), availability: E.availability(d, s), argument: E.copy(E.argument(d, s)),
+      return { closing: C.replay(d,s.records), closingCatalog:C.catalog(d,s.records,s.theoryId), caseRecord: O.replay(d,s.records,s.theoryId), state: s, case: E.copy(d), availability: E.availability(d, s), argument: E.copy(E.argument(d, s)),
         pressure: E.pressure(d, s), procedure: E.copy(P.options(d,s)), assessment: E.copy(E.evaluateRecord(d, s.records, s.theoryId,s.planId)), assessments:d.argumentPlans.map(p=>E.evaluateRecord(d,s.records,s.theoryId,p.id)), witness:E.copy(E.find(d.witnesses,s.witnessId)), threads:E.copy(d.threads.filter(t=>t.witnessId===s.witnessId)),
         strategy: theory ? { ...E.copy(theory), preferred: theory.preferredPlans.includes(plan.id),
           potentialConflict: O.conflicts(d,s.records,theory.id).length > 0 } : null };

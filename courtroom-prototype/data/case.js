@@ -42,12 +42,16 @@ const caseDefinition = {
       "factFinder": "재판장"
     },
     "phases": {
+      "closing": "최종변론 준비",
+      "closed": "최종변론",
       "plan": "반대신문 준비",
       "examine": "서지훈 반대신문",
       "resolved": "신문 종료",
       "opening": "개회사 준비"
     },
     "actions": [
+      "beginClosing",
+      "submitClosing",
       "establish",
       "select",
       "press",
@@ -113,7 +117,9 @@ const caseDefinition = {
       ],
       "workingStrategy": "목격자의 식별 신빙성 약화",
       "relevance": "핵심 전략 · 식별 쟁점을 직접 다툽니다.",
-      "workingPositions": {"contact": "unspecified"}
+      "workingPositions": {
+        "contact": "unspecified"
+      }
     },
     {
       "id": "THEORY_INTENT",
@@ -1908,7 +1914,8 @@ const caseDefinition = {
         "group": "admit",
         "label": "B동에 있었다",
         "text": "피고인이 B동에 있었던 사실은 다투지 않습니다.",
-        "issue": "IDENTITY"
+        "issue": "IDENTITY",
+        "closingText": "피고인이 B동에 있었던 사실은 다투지 않습니다."
       },
       {
         "id": "OPEN_CONTACT",
@@ -1919,7 +1926,8 @@ const caseDefinition = {
         "position": {
           "key": "contact",
           "value": "admitted"
-        }
+        },
+        "closingText": "피고인이 피해자와 접촉한 사실은 인정합니다."
       },
       {
         "id": "OPEN_NO_CONTACT",
@@ -1930,42 +1938,48 @@ const caseDefinition = {
         "position": {
           "key": "contact",
           "value": "denied"
-        }
+        },
+        "closingText": "피고인은 피해자를 만나지 않았다는 입장입니다."
       },
       {
         "id": "OPEN_IDENTITY",
         "group": "contest",
         "label": "공격자 동일성",
         "text": "피고인이 공격자였다는 점을 다툽니다.",
-        "issue": "IDENTITY"
+        "issue": "IDENTITY",
+        "closingText": "피고인이 공격자였다는 점을 다툽니다."
       },
       {
         "id": "OPEN_INTENT",
         "group": "contest",
         "label": "고의적인 공격",
         "text": "고의적인 공격이었다는 점을 다툽니다.",
-        "issue": "INTENT"
+        "issue": "INTENT",
+        "closingText": "고의적인 공격이었다는 점을 다툽니다."
       },
       {
         "id": "OPEN_SIGHT",
         "group": "emphasize",
         "label": "목격 식별",
         "text": "목격 식별의 한계에 주목해 주십시오.",
-        "issue": "IDENTITY"
+        "issue": "IDENTITY",
+        "closingText": "목격 식별의 한계를 고려해 주십시오."
       },
       {
         "id": "OPEN_TIME",
         "group": "emphasize",
         "label": "지문 시점",
         "text": "지문이 남은 시점의 한계를 살펴보겠습니다.",
-        "issue": "COMMISSION"
+        "issue": "COMMISSION",
+        "closingText": "지문이 남은 시점을 따져야 한다는 입장입니다."
       },
       {
         "id": "OPEN_INTENT_FOCUS",
         "group": "emphasize",
         "label": "고의",
         "text": "고의 여부를 중심으로 다투겠습니다.",
-        "issue": "INTENT"
+        "issue": "INTENT",
+        "closingText": "고의 여부가 핵심이라는 입장입니다."
       },
       {
         "id": "OPEN_SIGHT_ARGUMENT",
@@ -1973,7 +1987,8 @@ const caseDefinition = {
         "label": "관찰 조건과 식별 정확성",
         "text": "관찰 조건이 식별의 정확성을 뒷받침하는지 신문하겠습니다.",
         "issue": "IDENTITY",
-        "planId": "PLAN_IDENTIFICATION"
+        "planId": "PLAN_IDENTIFICATION",
+        "closingText": "관찰 조건이 식별의 정확성을 뒷받침하는지 따져야 합니다."
       },
       {
         "id": "OPEN_TIME_ARGUMENT",
@@ -1981,7 +1996,8 @@ const caseDefinition = {
         "label": "접촉과 범행 당시 사용",
         "text": "접촉 흔적이 범행 당시 사용을 입증하는지 신문하겠습니다.",
         "issue": "COMMISSION",
-        "planId": "PLAN_CONTACT_USE"
+        "planId": "PLAN_CONTACT_USE",
+        "closingText": "접촉 흔적과 범행 당시 사용은 구분해야 합니다."
       }
     ]
   }

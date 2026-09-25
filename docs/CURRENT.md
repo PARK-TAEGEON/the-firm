@@ -2,7 +2,7 @@
 
 ## Current Version
 
-v0.7.1 (`courtroom-prototype/package.json`: `0.7.1`)
+v0.8 (`courtroom-prototype/package.json`: `0.8.0`)
 
 기존 저장소 `The Firm`의 웹 프로토타입을 사용한다. Godot `litigation-skeleton/`은 별도 프로젝트다.
 
@@ -22,13 +22,27 @@ v0.7.1 (`courtroom-prototype/package.json`: `0.7.1`)
 
 이번 버전의 구현 범위는:
 
-> 교차 쟁점 Major Commitment 검토 오염 수정 (Opening / Strategy / Examination 유지)
+> Closing + Case-wide Argument Synthesis (v0.7.1 accepted baseline 위의 구현)
 
 이다.
 
 ---
 
 ## Implemented
+
+### Closing / Case-wide Argument Synthesis
+
+- 두 증인의 신문 종료 후 beginClosing으로 기존 중앙 화면을 재사용한다. closing_started를 Advocacy에 남기고 준비 단계를 기록으로 재생한다.
+- 플레이어가 중심 Issue, 사용할 논증, 인용 Evidence/Admission, 직접 다룰 Counter, Opening 입장 유지/수정을 선택한다. 미리보기 후 submitClosing으로 확정한다. 자동 논증 선택이나 슬롯/점수 제한은 없다.
+- engine/closing.js는 모든 witness plan의 CourtRecord와 기존 evaluateRecord를 읽는다. 확보된 전제의 authored inference만 후보가 되고, 기존 Frame 참조와 Core/Peripheral priority가 보존된다. 신문 중 Frame을 만들지 않았어도 기록이 충족하는 authored inference는 Closing에서 구성 가능하다.
+- 선택한 논증의 모든 전제를 실제 Evidence 참조로 연결해야 한다. 선택하지 않은 논증은 발언에 들어가지 않는다. Argument가 없는 기록은 쟁점과 공개 입장만 말할 수 있고, 미확보 사실을 생성하지 않는다.
+- 선택한 쟁점의 Counter는 다루지 않아도 synthesis에 남는다. 다루는 Counter는 실제 Qualification이 있을 때 그 내용을 인용하며, 없으면 한계가 남음을 발언한다. Witness relation의 후속 설명도 연결하고 중복 문장은 제거한다.
+- Closing은 Evidence/Procedural을 변경하지 않는다. 선택과 생성 문장을 closing_position 하나에 기록하며, 유지/수정된 공개 입장, closing_revision, 실제 명시적 position 충돌의 commitment_conflict는 원 Commitment/Closing을 참조한다. 기존 Strategy Revision/Conflict는 그대로 보존한다.
+- Closing replay는 기록된 selection/theoryId와 CourtRecord만 읽는다. priorConflictRefs는 Closing 이전 기록으로 제한한다. UI draft, 질문 횟수, 신문 선택 상태를 읽지 않는다.
+- Client Objective 전체 구조를 읽기 결과에 포함하고, 실제 문장에는 primary 요청을 사용한다. 목표 달성이나 유무죄는 판단하지 않는다.
+- 공개 입장 수정은 기존 authored option 중 같은 issue 또는 같은 position key에 연결되는 조각으로 제한한다. Opening용 미래형 조각에는 별도 closingText를 사용한다.
+- Closing 준비와 확정 후 증인 이동/신문/전략 변경은 잠긴다. 확정 전에는 선택과 미리보기를 수정할 수 있다. 전체 세션 저장/불러오기는 여전히 범위 밖이다.
+
 
 ### Core Record Model
 
@@ -213,19 +227,16 @@ Arguments can be Core / Peripheral depending on current Theory.
 
 ## Current Scope and Deferred Work
 
-v0.7.1 Independent Review PASS — 2026-09-25 사용자 전달 결과. 사용자 플레이테스트는 별도.
+v0.8 구현/회귀 검증 완료, 독립 리뷰 대기. 기준점 v0.7.1은 Independent Review PASS (2026-09-25 사용자 전달).
 
 Focus:
 
-- Opening
-- Major Commitment
-- Working Strategy
-- Strategy Revision
-- Opening → Examination 연결
+- Closing 선택 구성과 문장 종합
+- Case-wide Argument Synthesis
+- Opening → Examination → Closing 연결
+- 기존 Major Commitment / Strategy Revision / v0.65 신문 회귀 유지
 
 Do not implement yet:
-
-- Closing
 - Verdict
 - Court Fact Finding
 - Jury
@@ -267,6 +278,7 @@ Product direction remains a human decision.
 | 경로 (저장소 루트 기준) | 역할 |
 | --- | --- |
 | `courtroom-prototype/data/case.js` | 사건, 두 증인, Theory, authored 질문·응답·추론 데이터 |
+| `courtroom-prototype/engine/closing.js` | 사건 전체 후보, 선택 검증, Closing 문장 종합 및 기록 재생 |
 | `courtroom-prototype/engine/opening.js` | Opening 검증, 명시적 전략 충돌, 사건 기록 재생과 연결 |
 | `courtroom-prototype/engine/core.js` | 검증, 추론, commitment routing, 기록 기반 평가 |
 | `courtroom-prototype/engine/procedure.js` | 이의·근거·재판장 결정 |
@@ -282,7 +294,7 @@ v0.7 검증 (2026-09-23): Node 168, Browser 221 (87 + 47 + 35 + 52), UI budget 1
 
 실행은 index.html 직접 열기 또는 npm start 후 http://127.0.0.1:4173/이다. 테스트 상세는 courtroom-prototype/test-results.log와 REVIEW_PACKET.md, 리뷰 요청은 루트 REVIEW_REQUEST.md에 있다.
 
-법정 응답·충돌 의미는 authored 데이터이며 범용 법률 추론, 실제 재주신문·유무죄 판정은 없다. Intent 논증을 위한 새 증거/증인은 추가하지 않았다. 전체 신문 상태의 저장/불러오기는 범위 밖이며, 기록 재생은 Opening/전략과 논증의 읽기 projection이다. Godot 테스트는 변경 범위 밖이므로 재실행하지 않았다. 독립 Reviewer PASS와 사람의 재미 평가는 아직 확보하지 않았다.
+법정 응답·충돌 의미는 authored 데이터이며 범용 법률 추론, 실제 재주신문·유무죄 판정은 없다. Intent 논증을 위한 새 증거/증인은 추가하지 않았다. 전체 신문 상태의 저장/불러오기는 범위 밖이며, 기록 재생은 Opening/전략과 논증의 읽기 projection이다. Godot 테스트는 변경 범위 밖이므로 재실행하지 않았다. 이 문단은 v0.7 당시 검증 이력이다. v0.7.1 PASS는 아래 Accepted baseline에 기록하며, v0.8의 독립 리뷰/사용자 재미 평가는 별도다.
 
 ## v0.7.1 verification — 2026-09-25
 
@@ -291,3 +303,13 @@ Node 175, Browser 258 (87 + 47 + 35 + 52 + 37), UI budget 14, 총 447 모두 통
 ## Accepted baseline
 
 v0.7.1 Independent Review PASS (사용자 전달, 2026-09-25). 구현 commit: 2b499e1. Git tag courtroom-core-v0.7.1은 이 PASS 기록을 포함하는 기준점 commit을 가리킨다. v0.8은 별도 후속 구현이다.
+
+## v0.8 verification — 2026-09-25
+
+Node 188 (기존 175 + Closing 13), Browser 316 (87 + 47 + 35 + 52 + 37 + Closing 58), UI budget 14. 총 518, 실패 0, 각 명령 exit 0. 기존 v0.65/v0.7.1 회귀 전체 유지. Closing 브라우저는 1440×1080, 1280×720, 390×844에서 Opening → 두 Witness → 전략 변경/Counter → Closing 선택·미리보기·수정·확정 → replay를 검증했다. 모바일 direct-file 경로 포함. 화면 PNG를 직접 확인했다.
+
+기존 신문 UI budget은 desktop 195/218 chars, mobile 183/213 chars로 유지했다. Closing 준비는 접힌 선택 영역 100자 미만, 새 상시 패널 없음, 가로 넘침 없음. 낮은 화면에서 누적 기록으로 늘어난 높이는 Closing 단계의 기존 기록 패널 스크롤로 해결했다.
+
+v0.8 제한: authored inference와 public position 조각의 종합이며 범용 법률 추론이 아니다. Counter 대응은 recorded qualification 인용 또는 한계 인정이며 새로운 반박/증거를 만들지 않는다. 아직 모든 공개 입장의 의미상 모순을 해석하지 않으며, 명시적 position key/value 충돌과 선택한 수정 흔적을 보존한다. 판결/CFF/Jury/Settlement/Appeal/Redirect/Civil/Staff와 다중 에이전트·Orca는 구현하지 않았다. 기존 relation metadata 부채는 그대로다.
+
+구현 범위는 사용자 v0.8 요청과 .agent/tasks/COURTROOM-CORE-080.md를 따른다. docs/IMPLEMENT.md는 기존 v0.7 원문으로 보존했다. 상세 리뷰 요청은 루트 REVIEW_REQUEST.md, 검증 로그는 courtroom-prototype/test-results.log에 있다.

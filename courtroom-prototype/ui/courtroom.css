@@ -41,3 +41,13 @@ button.plain,.chip,.evidence {font-weight:500;}
 .opening-group {border:0;padding:0;margin:0 0 12px;min-width:0;}
 .opening-group legend {font-size:13px;margin-bottom:5px;color:var(--muted);}
 .opening-group .chip {margin:0 5px 5px 0;white-space:normal;text-align:left;}
+
+.closing-position {display:block;margin:12px 0;line-height:1.5;}
+.closing-position select {display:block;max-width:100%;margin-top:5px;}
+.closing-speech {white-space:pre-wrap;font-size:15px;line-height:1.7;text-align:left;font-family:Pretendard,sans-serif;}
+#examination>details {margin-bottom:12px;}
+
+.closing-phase .main>#recordPanel {max-height:calc(100dvh - 110px);overflow:auto;}
+.closing-phase #scene {min-height:140px;}
+#closingPreview {max-height:85dvh;overflow:auto;}
+@media(max-width:700px){.closing-phase .main>#recordPanel {max-height:300px;}}

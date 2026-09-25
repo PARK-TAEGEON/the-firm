@@ -136,7 +136,7 @@
   function availability(d, s) {
     const active = s.phase === 'examine' && !s.pendingQuestion, a = argument(d, s);
     const duplicateFrame = s.records.advocacy.some(r => r.kind === 'argument' && r.planId === s.planId && r.theoryId === s.theoryId && r.inferenceId === a.inference?.id);
-    return { opening: s.phase === 'opening' && !s.pendingQuestion, establish: active, select: active, strategy: s.phase !== 'resolved' && !s.pendingQuestion, press: active && (a.valid || !!a.plan.claimVariants?.length), frame: active && a.valid && !duplicateFrame, stop: active, counter: active && counterOptions(d, s).some(c => c.available), counters: counterOptions(d, s),
+    return { beginClosing: s.phase==='resolved' && !s.pendingQuestion && d.witnesses.every(w=>s.endedWitnesses.includes(w.id)), submitClosing:s.phase==='closing' && !s.pendingQuestion, opening: s.phase === 'opening' && !s.pendingQuestion, establish: active, select: active, strategy: ['plan','opening','examine'].includes(s.phase) && !s.pendingQuestion, press: active && (a.valid || !!a.plan.claimVariants?.length), frame: active && a.valid && !duplicateFrame, stop: active, counter: active && counterOptions(d, s).some(c => c.available), counters: counterOptions(d, s),
       witness: ['examine','resolved'].includes(s.phase) && !s.pendingQuestion, thread: active, endThread: active && !!s.threadId,
       respond: s.pendingQuestion?.stage === 'objection', address: s.pendingQuestion?.stage === 'address', answer: s.pendingQuestion?.stage === 'answer',
       goals: d.goals.filter(g=>g.witnessId===a.plan.witnessId).map(g => ({ id: g.id, available: active && !s.asked.includes(g.id) && find(d.responses, g.response).adds.some(id => !recordIds(s).includes(id)) })),
