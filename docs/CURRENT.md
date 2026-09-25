@@ -2,7 +2,7 @@
 
 ## Current Version
 
-v0.9 (`courtroom-prototype/package.json`: `0.9.0`) — 구현 검증 완료, 독립 리뷰 대기
+v0.9 (`courtroom-prototype/package.json`: `0.9.0`) — Independent Reviewer PASS (사용자 전달, 2026-09-25)
 
 기존 저장소 `The Firm`의 웹 프로토타입을 사용한다. Godot `litigation-skeleton/`은 별도 프로젝트다.
 
@@ -237,7 +237,7 @@ Arguments can be Core / Peripheral depending on current Theory.
 
 ## Current Scope and Deferred Work
 
-v0.9 판정 층 구현, 독립 리뷰 대기. v0.8.1은 사용자 전달 Independent Reviewer PASS 기준점이다. 이전 기준점 v0.7.1은 Independent Review PASS (2026-09-25 사용자 전달).
+v0.9 Independent Reviewer PASS (사용자 전달, 2026-09-25). v0.8.1은 사용자 전달 Independent Reviewer PASS 기준점이다. 이전 기준점 v0.7.1은 Independent Review PASS (2026-09-25 사용자 전달).
 
 Focus:
 
@@ -357,4 +357,8 @@ Node 228 (기존 198 + 판정 30), Browser 591 (기존 383 + 판정 208), UI bud
 
 신문 budget: desktop normal/argument 195/218자, mobile 183/213자. 법정 영역은 기존 판결 전환 때만 바뀐다. 검토 중 양측의 완전한 상충 입증 경로가 동시에 성립하면 둘 다 미해결로 남기도록 보완했고, 양측 Evidence 분류도 case mapping에서 읽도록 했다. 해당 positive/negative 회귀 포함 전체 재실행.
 
-판정은 필수 쟁점의 부담을 읽으며 같은 CourtRecord/definition이면 같은 결과다. supporting/opposingEvidence는 claimant/respondent에 대응하고 Counter는 별도 목록으로 보존한다. 이번 구현은 독립 리뷰 대기 상태다.
+판정은 필수 쟁점의 부담을 읽으며 같은 CourtRecord/definition이면 같은 결과다. supporting/opposingEvidence는 claimant/respondent에 대응하고 Counter는 별도 목록으로 보존한다. v0.9 Independent Reviewer PASS는 사용자 전달 결과다. 이 작업에서 별도 독립 리뷰를 수행한 것은 아니다.
+
+## v0.9 accepted baseline
+
+구현 commit f143986. 사용자 전달 Independent Reviewer PASS를 CURRENT에 반영한 기준점을 courtroom-core-v0.9 tag로 고정한다. v0.9.1은 UI/UX 후속 교정이다.
