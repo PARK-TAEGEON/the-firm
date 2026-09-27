@@ -1,3 +1,23 @@
+Courtroom v0.10.0 Adversarial Trial — latest verification 2026-09-27 KST
+Base 37d5b69 (v0.9.1). Active contract COURTROOM-CORE-100.
+
+npm test: 247 tests, 247 pass, 0 fail, exit 0.
+  228 previous tests + 19 trial engine/service tests.
+node tests/browser-trial.test.js: 217 checks, 0 failures, exit 0.
+  3 viewports (1440x900, 1280x720, 390x844) x acquit/convict paths; localhost + mobile file://.
+  Browser: Playwright 1.56 bundled Chromium (Edge unavailable in this environment; fallback built in).
+Legacy browser suites via temporary Chromium-substituted copy (sources unmodified):
+  browser 87, flow 47, tactics 35, opening 52, commitment-scope 37, closing 58,
+  closing-profile 67, adjudication 208 = 591 checks, 0 failures.
+  browser-full-flow: 1 assertion fails ("Record sheet returns focus to rebuilt opener")
+  identically on untouched HEAD 37d5b69 under Chromium -> pre-existing env difference; rerun on Edge.
+  ui-budget.js: 14 checks, 0 failures. ui-flow-budget.js depends on full-flow; not completed here.
+Godot: out of scope, not rerun.
+Existing courtroom engine/service/data/UI/index.html: unchanged (git diff empty).
+Screenshots: tests/artifacts/trial-v010-*.png (ignored).
+
+---
+
 Courtroom Core v0.65 — latest verification 2026-09-22 KST
 Base c0a62e1 (v0.6). Active contract COURTROOM-CORE-065.
 

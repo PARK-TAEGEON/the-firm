@@ -2,7 +2,15 @@
 
 ## Current Version
 
-v0.9.1 (`courtroom-prototype/package.json`: `0.9.1`) — UI/UX polish, 독립 리뷰 대기
+v0.10.0 (`courtroom-prototype/package.json`: `0.10.0`) — Adversarial Trial 실험 추가, 독립 리뷰·사람 플레이테스트 대기
+
+- 새 진입점 `courtroom-prototype/trial.html` (계약: `.agent/tasks/COURTROOM-CORE-100.md`).
+- 기존 법정 `index.html`(v0.9.1)은 byte-identical로 유지한다. 두 방식을 나란히 비교 플레이한다.
+- 구현 기준 HEAD: `37d5b69` (v0.9.1 polish).
+
+이전 기준점 기록:
+
+v0.9.1 — UI/UX polish, 독립 리뷰 대기
 
 기존 저장소 `The Firm`의 웹 프로토타입을 사용한다. Godot `litigation-skeleton/`은 별도 프로젝트다.
 
@@ -11,10 +19,13 @@ v0.9.1 (`courtroom-prototype/package.json`: `0.9.1`) — UI/UX polish, 독립 �
 - SHA-256: `AA38FDE794B752636F21FEEF39B870B00A796087B5B3BE0424ACD9CA8D03E455`
 - 참조 대화 「시스템 설계 정리」의 독립 리뷰 대상 ZIP과 해시 일치.
 - 위 commit/ZIP과 `courtroom-core-v0.65` tag는 변경하지 않은 과거 기준점이다. v0.7은 Opening과 Strategy 흐름만 추가했다.
-
 ---
 
 ## Current Goal
+
+**v0.10 (2026-09-27 사용자 결정): 재미 검증 우선.** 법정 공방을 "준비한 것을 들고 상대와 다투는" 흐름으로 만들고, 사람 플레이테스트로 재미를 확인한다. 자동 회귀 통과는 재미의 증거가 아니다. 플레이테스트 질문은 루트 `REVIEW_REQUEST.md`에 있다.
+
+기존 목표(아래)는 v0.9.1까지의 기록이다.
 
 첫 형사 Vertical Slice의 Courtroom Core를 단계적으로 완성한다.
 
@@ -29,6 +40,17 @@ v0.9.1 (`courtroom-prototype/package.json`: `0.9.1`) — UI/UX polish, 독립 �
 ---
 
 ## Implemented
+
+### v0.10.0 Adversarial Trial experiment (trial.html)
+
+- 준비: 반나절 4회, 조사 6종(되돌릴 수 없음). 조사 결과가 카드가 된다. 검찰 증거목록은 제목만 보이고 수사기록 열람 시 내용 공개. 의뢰인 재면담이 "칼을 만진 적 없다"는 첫 진술의 오류를 드러낸다.
+- 개회사: 주력 쟁점(증인별 반대신문 시간)과 칼 접촉 입장(인정/언급 안 함/부인)을 공개. 부인은 검사가 모순으로 공격한다.
+- 증인별: 검사 주신문 자동 진행 + 이의 창(정당/미끼) → 반대신문 접근법(카드 필요), 한정 결론/과한 결론 요구, 시간 제한 → 검사 재주신문(조건부 수습) → 반박 카드가 있으면 재반대.
+- 판세는 재판장 메모 문장으로만 표시(숫자 없음). 재판장 신뢰가 자원(1 이하면 다음 신문 시간 −1).
+- 판결 all_required, 기록 기반 복기(유효/역효과/놓친 준비).
+- 구조: data/trial-case.js → engine/trial.js(순수) → services/trial.js(원자적 명령, append-only) → ui/trial-app.js. 무작위 없음, 사건 ID를 코드에서 검사하지 않음.
+- 검증: Node 247(기존 228 + 19), trial browser 217. 상세는 `courtroom-prototype/REVIEW_PACKET.md` v0.10 절과 `test-results.log`.
+- 미구현: 최후변론, 다른 검사/판사 성향, 아트·사운드, 저장, 여러 사건, 기존 신문 엔진과의 통합 여부(설계 판단 필요).
 
 ### v0.9.1 UI/UX polish
 
@@ -256,6 +278,8 @@ Focus:
 - phase 전용 UI 정리와 텍스트 감소
 - focus/scroll/modal/reset 및 전체 버전 회귀 유지
 - 기존 Major Commitment / Strategy Revision / v0.65 신문 회귀 유지
+
+v0.10 실험은 위 목록의 예외가 아니다(배심원·합의·항소·민사·Staff 미구현 유지).
 
 Do not implement yet:
 - Jury

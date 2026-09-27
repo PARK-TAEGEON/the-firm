@@ -130,3 +130,34 @@ This section supersedes earlier descriptions of one fixed UI Press question and 
 - Duplicate proposition testimony is grouped only for display. Selection is a sibling of disclosure. No commitment badge or permanent argument map. UI has a bundled Pretendard and optional installed Noto Serif KR/Batang fallback for spoken statements only.
 
 No formal game rule, actual evidentiary admissibility standard, scientific fingerprint-dating model, automatic judgment or general-purpose witness AI is added. Further recovery from narrative hard counters, Redirect and whole-case valuation remain TBD/out of scope.
+
+## v0.10 — Adversarial Trial experiment (trial.html)
+
+기존 신문 엔진과 분리된 실험이다. 기존 규칙(위 절들)은 index.html 법정에만 적용되며 변경하지 않았다.
+
+### 판세 모델
+- 쟁점 2개(공격자 동일성, 범행 당시 칼 사용). 각 쟁점은 authored 기준값에서 시작하고 기록의 effects가 더하거나 뺀다(검찰 쪽 +, 변호인 쪽 −).
+- 밴드: 5 이상 입증 방향, 3–4 의문 제기, 2 이하 합리적 의심. UI는 밴드별 재판장 메모 문장과 개별 메모만 표시하고 숫자는 표시하지 않는다.
+- 판결: all_required. 필수 쟁점 중 하나라도 합리적 의심이면 무죄.
+
+### 준비
+- 예산 4(반나절). 조사 비용 1–2. 조사는 즉시 기록되고 되돌릴 수 없다. 카드와 검찰 증거 공개는 조사 기록에서만 생긴다.
+
+### 개회사
+- 주력 쟁점이 증인별 반대신문 시간을 정한다(4/2, 3/3, 2/4).
+- 칼 입장: 인정 + 이전 사용 카드 → 이전 사용 접근 효과 최대. 인정인데 카드 없음 → 검사가 "변호인도 사용을 인정" 공격. 언급 안 함 → 중간 효과. 부인 → 지문 증언 때 모순 공격(신뢰 −1)과 이전 사용 접근 시 입장 번복 기록.
+
+### 법정
+- 이의 창: 정당한 이의는 인용되어 검찰 효과를 줄인다. 부당한 이의는 기각되어 신뢰 −1과 검찰 효과.
+- 접근법은 요구 카드 중 하나라도 있어야 쓸 수 있다(카드 없이 가능한 접근도 있음). 각 접근·결론 요구는 시간 1.
+- 한정 결론: 서지훈은 서로 다른 의문점 3개 이상, 한서윤은 시점 + (공용 또는 이전 사용). 미충족 시 증인이 반박하고 검찰 효과.
+- 과한 결론: 항상 역효과와 신뢰 −1.
+- 재판장 신뢰 1 이하로 반대신문을 시작하면 시간 −1과 경고.
+- 재주신문: 조건을 만족한 수습만 실행한다. 최초 진술 대조는 "6년 친분" 수습을 무력화한다. 조도 측정 카드가 있으면 간판 불빛 수습 후 재반대 기회가 생긴다.
+
+### 복기
+- 유효했던 것: 변호인 기록 중 검찰 효과를 줄인 것, 인용된 이의.
+- 역효과: 기각된 이의, 실패한 결론 요구, 과욕, 개회사 모순.
+- 놓친 준비: 실행된 수습/공격에 대응 카드가 없었던 경우, 입증 방향으로 끝난 쟁점에 필요한 카드가 없던 경우, 준비한 반박을 쓰지 않은 경우.
+
+이 수치와 조건은 플레이테스트용 authored 규칙이며 실제 법률 기준이나 Accepted 설계가 아니다.

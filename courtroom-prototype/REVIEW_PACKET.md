@@ -1,3 +1,93 @@
+# Courtroom v0.10.0 — Adversarial Trial experiment — Review packet
+
+Date: 2026-09-27 KST. Base: HEAD 37d5b69 (v0.9.1 polish, courtroom-core-v0.9 lineage). Contract: ../.agent/tasks/COURTROOM-CORE-100.md. Scope: isolated experiment beside the existing courtroom. Implementation and automated checks complete; independent Reviewer PASS and human playtest not yet obtained.
+
+## 작업 목적
+
+법정 공방을 "질문을 하나씩 고르는" 방식에서 "준비한 것을 들고 상대와 다투는" 흐름으로 바꿔 재미를 검증한다(사용자 제품 방향 결정, 2026-09-27). 풋볼 매니저의 경기처럼 대부분은 흘러가고, 결정적인 순간(이의, 접근법, 결론 요구, 재반대)에만 플레이어가 개입한다. 기존 v0.9.1 법정은 비교 플레이를 위해 그대로 둔다.
+
+## 변경 파일
+
+신규 (전부 `courtroom-prototype/`):
+- `trial.html` — 새 진입점. 3열(내 사건 파일 · 법정 · 재판장 메모) + 하단 개입 바.
+- `data/trial-case.js` — B동 창고 사건의 authored 공판 데이터: 조사 6종/예산 4, 카드 7장, 검찰 증거목록 3건(열람 전 봉인), 개회사 선택지, 증인 2명의 주신문·이의 창·접근법·결론 요구·재주신문·재반대, 판결 규칙, 복기 문구. 사실관계는 data/case.js와 동일하며, 기존 Hard Counter `P_SIGN_LIGHT`가 요구하던 "조도 자료"를 조사 카드(`CARD_SIGN_ANGLE`)로 구현했다.
+- `engine/trial.js` — 순수 함수. validate, project(records→판세/신뢰/카드/증인 상태), evalWhen, resolveApproach, pressSucceeds, adjudicate(all_required), replay, review(복기).
+- `services/trial.js` — 유일한 상태 변경 주체. 명령: investigate, finishPrep, open, continue, objection, approach, press, endCross, rebut, verdict, reset. 흐름 커서(intro→direct→cross→redirect→다음 증인→closed)와 pending 결정(이의/재반대).
+- `ui/trial-app.js`, `ui/trial.css` — 표현만 담당. 모든 변경은 service.command 경유.
+- `tests/trial.test.js` (19), `tests/browser-trial.test.js` (217 checks).
+
+수정:
+- `package.json` — 0.10.0, npm test/test:browser에 trial 추가, `test:trial` 스크립트.
+- `README.md`, `EXPERIMENT_RULES.md` — v0.10 절 추가(기존 내용 보존).
+- 이 파일, `test-results.log`, 루트 `REVIEW_REQUEST.md`, `docs/CURRENT.md`, `.agent/tasks/COURTROOM-CORE-100.md`.
+
+변경하지 않음: `index.html`, `engine/{core,procedure,opening,closing,adjudication}.js`, `services/courtroom.js`, `data/case.js`, `ui/app.js`, `ui/courtroom.css`, Godot 전체, 헌법·DEC 문서.
+
+## 게임 흐름 요약
+
+1. 준비: 반나절 4회. 조사는 되돌릴 수 없다. 검찰 수사기록 열람은 상대 증거목록 내용(현장 사진의 간판 불빛 등)을 공개해 다음 조사 판단을 바꾼다. 의뢰인 재면담은 "칼은 만진 적 없다"는 첫 진술이 틀렸음을 드러낸다.
+2. 개회사: 주력 쟁점(증인별 신문 시간 4/2, 3/3, 2/4)과 칼 접촉 입장(인정/언급 안 함/부인) 공개. 이후 변경 불가.
+3. 증인별: 검사 주신문 자동 진행 → 이의 창(서지훈: 정당한 유도신문 이의, 한서윤: 기각되는 미끼) → 반대신문(접근법 3종, 한정 결론, 과한 결론, 시간 소진 시 자동 종료) → 검사 재주신문(조건부 수습) → 반박 카드가 있으면 재반대.
+4. 판결: 필수 쟁점 2개가 모두 입증되어야 유죄. 판세는 재판장 메모의 문장(입증/의문/합리적 의심)으로만 표시.
+5. 복기: 유효했던 것 / 역효과 / 놓친 준비를 기록에서 생성.
+
+## 새로 강제되는 invariant
+
+- 판세·판결·복기는 records만 읽는다. UI draft, 클릭 수, 화면 상태를 읽지 않는다. `T.replay(records)`는 서비스 projection과 동일하다.
+- 무작위 없음. 같은 명령 순서 → 같은 records(ID 제외) → 같은 판결.
+- 실패한 명령은 state와 ID serial을 변경하지 않는다(draft copy 후 커밋).
+- records는 append-only. reset은 새 session 번호로 ID를 재사용하지 않는다.
+- 카드 없는 접근법, 소진된 신문 시간, 중복 접근법/결론 요구, 근거 없는 결론 요구, 단계 밖 명령은 거부된다.
+- 과한 결론 요구는 항상 역효과(+판세, 신뢰 −1). 한정 결론은 authored 근거 조건 충족 시에만 성공.
+- 재판장 신뢰가 1 이하이면 다음 반대신문 시간이 1 줄어든다.
+- 개회사 "부인" 입장은 지문 증언에서 검사가 모순으로 공격하고(신뢰 −1), 이전 사용 접근은 입장 번복 기록을 남긴다.
+- 엔진/서비스/UI 코드는 사건 고유 ID를 검사하지 않는다(테스트로 강제). 사건별 차이는 data의 조건(when, stanceConflict, caution)으로 표현한다.
+- 화면에 승률·점수 숫자를 표시하지 않는다(browser test로 메모 검사).
+
+## 밸런스 확인 (authored, 결정적)
+
+| 경로 | 결과 |
+|---|---|
+| 준비 없음 | 유죄 |
+| 수사기록+현장(식별 집중) | 무죄 (식별 합리적 의심) |
+| 현장+조도(식별 집중) | 무죄 (재반대로 간판 불빛 무력화) |
+| 현장만(식별 집중, 이의 없음) | 유죄 (간판 불빛·6년 친분 수습) |
+| 보고서+재면담, 인정(칼 집중) | 무죄 |
+| 보고서+비품, 언급 안 함(칼 집중) | 무죄 (경계선) |
+| 보고서+재면담, 부인 | 유죄 (개회사 모순) |
+| 이른 결론 요구·과욕 | 유죄 |
+
+## 실행 명령과 결과
+
+- `npm test`: 247 tests (기존 228 + trial 19), 0 fail, exit 0.
+- `node tests/browser-trial.test.js`: 217 checks, 0 failures, exit 0. desktop 1440×900 / short 1280×720 / mobile 390×844 × 무죄·유죄 경로, localhost + mobile direct-file, 가로 넘침·숫자 미노출·포커스·복기·reset·Space 진행. 이 환경에는 Edge가 없어 번들 Chromium으로 fallback(`PW_CHANNEL`로 지정 가능).
+- 기존 browser 회귀(Chromium 대체 실행, 원본 파일은 수정하지 않고 임시 사본의 channel만 제거): browser 87, flow 47, tactics 35, opening 52, commitment-scope 37, closing 58, closing-profile 67, adjudication 208 = 591 checks, 0 failures.
+- 기존 `browser-full-flow.test.js`: "Record sheet returns focus to rebuilt opener" 1건 실패. **변경 전 HEAD 37d5b69를 같은 Chromium으로 실행해도 동일하게 실패**하므로 이번 변경과 무관한 Chromium/Edge 포커스 차이로 판단한다. Edge 환경 재실행 필요. 같은 이유로 `ui-flow-budget.js`는 이 환경에서 완료되지 않았고, `ui-budget.js`는 14 checks 통과.
+- Godot: 변경 범위 밖이므로 재실행하지 않음.
+
+## Fixture / injected
+
+- 테스트 plan은 실제 배포 데이터(data/trial-case.js)를 사용한다. 합성 fixture는 validation 음성 테스트(깨진 참조)뿐이다.
+
+## 미구현 / TBD
+
+- 최후변론(Closing)과 기존 v0.8 Closing 엔진 연결, 기존 신문 엔진(Proposition/Inference)과 접근법 모델의 통합 여부.
+- 검사 성향은 `thorough` 하나. 공격형/여론형 검사, 판사 성향 없음.
+- 캐릭터 일러스트·효과음·음악 없음(이니셜 원형 초상은 자리표시). Noto Serif KR·손글씨 폰트는 설치 시에만 사용.
+- 저장/불러오기, 여러 사건, 경영 루프, Godot 조사 결과와의 연결.
+
+## 설계 판단이 필요해 건드리지 않은 부분
+
+- 이 실험의 규칙(쟁점 판세 정수, 밴드 5/2, 신뢰 3, 시간 배분)은 authored 플레이테스트 값이며 DEC로 승격되지 않았다. 정식 채택 시 판정 모델을 DEC-LITIGATION-011/012(사실 인정·증명 기준)와 맞출지 결정이 필요하다.
+- 헌법 8장 "정답 퍼즐 금지"와의 관계: 복수 승리 경로(식별/칼/혼합)를 두었지만, 사건이 하나라 경로를 외우면 반복 가치가 떨어진다. 사건 생성·다양화는 별도 결정.
+- 기존 v0.9.1 법정을 대체할지, 두 방식을 합칠지는 사람 플레이테스트 후 결정.
+
+## 범위 외 변경
+
+없음. 저장소에 원래 있던 미커밋 변경(.agent/*, litigation-skeleton/*, 일부 courtroom 파일의 CRLF 줄바꿈)은 건드리지 않았고 커밋하지 않았다. 이번에 편집한 문서 4개(CURRENT.md, REVIEW_PACKET.md, test-results.log, package.json)는 작업 전 CRLF만 다른 상태였으므로 HEAD 내용으로 되돌린 뒤 편집했다(내용 차이 없음).
+
+---
+
 # Courtroom Core v0.65 — Review packet
 
 Date: 2026-09-22. Base: v0.6 c0a62e1. Contract: ../.agent/tasks/COURTROOM-CORE-065.md. Scope: isolated web experiment. Implementation and regression checks complete; independent Reviewer PASS has not been obtained. No next VS or Opening implementation started.

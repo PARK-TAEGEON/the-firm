@@ -1,46 +1,39 @@
-# v0.9.1 Independent Review Request
+# v0.10.0 Independent Review Request — Adversarial Trial experiment
 
-Status: polish implementation verified; independent review pending. Baseline courtroom-core-v0.9 → 839628409b3563cbe13473b5cc855cd1db173ba8, implementation f143986. PASS was reported by the user.
+Status: implementation and automated checks complete; independent review and human playtest pending. Base HEAD 37d5b69 (v0.9.1 polish; courtroom-core-v0.9 lineage). The v0.9.1 review request is preserved in git history.
 
-## Purpose and changes
-Full-play UI/UX polish only. All engine modules, services/courtroom.js and shipped data/case.js are byte-identical to v0.9. The case still has no complete guilty proof path; no mechanic/rule/content was added.
+## Purpose
+User product decision (2026-09-27): make the courtroom a contest of prepared material against an opponent, like a Football Manager match — mostly flowing, with a few decisive interventions. Built as a separate entry `courtroom-prototype/trial.html` so the existing v0.9.1 courtroom stays byte-identical and both can be playtested side by side. Contract: `.agent/tasks/COURTROOM-CORE-100.md`.
 
-- Central next-witness action reuses witness command after examination ends.
-- Opening/Closing/Verdict hide last-witness tabs/exhibits and unavailable strategy control. Same three columns, no new panel.
-- Compact Opening/Closing title area; after Opening, first witness name replaces repeated Opening speech as current headline. Original speech remains in dialogue/record.
-- Closing citation/counter selection opens existing record sheet directly: one fewer click, no duplicate selected-title list, no automatic choice.
-- Remove strength labels, repeated issue grading and long developer scope disclaimer from witness-result details. Scoped substantive result remains; regression verifies actual issue scope and absence of verdict.
-- Keep concise issue findings and final verdict sentence on one screen; no artificial FactFinding intermediate phase.
-- Phase/witness changes focus and scroll to current heading below sticky header. Same-phase selection retains focus/details/scroll. Dialog close restores focus to a rebuilt opener.
-- Reset clears presentation disclosures, scroll, hidden Closing preview and opener references, alongside unchanged engine reset. Duplicate reset control hidden; clearer 다시 시작 label.
-- Neutral budget artifact names and full-flow comparisons against v0.9.
+## What changed
+- New: `trial.html`, `data/trial-case.js`, `engine/trial.js`, `services/trial.js`, `ui/trial-app.js`, `ui/trial.css`, `tests/trial.test.js`, `tests/browser-trial.test.js`.
+- Modified: `package.json` (0.10.0, scripts), `README.md`, `EXPERIMENT_RULES.md` (v0.10 section appended), `REVIEW_PACKET.md` (v0.10 section prepended), `test-results.log`, `docs/CURRENT.md`.
+- Unchanged: index.html and all existing engine/service/data/UI files, Godot, constitution/DEC documents.
 
-## Files
-Production: ui/app.js, ui/courtroom.css, index.html, package.json.
-Tests: browser-full-flow.test.js, alternate-verdict-fixture.js, ui-flow-budget.js, ui-flow-baseline.json, ui-budget.js; existing browser scripts updated only for new visible reset/citation path, removed disclaimer semantics or neutral screenshot naming. Existing gameplay assertions retained.
-Documentation: docs/CURRENT.md, root DESIGN.md, .agent/tasks/COURTROOM-CORE-091.md, REVIEW_REQUEST.md, prototype REVIEW_PACKET.md/UI_TEXT_AUDIT.md/test-results.log.
+Flow: prep (4 half-days, 6 irreversible investigations → evidence cards; prosecution exhibits sealed until records are inspected) → opening (focus sets cross-exam time per witness; knife stance is a public commitment) → per witness: auto-played direct with one objection window → cross (approaches gated by cards, limited/overreach conclusions, time budget) → conditional prosecutor redirect → rebuttal if the right card was prepared → verdict (all_required) → record-based review (effective / backfired / missed prep). Judge's notebook shows lean as sentences only; no numbers.
 
 ## Verification
-Node 228; Browser 1189 (591 existing + 598 full-flow); UI budget 75 (14 historical examination + 61 full-flow). Total 1492 unique checks, 0 failures; npm test, npm run test:browser and npm run test:budget exit 0. Budget command additionally reruns 187 A-path assertions already covered above; not counted twice. Baseline v0.9 run: 424 checks, separate comparison evidence.
+- `npm test`: 247 (228 existing + 19 trial), 0 fail.
+- `node tests/browser-trial.test.js`: 217 checks, 0 fail (3 viewports × acquit/convict, localhost + file://, no overflow, no numeric odds, focus, review, reset, keyboard).
+- Legacy browser suites under bundled Chromium (Edge unavailable here; sources unmodified, temp copy only): 591 checks, 0 fail. `browser-full-flow` has one focus assertion that fails identically on untouched HEAD under Chromium — pre-existing environment difference; please rerun the full legacy suite on Edge. `ui-budget.js` 14 pass; `ui-flow-budget.js` depends on full-flow.
 
-A/B/C/D all run at 1440×1080, 1280×720, 390×844. A plays through reset and a second Theory B run; B uses Peripheral argument; C keeps Strategy and Closing conflicts; D injects test-only direct testimony and proof routes, then uses normal UI/service/engine to render guilty. Shipped A/B/C render not_guilty. Existing localhost/direct-file, keyboard selection, procedure, no-Closing and record-only replay tests remain. No-adjudication compatibility remains in the existing Node suite.
+## Review focus
+1. Records are the only input to lean/verdict/review; `replay(records)` equals the service projection.
+2. Failed commands leave state and ID serial untouched; records are append-only; reset never reuses IDs.
+3. Engine/service/UI contain no case-specific IDs (enforced by test); case logic lives in data conditions.
+4. No RNG; acquit and convict are both reachable, and depend on preparation and choices.
+5. Constitution §8 check: no single answer puzzle (identity, knife, or mixed routes), no numeric odds, courtroom reversals come from unprepared ground rather than overriding preparation.
 
-Reset checks empty record layers, witness history, public commitments, Closing/adjudication projections and draft choices, exactly one new Opening/Closing/verdict marker, new runtime IDs, no prior conflicts or hidden preview. Phase checks verify current heading focus/visibility, no stale witness controls, one or zero open modals and no overflow. Closing sheet returns focus and preserves disclosure. Desktop/mobile PNGs inspected.
+## Human playtest questions (please answer after playing)
+1. 준비 단계에서 "무엇을 포기할지" 고민했는가? 4회 예산이 적당한가?
+2. 검찰 수사기록 열람 후 현장 사진(간판 불빛)을 보고 조도 측정을 하고 싶어졌는가?
+3. 검사 주신문이 흐르는 동안 지루했는가, 긴장됐는가? "계속" 클릭 수는 적당한가?
+4. 이의 창에서 판단할 근거가 있었는가, 아니면 찍기였는가?
+5. 접근법을 고를 때 카드가 무기로 느껴졌는가? 결론 요구를 누를 타이밍을 스스로 판단했는가?
+6. 재판장 메모만 보고 판세를 읽을 수 있었는가? 숫자가 없어서 답답했는가?
+7. 검사가 개회사 모순을 공격하거나 간판 불빛으로 수습할 때 "당했다"와 "내 준비 탓이다" 중 어느 쪽으로 느꼈는가?
+8. 복기를 읽고 한 판 더 하고 싶어졌는가? 두 번째 판에서 다른 경로를 시도했는가?
+9. 기존 v0.9.1 법정(index.html)과 비교해 어느 쪽이 더 재밌었는가?
 
-## Budget comparison
-Neutral generated files: tests/artifacts/ui-budget-examination-current.json and ui-budget-flow-current.json. Historical ui-budget-baseline.json remains intact. New ui-flow-baseline.json was captured using the same A path on v0.9. All sampled phase text <= v0.9, height <= prior +10%, no overflow, exactly two existing aside panels. Historical artifacts are not deleted or reinterpreted.
-
-Representative A mobile: Opening 161→148 chars / 1210→903px; Closing 213→190 / 1345→931px; Verdict 270→241 / 1300→1043px; examination 187 chars unchanged. Desktop A: Opening 173→156, Closing 225→198, Verdict 282→249 chars. Original examination budget is desktop 191/214 and mobile 183/213 chars. Mobile touch targets add only 4–6px to examination height and stay within the unchanged baseline limit.
-
-## Direct answers to the eight requested questions
-1. Does it play continuously like one game? On tested A/B/C/D paths, yes; setup through verdict, reset and a fresh theory run complete without a dead end. This is observed functional flow, not a substitute for human enjoyment testing.
-2. Most awkward transition? End of examination sent the player to the sidebar to find the next witness. An in-place action now exposes that next step; Closing citations also lose one nested navigation click.
-3. Remaining click-heavy part? Choosing multiple premises for Closing and opening repeated CourtRecord summaries. Automatic citation or record merging would change decisions/trace behavior, so they remain P2.
-4. Removed text/elements? Stale witness/exhibit controls, disabled strategy button, duplicated Opening headline, citation disclosure and repeated selection titles, result strength/grading/scope boilerplate, duplicate reset, visible version. Preview return label shortened.
-5. Is Verdict concise? Yes: outcome title, two short issue findings, final result sentence; evidence remains collapsed and no extra phase or panel is added.
-6. Biggest mobile friction? Old witness information and empty title space pushed current choices down; compact phase views and explicit focus/scroll reduce it. Record sheets remain the main interaction cost.
-7. Must-fix UI/UX before v1.0? No blocker found in tested paths. Repeated citation/record navigation needs human playtest feedback, and multi-browser/native mobile testing is not claimed.
-8. Can it be fixed as a v1.0 polish candidate? Yes, as a candidate for independent review and human playtest; not final v1.0 approval or a claim of varied shipped verdict outcomes.
-
-## Review focus / limits
-Confirm same-phase focus and scroll remain stable, phase focus is not hidden by sticky header, reset leaks nothing, direct citation shortcut never auto-selects evidence, and no engine/data diff exists. Review full text audit for deletions vs preserved substantive record text. D is a clearly labelled synthetic fixture only. No Save/Load, new case, proof route, witness mechanic or excluded system. Unrelated user changes remain untouched; no push.
+## Limits
+One case, one prosecutor style, placeholder portraits, no sound/art, no closing argument, no save/load, no management loop. Numbers are authored playtest values, not Accepted design. Unrelated pre-existing uncommitted changes remain untouched; no push.

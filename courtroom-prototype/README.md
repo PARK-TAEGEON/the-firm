@@ -20,3 +20,17 @@
 브라우저 테스트는 Playwright와 Edge를 사용합니다. 이 환경에서는 NODE_PATH에 번들 dependencies/node/node_modules를 지정합니다. 기존 두 브라우저 회귀는 claimVariants를 제외한 콘텐츠 fixture로 v0.6 resolver를 검사하고, browser-tactics.test.js는 수정하지 않은 배포 데이터를 검사합니다.
 
 개발 전 root DESIGN.md와 `.agent/tasks/COURTROOM-CORE-065.md`를 읽으십시오. 상세 결과와 제한, 요청된 12개 답변은 REVIEW_PACKET.md에 있습니다. Opening/Closing/Verdict 및 실제 재주신문은 구현하지 않았습니다.
+
+## v0.10 대립 공판 실험 (trial.html)
+
+`trial.html`을 열거나 `npm start` 후 http://127.0.0.1:4173/trial.html 로 접속합니다. 기존 `index.html` 법정은 그대로이며 두 방식을 나란히 비교할 수 있습니다.
+
+준비(반나절 4회 조사) → 개회사(주력 쟁점·칼 접촉 입장) → 증인 2명(검사 주신문과 이의 창 → 반대신문 접근법과 결론 요구 → 검사 재주신문과 재반대) → 판결과 복기. 판세는 오른쪽 재판장 메모로만 보입니다.
+
+확인해 볼 경로:
+- 아무 조사 없이 진행 → 유죄. 복기에 놓친 준비가 나열됩니다.
+- 검찰 수사기록 + 야간 현장, 식별 집중 → 최초 진술 대조와 관찰 조건으로 식별에 합리적 의심.
+- 의뢰인 재면담 없이 "칼을 만진 적 없다"고 개회사 → 감식관 증언에서 검사가 모순을 공격합니다.
+- 조도 측정을 했다면 간판 불빛 수습에 재반대신문 버튼이 뜹니다.
+
+검증: `npm run test:trial` (Node 19 + browser 217). 규칙 상세는 EXPERIMENT_RULES.md의 v0.10 절, 계약은 `.agent/tasks/COURTROOM-CORE-100.md`.
