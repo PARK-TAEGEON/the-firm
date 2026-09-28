@@ -5,6 +5,15 @@
 
 ---
 
+## 2026-09-28 — CURRENT를 현재 상태 중심으로 축소
+
+- Codex: `docs/CURRENT.md`를 현재 버전·목표·lane·구현 요약·안정 코어·부채·제품 질문·활성 계약·미결정·핵심 링크로 정리.
+- 이 CHANGELOG에 없던 v0.65/v0.7 기준점과 v0.7.1〜v0.9.1 핵심 구현·검증 이력을 아래에 요약 이동. 이미 있는 v0.10 이력은 중복 추가하지 않음.
+- 결정 상태 유지: 본류·엔진·통합·출시 일정 판단과 사람 플레이테스트 대기는 그대로다. Accepted design, 9월 실험 설계 메모, 코드·프로토타입은 변경하지 않음.
+- 검증: 문서 링크·필수 항목·diff 확인. 문서만 변경하여 실행 테스트·기존 테스트 로그·Review Packet은 갱신하지 않음.
+
+---
+
 ## 2026-09-28 — 워크플로 확립, 저장소 정리
 
 **커밋**
@@ -47,3 +56,51 @@
 - 판세는 재판장 메모 문장으로만 표시, 숫자 없음. 무작위 없음
 - 검증: Node 247, trial browser 217. 상세 `courtroom-prototype/REVIEW_PACKET.md` v0.10 절, 규칙 `EXPERIMENT_RULES.md` v0.10 절
 - 사람 플레이테스트 질문 9개: 루트 `REVIEW_REQUEST.md`
+
+---
+
+## 2026-09-25 — v0.7.1〜v0.9.1 구현·검증 이력 요약
+
+2026-09-28 Codex가 기존 `docs/CURRENT.md`에서 옮긴 기록이다. 아래 수치는 당시 실행 결과이며 이번 문서 정리에서 재실행한 결과가 아니다. 상세 구현·회귀 설명은 Git의 정리 전 CURRENT와 각 `.agent/tasks/COURTROOM-CORE-*.md`에서 확인한다.
+
+### v0.9.1 — 전체 흐름 UI/UX polish
+
+- 구현 `37d5b69`, 기준 `courtroom-core-v0.9` → `839628409b3563cbe13473b5cc855cd1db173ba8`. 엔진, `services/courtroom.js`, `data/case.js`는 기준과 byte-identical.
+- 중앙 다음 증인 action, 단계별 증인 자료·불가능한 버튼 숨김, Closing 기록 sheet 연결, focus/scroll/details 보존, reset UI 상태 초기화와 중복 문구 정리. 자동 인용·새 사건·판정 규칙은 추가하지 않음.
+- large/short/mobile에서 A(전체 흐름·reset 후 B 재시작), B(Peripheral), C(전략·Closing conflict), D(test-only guilty)를 검증. 배포 사건은 `not_guilty` 유지.
+- Node 228 + Browser 1189 + UI budget 75 = **1492 고유 검사, 실패 0**, 각 명령 exit 0. budget의 재실행 187개와 기준 캡처 424개는 합계에서 제외.
+- 모바일 A 경로 높이: Opening 1210→903, Closing 1345→931, Verdict 1300→1043px. 기존 신문 budget과 전체 단계 비교를 유지하며 산출물은 `ui-budget-examination-current.json`, `ui-budget-flow-current.json`으로 정리.
+- 당시 문서 상태는 독립 리뷰·사용자 플레이테스트 대기, v1.0 polish 후보이며 최종 승인과 구분. 남은 P2는 Closing 수동 인용과 누적 기록 탐색의 반복 클릭감이다.
+
+### v0.9 — 기록 기반 FactFinding / Verdict
+
+- 구현 `f143986`; 사용자 전달 Independent Reviewer PASS를 기록한 기준 tag `courtroom-core-v0.9`는 `8396284`. 이전 기준 v0.8.1 tag는 `529371f3679318154d8508daf11d6f2785113508`.
+- authored proof/doubt, 필수 쟁점과 부담 선언, 세 CourtRecord 층의 입력 참조를 사용하는 판정·replay 추가. 양측 완전 입증이 상충하면 미해결로 유지. `verdict_delivered` 외 기존 기록을 보존.
+- Node 228 + Browser 591 + UI budget 14 = **833, 실패 0**, 각 명령 exit 0. recorded/sparse/no-Closing × 3화면과 mobile direct-file, JSON replay, 기록 불변을 검증.
+- 배포 사건에는 완전 입증 경로가 없어 입증 실패; 입증 성공은 synthetic fixture다. 고의는 필수 쟁점 제외. 범용 법률 엔진·전체 세션 저장은 범위 밖.
+
+### v0.8.1 — Closing profile / 문장 중복 교정
+
+- 구현 `d54006d`; 사용자 전달 Independent Reviewer PASS(2026-09-25), 기준 tag `courtroom-core-v0.8.1`.
+- Closing phase/action을 전부 선언하거나 생략하는 optional lifecycle 강제, partial profile 거부. 동일 최종 입장 문장만 중복 제거하며 revision/conflict·원 Commitment·기록 replay는 보존.
+- Node 198 + Browser 383 + UI budget 14 = **595, 실패 0**. 신규 Node 10개 중 8개가 수정 전 버그 재현; 3화면 full/none profile, direct-file, 기록 불변·replay 검증. No-Closing/partial은 fixture이며 새 사건이 아님.
+
+### v0.8 — Closing / Case-wide Argument Synthesis
+
+- 확보된 authored inference, 수동 Evidence/Admission 인용, Counter 한계·Qualification, Opening 입장 유지/수정으로 Closing을 구성. `closing_position`과 revision/conflict를 기록하고 Evidence/Procedural은 보존.
+- Node 188 + Browser 316 + UI budget 14 = **518, 실패 0**, 각 명령 exit 0. 3화면과 mobile direct-file에서 두 증인 → Closing 선택·수정·확정 → replay 검증. 기존 신문 budget과 무패널 추가 유지.
+- Counter 대응은 기록 인용/한계 인정이며 새 증거를 생성하지 않음. 당시 판결 미구현 문구는 v0.8 시점의 제한으로, 후속 v0.9 구현을 부정하지 않는다.
+
+### v0.7.1 — Commitment scope / priority 교정
+
+- 구현 `2b499e1`; 사용자 전달 Independent Review PASS(2026-09-25), 기준 tag `courtroom-core-v0.7.1`은 PASS 기록 포함 commit.
+- 같은 issue의 active counter가 있을 때만 Major Commitment 검토. priority·authored strategy conflict와 evidentiary challenge 분리. Theory position 값/명시적 unspecified 선언 검증.
+- Node 175 + Browser 258 + UI budget 14 = **447, 모두 통과**. 오염/priority 신규 5개는 수정 전 실패·수정 후 통과, validation/progression 2개 추가. 역방향 INTENT counter는 scope fixture이며 배포 고의 증거가 아님.
+
+---
+
+## 2026-09-23 — v0.7 및 v0.65 과거 기준점
+
+- v0.7: Opening authored 조합, 공개 Major Commitment, Working Strategy revision/conflict와 기록 replay 추가. Node 168 + Browser 221 + UI budget 14, 모두 통과. 3화면·localhost/direct-file 검증, v0.65 신문 회귀 유지.
+- v0.65 기준 구현: `df648a1e7a73a5d63bed0308a1441ebde1666abd`, tag `courtroom-core-v0.65`. ZIP `courtroom-prototype/THE-FIRM-Courtroom-Core-v0.65.zip`, SHA-256 `AA38FDE794B752636F21FEEF39B870B00A796087B5B3BE0424ACD9CA8D03E455`는 참조 대화 독립 리뷰 대상과 일치한 과거 기준점이다.
+- 위 기준점은 변경하지 않는다. `docs/IMPLEMENT.md`의 v0.7 원문과 당시 미구현 목록도 역사적 기록이다. 기존 Review Packet의 독립 리뷰 미확보 문구는 구현 당시 상태이며, 이후 대화의 Witness Examination Core 독립 리뷰에서는 P0/P1 없음이 보고됐다. 사용자 재미 평가는 별도다.
