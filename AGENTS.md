@@ -128,7 +128,8 @@ Reviewer PASS 전에는 다음 VS task로 진행하지 않는다.
 - 재미가 확인된 것만 들어온다. 기존 WORKFLOW(Task Contract → 구현 → 회귀 → Review Packet → 독립 리뷰 → 커밋)를 그대로 따른다.
 
 ### Context budget
-- 에이전트가 기본으로 읽는 문서는 `AGENTS.md`, `docs/CURRENT.md`, 배정된 작업 계약서뿐이다.
+- 에이전트가 기본으로 읽는 문서는 `AGENTS.md`, `docs/CURRENT.md`, `docs/CHANGELOG.md`의 최근 항목, 배정된 작업 계약서뿐이다.
+- 작업을 병합하면 `docs/CHANGELOG.md` 맨 위에 한 항목을 추가한다(날짜, 무엇을, 어디에, 누가, 결정/미결정).
 - DEC/TEST 문서는 계약서의 `Read only:` 항목에 지정된 경우에만, 지정된 절만 읽는다.
 - 테스트 출력은 요약(합계, 실패 항목)만 보고한다.
 

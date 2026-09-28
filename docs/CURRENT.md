@@ -1,5 +1,7 @@
 # THE FIRM — Current State
 
+> **최근 활동과 결정은 `docs/CHANGELOG.md`, 이번 달 설계 방향은 `docs/DESIGN-NOTES-2026-09.md`를 먼저 본다.** 이번 주 작업: `.agent/tasks/` GEN-001, WORLD-001, DEMO-001, PLAYTEST-001. 진행 지도: 루트 `ROADMAP.md`.
+
 ## Current Version
 
 v0.10.0 (`courtroom-prototype/package.json`: `0.10.0`) — Adversarial Trial 실험 추가, 독립 리뷰·사람 플레이테스트 대기

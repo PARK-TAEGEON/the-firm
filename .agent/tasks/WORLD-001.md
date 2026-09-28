@@ -4,7 +4,7 @@ Lane: experiment
 Owner: Codex
 Branch: task/world-001
 Owns: courtroom-prototype/world/
-Read only: docs/CURRENT.md, DEC-LITIGATION-015 §25(주요/일반 인물 모델)
+Read only: docs/CURRENT.md, docs/DESIGN-NOTES-2026-09.md §2·§3, DEC-LITIGATION-015 §25(주요/일반 인물 모델)
 
 ## 목표
 법조인들이 플레이어 없이도 알아서 움직이는 세계를 10년치 돌리고, 법조 신문 로그로 확인한다.

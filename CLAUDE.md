@@ -4,7 +4,7 @@
 
 작업 시작 시 읽을 것(이것만 읽는다):
 1. `AGENTS.md`
-2. `docs/CURRENT.md`
+2. `docs/CURRENT.md`, `docs/CHANGELOG.md`의 최근 항목
 3. 배정된 `.agent/tasks/<ID>.md`
 
 DEC/TEST 문서는 작업 계약서가 이름을 지정한 경우에만, 지정된 절만 읽는다.
