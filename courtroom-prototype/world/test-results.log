@@ -1,0 +1,31 @@
+WORLD-001 experiment — 2026-09-28
+Runtime: Node v24.19.0 (Windows)
+Working directory: courtroom-prototype/
+
+Command: npm test
+Existing headless regression: checks 247 / pass 247 / failures 0 / skipped 0 / exit 0
+
+Command: node --test world/world.test.js
+World core regression: checks 20 / pass 20 / failures 0 / skipped 0 / exit 0
+Includes: full-state and output determinism; seed 0; different seeds; split advancement;
+failed-command atomicity; snapshot isolation; input validation; initial roster;
+monotone persistent IDs; retiree career preservation; census replay; outcome/ranking
+recalculation from records; former-office attraction vs outcome isolation; leave/return
+and burnout fatigue; February/March scheduling; capacity/experience continuity;
+read-only presentation; 10-year criteria; 20 seeds (0..19); real CLI output and failure.
+
+Total: checks 267 / pass 267 / failures 0 / exit 0
+Browser/UI budget and Godot suites: not run (isolated experiment, headless core scope).
+
+Command: node world/run.js --years 10 --seed 1
+Exit: 0 (also executed twice by CLI regression from different working directories)
+Output: world/out/news.md, world/out/stats.json
+Same-seed output: byte-identical
+Weeks: 520
+Weekly active population: 70..74; year-end active population: 74 in all 10 years
+Distinct annual leaders: 6; no single firm leads every year
+News articles: 500; first-reading links: 5
+Registered persons: 88; retired persons preserved: 14
+Completed service cases: 12360; leave starts: 144; returns: 138
+Final leaves: 5; retirement during leave: 1
+Human story/fun review: pending; automated checks are not a human PASS.
