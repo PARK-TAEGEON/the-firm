@@ -187,3 +187,17 @@ A new VS branch/worktree must be created only after the previous VS task:
 Before creating the next task branch/worktree, verify that main contains the previous task's final commit.
 
 Never start VS-N+1 from a stale main or from an older task branch.
+
+---
+
+## Weekly Rhythm and Tooling (2026-09-28)
+
+- 월: 이번 주 작업 계약서 확정, `ROADMAP.md` 갱신, Orca에서 에이전트 착수
+- 화~수: 구현. 사람은 diff 검토만
+- 목: 통합, 교차 리뷰(Claude ↔ Codex)
+- 금: 외부 플레이테스트, `docs/CURRENT.md`와 `ROADMAP.md` 갱신, 다음 주 결정
+
+`ROADMAP.md`는 markmap으로 보는 진행 지도다. 체크 표시와 날짜만 갱신하고 설명은 작업 계약서에 둔다.
+
+실험 lane 작업은 위 1~8단계 중 독립 Review(6)를 생략할 수 있다. 상세는 `AGENTS.md`의 Work Lanes 절.
+

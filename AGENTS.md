@@ -113,3 +113,26 @@ Reviewer PASS 전에는 다음 VS task로 진행하지 않는다.
 
 - `courtroom-prototype/` 작업 전 repository root의 `DESIGN.md`와 해당 active Task Contract를 읽는다.
 - `DESIGN.md`는 별도 웹 프로토타입의 기준이며 Godot Accepted litigation design을 대체하지 않는다. 새 요청의 변경점만 적용하고 문서도 함께 갱신한다.
+
+## Work Lanes and Context Budget (2026-09-28, 사용자 결정)
+
+이 절은 아래 기존 규칙보다 우선한다. 작업 계약서의 `Lane:` 값으로 적용 범위를 정한다.
+
+### 실험 lane (`Lane: experiment`)
+- 목적은 재미 검증이다. 1페이지 작업 계약서면 충분하다.
+- 독립 Reviewer PASS 없이 병합할 수 있다. 통과 기준은 계약서의 완료 기준과 **사람 플레이테스트**다.
+- 테스트는 엔진 핵심(결정성, 원자성, 기록 기반)만 요구한다. UI 글자 수 예산 같은 고정 테스트는 추가하지 않는다.
+- 결과가 재미없으면 브랜치째 폐기할 수 있다. 폐기도 결과로 `docs/CURRENT.md`에 한 줄 남긴다.
+
+### 생산 lane (`Lane: production`)
+- 재미가 확인된 것만 들어온다. 기존 WORKFLOW(Task Contract → 구현 → 회귀 → Review Packet → 독립 리뷰 → 커밋)를 그대로 따른다.
+
+### Context budget
+- 에이전트가 기본으로 읽는 문서는 `AGENTS.md`, `docs/CURRENT.md`, 배정된 작업 계약서뿐이다.
+- DEC/TEST 문서는 계약서의 `Read only:` 항목에 지정된 경우에만, 지정된 절만 읽는다.
+- 테스트 출력은 요약(합계, 실패 항목)만 보고한다.
+
+### Parallel agents (Orca)
+- 에이전트마다 별도 worktree/브랜치를 쓴다. 브랜치 이름: `task/<계약서 ID 소문자>`.
+- 계약서의 `Owns:` 폴더 밖 파일은 수정하지 않는다. 필요하면 멈추고 보고한다.
+- 사람의 결정(병합, 폐기, 방향)은 에이전트가 대신하지 않는다.

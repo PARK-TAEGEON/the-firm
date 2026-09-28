@@ -1,0 +1,14 @@
+# 줄바꿈 통일: 저장소에는 LF로 저장한다. (Windows 편집기의 CRLF 잡음 방지)
+* text=auto eol=lf
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 바이너리
+*.png binary
+*.jpg binary
+*.gif binary
+*.zip binary
+*.woff2 binary
+*.ttf binary
+*.pck binary
