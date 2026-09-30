@@ -85,6 +85,8 @@
 
 - **2026-09-30 [DEC-031](../DEC-LITIGATION-031_NUMERIC_ADJUDICATION_AND_PROPOSED_DEC_RESOLUTION.md):** 판정은 내부 수치·겉은 언어(같은 출처 비중첩, 능력 비가산, 기록 설명 가능, 법정 RNG 금지). DEC-012 부분 대체. Proposed였던 014~017·022·027~029 전부 처리(Proposed DEC 없음). DEC는 불변 조건만 구속, 층 분리는 참고.
 
+- **2026-09-30 [DEC-032](../DEC-LITIGATION-032_LEGAL_SYSTEM_PACK.md):** 한국 법 근간, “한국을 닮은 가상의 법 세계” 표현, 엔진은 법체계 중립 + 한국 규칙은 `ko` 팩 데이터(새 코드부터), 두 번째 팩은 필요할 때.
+
 ## Decision Pending / Deferred
 
 - **본류:** v0.10 대립 공판과 v0.9.1 신문 법정 중 선택, 기존 엔진 통합 여부 → 비교 플레이테스트 후 사람 결정.
