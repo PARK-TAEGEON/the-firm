@@ -1,8 +1,9 @@
 # THE FIRM — Judge Generation, Career & Lifecycle 최소 모델
 
 문서 ID: DEC-LITIGATION-015  
-버전: v0.1 — Proposed / design review required  
-상태: **Proposed / design review required**  
+버전: v0.1 — 2026-09-30 Accepted (DEC-031)  
+상태: **Accepted**  
+결정 기록: 2026-09-30 사용자 결정 — 제안대로 채택. 상세는 [DEC-LITIGATION-031](DEC-LITIGATION-031_NUMERIC_ADJUDICATION_AND_PROPOSED_DEC_RESOLUTION.md). 구현 시 Hard invariants는 구속, semantic 층 분리는 참고.  
 프로젝트: THE FIRM  
 문서 유형: Design Decision  
 상위 기준: [00_GAME_CONSTITUTION.md](00_GAME_CONSTITUTION.md) v0.2, [01_SYSTEM_MAP.md](01_SYSTEM_MAP.md) v0.2  
@@ -943,3 +944,4 @@ Actual judicial rules/hierarchy/appointments, staffing/demographics, names/backg
 | 버전 | 상태 | 내용 |
 |---|---|---|
 | v0.1 | Proposed / design review required | Hybrid major/ordinary generation, persistent identity, World-owned lifecycle, materialized procedural variety, branching career, career/profile separation, explicit profile evolution, constrained major trajectory, rare paths, retirement/post-career continuity, population replenishment, prominence transition, DEC-016 identity/relationship hooks와 immutable historical trace를 L1~L22로 제안. Actual Korean judicial rules, staffing/assignment, catalogs/probabilities, relationship/interaction, schema/API/Godot/save/performance는 TBD. TEST-014 15-case plan만 제안하고 생성·실행하지 않음. |
+| 2026-09-30 | Accepted | 제안대로 채택. ([DEC-LITIGATION-031](DEC-LITIGATION-031_NUMERIC_ADJUDICATION_AND_PROPOSED_DEC_RESOLUTION.md)) |

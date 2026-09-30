@@ -1,8 +1,9 @@
 # THE FIRM — Lawyer Capability & Practice Profile 최소 모델
 
 문서 ID: DEC-LITIGATION-017  
-버전: v0.1 — Proposed / design review required  
-상태: **Proposed / design review required**  
+버전: v0.1 — 2026-09-30 Accepted (DEC-031)  
+상태: **Accepted — DEC-031로 개정**  
+결정 기록: 2026-09-30 사용자 결정 — LWP2 개정: 내부 수치 허용, 플레이어 표시는 언어. 단일 종합 점수 금지·능력 비가산 등 나머지 유지. 상세는 [DEC-LITIGATION-031](DEC-LITIGATION-031_NUMERIC_ADJUDICATION_AND_PROPOSED_DEC_RESOLUTION.md). 구현 시 Hard invariants는 구속, semantic 층 분리는 참고.  
 프로젝트: THE FIRM  
 문서 유형: Design Decision  
 상위 기준: [00_GAME_CONSTITUTION.md](00_GAME_CONSTITUTION.md) v0.2, [01_SYSTEM_MAP.md](01_SYSTEM_MAP.md) v0.2  
@@ -1150,3 +1151,4 @@ Capability/task/WorkProduct/specialization/experience vocabularies; internal num
 | Version | Status | Change |
 |---|---|---|
 | v0.1 | Proposed / design review required | Role-specific immutable LawyerProfile, qualitative capability bundles and capability-specific spectra, medium-grain domains/specialization plus detailed history, task/WorkProduct/record-mediated causal effects, assignment/team/workload/resource boundaries, outcome-independent experience and explicit evolution, mentorship/style/reputation/disclosure separation을 LWP1~LWP28 후보로 제안. Twenty synthetic pressure tests와 20-case TEST-016 plan을 포함. Actual capability/task/WorkProduct/evolution/team/hiring systems, canonical schema/API/UI/Godot/save와 Korean practice rules are TBD. |
+| 2026-09-30 | Accepted — DEC-031로 개정 | LWP2 개정: 내부 수치 허용, 플레이어 표시는 언어. 단일 종합 점수 금지·능력 비가산 등 나머지 유지. ([DEC-LITIGATION-031](DEC-LITIGATION-031_NUMERIC_ADJUDICATION_AND_PROPOSED_DEC_RESOLUTION.md)) |

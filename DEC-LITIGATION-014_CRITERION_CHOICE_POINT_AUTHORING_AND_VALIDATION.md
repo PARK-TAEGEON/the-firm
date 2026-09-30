@@ -1,8 +1,9 @@
 # THE FIRM — Criterion Choice Point Authoring & Validation 최소 모델
 
 문서 ID: DEC-LITIGATION-014  
-버전: v0.1 — Proposed / design review required  
-상태: **Proposed / design review required**  
+버전: v0.1 — 2026-09-30 Accepted (DEC-031)  
+상태: **Accepted — 원칙만 / 절차는 DEC-031로 대체**  
+결정 기록: 2026-09-30 사용자 결정 — 판사 성향은 경계 근처에서만 작용한다는 원칙만 채택. CriterionChoicePoint 작성·검증 절차는 적용하지 않음. 상세는 [DEC-LITIGATION-031](DEC-LITIGATION-031_NUMERIC_ADJUDICATION_AND_PROPOSED_DEC_RESOLUTION.md). 구현 시 Hard invariants는 구속, semantic 층 분리는 참고.  
 프로젝트: THE FIRM  
 문서 유형: Design Decision  
 상위 기준: [00_GAME_CONSTITUTION.md](00_GAME_CONSTITUTION.md) v0.2, [01_SYSTEM_MAP.md](01_SYSTEM_MAP.md) v0.2  
@@ -864,3 +865,4 @@ Actual legal/content standards, canonical DSL/predicate/schema/API, automatic am
 | 버전 | 상태 | 내용 |
 |---|---|---|
 | v0.1 | Proposed / design review required | Criterion-owned immutable ChoicePoint, hard-first genuine-ambiguity definition, allowed activation inputs, minimum-v1 target, semantic option/boundedness, direct outcome 및 creation/deletion 금지, option distinctness, outcome independence, hard-result interaction, multiple-CP/fallback, two-layer validation failure, version preservation과 trace를 C1~C16 후보로 제안. Actual Korean law, canonical authoring/validator/schema/API, equivalence/precedence/fallback content와 implementation은 TBD. TEST-013 10-case plan만 제안하고 생성·실행하지 않음. |
+| 2026-09-30 | Accepted — 원칙만 / 절차는 DEC-031로 대체 | 판사 성향은 경계 근처에서만 작용한다는 원칙만 채택. CriterionChoicePoint 작성·검증 절차는 적용하지 않음. ([DEC-LITIGATION-031](DEC-LITIGATION-031_NUMERIC_ADJUDICATION_AND_PROPOSED_DEC_RESOLUTION.md)) |

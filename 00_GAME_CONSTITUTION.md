@@ -90,4 +90,4 @@ NPC 변호사도 고정 능력치 카드가 아닌 이력을 가진 인물이다
 
 v0.2: Living Legal World와 Finite Human Capacity를 기존 핵심 루프·성장 철학에 통합했다. 세계 변화는 실제 이력·결과에, 조직 우위는 실제 가용 인력과 수행에 연결한다. 업무량·세계 진행·판례 변화의 상세 규칙은 확정하지 않는다.
 
-다음 설계 단계: **DEC-LITIGATION-009_PROCEDURAL_FLOW**.
+현재 진행 상태와 다음 작업은 [docs/CURRENT.md](docs/CURRENT.md)를 따른다. (이전 표기: 다음 설계 단계 DEC-LITIGATION-009 — DEC-030까지 진행되어 폐기)

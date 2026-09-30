@@ -1,8 +1,9 @@
 # THE FIRM — Settlement and Negotiation
 
 문서 ID: DEC-LITIGATION-028  
-버전: v0.1 — Proposed / design review required  
-상태: **Proposed / design review required**  
+버전: v0.1 — 2026-09-30 Accepted (DEC-031)  
+상태: **Accepted — 형사 피해자 합의 보완**  
+결정 기록: 2026-09-30 사용자 결정 — 채택. 형사 피해자 합의(처벌불원) 포함 — DEC-031 §3. 상세는 [DEC-LITIGATION-031](DEC-LITIGATION-031_NUMERIC_ADJUDICATION_AND_PROPOSED_DEC_RESOLUTION.md). 구현 시 Hard invariants는 구속, semantic 층 분리는 참고.  
 프로젝트: THE FIRM  
 문서 유형: Design Decision  
 직접 기준: `DEC-LITIGATION-027_CLIENT_INTERACTION_AND_ADVICE.md` v0.2 Accepted, `TEST-026_CLIENT_INTERACTION_AND_ADVICE.md` v0.2 Accepted / manual fixture-level verification, `DEC-LITIGATION-026_TASK_ASSIGNMENT_WORKLOAD_AND_TEAM_COORDINATION.md` v0.2 Accepted, `TEST-025_TASK_ASSIGNMENT_WORKLOAD_AND_TEAM_COORDINATION.md` v0.2 Accepted / manual fixture-level verification, `DEC-LITIGATION-025_DRAFTING_PLEADING_AND_FILING.md` v0.2 Accepted, `DEC-LITIGATION-024_CASE_THEORY_AND_EVIDENCE_SYNTHESIS.md` v0.2 Accepted, `DEC-LITIGATION-023_LEGAL_RESEARCH_AND_ISSUE_ANALYSIS.md` v0.2 Accepted, `DEC-LITIGATION-022_WITNESS_INTERVIEW_AND_STATEMENT_MODEL.md` v0.2 Accepted, `DEC-LITIGATION-021_INVESTIGATION_AND_EVIDENCE_ACQUISITION.md` v0.2 Accepted, `DEC-LITIGATION-020_EVIDENCE_REVIEW.md` v0.2 Accepted, `DEC-LITIGATION-019_CASE_FILE_AND_MATTER_KNOWLEDGE_MODEL.md`, `DEC-LITIGATION-018_LAWYER_TASK_AND_WORKPRODUCT_RESOLUTION.md`, `DEC-LITIGATION-017_LAWYER_CAPABILITY_AND_PRACTICE_PROFILE.md`, `DEC-LITIGATION-016_LEGAL_PROFESSIONAL_PROFILE_RELATIONSHIP_AND_INTERACTION.md`  
@@ -582,3 +583,4 @@ Default: `DEC-029 — Witness Preparation / Court Examination`, provided TEST-02
 | Version | Status | Change |
 |---|---|---|
 | v0.1 | Proposed / design review required | Initial settlement and negotiation semantic model; NEG1–NEG54, 85 hard invariants and 84 pressure fixtures |
+| 2026-09-30 | Accepted — 형사 피해자 합의 보완 | 채택. 형사 피해자 합의(처벌불원) 포함 — DEC-031 §3. ([DEC-LITIGATION-031](DEC-LITIGATION-031_NUMERIC_ADJUDICATION_AND_PROPOSED_DEC_RESOLUTION.md)) |

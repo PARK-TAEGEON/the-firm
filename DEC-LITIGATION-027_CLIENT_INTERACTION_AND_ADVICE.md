@@ -1,8 +1,9 @@
 # THE FIRM — Client Interaction and Advice
 
 문서 ID: DEC-LITIGATION-027  
-버전: v0.1 — Proposed / design review required  
-상태: **Proposed / design review required**  
+버전: v0.1 — 2026-09-30 Accepted (DEC-031)  
+상태: **Accepted**  
+결정 기록: 2026-09-30 사용자 결정 — 제안대로 채택. 상세는 [DEC-LITIGATION-031](DEC-LITIGATION-031_NUMERIC_ADJUDICATION_AND_PROPOSED_DEC_RESOLUTION.md). 구현 시 Hard invariants는 구속, semantic 층 분리는 참고.  
 프로젝트: THE FIRM  
 문서 유형: Design Decision  
 직접 기준: `DEC-LITIGATION-026_TASK_ASSIGNMENT_WORKLOAD_AND_TEAM_COORDINATION.md` v0.2 Accepted, `TEST-025_TASK_ASSIGNMENT_WORKLOAD_AND_TEAM_COORDINATION.md` v0.2 Accepted / manual fixture-level verification, `DEC-LITIGATION-025_DRAFTING_PLEADING_AND_FILING.md` v0.2 Accepted, `TEST-024_DRAFTING_PLEADING_AND_FILING.md` v0.2 Accepted / manual semantic verification, `DEC-LITIGATION-024_CASE_THEORY_AND_EVIDENCE_SYNTHESIS.md` v0.2 Accepted, `TEST-023_CASE_THEORY_AND_EVIDENCE_SYNTHESIS.md` v0.2 Accepted / manual fixture-level verification, `DEC-LITIGATION-023_LEGAL_RESEARCH_AND_ISSUE_ANALYSIS.md` v0.2 Accepted, `DEC-LITIGATION-022_WITNESS_INTERVIEW_AND_STATEMENT_MODEL.md` v0.2 Accepted, `DEC-LITIGATION-021_INVESTIGATION_AND_EVIDENCE_ACQUISITION.md` v0.2 Accepted, `DEC-LITIGATION-020_EVIDENCE_REVIEW.md` v0.2 Accepted, `DEC-LITIGATION-019_CASE_FILE_AND_MATTER_KNOWLEDGE_MODEL.md`, `DEC-LITIGATION-018_LAWYER_TASK_AND_WORKPRODUCT_RESOLUTION.md`, `DEC-LITIGATION-017_LAWYER_CAPABILITY_AND_PRACTICE_PROFILE.md`, `DEC-LITIGATION-016_LEGAL_PROFESSIONAL_PROFILE_RELATIONSHIP_AND_INTERACTION.md`  
@@ -428,4 +429,4 @@ None separately; all proposed decisions are core boundary candidates.
 | Version | Status | Change |
 |---|---|---|
 | v0.1 | Proposed / design review required | CLI1–CLI52 define client information asymmetry, AdviceWorkProduct, understanding/decision/scoped authorization, autonomy, operational integration, 68 invariants and 76 case-specific pressure fixtures. |
-
+| 2026-09-30 | Accepted | 제안대로 채택. ([DEC-LITIGATION-031](DEC-LITIGATION-031_NUMERIC_ADJUDICATION_AND_PROPOSED_DEC_RESOLUTION.md)) |

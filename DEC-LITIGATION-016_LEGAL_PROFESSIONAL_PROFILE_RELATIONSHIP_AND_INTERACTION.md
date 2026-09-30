@@ -1,8 +1,9 @@
 # THE FIRM — Legal Professional Profile, Relationship & Interaction 최소 모델
 
 문서 ID: DEC-LITIGATION-016  
-버전: v0.1 — Proposed / design review required  
-상태: **Proposed / design review required**  
+버전: v0.1 — 2026-09-30 Accepted (DEC-031)  
+상태: **Accepted**  
+결정 기록: 2026-09-30 사용자 결정 — 제안대로 채택. 전관 효과는 의뢰인 유입에 한정. 상세는 [DEC-LITIGATION-031](DEC-LITIGATION-031_NUMERIC_ADJUDICATION_AND_PROPOSED_DEC_RESOLUTION.md). 구현 시 Hard invariants는 구속, semantic 층 분리는 참고.  
 프로젝트: THE FIRM  
 문서 유형: Design Decision  
 상위 기준: [00_GAME_CONSTITUTION.md](00_GAME_CONSTITUTION.md) v0.2, [01_SYSTEM_MAP.md](01_SYSTEM_MAP.md) v0.2  
@@ -1094,3 +1095,4 @@ Exact role profiles/catalog, relationship and interaction taxonomies, direction 
 | Version | Status | Change |
 |---|---|---|
 | v0.1 | Proposed / design review required | World-owned stable `LegalProfessionalIdentity`, separate role-profile histories, layered/provenance-bearing information, player-observed projection, typed directional multi-relationship history, bounded InteractionRecord, reputation/affiliation boundaries, non-interference guardrails와 historical preservation을 P1~P26 후보로 제안. Eighteen synthetic pressure tests와 16-case TEST-015 plan을 포함. Actual role/relationship/reputation/inference/interaction/ethics content, canonical schema/API/UI/Godot/save와 implementation은 TBD. |
+| 2026-09-30 | Accepted | 제안대로 채택. 전관 효과는 의뢰인 유입에 한정. ([DEC-LITIGATION-031](DEC-LITIGATION-031_NUMERIC_ADJUDICATION_AND_PROPOSED_DEC_RESOLUTION.md)) |
