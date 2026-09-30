@@ -1,6 +1,6 @@
 'use strict';
 
-// Node 콘텐츠 진입점. 기존 core 생성 결과의 문구만 채우며 RNG·효과·판정은 변경하지 않는다.
+// Node 콘텐츠 진입점. 작성된 문구·접근법을 구성한다. RNG·상태 변경·판정은 기존 계층이 담당한다.
 const archetypes = require('./archetypes');
 const twists = require('./twists');
 const copies = require('./copy');
@@ -15,7 +15,7 @@ function getArchetype(id) {
 function buildContestedCase(archetypeId, seed) {
   const d = buildTemplate(getArchetype(archetypeId), seed, twists);
   const copy = copies[archetypeId](d.truth);
-  d.version = '0.0.1-gen-content';
+  d.version = '0.0.2-gen-content';
   for (const key of ['title', 'charge', 'client', 'briefing', 'clientStatements']) d[key] = copy[key];
   d.prep.deadlineLabel = '첫 공판 전 조사';
   Object.assign(d.opening.focus[0], { title: copy.focus, text: copy.opening });
@@ -47,6 +47,13 @@ function buildContestedCase(archetypeId, seed) {
       Object.assign(approach, {
         title: e.title, hint: e.cardTitle, memo: e.memo,
         lines: [['DEFENSE', e.question], [w.id, e.answer]]
+      });
+      const resistance = c.resistance[i];
+      w.approaches.push({
+        id: `${approach.id}_UNSUPPORTED`, title: `${e.title} — 자료 없이 추궁`,
+        hint: '근거 자료 없이 질문한다', requiresAny: [], delta: 0, points: [],
+        lines: [['DEFENSE', resistance.question], [w.id, resistance.answer]],
+        memo: `${e.cardTitle} 제시 없이 추궁 — 증인이 기존 진술을 유지`, tone: 'neutral'
       });
     });
     const p = w.presses[0];

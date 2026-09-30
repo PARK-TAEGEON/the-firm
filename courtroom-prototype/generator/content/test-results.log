@@ -1,6 +1,25 @@
 ﻿GEN-001 content verification — 2026-09-30
 cwd: courtroom-prototype/
 
+LATEST: content 0.0.2 — tension, DUI twists, 40-65% tuning
+node --test generator/content/content.test.js generator/core/tests/*.test.js
+44 tests / 44 pass / 0 fail / exit 0 (content 14 + core 30)
+npm test
+247 tests / 247 pass / 0 fail / exit 0
+node --test
+333 tests / 323 pass / 10 fail / exit 1
+All failures: existing Cannot find module 'playwright'; same 10 files listed below.
+node generator/balance.js (new content-based 40-65% checks)
+4 checks / 4 pass / 0 fail / exit 0
+ASSAULT: no-prep 0/300; full-prep 173/300 (57.7%); twisted 257/300; rebuttals 452.
+DUI: no-prep 0/300; full-prep 170/300 (56.7%); twisted 231/300; rebuttals 344.
+node generator/content/check-balance.js
+1800 completed runs / 0 errors / both archetypes PASS / exit 0
+Both archetypes: unsupported question then press acquittals 0/300; acquired points 0.
+Other scenarios match balance.js. Counts overlap; do not sum test runs.
+
+HISTORICAL RESULTS BELOW (content 0.0.1; not current):
+
 Repeated-request verification at HEAD 02a13a3:
 node --test generator/core/tests/*.test.js generator/content/content.test.js
 42 tests / 42 pass / 0 fail / exit 0

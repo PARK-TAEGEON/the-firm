@@ -20,8 +20,11 @@ const dui = {
     { id: 'ISSUE_INTOXICATION', question: '운전 당시의 음주 상태가 제출된 자료로 입증되는가?', evidence: ['음주 측정 기록', '운전·측정 시각 대조표'] }
   ],
   defenses: ['정차 후 운전석에 앉은 경위', '운전 장면의 식별 한계', '측정 시점과 운전 시점의 구분'],
-  twists_allowed: [],
-  truth_params: { driver_observation: [0, 1], measurement_connection: [0, 1] },
+  twists_allowed: ['TWIST_DUI_MEASUREMENT_GAP', 'TWIST_DUI_DRIVER_REVISION', 'TWIST_DUI_DEVICE_LOG'],
+  truth_params: {
+    driver_observation: [0, 1], measurement_connection: [0, 1],
+    measurement_delay: [0, 1], driver_revision: [0, 1], device_log_gap: [0, 1]
+  },
   evidence_strength_rules: [
     { issueId: 'ISSUE_DRIVER', truthParam: 'driver_observation', direction: 'direct', strengthRange: [3, 7], noise: 1 },
     { issueId: 'ISSUE_INTOXICATION', truthParam: 'measurement_connection', direction: 'direct', strengthRange: [3, 7], noise: 1 }
