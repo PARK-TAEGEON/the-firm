@@ -1,3 +1,171 @@
+# GEN-001 core 수정 (2026-09-30) — 자체 점검
+
+Lane: experiment. 브랜치 task/gen-001. 소유 범위: `generator/core/`, `generator/balance.js`,
+`generator/content/index.js`의 연결 부분. `generator/content/`의 나머지(archetypes.js, twists.js,
+copy.js, hearing-copy.js, SIGNATURE.md, content.test.js)는 읽기만 했다 — Codex 소유, 문구 수정 안 함.
+기준 문서: `docs/DESIGN-NOTES-2026-09.md` §1.9~1.11, `DEC-LITIGATION-031`(N1~N7),
+`DEC-LITIGATION-032`. 커밋은 하지 않았다 — 사람이 한다.
+
+## 변경 요약
+
+### 1) 준비 예산 < 조사 총비용
+`contested.js`: `budget = max(2, round(총비용 × 0.6))`. 이전엔 `budget = 총비용`(전부 조사 가능)이었다.
+`playthrough.js`의 `fullPrep` 정책도 "전부 산다"에서 "예산이 허락하는 만큼, 등장 순서대로 산다"로
+고쳤다 — 안 고쳤으면 예산 초과로 `investigate` 커맨드가 실패해 playThrough 자체가 깨졌을 것이다.
+
+### 2) 개회사 focus 2~3개·stance 3개, "잘못된 조합의 비용"
+`buildOpening()`이 균형 focus 1개 + 쟁점별 focus(그 쟁점 증인 시간 +1, 다른 증인 -1, 최소 1) N개를
+만든다(N=archetype.issues.length, 현재 2 → 총 3개). stance는 고정 3개 `S_CONTEST`/`S_ADMIT`/`S_DENY`.
+`hearing-copy.js`가 이미 정확히 이 슬롯 이름(`focus.balanced`/`focus[쟁점id]`,
+`stance.contest`/`admit`/`deny`)으로 문구를 갖고 있었다 — `index.js`가 이제 그 문구를 실제로 연결한다
+(이전엔 balanced/contest 1개씩만 연결됐다).
+
+활성화된 twist가 있는 쟁점에는 `buildStanceConflictApproach()`가 접근법을 추가한다: 그 twist의 카드가
+있어야만 쓸 수 있고(`requiresAny`), 쟁점 점수는 바꾸지 않지만(`byStance` 전부 0) stance가 `S_DENY`면
+`stanceConflict`로 credibility -1이 난다. **새 엔진 로직은 만들지 않았다** — `engine/trial.js`의
+`crossStart`가 이미 credibility ≤ `warnAtOrBelow`면 다음 신문 시간을 자동으로 줄인다. v0.10의
+`D_HAN_DENY`, `SIGNATURE.md` §1의 `A_SIG_OBS_CONTACT`와 같은 패턴을 재사용했다.
+
+### 3) 증인별 이의 창 1개, proper/improper 교대
+`buildObjectionStep()`이 쟁점 인덱스 짝/홀로 proper(인용될 유도신문)/improper(기각될 이의)를 교대한다.
+`index.js`가 `hearing.witnesses[쟁점id].proper` 또는 `.improper`를 그 플래그에 맞춰 채운다 — content가
+어느 쪽을 쓸지 결정하지 않는다.
+
+### 4) 결론 요구(press) 2종, 경계선 사건에서 실제로 영향을 주는 경로
+`limited`의 `minPoints`를 1 → 그 쟁점의 증거 개수(2)로 올렸다(접근법을 전부 써야 성공 가능). 새로
+`overreach`를 추가했다 — `engine/trial.js`의 `pressSucceeds`가 이 kind는 항상 실패시키므로 always
++2·credibility -1이다. 균형 focus는 증거 접근법 2개로 신문 시간이 정확히 소진돼 press를 못 쓴다 —
+**쟁점별 focus를 골라야 그 증인에게 press 쓸 시간이 남는다.** `core-revision.test.js`의 "결론 요구
+성공이 경계선 사건을 doubt로 뒤집는 실제 경로가 존재한다" 테스트로 실제로 그런 시드가 있음을 확인했다.
+
+### 5) 원형별 RNG 스트림 분리
+`rng.js`에 `seedFor(seed, tag)`(FNV류 문자열 해시 + seed 결합) 추가. `resolveContestedInputs`,
+`generateDailyCase`가 `createRng(seed)` 대신 `createRng(seedFor(seed, archetype.id))`를 쓴다. **이
+때문에 이전 버전과 같은 seed라도 폭행·DUI 둘 다 truth/baseline이 달라진다** — 결정성은 유지되지만
+(같은 seed → 같은 결과) 과거 스냅샷 값과는 다르다.
+
+### 6) DEC-LITIGATION-032 — 한국 고유 명칭을 KO_PACK 하나로
+`contested.js` 상단에 `KO_PACK = { roles: {judge,prosecutor,defense}, outcomeLabels: {guilty,notGuilty} }`.
+D4(과잉 설계 금지)를 따라 별도 팩 파일·로더는 만들지 않았다 — "코드 여기저기 흩어 두지 않고 한 자리에
+모으기"만 했다. 준비 예산 비율(0.6) 같은 게임 밸런스 상수는 한국 고유 규칙이 아니므로 그대로 코드
+상수로 뒀다(D3는 "한국 고유 규칙"만 데이터로 요구한다).
+
+### 7) content 슬롯 연결 (index.js)
+`hearing-copy.js`의 focus/stance/이의(proper·improper)/overreach를 전부 연결했다. stance 충돌
+접근법은 hearing-copy에 전용 문구가 없어 이미 작성된 twist의 `truthEffect`/`opponentRecovery` 문구를
+재구성하고, 판사·검사의 절차적 반응 두 줄만 `d.lines`(기존에도 index.js가 직접 채우던 보일러플레이트)와
+같은 성격으로 새로 뒀다 — 사건마다 달라지는 대사는 짓지 않았다. **content 문구(copy.js, hearing-copy.js,
+archetypes.js, twists.js) 자체는 한 글자도 고치지 않았다.** 60개 샘플 사건(2원형 × 30시드)에서
+PLACEHOLDER 잔존 0건을 확인했다.
+
+### balance.js — content 진입점으로 모든 원형 검사, 기준 교체
+`content.buildContestedCase`로 `content.archetypes`(현재 `ARCH_CRIMINAL_ASSAULT`, `ARCH_DUI`)를
+자동 순회한다(이전엔 `core/archetype.criminal.example.js` 하나만). `playthrough.js`에 새 정책 둘을
+추가했다:
+- `playThroughRandom(caseDef, rng)` — 예산 안에서 무작위 순서로 조사를 사고, focus/stance/이의/재반대/
+  cross 행동을 전부 무작위로 고른다. (c) 측정에 쓴다.
+- `playBestPathForIssue(caseDef, issueId)` — 전지적 시점으로 그 쟁점 하나를 doubt로 미는 데 전념한다
+  (그 쟁점 증거·twist 투자 우선구매 → 쟁점별 focus → 안전한 S_CONTEST → 유리한 이의 선택 → 접근법·
+  press 전부 → 재반대 항상 사용). (b)(d) 측정에 쓴다 — `adjudicate()`는 필수 쟁점 중 하나라도 doubt면
+  무죄이므로, 쟁점 하나만 제대로 밀어도 이길 수 있다.
+
+## balance.js 출력 전체 (`node generator/balance.js`, seed 1~300 × 2원형)
+
+```
+GEN-001 밸런스 점검 — 300시드, ARCH_CRIMINAL_ASSAULT
+  (a) 준비 없이: 유죄 300 / 무죄 0
+  (b) 최선 경로 무죄 가능: 189/300 (63.0%)
+      재판으로 못 이기는 사건(111건): 1, 3, 4, 5, 7, 8, 9, 12, 17, 19, 24, 27, 28, 30, 31, 35, 36, 40, 41, 43, 44, 45, 46, 47, 49, 50, 55, 59, 66, 68 ...
+  (c) 무작위 준비·무작위 선택 무죄: 9/300 (3.0%)
+  (d) 조사 선택에 따라 결과가 달라지는 사건: 145/300 (48.3%)
+  PASS (a) 준비 없이 진행 시 무죄 0% — 무죄 0건 / 300건
+  FAIL (b) 최선 경로 기준 무죄 가능 사건 ≥ 90% — 189/300건 = 63.0%, 못 이기는 사건 111건
+  FAIL (c) 무작위 준비·무작위 선택 무죄 40~65% — 9/300건 = 3.0%
+  FAIL (d, 참고) 조사 선택에 따라 결과가 달라지는 사건 비율 ≥ 50% — 145/300건 = 48.3%
+
+GEN-001 밸런스 점검 — 300시드, ARCH_DUI
+  (a) 준비 없이: 유죄 300 / 무죄 0
+  (b) 최선 경로 무죄 가능: 184/300 (61.3%)
+      재판으로 못 이기는 사건(116건): 2, 9, 17, 18, 21, 26, 27, 30, 34, 36, 37, 38, 40, 44, 45, 47, 49, 55, 56, 57, 63, 64, 68, 70, 72, 80, 88, 91, 94, 95 ...
+  (c) 무작위 준비·무작위 선택 무죄: 6/300 (2.0%)
+  (d) 조사 선택에 따라 결과가 달라지는 사건: 147/300 (49.0%)
+  PASS (a) 준비 없이 진행 시 무죄 0% — 무죄 0건 / 300건
+  FAIL (b) 최선 경로 기준 무죄 가능 사건 ≥ 90% — 184/300건 = 61.3%, 못 이기는 사건 116건
+  FAIL (c) 무작위 준비·무작위 선택 무죄 40~65% — 6/300건 = 2.0%
+  FAIL (d, 참고) 조사 선택에 따라 결과가 달라지는 사건 비율 ≥ 50% — 147/300건 = 49.0%
+```
+
+**exit 1** (두 원형 다 (a)만 PASS, (b)(c)(d)는 FAIL). **항목 8 지시대로 튜닝하지 않았다** — (b)(c)(d)는
+이번엔 측정·출력만 한다. 숫자를 맞추려고 twist delta, 접근법 delta, 활성 임계값, budget 비율을 손대지
+않았다.
+
+**FAIL을 그대로 둔 이유와 다음 조정 후보 (Codex 몫):**
+- (c) 3.0%/2.0%가 특히 낮다. 예산이 총비용의 60%뿐이라 무작위 구매가 그 쟁점에 필요한 카드 조합(2개
+  다)을 못 살 확률이 높고, cross 행동을 매 순간 균등 무작위로 고르는 정책 자체가 "대충이라도 합리적인
+  플레이어"보다 훨씬 약하다. (c)의 목표(40~65%)가 애초에 "완전 무작위"가 아니라 "무작위 준비 + 그래도
+  뭘 좀 쓰는 플레이"를 가정한 것이라면 정책(playThroughRandom) 쪽을 조정해야 할 수도 있고, budget 비율을
+  올리는 선택지도 있다 — 둘 다 사람 판단이 필요해 손대지 않았다.
+- (b) 61~63%는 "쟁점 하나에 올인해도 못 이기는" 시드가 37~39%라는 뜻이다. baseline 분포(evidence_
+  strength_rules의 strengthRange [3,7])나 접근법/press delta 크기를 키우면 오를 것이다.
+- (d) 48~49%는 목표(50%)에 근접했다 — 미세 조정 범위.
+- 폭행과 DUI가 거의 같은 패턴(63.0/61.3, 3.0/2.0, 48.3/49.0)을 보인다 — 원형별 문제라기보다 이번에
+  새로 만든 지표·정책 자체의 특성일 가능성이 높다.
+
+## 테스트 결과
+
+```
+node --test generator/core/tests/*.test.js
+```
+→ **43 pass, 0 fail** (기존 30개 전부 유지 + 신규 `core-revision.test.js` 13개: 항목 1~6 전용 회귀).
+
+```
+node --test generator/core/tests/*.test.js generator/content/content.test.js
+```
+→ **37 pass, 7 fail.** 실패 7개는 전부 `generator/content/content.test.js`(Codex 소유, 이번에 수정
+안 함)다 — 원인은 그 테스트가 **이전 core 계약**을 가정한다는 것:
+- "500시드 결정성·엔진 검증·문구 완결" / "콘텐츠 구성은 기존 준비 접근법과 truth·시드·수치를 보존한다":
+  `w.presses[0]`/`w.approaches[0]`만 있다고 가정한 인덱싱이 새 구조(presses 2개, stance 충돌 접근법
+  추가)와 안 맞는다.
+- "준비 유무 양쪽에서 실제 서비스 완주": `d.investigations.forEach(i => ok('investigate', {id: i.id}))`로
+  **전부** 사는데, 이제 예산이 총비용보다 작아서 일부 `investigate` 커맨드가 정상적으로 거부된다
+  (`ok('investigate', ...)`가 `result.ok===true`를 요구하므로 실패). 이건 버그가 아니라 항목 1이 의도한
+  동작이다.
+- "모든 접근법은 카드 없음·다른 카드·해당 카드의 기록과 근거 점수를 구분한다": 비슷하게 옛 접근법 개수
+  가정.
+**이 테스트 파일은 내 소유가 아니라 고치지 않았다.** Codex가 core 계약 변경(예산, press 2종, stance
+충돌 접근법)에 맞춰 자기 테스트를 갱신해야 한다 — 다음 라운드로 넘긴다.
+
+```
+node --test
+```
+(전수 탐색) → 기존 `Cannot find module 'playwright'` 10건 외에 신규 실패는 위 7건(content.test.js)뿐이다.
+
+## TBD / 다음 라운드로 넘기는 것
+
+- **content.test.js 갱신** — 위에서 설명한 7개 실패. Codex 몫.
+- **balance.js (b)(c)(d) 미달** — 튜닝은 다음 라운드. 후보는 위 "다음 조정 후보" 참고.
+- **stance 충돌 접근법의 index.js 문구가 완전히 authored는 아니다** — twist의 기존 문구를 재구성 +
+  판사·검사의 절차적 반응 2줄(새로 지음, 사건마다 안 바뀌는 보일러플레이트)이다. 사람이 읽었을 때
+  자연스러운지는 확인 안 됨.
+- **SIGNATURE.md §1의 이의 창 2개(유효+무효 둘 다), `_UNSUPPORTED` 접근법의 byStance 버전(`A_SIG_
+  OBS_CONTACT`처럼 credibility 충돌이 있는 일반 접근법), 합의 분기**는 이번 core 템플릿에 반영하지
+  않았다 — SIGNATURE.md는 DEMO-001용 literal 사건이지 생성기 템플릿 사양이 아니라서, "구조 참고"로만
+  썼다(이의 창 1개로 줄인 것, stanceConflict 패턴 재사용 등). 전면 반영은 요청 범위를 넘는다고 판단했다.
+- **`generator/content/CATALOG.md`, `check-balance.js`** 등 이번 세션 중 Codex가 새로 만든 파일은
+  읽지 않았다(내 스코프 밖).
+
+## 범위 확인
+
+- 수정한 파일: `generator/core/contested.js`, `generator/core/playthrough.js`, `generator/core/rng.js`,
+  `generator/core/generate.js`, `generator/core/format.js`(문서만), `generator/core/tests/core-revision.test.js`(신규),
+  `generator/balance.js`, `generator/content/index.js`, `generator/content/RULES.md`(위 "이번 변경" 절만 추가).
+- `generator/content/archetypes.js`, `twists.js`, `copy.js`, `hearing-copy.js`, `SIGNATURE.md`,
+  `content.test.js`는 읽기만 했다 — 한 글자도 고치지 않았다.
+- `engine/trial.js`, `services/trial.js`는 require로 읽기만 했다.
+- 커밋하지 않았다. 사람이 한다.
+
+---
+
 # GEN-001 3단계 — 자체 점검
 
 Lane: experiment. 이번 수정은 `generator/balance.js` 하나뿐이다. `generator/core/`, `generator/content/`는

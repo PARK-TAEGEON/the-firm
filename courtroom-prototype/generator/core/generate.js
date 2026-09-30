@@ -5,7 +5,7 @@
 // 승부 사건(ContestedCaseOutput)은 generator/core/contested.js가 담당한다 (TwistModule 필요).
 
 const rngModule = (typeof module !== 'undefined' && module.exports) ? require('./rng.js') : root.FirmGeneratorRng;
-const { createRng, randRange } = rngModule;
+const { createRng, randRange, seedFor } = rngModule;
 const formatModule = (typeof module !== 'undefined' && module.exports) ? require('./format.js') : root.FirmGeneratorFormat;
 const { computeBaseStrength, clamp } = formatModule;
 
@@ -32,7 +32,8 @@ function deriveIssueStrengths(archetype, truth, rng) {
 }
 
 function generateDailyCase(archetype, seed) {
-  const rng = createRng(seed);
+  // 항목 6: 원형별 RNG 스트림 분리 — seed 그대로가 아니라 seedFor(seed, archetype.id)를 쓴다.
+  const rng = createRng(seedFor(seed, archetype.id));
   const retainer = randRange(rng, archetype.fee.retainer, true);
   const successPct = randRange(rng, archetype.fee.success_pct, true);
   const durationWeeks = randRange(rng, archetype.duration_weeks, true);

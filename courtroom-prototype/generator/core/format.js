@@ -132,9 +132,20 @@
  *   trialCase.id / title / charge     ← archetype.id / title
  *   trialCase.issues                  ← archetype.issues (baseline은 evidence_strength_rules로 truth_params에서 파생)
  *   trialCase.investigations/cards    ← 템플릿(evidence 항목별) + 활성화된 TwistModule[].investigationCard의 합
- *   trialCase.witnesses[].approaches  ← 템플릿(evidence 항목별, requiresAny로 카드 연결)
+ *   trialCase.witnesses[].approaches  ← 템플릿(evidence 항목별, requiresAny로 카드 연결) + 활성화된 twist가 있으면
+ *                                        stance 충돌 접근법(byStance 전부 0 + stanceConflict, S_DENY에서만 발동)
+ *   trialCase.witnesses[].direct      ← 소개 1개 + 이의 창 1개(proper/improper, 쟁점 인덱스로 교대)
+ *   trialCase.witnesses[].presses     ← limited(minPoints = evidence 개수) + overreach(항상 실패) 2개
  *   trialCase.witnesses[].redirect    ← 활성화된 TwistModule.opponentRecovery / .playerCounter만 (비활성 twist는 없음)
+ *   trialCase.opening.focus           ← 균형 1개 + archetype.issues별 1개(쟁점 증인 +1·나머지 -1 시간)
+ *   trialCase.opening.stance          ← 고정 3개: S_CONTEST/S_ADMIT/S_DENY
+ *   trialCase.prep.budget             ← max(2, round(조사 총비용 × 0.6)) — 총비용보다 작다(전부 조사 불가)
+ *   trialCase.roles / guilty.title    ← KO_PACK (contested.js) — DEC-LITIGATION-032 D3 한국 고유 명칭 자리
  *   trialCase.adjudication.required   ← archetype.issues 전체 id
+ *
+ * generator/content/hearing-copy.js가 focus[쟁점id]/stance.{contest,admit,deny}/witnesses[쟁점id].
+ * {proper,improper,overreach} 슬롯 이름으로 이 구조에 맞춰 문구를 제공한다(2026-09-30 core 수정,
+ * REPORT.md 2026-09-30 절 참고). 문구 연결은 generator/content/index.js가 한다 — 이 파일은 형식만 정의한다.
  */
 
 const CASE_GRADES = ['daily', 'contested', 'signature'];

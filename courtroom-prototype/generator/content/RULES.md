@@ -2,6 +2,62 @@
 
 **실험용 authored 규칙, DEC 아님.** 설계 메모 §1.3·§1.5에 따라 만든 가상 사건 초안이다.
 
+## 이번 변경 — core 수정 (2026-09-30, Claude, generator/core/·balance.js·content/index.js 연결부만)
+
+기준 문서: 설계 메모 §1.9~1.11, DEC-LITIGATION-031(N1~N7), DEC-LITIGATION-032. content 문구(`copy.js`,
+`hearing-copy.js`, `archetypes.js`, `twists.js`)는 고치지 않았다 — 아래는 `core/contested.js`·
+`core/playthrough.js`·`balance.js`·`index.js` 연결부만의 변경이며, 이 파일 아래쪽의 콘텐츠 서술은
+Codex가 쓴 그대로 남겨 둔다. **아래 "공방 수치와 한계" 절(2026-09-30 이전 작성)은 이번 변경으로
+사실과 달라졌다 — 그 절은 지우지 않고 그대로 두되, 최신 수치는 이 절을 따른다.**
+
+1. **준비 예산 < 조사 총비용.** `budget = max(2, round(총비용 × 0.6))`(약 55~65%). 이전에는
+   `budget = 총비용`이라 전부 조사할 수 있었다 — 이제는 못 한다. 어디를 조사할지 고르는 선택이 생겼다.
+2. **개회사 focus가 1개 → 2~3개(균형 1 + 쟁점별 1개씩), stance가 1개 → 3개(`S_CONTEST`/`S_ADMIT`/
+   `S_DENY`).** `hearing-copy.js`가 이미 이 슬롯 이름으로 문구를 갖고 있었다(`focus.balanced`/
+   `focus[쟁점id]`, `stance.contest`/`admit`/`deny`) — `index.js`가 이제 전부 연결한다. 균형 focus는
+   모든 증인에게 같은 시간(2)을, 쟁점별 focus는 그 쟁점의 증인에게 +1(3)·다른 증인에게 -1(최소 1)을
+   준다. 활성화된 twist가 있는 쟁점에는 "잘못된 조합의 비용" 접근법이 붙는다: 그 twist의 카드가 있어야만
+   쓸 수 있고(`requiresAny`), 쟁점 점수엔 영향이 없지만(`byStance` 전부 0) stance가 `S_DENY`면
+   `stanceConflict`로 credibility -1을 낸다 — 기존 engine의 `crossStart`가 credibility가 낮으면
+   다음 신문 시간을 자동으로 줄이므로("시간 감소"), 새 엔진 로직을 만들지 않고 v0.10/SIGNATURE.md §1의
+   `A_SIG_OBS_CONTACT` 패턴을 그대로 재사용했다.
+3. **증인별 이의 창이 1개 생겼다.** `hearing-copy.js`의 `witnesses[쟁점].proper`/`improper`를 쟁점
+   인덱스로 교대해서 섞는다(짝수 인덱스=proper/인용될 유도신문, 홀수=improper/기각될 이의) — 두 증인
+   짜리 사건이면 항상 하나씩 섞인다.
+4. **결론 요구(press)가 증인당 1개 → 2개.** `limited`는 그대로 있지만 `minPoints`가 1 → 그 쟁점의
+   증거 개수(현재 2)로 늘었다 — 접근법을 전부 써야 성공 조건을 채운다. 새로 `overreach`를 추가했다
+   (`hearing-copy.js`의 `overreach` 필드로 채움) — engine이 이 kind는 항상 실패시키므로(+2·
+   credibility -1) 과욕은 항상 역효과다. limited는 신문 시간이 남아야 쓸 수 있는데, 균형 focus는
+   증거 접근법 2개로 시간이 정확히 소진돼 press를 못 쓴다 — **쟁점별 focus를 골라야 그 증인에게 press를
+   쓸 시간이 남는다.** 이게 "결론 요구가 판결에 실제로 영향을 주는 경로"다.
+5. **원형별 RNG 스트림 분리.** `rng.js`에 `seedFor(seed, tag)`(문자열 해시 + seed 결합)를 추가하고
+   `resolveContestedInputs`/`generateDailyCase`가 `createRng(seed)` 대신 `createRng(seedFor(seed,
+   archetype.id))`를 쓴다. 같은 seed 번호라도 원형이 다르면(폭행 vs DUI) truth가 상관되지 않는다 —
+   **이 때문에 폭행·DUI 둘 다 이전 버전과 같은 seed라도 baseline이 달라진다.**
+6. **`roles`(재판장/검사/변호인)와 `guilty`/`notGuilty` 제목을 `KO_PACK` 객체 하나로 모았다**
+   (`core/contested.js` 상단). DEC-LITIGATION-032 D3(한국 고유 명칭은 팩 데이터로) 제스처다 — D4(과잉
+   설계 금지)에 따라 별도 팩 파일·로더는 만들지 않았다. 준비 예산 비율(0.6) 같은 게임 밸런스 상수는
+   한국 고유 규칙이 아니므로 그대로 코드 상수로 뒀다.
+7. **`balance.js`가 `content.buildContestedCase`로 `content.archetypes`의 모든 원형을 순회**하도록
+   바뀌었다(이전엔 `core/archetype.criminal.example.js` 하나만 검사했다). 기준도 바뀌었다:
+   - (a) 준비 없이 무죄 0% — 유지.
+   - (b) **최선 경로(전지적 탐색) 기준 무죄 가능 ≥ 90%.** 새 `core/playthrough.js`의
+     `playBestPathForIssue(caseDef, issueId)`가 쟁점 하나를 doubt로 미는 데 전념하는 정책을 돈다 —
+     하나라도 무죄면 "이길 수 있는 사건"이다. 실측: 폭행 63.0%, DUI 61.3% — **목표 미달, FAIL.**
+     못 이기는 시드 목록을 stdout에 낸다.
+   - (c) **무작위 합법 준비·무작위 선택 플레이 무죄 40~65%.** 새 `playThroughRandom(caseDef, rng)` —
+     예산 안에서 무작위 순서로 조사를 사고, focus/stance/이의/재반대/cross 행동을 전부 무작위로 고른다.
+     실측: 폭행 3.0%, DUI 2.0% — **목표 미달, FAIL.**
+   - (d, 참고) 조사 선택에 따라 결과가 달라지는 사건 비율 ≥ 50% — (b)의 쟁점별 최선 경로 판결이 서로
+     다르면 "선택이 결과를 바꾼다"로 센다. 실측: 폭행 48.3%, DUI 49.0% — 근접했지만 미달.
+   - **튜닝은 하지 않았다.** (b)(c)(d) 모두 이번엔 측정·출력만 한다 — 수치 조정(twist delta, 접근법
+     delta, 활성 임계값 등)은 다음에 Codex가 한다.
+
+이번 core 변경으로 (a)만 그대로 PASS고 (b)(c)(d)는 모두 새 기준 미달이다 — 특히 (c) 2~3%는 매우 낮다.
+원인 후보(튜닝하지 않았으므로 확정은 아니다): 예산이 총비용의 60%뿐이라 무작위 구매가 필요한 카드
+조합을 놓치기 쉽고, cross 행동을 매 순간 균등 무작위로 고르는 정책 자체가 실제 "그럭저럭 합리적인
+플레이어"보다 훨씬 약할 수 있다. `generator/REPORT.md`에 상세를 남긴다.
+
 ## 이번 변경 — 개회사·결론 요구 문구와 대형 사건 설계
 
 - 현재 core에는 F_GEN_BALANCED/S_GEN_CONTEST와 limited press만 있다. `hearing-copy.js`의 balanced/contest 문구를 연결하고, `copy.js`의 성공 답변 4개에서 지목·상처·운전석 발견·측정 결과가 유지된다는 점을 명확히 했다. 버전은 `0.0.3-gen-content`다.

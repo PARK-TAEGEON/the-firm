@@ -17,17 +17,26 @@ function buildContestedCase(archetypeId, seed) {
   const d = buildTemplate(getArchetype(archetypeId), seed, twists);
   const copy = copies[archetypeId](d.truth);
   const hearing = hearingCopies[archetypeId];
-  d.version = '0.0.3-gen-content';
+  d.version = '0.0.4-gen-content';
   for (const key of ['title', 'charge', 'client', 'briefing', 'clientStatements']) d[key] = copy[key];
   d.prep.deadlineLabel = '첫 공판 전 조사';
+
+  // core 수정 항목 2: focus는 이제 균형 1개 + 쟁점별 1개씩(2~3개), stance는 contest/admit/deny 3개다.
   Object.assign(d.opening.focus[0], hearing.focus.balanced);
+  d.opening.focus.slice(1).forEach((f) => {
+    const issueId = f.id.slice('F_'.length);
+    Object.assign(f, hearing.focus[issueId]);
+  });
   Object.assign(d.opening.stance[0], hearing.stance.contest);
+  Object.assign(d.opening.stance[1], hearing.stance.admit);
+  Object.assign(d.opening.stance[2], hearing.stance.deny);
   d.opening.close = copy.close;
   d.adjudication.guilty.text = copy.guilty;
   d.adjudication.notGuilty.text = copy.notGuilty;
 
   for (const issue of d.issues) {
     const c = copy.issues[issue.id];
+    const h = hearing.witnesses[issue.id];
     Object.assign(issue, { title: c.title, memo: c.memo });
     const exhibit = d.prosecutionExhibits.find(item => item.id === `PX_${issue.id}`);
     if (exhibit) Object.assign(exhibit, {
@@ -40,6 +49,28 @@ function buildContestedCase(archetypeId, seed) {
       lines: [['PROSECUTOR', c.directQuestion], [w.id, c.directAnswer]],
       memo: c.directMemo, tone: 'neutral'
     });
+
+    // core 수정 항목 3: 이의 창 1개. core가 proper/improper 중 하나를 이미 골라 뒀다(objectionStep.proper,
+    // 쟁점 인덱스로 교대) — hearing-copy의 대응 변형만 채운다. content는 어느 쪽을 쓸지 결정하지 않는다.
+    const objectionStep = w.direct.find(step => step.type === 'objection');
+    const variant = objectionStep.proper ? h.proper : h.improper;
+    objectionStep.ground = variant.ground;
+    objectionStep.question = ['PROSECUTOR', variant.question];
+    if (objectionStep.proper) {
+      objectionStep.sustained.lines = [
+        ['DEFENSE', variant.objection], ['JUDGE', variant.ruling],
+        ['PROSECUTOR', variant.corrected], [w.id, variant.answer]
+      ];
+      objectionStep.sustained.memo = variant.memo;
+    } else {
+      objectionStep.overruled.lines = [
+        ['DEFENSE', variant.objection], ['JUDGE', variant.ruling], [w.id, variant.answer]
+      ];
+      objectionStep.overruled.memo = variant.memo;
+    }
+    objectionStep.pass.lines = [[w.id, objectionStep.proper ? variant.passed : variant.answer]];
+    objectionStep.pass.memo = variant.passMemo;
+
     c.evidence.forEach((e, i) => {
       const inv = d.investigations.find(item => item.id === `INV_${issue.id}_${i}`);
       const card = d.cards.find(item => item.id === `CARD_${issue.id}_${i}`);
@@ -58,10 +89,18 @@ function buildContestedCase(archetypeId, seed) {
         memo: `${e.cardTitle} 제시 없이 추궁 — 증인이 기존 진술을 유지`, tone: 'neutral'
       });
     });
-    const p = w.presses[0];
-    Object.assign(p, { title: c.press.title, question: c.press.question });
-    Object.assign(p.success, { lines: [[w.id, c.press.success]], memo: c.press.successMemo });
-    Object.assign(p.fail, { lines: [[w.id, c.press.fail]], memo: c.press.failMemo });
+
+    // core 수정 항목 4: presses[0]=limited(기존), presses[1]=overreach(신규) — hearing-copy의 overreach로 채운다.
+    const [limited, overreach] = w.presses;
+    Object.assign(limited, { title: c.press.title, question: c.press.question });
+    Object.assign(limited.success, { lines: [[w.id, c.press.success]], memo: c.press.successMemo });
+    Object.assign(limited.fail, { lines: [[w.id, c.press.fail]], memo: c.press.failMemo });
+    Object.assign(overreach, { title: h.overreach.title, question: h.overreach.question });
+    Object.assign(overreach.fail, {
+      lines: [[w.id, h.overreach.answer], ['JUDGE', h.overreach.ruling]],
+      memo: h.overreach.memo
+    });
+
     for (const r of w.redirect) {
       const twist = twists.find(t => `RH_${t.id}` === r.id);
       r.memo = `${twist.title}: ${twist.opponentRecovery.text}`;
@@ -69,6 +108,26 @@ function buildContestedCase(archetypeId, seed) {
       r.missed = `${twist.investigationCard.investigationTitle} 조사를 했다면 수습 주장의 범위를 다툴 수 있었다.`;
       const inv = d.investigations.find(item => item.id === twist.investigationCard.investigationId);
       inv.blurb = `${twist.investigationCard.cardTitle} 자료를 확보해 진술과 대조한다.`;
+
+      // core 수정 항목 2: 이 twist가 만든 stance 충돌 접근법(id: A_${issueId}_STANCE_${twist.id})에 문구를
+      // 채운다. hearing-copy에는 이 조합 전용 대사가 없어 이미 작성된 twist 문구를 다시 구성한다 — 새
+      // 사건별 대사를 짓지 않는다. 판사·검사의 절차적 반응 두 줄만 d.lines와 같은 성격의 보일러플레이트로
+      // 둔다(사건마다 달라지는 내용이 아니다).
+      const conflictApproach = w.approaches.find(item => item.id === `A_${issue.id}_STANCE_${twist.id}`);
+      if (conflictApproach) {
+        conflictApproach.title = `${twist.title} — 최초 입장과 다른 사실을 먼저 꺼낸다`;
+        conflictApproach.hint = twist.investigationCard.cardTitle;
+        conflictApproach.memo = `${twist.title} 관련 사실을 스스로 언급 — 최초 입장과의 관계는 별도 확인 필요`;
+        conflictApproach.lines = [
+          ['DEFENSE', `${twist.investigationCard.cardTitle} 확인 결과를 먼저 말씀드립니다.`],
+          [w.id, twist.truthEffect]
+        ];
+        conflictApproach.stanceConflict.lines = [
+          ['PROSECUTOR', '방금 진술은 개회사에서 밝힌 입장과 다릅니다.'],
+          ['JUDGE', '입장이 달라졌음을 기록하겠습니다.']
+        ];
+        conflictApproach.stanceConflict.memo = `${twist.title} — 부인 입장과 상충하는 사실을 스스로 제시`;
+      }
     }
   }
 
