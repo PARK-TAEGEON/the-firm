@@ -1,6 +1,14 @@
 ﻿GEN-001 content verification — 2026-09-30
 cwd: courtroom-prototype/
 
+Repeated-request verification at HEAD 02a13a3:
+node --test generator/core/tests/*.test.js generator/content/content.test.js
+42 tests / 42 pass / 0 fail / exit 0
+node generator/balance.js
+2 checks / 2 pass / 0 fail / exit 0
+No-prep acquittals 0/300; full-prep acquittals 173/300 (57.7%).
+No source changes. Entries below retain the earlier run results.
+
 node --test generator/core/tests/*.test.js generator/content/content.test.js
 42 tests / 42 pass / 0 fail / exit 0
 New content tests: 12; existing core tests: 30.
