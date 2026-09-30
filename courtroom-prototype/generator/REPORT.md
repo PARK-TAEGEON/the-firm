@@ -1,3 +1,106 @@
+# GEN-001 3단계 — 자체 점검
+
+Lane: experiment. 이번 수정은 `generator/balance.js` 하나뿐이다. `generator/core/`, `generator/content/`는
+건드리지 않았다(둘 다 require해서 읽기만 했다).
+
+## 한 일
+
+`generator/balance.js`를 `core.buildContestedCase` 직접 호출에서 `generator/content` 진입점
+(`content.buildContestedCase(archetypeId, seed)`)으로 바꿨다. `content.archetypes`의 키를 순회해서
+**등록된 모든 원형**(현재 `ARCH_CRIMINAL_ASSAULT`, `ARCH_DUI`)을 자동으로 점검한다 — 원형이 추가돼도
+`balance.js`를 다시 고칠 필요가 없다.
+
+원형별로 seed 1~300을 `core/playthrough.js`의 `playThrough`로 끝까지 플레이하고 네 가지를 낸다:
+
+- (a) 준비 없이 진행 시 무죄 건수 (0이어야 PASS)
+- (b) 모든 준비 후 무죄율 — 기준을 이번 요청대로 **40~65%**로 좁혔다(2.5단계는 30~70%였다)
+- (c) `caseDef.twistsApplied.length >= 1`인 시드 비율 — content가 만든 사건에 반전이 실제로 붙는 빈도
+- (d) 재반대(rebuttal) 발생 수 — 모든 준비 시나리오에서 `records`에 `kind:'rebuttal'`로 남은 기록 합계
+  (카드가 있어야만 `rebut({use:true})`가 실제 rebuttal 기록을 남긴다 — `rebutPass`는 세지 않는다)
+
+## 주의: 작업 중 `generator/content/`가 다른 에이전트에 의해 동시에 수정되고 있었다
+
+`balance.js`를 다 고친 뒤 검증차 여러 번 실행했는데, 그때마다 숫자가 달랐다. 원인은 코드 버그가 아니라
+**다른 에이전트(Codex)가 같은 작업 트리의 `generator/content/`를 이번 작업 도중 계속 고치고 있었기
+때문**이다. 관찰한 3번의 실행:
+
+1. 1차: ARCH_CRIMINAL_ASSAULT 무죄율 77.0%(231/300, `content/REPORT.md`에 Codex가 남긴 수기 값과 일치),
+   ARCH_DUI는 `twists_allowed: []`라 (c)(d)가 0.
+2. 2차(직후 재확인차 재실행): DUI만 172→170으로 살짝 바뀜. `git diff`로 확인하니 그 사이
+   `archetypes.js`의 `ARCH_DUI.twists_allowed`에 `TWIST_DUI_*` 3개 id가 추가되고 `truth_params`도 3개
+   늘어 있었다 — 다만 `twists.js`엔 아직 그 모듈 실체가 없어 `selectActivatedTwists`가 조용히
+   무시했고(2단계 설계), `truth_params`가 늘어난 만큼 `resolveTruth`의 rng 소비 순서가 바뀌어 DUI의
+   baseline만 살짝 움직였다.
+3. 3차(같은 명령 재실행): `twists.js`에 `TWIST_DUI_*` 3개가 마저 채워져 있었다. 이번엔 ARCH_DUI의
+   (c)(d)가 실제 값(77.0%/231, 344회)으로 뛰었고, **ARCH_CRIMINAL_ASSAULT의 무죄율도 77.0%→57.7%로
+   바뀌었다** — 같은 커밋 묶음에서 Codex가 assault의 twist delta도 함께 조정한 것으로 보인다(콘텐츠
+   파일 자체는 내가 건드리지 않았다. `content/twists.js`의 diff는 이 세션의 내 변경분이 아니다).
+4. 그 뒤 두 번 더 실행해 **완전히 같은 결과**를 확인했다(해시로도 `twists.js`/`archetypes.js`가 더는
+   바뀌지 않음을 확인) — 아래를 최종값으로 쓴다.
+
+## 최종 실행 결과 (`node generator/balance.js`, seed 1~300 × 2원형, 안정화 확인 후)
+
+```
+GEN-001 밸런스 점검 — 300시드, ARCH_CRIMINAL_ASSAULT
+  준비 없이: 유죄 300 / 무죄 0
+  모든 준비: 유죄 127 / 무죄 173 (무죄율 57.7%)
+  (c) 반전 1개 이상 붙는 시드 비율: 257/300 (85.7%)
+  (d) 재반대(rebuttal) 발생 수(모든 준비 시나리오 합계): 452
+  PASS (a) 준비 없이 진행 시 무죄 0건 — 무죄 0건 / 300건
+  PASS (b) 모든 준비 후 무죄 40~65% — 무죄 173/300건 = 57.7%
+
+GEN-001 밸런스 점검 — 300시드, ARCH_DUI
+  준비 없이: 유죄 300 / 무죄 0
+  모든 준비: 유죄 130 / 무죄 170 (무죄율 56.7%)
+  (c) 반전 1개 이상 붙는 시드 비율: 231/300 (77.0%)
+  (d) 재반대(rebuttal) 발생 수(모든 준비 시나리오 합계): 344
+  PASS (a) 준비 없이 진행 시 무죄 0건 — 무죄 0건 / 300건
+  PASS (b) 모든 준비 후 무죄 40~65% — 무죄 170/300건 = 56.7%
+```
+
+**exit 0. 두 원형 모두 (a)(b) 전부 PASS.**
+
+| 원형 | (a) 준비없이 무죄 | (b) 모든준비 무죄율 | (c) 반전≥1 비율 | (d) 재반대 수 | 판정 |
+| --- | --- | --- | --- | --- | --- |
+| ARCH_CRIMINAL_ASSAULT | 0/300 | 173/300 = 57.7% | 257/300 = 85.7% | 452 | PASS / PASS |
+| ARCH_DUI | 0/300 | 170/300 = 56.7% | 231/300 = 77.0% | 344 | PASS / PASS |
+
+두 원형 다 (c)가 77~86%로 높다 — 두 원형 모두 반전이 대부분의 시드에 최소 1개는 붙게 설계돼 있다는
+뜻이다. (d) 재반대 수(452/344)는 (c)와 비슷한 비율로, 카드를 확보하면 재반대가 거의 매번 발동한다는
+뜻이다(카드 없이는 애초에 재반대 옵션 자체가 뜨지 않는다).
+
+## 튜닝 여부
+
+**하지 않았다.** 이번 요청은 "core는 이 수정 외에 건드리지 말고"였다 — (b)를 맞추려면 twist의
+`opponentRecovery`/`playerCounter` delta(`generator/content/twists.js`)나 approach/press 수치
+(`generator/core/contested.js`)를 건드려야 하는데 둘 다 이번 범위 밖이라 `balance.js`만 바꿨다. 위
+"주의" 절에서 보듯 assault의 (b)가 77.0%→57.7%로 바뀐 것은 이 세션 중 Codex가 `content/twists.js`를
+고친 결과이지, 내가 튜닝한 것이 아니다.
+
+## 아직 안 된 것 / TBD
+
+- **이번 세션 동안 콘텐츠가 두 번 더 바뀔 수 있었다.** 위 표는 "3번 연속 동일 결과"로 안정화를 확인한
+  뒤의 값이지만, 이 보고서를 읽는 시점에 `generator/content/`가 또 바뀌었다면 다시 `node
+  generator/balance.js`를 실행해서 확인해야 한다 — 이 보고서의 숫자를 코드보다 신뢰하지 않는다.
+- (c)(d)는 처음 정의한 지표라 "정상 범위"에 대한 기준 자체가 없다 — 이번 실행값(85.7%/452,
+  77.0%/344)을 베이스라인으로 남긴다. 두 원형 다 (c)가 77~86%로 상당히 높다는 점은 "반전이 거의 항상
+  붙는" 현재 진실 파라미터 임계값(대부분 `>= 0.6`, 균등분포에서 40% 확률)과 반전 개수(원형당 3~4개)의
+  조합에서 나온 결과다 — 의도한 빈도인지는 사람 판단이 필요하다.
+- `generator/balance.js`는 여전히 정책 하나(접근법 우선 → 압박 → endCross, 재반대는 카드 있으면 항상
+  사용)만 실행한다. "절대 못 이기는 사건 0개"를 모든 전략에 대해 증명한 것은 아니다(기존 TBD 유지).
+- (b)가 이번엔 두 원형 다 PASS로 나왔지만, 이건 Codex가 이번 세션 중 assault twist delta를 조정한
+  결과로 보인다(내가 조정한 게 아니다). 그 조정이 의도된 것인지, 어떤 값에서 어떤 값으로 왜 바뀌었는지는
+  `generator/content/`쪽 커밋 로그·REPORT를 봐야 한다 — 이 파일은 그 변경의 저자가 아니다.
+
+## 범위 확인
+
+- 바꾼 파일은 `generator/balance.js` 하나뿐이다. `generator/core/*`, `generator/content/*`는 require로
+  읽기만 했다 — 그쪽이 이 세션 중 바뀐 것은 다른 에이전트(Codex)의 동시 작업 때문이며 내가 수정한 것이
+  아니다(위 "주의" 절 참고).
+- 여기서 멈춘다.
+
+---
+
 # GEN-001 2.5단계 — 자체 점검
 
 Lane: experiment. 범위: `courtroom-prototype/generator/` 안에서만 작업했다(`services/trial.js`,
