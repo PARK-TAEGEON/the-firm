@@ -1,8 +1,9 @@
 # THE FIRM — Witness Interview and Statement Model
 
 문서 ID: DEC-LITIGATION-022  
-버전: v0.1 — Proposed / design review required  
-상태: **Proposed / design review required**  
+버전: v0.1 — 2026-09-30 Accepted (DEC-031)  
+상태: **Accepted — 원칙 / 층 분리는 참고**  
+결정 기록: 2026-09-30 사용자 결정 — Hard invariants 채택. 단계별 semantic 층은 구현 시 병합 가능. 상세는 [DEC-LITIGATION-031](DEC-LITIGATION-031_NUMERIC_ADJUDICATION_AND_PROPOSED_DEC_RESOLUTION.md). 구현 시 Hard invariants는 구속, semantic 층 분리는 참고.  
 프로젝트: THE FIRM  
 문서 유형: Design Decision  
 직접 기준: `DEC-LITIGATION-021_INVESTIGATION_AND_EVIDENCE_ACQUISITION.md` v0.2 Accepted, `TEST-020_INVESTIGATION_AND_EVIDENCE_ACQUISITION.md` v0.2 Accepted / manual fixture-level verification, `DEC-LITIGATION-020_EVIDENCE_REVIEW.md` v0.2 Accepted, `TEST-019_EVIDENCE_REVIEW.md` v0.2 Accepted / manual fixture-level verification, `DEC-LITIGATION-019_CASE_FILE_AND_MATTER_KNOWLEDGE_MODEL.md`, `TEST-018_CASE_FILE_AND_MATTER_KNOWLEDGE_MODEL.md`, `DEC-LITIGATION-018_LAWYER_TASK_AND_WORKPRODUCT_RESOLUTION.md`, `DEC-LITIGATION-017_LAWYER_CAPABILITY_AND_PRACTICE_PROFILE.md`, `DEC-LITIGATION-016_LEGAL_PROFESSIONAL_PROFILE_RELATIONSHIP_AND_INTERACTION.md`, `DEC-LITIGATION-015_JUDGE_GENERATION_CAREER_AND_LIFECYCLE.md`, `DEC-LITIGATION-014_CRITERION_CHOICE_POINT_AUTHORING_AND_VALIDATION.md`, `DEC-LITIGATION-013_JUDGE_INTERPRETATION_AND_JUDICIAL_PROFILE.md`  
@@ -1093,3 +1094,4 @@ Person psychology/knowledge/memory, relevance, contact/cooperation, question/res
 | Version | Status | Change |
 |---|---|---|
 | v0.1 | Proposed / design review required | WIT1–WIT35 define explicit Person/contact/Interview/utterance/RecordedStatement/analysis stages, fallible person and recording semantics, statement history, contradiction/falsity/deception separation, Investigation/Review handoffs, no score/omniscience, court boundary and 40-case TEST-021 plan. |
+| 2026-09-30 | Accepted — 원칙 / 층 분리는 참고 | Hard invariants 채택. 단계별 semantic 층은 구현 시 병합 가능. ([DEC-LITIGATION-031](DEC-LITIGATION-031_NUMERIC_ADJUDICATION_AND_PROPOSED_DEC_RESOLUTION.md)) |

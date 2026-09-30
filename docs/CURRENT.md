@@ -81,10 +81,13 @@
 
 실험 설계 상세는 [DESIGN-NOTES-2026-09](DESIGN-NOTES-2026-09.md)의 계약 지정 절을 읽는다. Accepted DEC가 아니며 CURRENT에 복사하지 않는다.
 
+## Recent Decisions
+
+- **2026-09-30 [DEC-031](../DEC-LITIGATION-031_NUMERIC_ADJUDICATION_AND_PROPOSED_DEC_RESOLUTION.md):** 판정은 내부 수치·겉은 언어(같은 출처 비중첩, 능력 비가산, 기록 설명 가능, 법정 RNG 금지). DEC-012 부분 대체. Proposed였던 014~017·022·027~029 전부 처리(Proposed DEC 없음). DEC는 불변 조건만 구속, 층 분리는 참고.
+
 ## Decision Pending / Deferred
 
 - **본류:** v0.10 대립 공판과 v0.9.1 신문 법정 중 선택, 기존 엔진 통합 여부 → 비교 플레이테스트 후 사람 결정.
-- **판정 모델:** 실험(v0.10·GEN-001·WORLD-001)의 숫자 합산 모델이 DEC-012의 금지 사항과 충돌 → 플레이테스트 후 DEC-012 개정 또는 이관 결정. [AUDIT-2026-09](AUDIT-2026-09.md) §1.
 - **최종 엔진:** 웹/Electron은 권장만 됐으며 확정되지 않았다.
 - **출시 목표:** 10월 말 재미 검증 결과로 2월/6월 일정 판단. v1.0 최종 승인은 별도이며 자동 검사 통과로 승인하지 않는다.
 - 기존 법정의 Jury, Sentencing, Settlement, Appeal, Full Redirect, Civil Vertical Slice, 상대 Closing AI, Staff와 전체 Save/Load는 미구현·유보다.

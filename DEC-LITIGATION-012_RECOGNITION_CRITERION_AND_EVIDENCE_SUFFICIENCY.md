@@ -2,7 +2,8 @@
 
 문서 ID: DEC-LITIGATION-012  
 버전: v0.3 — R1~R13 final acceptance  
-상태: **Accepted / 상세 기준·알고리즘·구현 미정**  
+상태: **Accepted / 부분 대체 — DEC-031 N1~N7**  
+결정 기록: 2026-09-30 사용자 결정 — 수치 판정 모델로 부분 대체. 내부 수치·합산·쟁점별 최소 요건 허용, 겉은 언어, 같은 출처 비중첩, 능력 비가산, 기록 설명 가능, 법정 RNG 금지. 상세는 [DEC-LITIGATION-031](DEC-LITIGATION-031_NUMERIC_ADJUDICATION_AND_PROPOSED_DEC_RESOLUTION.md). 구현 시 Hard invariants는 구속, semantic 층 분리는 참고.  
 프로젝트: THE FIRM  
 문서 유형: Design Decision  
 상위 기준: [00_GAME_CONSTITUTION.md](00_GAME_CONSTITUTION.md) v0.2, [01_SYSTEM_MAP.md](01_SYSTEM_MAP.md) v0.2  
@@ -754,3 +755,4 @@ TEST-010과 중복되는 case는 회귀 경계이면서 DEC-012가 추가한 cri
 | v0.1 | Proposed draft for review | versioned criterion binding, named proposition scope, qualitative EvidenceUse roles, credibility/relevance/sufficiency separation, lineage-aware corroboration, hybrid requirement/topology sufficiency, explicit partial recognition, conflict preservation, four-status transition, trace/public explanation separation, bounded judge interpretation, deterministic replay, DEC-008 downstream boundary와 TEST-011 10-case 계획 제안. 실제 한국법·구현·JudgeProfile·최종 판결은 미정 유지 |
 | v0.2 | Proposed draft for review / TEST-010 revalidated | current worktree의 TEST-010 v0.2 actual result 6 PASS / 2 PARTIAL을 직접 대조하고 검증 근거로 반영. duplicate non-strengthening·criterion missing/insufficient distinction·canonical states·deterministic replay 일치를 기록. lineage identity와 evidence combination은 PARTIAL/TBD, partial recognition은 core 미실행임을 명시. R1~R13 status와 TEST-011 10-case 추천은 변경하지 않음 |
 | v0.3 | Accepted / 상세 기준·알고리즘·구현 미정 | R1~R13의 추천 구조를 Accepted/Core Accepted로 채택. 모든 기존 explicit TBD 경계를 유지. TEST-011 case 8을 두 explicit permitted JudgeInterpretationInput fixture로 수정하고 profile-to-input derivation은 DEC-013 TBD로 유지. choice point는 genuine record/criterion ambiguity에만 대응해야 하며 disguised outcome switch authoring은 금지; 상세 authoring/validation mechanism은 DEC-013 TBD |
+| 2026-09-30 | Accepted / 부분 대체 — DEC-031 N1~N7 | 수치 판정 모델로 부분 대체. 내부 수치·합산·쟁점별 최소 요건 허용, 겉은 언어, 같은 출처 비중첩, 능력 비가산, 기록 설명 가능, 법정 RNG 금지. ([DEC-LITIGATION-031](DEC-LITIGATION-031_NUMERIC_ADJUDICATION_AND_PROPOSED_DEC_RESOLUTION.md)) |
