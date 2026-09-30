@@ -1,4 +1,35 @@
-# GEN-001 콘텐츠 검토 자료 — 0.0.2-gen-content
+# GEN-001 콘텐츠 검토 자료 — 0.0.3-gen-content
+
+## 현재 인계 — 일부 슬롯 연결 대기
+
+목적: 공판 문구와 대형 사건 3개 설계, 첫 사건의 DEMO-001 데이터·경로 상세화. **새 core 슬롯, balance (c)(d) 목표, 설계 메모 §1.10 본문 부재로 전체 요청은 미완료다.**
+
+변경 파일:
+
+- hearing-copy.js: 개회사 후보, 네 증인의 유효/무효 이의·통과 문구와 과욕 반박. balanced/contest만 현재 연결.
+- index.js: 기존 개회사 슬롯 연결, 버전 0.0.3-gen-content.
+- copy.js: limited 성공 답변에 유지되는 관찰·기록 명시, 중복 개회사 제거.
+- SIGNATURE.md: 가상 사건 3개, 대표 사건의 고정 진실·준비·ID·효과·신문·3개 결과 경로. 선택적 합의의 서비스 소유 범위는 TBD.
+- RULES.md, REPORT.md, REVIEW_PACKET.md, test-results.log: 규칙·수치 유지 이유·미완료 의존 사항·결과.
+
+새 실행 불변식·추가 테스트 없음. 카드 조건·효과·RNG·판정은 유지했다. 기존 콘텐츠 14개 회귀의 결정성, 카드 없음/다른 카드 거부, 서비스 실패 원자성·replay를 실행했다. 미연결 이의·과욕은 플레이 검증 대기다.
+
+실행 명령·결과:
+
+- node --test generator/content/content.test.js generator/core/tests/*.test.js: 44/44, 실패 0, exit 0.
+- npm test: 247/247, 실패 0, exit 0.
+- node --test: 333개, 통과 323/실패 10, exit 1. 기존 Playwright 누락 브라우저 테스트 10개.
+- node --check generator/content/hearing-copy.js: 통과, exit 0.
+- node generator/content/check-balance.js: 1,800회, 예외 0, 두 원형 PASS, exit 0.
+- node generator/balance.js: 현행 (a)(b) 4 checks/0 failures/exit 0. 준비 후 무죄 57.7%/56.7%. (c) 85.7%/77.0%, (d) 452/344회, 합격 목표 부재로 미판정.
+
+fixture: 모든 사실·대사·효과와 DEMO 수치. 미구현/TBD: 새 슬롯 연결·회귀, 새 목표별 튜닝, §1.10 대조, DEMO 구현·사람 검수, 민사 판정 모델. 설계 판단 없이 건드리지 않은 부분: core 슬롯 ID·규칙, 법적 일부 유죄와 합의의 절차 효과, DEMO 서비스 소유 범위.
+
+generator/content/만 변경했다. core·balance·engine·service·UI·설계 원문과 world/ 미수정. diff 검토, 범위 외 변경 없음. 다음 단계·병합·push 없음.
+
+---
+
+## 이전 검토 — 0.0.2-gen-content
 
 ## 최신 변경
 

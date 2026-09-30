@@ -1,7 +1,35 @@
 ﻿GEN-001 content verification — 2026-09-30
 cwd: courtroom-prototype/
 
-LATEST: content 0.0.2 — tension, DUI twists, 40-65% tuning
+LATEST: content 0.0.3 — hearing copy and three signature designs (new core slots pending)
+node --test generator/content/content.test.js generator/core/tests/*.test.js
+44 tests / 44 pass / 0 fail / exit 0
+npm test
+247 tests / 247 pass / 0 fail / exit 0
+node --test
+333 tests / 323 pass / 10 fail / exit 1
+Failures: existing Cannot find module 'playwright':
+tests/browser-adjudication.test.js, tests/browser-closing-profile.test.js,
+tests/browser-closing.test.js, tests/browser-commitment-scope.test.js,
+tests/browser-flow.test.js, tests/browser-full-flow.test.js,
+tests/browser-opening.test.js, tests/browser-tactics.test.js,
+tests/browser-trial.test.js, tests/browser.test.js.
+node --check generator/content/hearing-copy.js
+syntax PASS / exit 0
+node generator/content/check-balance.js
+1800 completed runs / 0 errors / both archetypes PASS / exit 0
+No-prep and unsupported-then-press: acquittals 0/300 for both archetypes.
+node generator/balance.js
+4 checks (a,b only) / 4 pass / 0 fail / exit 0
+ASSAULT: no-prep 0/300; full-prep 173/300 (57.7%); twisted 257/300 (85.7%); rebuttals 452.
+DUI: no-prep 0/300; full-prep 170/300 (56.7%); twisted 231/300 (77.0%); rebuttals 344.
+No c/d target assertions exist in the current balance.js. No effect changes this run.
+Unwired objection/overreach drafts and DEMO routes have not been playtested.
+Counts overlap; do not sum separate test runs.
+
+HISTORICAL RESULTS BELOW:
+
+content 0.0.2 — tension, DUI twists, 40-65% tuning
 node --test generator/content/content.test.js generator/core/tests/*.test.js
 44 tests / 44 pass / 0 fail / exit 0 (content 14 + core 30)
 npm test

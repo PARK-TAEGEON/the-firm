@@ -4,6 +4,7 @@
 const archetypes = require('./archetypes');
 const twists = require('./twists');
 const copies = require('./copy');
+const hearingCopies = require('./hearing-copy');
 const { buildContestedCase: buildTemplate } = require('../core/contested');
 const { generateDailyCase: buildDailyTemplate } = require('../core/generate');
 
@@ -15,11 +16,12 @@ function getArchetype(id) {
 function buildContestedCase(archetypeId, seed) {
   const d = buildTemplate(getArchetype(archetypeId), seed, twists);
   const copy = copies[archetypeId](d.truth);
-  d.version = '0.0.2-gen-content';
+  const hearing = hearingCopies[archetypeId];
+  d.version = '0.0.3-gen-content';
   for (const key of ['title', 'charge', 'client', 'briefing', 'clientStatements']) d[key] = copy[key];
   d.prep.deadlineLabel = '첫 공판 전 조사';
-  Object.assign(d.opening.focus[0], { title: copy.focus, text: copy.opening });
-  Object.assign(d.opening.stance[0], { title: copy.stance, text: copy.stanceText });
+  Object.assign(d.opening.focus[0], hearing.focus.balanced);
+  Object.assign(d.opening.stance[0], hearing.stance.contest);
   d.opening.close = copy.close;
   d.adjudication.guilty.text = copy.guilty;
   d.adjudication.notGuilty.text = copy.notGuilty;
