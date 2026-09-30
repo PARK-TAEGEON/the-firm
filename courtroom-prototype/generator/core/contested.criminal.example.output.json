@@ -89,7 +89,24 @@
       "text": "(placeholder)"
     }
   },
-  "prosecutionExhibits": [],
+  "clientStatements": [
+    {
+      "id": "CS_INITIAL",
+      "text": "(placeholder — content 단계 authored 의뢰인 진술로 교체)"
+    }
+  ],
+  "prosecutionExhibits": [
+    {
+      "id": "PX_ISSUE_IDENTITY",
+      "title": "[증거서류] 피고인이 실제로 피해자를 가격했는가? (PLACEHOLDER)",
+      "content": "(placeholder — content 단계 authored 문구로 교체)"
+    },
+    {
+      "id": "PX_ISSUE_CAUSATION",
+      "title": "[증거서류] 피고인의 행위가 상해를 초래했는가, 정당방위였는가? (PLACEHOLDER)",
+      "content": "(placeholder — content 단계 authored 문구로 교체)"
+    }
+  ],
   "investigations": [
     {
       "id": "INV_ISSUE_IDENTITY_0",
@@ -363,6 +380,65 @@
       "redirect": []
     }
   ],
-  "lines": {},
+  "lines": {
+    "trialOpen": [
+      [
+        "JUDGE",
+        "(placeholder) 폭행치상 공판을 시작합니다."
+      ],
+      [
+        "PROSECUTOR",
+        "(placeholder) 검찰 모두진술"
+      ]
+    ],
+    "crossStart": [
+      [
+        "JUDGE",
+        "(placeholder) 변호인, 반대신문 하십시오."
+      ]
+    ],
+    "crossWarn": [
+      [
+        "JUDGE",
+        "(placeholder) 변호인, 신문은 요점만 간결히 하십시오."
+      ]
+    ],
+    "crossTimeUp": [
+      [
+        "JUDGE",
+        "(placeholder) 시간 관계상 반대신문은 여기까지 하겠습니다."
+      ]
+    ],
+    "crossStop": [
+      [
+        "DEFENSE",
+        "(placeholder) 이상입니다."
+      ]
+    ],
+    "noRedirect": [
+      [
+        "PROSECUTOR",
+        "(placeholder) 재주신문 없습니다."
+      ]
+    ],
+    "rebutPass": [
+      [
+        "DEFENSE",
+        "(placeholder) 재반대신문 없습니다."
+      ]
+    ],
+    "witnessDone": [
+      [
+        "JUDGE",
+        "(placeholder) 증인은 돌아가도 좋습니다."
+      ]
+    ],
+    "verdictLead": [
+      [
+        "JUDGE",
+        "(placeholder) 변론을 종결합니다. 판결을 선고하겠습니다."
+      ]
+    ]
+  },
   "missedPrep": []
 }

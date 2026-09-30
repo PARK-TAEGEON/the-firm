@@ -1,3 +1,101 @@
+# GEN-001 2.5단계 — 자체 점검
+
+Lane: experiment. 범위: `courtroom-prototype/generator/` 안에서만 작업했다(`services/trial.js`,
+`engine/trial.js`는 읽기·require만 했고 수정하지 않았다).
+
+## 한 일
+
+### buildContestedCase 출력을 services/trial.js로 끝까지 플레이
+
+- `contested.js`의 `buildContestedCase` 반환값에 `services/trial.js`(`createTrialService`)가 무조건
+  읽는 필드를 채웠다:
+  - `lines`: `trialOpen`/`crossStart`/`crossWarn`/`crossTimeUp`/`crossStop`/`noRedirect`/`rebutPass`/
+    `witnessDone`/`verdictLead` 9개 전부. `(placeholder)` 문구지만 `services/trial.js`가 `.map(([s,t])=>...)`
+    로 바로 소비할 수 있는 `[speaker, text]` 배열 형식이다. 이전엔 `lines: {}`였고, `open`/`crossStart` 등에서
+    `d.lines.trialOpen.map(...)` 호출 시 `undefined.map`으로 즉시 터졌다.
+  - `clientStatements`(1개 placeholder), `prosecutionExhibits`(issue당 1개, `PX_ISSUE_...`).
+  - 이전에 비어 있던 `prosecutionExhibits: []`, `missedPrep: []`는 유지(서비스가 `missedPrep`을 직접
+    읽지 않는다 — `engine/trial.js`의 `review()`가 읽지만 이번 2.5단계 acceptance bar는 verdict까지지
+    review는 아니다).
+
+### generator/core/playthrough.js — 공용 플레이 드라이버
+
+- `playThrough(caseDef, { fullPrep })`: `createTrialService`로 실제 서비스를 만들어 `reset → (fullPrep이면
+  모든 investigation) → finishPrep → open → (반복: pending 처리 / cross에서 approach·press·endCross /
+  intro·direct·redirect에서 continue / closed에서 verdict) → verdict`까지 몬다. 각 command가 `ok:false`를
+  반환하면 즉시 예외를 던진다 — "정상적으로 플레이했는데 막혔다"를 조용히 넘기지 않기 위해서다.
+- `fullPrep=false`(준비 없이): investigate를 하나도 안 해서 카드가 없다 → cross의 모든 approach가
+  `requiresAny` 카드 부족으로 막힘 → press도 `approaches.length>0` 조건에 걸려 막힘 → 매 witness마다
+  `endCross`만 호출. baseline은 2단계에서 이미 `strengthRange:[3,7]`로 고쳐서 doubt(≤2)에서 시작하지
+  않으므로, 아무 delta도 안 붙으면 doubt에 못 들어간다 — 무죄가 구조적으로 나올 수 없다.
+- `fullPrep=true`(모든 준비 후): 모든 investigation → cross마다 "쓸 수 있는 approach 우선, 없으면 press,
+  둘 다 없으면 endCross" → `rebut`이 pending이면 `use:true`. 실제로 해보니 신문 시간(`opening.focus.time`,
+  witness당 2)이 evidence 개수(witness당 2)와 정확히 같아서 approach 2개를 쓰고 나면 시간이 다 돼
+  `afterCrossAction`이 자동으로 cross를 끝낸다 — press는 실제로 못 쓴다(시간 제약, 버그 아님). 결과적으로
+  witness당 `-1 + -1 = -2` delta만 적용된다.
+
+### generator/balance.js — 300시드 밸런스 점검 스크립트
+
+- `node generator/balance.js`로 실행하는 plain 스크립트(repo의 `tests/ui-budget.js`와 같은 관례 —
+  `node:test`가 아니다). `ARCH_CRIMINAL_ASSAULT` × seed 1~300으로 두 시나리오를 각각 `playThrough`하고:
+  - **(a) 준비 없이 진행 시 무죄 0건**: 300/300 무죄 0건. **PASS**.
+  - **(b) 모든 준비 후 무죄 30~70%**: 무죄 173/300 = **57.7%**. **PASS**.
+  - 두 체크 모두 통과하면 exit 0, 실패하면 exit 1과 함께 실패한 seed 목록(최대 10개)을 stdout에 남긴다.
+  - 재실행해서 완전히 같은 숫자(유죄/무죄 카운트 전부 동일)가 나오는 것도 확인했다 — 결정성.
+  - **튜닝은 하지 않았다.** 2단계에서 정한 `strengthRange:[3,7]`, 기계적 템플릿의 approach `delta:-1`,
+    witness당 evidence 2개·cross 시간 2를 그대로 실행했더니 첫 실행부터 (a)(b) 둘 다 통과했다(우연히도
+    "approach 2개 쓰면 시간이 딱 떨어져 press를 못 씀"이라는 제약이 delta 합계를 -2로 묶어놔서 범위 안에
+    들어왔다). 손으로 미리 계산해본 값(약 58.9%)과 실제 실행 결과(57.7%)가 비슷해 계산도 맞았다는 걸
+    확인했다.
+
+### 테스트 기준 변경 (validate → 끝까지 진행)
+
+- `generator/core/tests/criminal-template.test.js`에 acceptance bar를 추가했다: `playThrough`로 seed
+  6개(`fullPrep` true/false 각각)를 판결까지 몰아 `outcome`이 `'guilty'`/`'not_guilty'` 중 하나인지
+  확인한다. 기존 `engine/trial.js validate()` 테스트는 "빠른 구조 점검"으로 이름만 바꿔 남겨뒀다(삭제하지
+  않음 — 구조가 깨지면 playThrough보다 먼저, 더 싼 값에 잡아준다).
+  준비 없이 진행하면 항상 `guilty`이고 어떤 issue도 `doubt` band에 들어가지 않는다는 단위 회귀도 추가했다.
+- `generator/core/contested.criminal.example.output.json`을 새 필드(lines 등) 포함해서 다시 저장했다
+  (seed 1). `validate() === true`, `playThrough({fullPrep:false}).outcome === 'guilty'`,
+  `playThrough({fullPrep:true}).outcome === 'not_guilty'` 모두 확인.
+
+## 검증
+
+```
+node --test generator/core/tests/*.test.js
+```
+→ **30 pass, 0 fail** (2단계 27개 + playThrough 기반 신규 3개).
+
+```
+node generator/balance.js
+```
+→ (a) PASS 무죄 0/300, (b) PASS 무죄 173/300 (57.7%). exit 0.
+
+`node --test`(인자 없음) 재확인: 전체 319개 중 309 pass / 10 fail, 실패 10개는 여전히 기존
+`Cannot find module 'playwright'` 사전 존재 문제뿐이다(신규 실패 없음).
+
+## 아직 안 된 것 / TBD
+
+- **재반대(rebuttal) 경로는 이번 밸런스 점검에서 실제로 타지 않았다.** `ARCH_CRIMINAL_ASSAULT`엔 아직
+  붙는 TwistModule이 없어서(`twists_allowed` id만 있고 콘텐츠 없음, 2단계 TBD) `redirect` 배열이 항상
+  비어 있다 — `playThrough`의 `pending.type==='rebuttal'` 분기는 코드는 있지만 이 아키타입으로는 실행되지
+  않는다. 형사 원형용 twist가 생기면(Codex 또는 후속 작업) 이 분기도 실제로 exercise된다.
+- **밸런스 수치는 "approach 우선, 그다음 press" 정책 + 현재 template 수치(delta -1, evidence 2개, cross
+  시간 2)에서 나온 결과다.** Codex가 대사를 채우면서 evidence 개수나 접근법 수를 늘리면(예: evidence 3개)
+  이 숫자가 바뀐다 — `node generator/balance.js`를 그때 다시 돌려야 한다.
+- **`review()`(복기)와 `missedPrep`은 이번 acceptance bar에 없다.** verdict까지만 확인했고, 복기 화면이
+  실제로 의미 있게 뜨는지는 확인하지 않았다.
+- 원형 2개(음주운전 등), 나머지 반전 4개, 대형 사건 3개 설계 문서, 승부 사건이 아닌 일상 사건 10개×3분야
+  사람 검수는 여전히 시작 안 함.
+
+## 범위 확인
+
+- `courtroom-prototype/generator/` 밖은 `services/trial.js`, `engine/trial.js`를 require해서 읽기만 했다.
+  수정하지 않았다.
+- 여기서 멈춘다. 다음은 Codex가 대사와 나머지 반전을 채우는 단계(이전 리뷰에서 이미 예고됨).
+
+---
+
 # GEN-001 2단계 — 자체 점검
 
 Lane: experiment. 범위: `courtroom-prototype/generator/` 안에서만 작업했다(`engine/trial.js`는 읽기·require만

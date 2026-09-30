@@ -207,12 +207,28 @@ function buildContestedCase(archetype, seed, availableTwists) {
       guilty: { title: '유죄', text: '(placeholder)' },
       notGuilty: { title: '무죄', text: '(placeholder)' }
     },
-    prosecutionExhibits: [],
+    clientStatements: [{ id: 'CS_INITIAL', text: '(placeholder — content 단계 authored 의뢰인 진술로 교체)' }],
+    prosecutionExhibits: archetype.issues.map((issue) => ({
+      id: `PX_${issue.id}`,
+      title: `[증거서류] ${issue.question} (PLACEHOLDER)`,
+      content: '(placeholder — content 단계 authored 문구로 교체)'
+    })),
     investigations,
     cards,
     opening,
     witnesses,
-    lines: {},
+    // lines: services/trial.js가 고정으로 읽는 9개 키. 전부 placeholder — content 단계에서 authored 대사로 교체.
+    lines: {
+      trialOpen: [['JUDGE', `(placeholder) ${archetype.title} 공판을 시작합니다.`], ['PROSECUTOR', '(placeholder) 검찰 모두진술']],
+      crossStart: [['JUDGE', '(placeholder) 변호인, 반대신문 하십시오.']],
+      crossWarn: [['JUDGE', '(placeholder) 변호인, 신문은 요점만 간결히 하십시오.']],
+      crossTimeUp: [['JUDGE', '(placeholder) 시간 관계상 반대신문은 여기까지 하겠습니다.']],
+      crossStop: [['DEFENSE', '(placeholder) 이상입니다.']],
+      noRedirect: [['PROSECUTOR', '(placeholder) 재주신문 없습니다.']],
+      rebutPass: [['DEFENSE', '(placeholder) 재반대신문 없습니다.']],
+      witnessDone: [['JUDGE', '(placeholder) 증인은 돌아가도 좋습니다.']],
+      verdictLead: [['JUDGE', '(placeholder) 변론을 종결합니다. 판결을 선고하겠습니다.']]
+    },
     missedPrep: []
   };
 }

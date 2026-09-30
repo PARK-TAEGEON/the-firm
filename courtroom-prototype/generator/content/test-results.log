@@ -1,0 +1,35 @@
+﻿GEN-001 content verification — 2026-09-30
+cwd: courtroom-prototype/
+
+node --test generator/core/tests/*.test.js generator/content/content.test.js
+42 tests / 42 pass / 0 fail / exit 0
+New content tests: 12; existing core tests: 30.
+
+npm test
+247 tests / 247 pass / 0 fail / exit 0
+
+node --test
+331 tests / 321 pass / 10 fail / exit 1
+All failures: Cannot find module 'playwright'
+- tests/browser-adjudication.test.js
+- tests/browser-closing-profile.test.js
+- tests/browser-closing.test.js
+- tests/browser-commitment-scope.test.js
+- tests/browser-flow.test.js
+- tests/browser-full-flow.test.js
+- tests/browser-opening.test.js
+- tests/browser-tactics.test.js
+- tests/browser-trial.test.js
+- tests/browser.test.js
+
+node generator/balance.js
+2 checks / 2 pass / 0 fail / exit 0
+Existing core template; no content twists loaded.
+Seeds 1..300: no-prep acquittals 0/300; full-prep acquittals 173/300 (57.7%).
+
+Content entry point with core/playthrough.js (command in REPORT.md)
+1200 completed runs / 0 command errors / exit 0
+ARCH_CRIMINAL_ASSAULT: no-prep acquittals 0/300; full-prep 231/300 (77.0%); rebuttal records 452.
+ARCH_DUI: no-prep acquittals 0/300; full-prep 172/300 (57.3%); rebuttal records 0.
+Assault content is outside the baseline script's 30-70% range. No balance tuning performed.
+Test counts overlap across commands; do not sum them.
