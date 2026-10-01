@@ -1,0 +1,62 @@
+/* THE FIRM DEMO-001 — additions on top of ui/trial.css. Presentation only. */
+
+/* start screen: one column, no side panels */
+.app.select .grid { grid-template-columns: minmax(0, 1fr); }
+.app.select .file, .app.select .memo { display: none; }
+.files { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; margin-bottom: 26px; }
+.files .daily-list { display: grid; gap: 12px; align-content: start; }
+.file-card { text-align: left; background: var(--panel); border: 1px solid var(--line-2); border-radius: var(--radius); padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.file-card .kicker { font-size: 12px; letter-spacing: .1em; color: var(--brass); }
+.file-card.daily .kicker { color: var(--muted); }
+.file-card b { font-family: var(--serif); font-size: 20px; }
+.file-card.daily b { font-size: 16px; }
+.file-card p { margin: 0; color: var(--muted); font-size: 14px; }
+.file-card.signature { border-color: var(--brass); background: #1c1a16; }
+.file-card.daily:hover { border-color: var(--brass); }
+.daily-open { border: 1px dashed var(--line-2); border-radius: var(--radius); padding: 14px 16px; margin: 0 0 22px; font-size: 14px; }
+.daily-open h3 { margin: 0 0 6px; font-size: 15px; }
+.daily-open p { margin: 0 0 8px; color: var(--muted); }
+.forecast { display: inline-block; font-family: var(--hand); font-size: 18px; color: var(--brass-2); }
+.note { color: var(--muted); font-size: 13px; margin: 6px 0 0; }
+
+/* settlement */
+.settle { margin: 0 0 22px; border: 1px solid var(--line-2); border-left: 3px solid var(--def); border-radius: var(--radius); padding: 14px 16px; background: var(--panel); }
+.settle h3 { margin: 0 0 6px; font-size: 15px; }
+.settle .offer { font-family: var(--serif); margin: 0 0 6px; }
+.settle .talk { list-style: none; padding: 0; margin: 10px 0; display: grid; gap: 8px; font-size: 14px; }
+.settle .talk b { display: block; font-size: 12px; color: var(--muted); font-weight: 600; }
+.settle .talk .CLIENT b { color: var(--brass-2); }
+.settle .talk .DEFENSE b { color: var(--def); }
+.settle .talk .VICTIM b { color: var(--pros); }
+.settle .advice { display: grid; gap: 8px; margin-top: 8px; }
+.settle .advice .btn { text-align: left; }
+.settle .result { margin: 8px 0 0; font-weight: 700; }
+.settle .result.ok { color: var(--ok); }
+.settle .result.no { color: var(--def); }
+
+/* outcome */
+.outcome { text-align: center; padding: 6px 0 18px; }
+.outcome .kicker { color: var(--muted); font-size: 13px; letter-spacing: .2em; }
+.outcome h1 { font-family: var(--serif); font-size: 56px; margin: 4px 0 2px; letter-spacing: .14em; }
+.outcome h1.clear { color: var(--brass-2); }
+.outcome h1.convict { color: #d0685c; }
+.outcome .sub { font-family: var(--serif); font-size: 20px; margin: 0 0 8px; }
+.outcome p { font-family: var(--serif); color: #d9cfb8; max-width: 620px; margin: 0 auto; }
+.outcome .basis { font-family: inherit; font-size: 12px; color: var(--faint); margin-top: 6px; }
+.sentence { max-width: 620px; margin: 14px auto 0; border: 1px dashed var(--def); border-radius: var(--radius); padding: 10px 14px; text-align: left; font-size: 14px; }
+.sentence .tag { display: inline-block; font-size: 11px; color: var(--def); border: 1px solid var(--def); border-radius: 4px; padding: 0 6px; margin-bottom: 4px; }
+.sentence p { font-family: inherit; color: var(--muted); margin: 2px 0 0; max-width: none; }
+.why { max-width: 620px; margin: 14px auto 0; text-align: left; font-size: 14px; color: var(--text); background: rgba(201, 164, 92, .08); border-radius: var(--radius); padding: 10px 14px; }
+.why h3 { margin: 0 0 4px; font-size: 13px; color: var(--brass-2); }
+.why p { margin: 0; font-family: inherit; color: var(--text); max-width: none; }
+.review.four { grid-template-columns: repeat(2, 1fr); }
+.review .opp h3 { color: var(--pros); }
+.review-text { max-width: 900px; margin: 16px auto 0; font-size: 15px; }
+.next { max-width: 900px; margin: 14px auto 0; border: 1px solid var(--brass); border-radius: var(--radius); padding: 12px 16px; font-size: 15px; }
+.next b { color: var(--brass-2); margin-right: 6px; }
+
+@media (max-width: 900px) {
+  .files { grid-template-columns: 1fr; }
+  .outcome h1 { font-size: 40px; }
+  .review.four { grid-template-columns: 1fr; }
+}
