@@ -1,3 +1,728 @@
+# GEN-001 조정 결과 — 2026-10-01
+
+브랜치 `task/gen-001`, 기준 HEAD `b7bfeba`. Lane: experiment. 사용자 결정으로 `core/playthrough.js`·`balance.js` 수정까지 포함했다. 커밋·병합은 하지 않았다.
+
+## 결과와 전후 비교
+
+폭행·음주운전 각각 seed 1~300, 총 600사건. 난수는 기존 `createRng(seedFor(seed, archetypeId + ':random-policy'))`를 사용한다. 판정에는 난수를 추가하지 않는다.
+
+| 원형·단계 | (a) 무준비 무죄 | (b) 최선 경로 무죄 가능 | (c) 무작위 준비 + 상식적 신문 | (d) 조사만 바꿔 결과 변경 | (e) 완전 무작위 참고 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 폭행: 조정 전 원본 | 0/300 (0%) | 189/300 (63.0%) | 미구현 | 미측정 | 9/300 (3.0%) |
+| 폭행: 정책·경로 수정, 수치 전 | 0/300 (0%) | 257/300 (85.7%) | 52/300 (17.3%) | 256/300 (85.3%) | 9/300 (3.0%) |
+| **폭행: 조정 후** | **0/300 (0%)** | **300/300 (100%)** | **133/300 (44.3%)** | **300/300 (100%)** | 26/300 (8.7%) |
+| 음주운전: 조정 전 원본 | 0/300 (0%) | 184/300 (61.3%) | 미구현 | 미측정 | 6/300 (2.0%) |
+| 음주운전: 정책·경로 수정, 수치 전 | 0/300 (0%) | 255/300 (85.0%) | 46/300 (15.3%) | 255/300 (85.0%) | 6/300 (2.0%) |
+| **음주운전: 조정 후** | **0/300 (0%)** | **300/300 (100%)** | **133/300 (44.3%)** | **300/300 (100%)** | 21/300 (7.0%) |
+| 요청 기준 | 0% | ≥90% | 40~65% | ≥50% | 참고 출력 |
+
+원본의 (c)는 완전 무작위였으므로 새 (e) 열에 옮겼다. 원본 (d)는 조사 외에 집중 쟁점·신문 대상도 함께 바꾸는 지표였다(폭행 48.3%, 음주운전 49.0%). 이번 (d)는 같은 target·focus·stance·신문 정책에서 **해당 쟁점 조사 우선 / 다른 쟁점 조사 우선**만 비교한다. 쟁점 중 하나라도 결과가 달라지면 사건 1건으로 센다. 두 경로 모두 예산 제한을 지킨다. 새 수치에서는 두 쟁점 모두 잘 준비하면 무죄가 가능해 옛 지표는 두 원형 모두 **0%**다. 이 값도 balance 출력에 남겼다. 서로 다른 정의를 동일 지표의 개선으로 비교하지 않는다.
+
+### 원인과 수정
+
+- 완전 무작위는 카드 없는 접근·과욕·신문 조기 종료·준비한 재반대 포기를 섞어, 준비 효과보다 행동 낭비를 측정했다.
+- 새 (c)는 예산 안 조사 순서를 섞고, focus·stance·이의를 무작위 선택한다. 반대신문은 보유 카드의 접근법을 무작위 순서로 쓴다. 입장 충돌 접근법도 카드가 있으면 후보에 포함한다. overreach는 쓰지 않고, limited는 서비스에서 사용 가능하며 엔진의 근거 점수 조건도 충족할 때만 쓴다. 가능한 재반대는 전부 한다. 신문 시간 제한은 그대로 적용한다.
+- 최선 경로는 준비한 접근법 뒤에도 `_UNSUPPORTED` 접근법을 먼저 골라 세 번째 시간을 소모했다. 카드 있는 증거 접근법만 고르게 해 limited까지 도달하도록 수정했다. limited의 성공 조건도 확인한다.
+- `strengthRange`는 폭행 IDENTITY·음주 DRIVER **[3,7] → [3,4]**, 폭행 CAUSATION·음주 INTOXICATION **[3,7] → [3,5]**. 하한 3은 doubt 2보다 커서 무준비 무죄를 막는다. 각 원형의 noise 1과 truth 방향은 유지했다.
+- 접근법 -1, limited 성공 -1/실패 +1, overreach +2·credibility -1, 반전의 회복/재반대 ±1·±2는 유지했다. 예산도 `max(2, round(총비용 × 0.6))` 유지(정수 반올림 때문에 실제 비율은 사건별로 다름). 이번 수치 변경은 콘텐츠 원형 범위뿐이다.
+- `check-balance.js`도 objection/rebuttal을 구분한다. 카드 없이 추궁한 무죄 0% 검증은 유지했고, 40~65% 검증 대상은 새 (c)로 맞췄다. 옛 고정 순서 준비는 fullPrep 참고 출력으로 남겼다.
+
+## 테스트와 불변식
+
+기존 content 14개 중 7개 실패 → **17개 전부 통과**(기존 14개 수리 + 정책 회귀 3개). 기존 core **43/43**, 프로토타입 **247/247** 통과. 합계 **307 tests / 0 failures**, balance **8/8 checks**, 콘텐츠 보조 점검 **2/2**. 총 **317 checks / 0 failures**, 최종 명령 모두 exit 0.
+
+- 문구 완결 검증은 overreach에 없는 success를 억지로 요구하지 않고, limited success 필수·overreach success 부재·모든 fail 및 이의·입장 충돌·재주신문·재반대 문구를 검증한다.
+- 수치 보존 검증에 byStance·입장 충돌 비용·이의 효과·overreach credibility를 포함한다.
+- 서비스 테스트는 예산 안 조사로 완주하며, 예산 초과·존재하지 않는 조사 실패 후 상태 불변을 확인한다.
+- 기본 접근법은 해당 카드일 때만 -1/근거 1개를 만든다. 다른 카드/카드 없음은 거부되고 상태가 그대로다. limited는 근거 1개로 실패·2개로 성공, overreach는 2개여도 실패한다. 입장 충돌 접근법은 점수 0, DENY에서만 credibility -1이다.
+- 새 (c) 기록에서 카드 보유·지출 한도·limited 성공 조건·재반대 사용·focus/stance/이의 분기·같은 seed 재현 및 replay를 확인한다. (e)의 과욕·무근거 추궁·재반대 포기 경로도 남아 있다.
+- (b)/(d)는 prepared 접근법 뒤 limited가 실제 실행되는지, 조사 순서를 바꿔도 opening이 같은지, 두 기록이 replay되는지 확인한다.
+
+코어 디렉터리를 직접 넘긴 `node --test generator/core/tests`는 이 Node 환경에서 모듈 경로 오류(exit 1)가 났다. 파일 glob 명령으로 다시 실행해 43개를 통과했다. 실패 실행은 파일·게임 상태를 변경하지 않았다. 아래에 해당 출력도 보존했다.
+
+## 문서와 법률 정정
+
+[CATALOG.md](content/CATALOG.md)에 공식 조문·판례 링크를 붙였다. 형법 307·309조 및 정보통신망법 70조의 반의사불벌, 모욕 311조의 친고죄를 확정 기재했다. 사기·횡령에는 친족상도례와 2024 헌법불합치 결정, 이후 2025.12.31. 개정을 함께 적고 사건별 친족 관계·행위 시점·경과 규정은 **[확인 필요]**로 남겼다. 형사공탁(294조의6)과 피해자 의견 청취를 사기·횡령·기존 폭행류 검토 항목에 추가했다. 무고 목적에 징계처분, 주거침입에 공용 복도·계단의 보호 가능성을 반영했다. 법률 적용·양형 기능은 구현하지 않았다.
+
+SIGNATURE 9행의 §1.10 부재 문구를 갱신하고 §3이 민사여서 현 형사 공판 엔진으로 구현할 수 없음을 명시했다. **DEMO-DESIGN.md 전체와 SIGNATURE §1은 HEAD와 비교해 변경 없음**을 확인했다.
+
+## 완료 기준·한계·인계
+
+| 기준 | 상태·근거 |
+| --- | --- |
+| 새 (c), 기존 완전 무작위 (e) | 충족: 별도 정책·참고 출력·기록 회귀 |
+| content.test 7개 실패 수리, 불변식 유지 | 충족: 기존 14개 + 새 3개 통과 |
+| (a)~(d) 목표 및 전후 표 | 충족: 두 원형 각 300시드, 8개 게이트 통과 |
+| CATALOG 법률 정정 | 충족: 요청 항목 및 공식 출처 반영 |
+| SIGNATURE 지정 부분 정정·금지 부분 보존 | 충족: §1·DEMO-DESIGN 보존 비교 |
+| 관련 테스트·balance 출력 전체 | 충족: 아래 전문 및 content/test-results.log |
+| 원 계약의 분야 3개 × 10개 사람 읽기 검수 | **미완: 사람 검수 필요**. 이번에 민사 공판을 확장하지 않음 |
+| 원 계약의 못 이기는 승부 사건 0개 | 이번 검증 600건에서는 충족. 전체 seed 공간 보증은 아님 |
+
+새로 정한 실험용 규칙은 [RULES.md](content/RULES.md) 맨 위에 정리했다. 사건 원형·대사·이의 proper/improper 순서는 authored fixture다. (b)는 쟁점별 집중 경로를 찾는 드라이버이며 모든 가능한 행동 조합을 완전 탐색하는 증명기는 아니다. seed 1~300은 조정에 사용한 표본으로, 별도 holdout 성능을 주장하지 않는다. 좁아진 strengthRange와 두 쟁점 모두 준비하면 이길 수 있는 구조가 재미있는지는 사람 판단이 남아 있다.
+
+사람 판단 질문:
+1. 새 (c)의 44.3%와 준비한 최선 경로 100%가 체감 난도에 맞는가?
+2. 두 쟁점 어느 쪽도 잘 준비하면 이길 수 있는 구성이 반복 플레이에 충분한 차이를 주는가?
+3. 카탈로그의 사건별 법률 적용·경과 규정 검토를 다음 콘텐츠 구체화 전에 확정할 수 있는가?
+
+수정은 `generator/` 안의 사용자 허용 파일과 인계 문서뿐이다. 기존 미추적 `courtroom-prototype/world/`는 건드리지 않았다. engine/services/UI·보호 문서·다음 단계 작업은 변경하지 않았다. 상세 변경 파일·명령은 [REVIEW_PACKET.md](content/REVIEW_PACKET.md). 사람 커밋·병합 대기.
+
+## 최신 실행 출력 전체
+
+실행 위치: `courtroom-prototype/`.
+
+### node --test generator/core/tests/*.test.js
+
+```text
+✔ selectActivatedTwists: activation을 만족하면 고른다 (1.6624ms)
+✔ selectActivatedTwists: activation을 만족하지 않으면 고르지 않는다 (버그 회귀) (0.3ms)
+✔ selectActivatedTwists: 후보 목록이 비어 있으면 언제나 빈 배열이다 (0.158ms)
+✔ selectActivatedTwists: appliesTo가 다른 원형이면 activation과 무관하게 고르지 않는다 (0.2258ms)
+✔ buildContestedCase: activation false면 witness redirect가 비어 있고 twist 카드가 안 붙는다 (1.2521ms)
+✔ buildContestedCase: activation true면 witness redirect에 twist가 정확히 변환되어 붙는다 (0.721ms)
+✔ buildContestedCase: 같은 시드는 twistsApplied를 포함해 같은 사건을 만든다 (1.1323ms)
+✔ buildContestedCase: 후보 twist 없이도 반전 없는 사건을 만든다 (하나도 없으면 반전 없는 사건) (1.254ms)
+✔ 항목1: 준비 예산이 조사 총비용의 약 55~65%이고 최소 2다 (twist 없음/있음 둘 다) (4.3649ms)
+✔ 항목2: opening.focus는 균형 1개 + 쟁점별 1개(2개 원형이면 3개), stance는 3개다 (0.9339ms)
+✔ 항목2: 쟁점별 focus는 그 쟁점의 증인에게 더 많은 시간을, 다른 증인에게는 더 적게 준다 (0.3272ms)
+✔ 항목2: 활성화된 twist가 있는 쟁점에는 stance 충돌 접근법(byStance + stanceConflict)이 붙는다 (3.5018ms)
+✔ 항목3: 증인마다 이의 창이 정확히 1개이고, 두 증인 사이에 proper/improper가 섞인다 (0.3863ms)
+✔ 항목4: 증인마다 press가 limited 1개 + overreach 1개다 (0.469ms)
+✔ 항목4: 결론 요구 성공이 경계선 사건을 doubt로 뒤집는 실제 경로가 존재한다 (578.6891ms)
+✔ 항목4: 과욕(overreach) press는 항상 실패하고 credibility를 깎는다 (0.2955ms)
+✔ 항목5 유틸: playBestPathForIssue는 결정적이다(같은 입력 같은 출력) (4.7037ms)
+✔ 항목5 유틸: playThroughRandom은 같은 rng 시퀀스면 같은 결과, 다른 시드면 최소 하나는 값이 다르다 (83.0014ms)
+✔ 항목6: 같은 seed 번호라도 원형이 다르면 truth 스트림이 분리된다 (0.3486ms)
+✔ 항목6: seedFor는 결정적이다(같은 입력 같은 출력) — createRng(seedFor(seed, id))로 매번 같은 스트림을 얻는다 (0.2006ms)
+✔ 신규 구조 스모크: validate 통과 + playThrough(양쪽) 완주, 여러 시드 (33.7573ms)
+✔ archetype.criminal.example: 형식 검증을 통과한다 (1.5714ms)
+✔ buildContestedCase(criminal, seed, []): 반전 후보가 없으면 템플릿만으로 사건을 만든다 (1.0231ms)
+✔ buildContestedCase(criminal): engine/trial.js validate()를 통과한다 (빠른 구조 점검, 여러 시드) (2.9559ms)
+✔ buildContestedCase(criminal) → playThrough: 준비 없이도 판결까지 끝까지 진행된다 (acceptance bar) (19.1801ms)
+✔ buildContestedCase(criminal) → playThrough: 모든 준비 후에도 판결까지 끝까지 진행된다 (acceptance bar) (19.6056ms)
+✔ playThrough: 준비 없이 진행하면 카드가 없어 approach를 쓸 수 없고 무죄가 나오지 않는다 (2.5단계 항목 a 단위 회귀) (1.9988ms)
+✔ buildContestedCase(criminal): 같은 시드는 같은 사건을 만든다 (0.8971ms)
+✔ buildContestedCase(criminal): issue baseline이 항상 bands.doubt보다 크다 (2단계 항목 2) (10.1775ms)
+✔ buildContestedCase(criminal): 전역 id가 모두 유일하다 (engine validate의 암묵적 요구사항) (1.0035ms)
+✔ generateDailyCase: 같은 시드는 같은 사건을 만든다 (2.33ms)
+✔ generateDailyCase: 다른 시드는 다른 사건을 만든다 (0.3626ms)
+✔ generateDailyCase: 값이 원형 범위 안에 있다 (0.4032ms)
+✔ generateDailyCase: outcomeSummary는 claim_amount(보증금)를 쓰고 retainer(착수금)와 섞이지 않는다 (0.1975ms)
+✔ evaluateActivation: 연산자별로 truth 값을 올바르게 비교한다 (0.2291ms)
+✔ computeBaseStrength: direct/inverse 방향이 반대로 움직인다 (0.1416ms)
+✔ validateArchetype: 유효한 예시 원형은 문제가 없다 (0.4294ms)
+✔ validateArchetype: issue를 커버하지 않는 evidence_strength_rules는 거부된다 (0.2152ms)
+✔ validateArchetype: claim_amount 범위가 없으면 거부된다 (0.2162ms)
+✔ validateTwist: 유효한 예시 반전은 문제가 없다 (0.4489ms)
+✔ validateTwist: targetIssue가 원형에 없으면 거부된다 (0.2238ms)
+✔ validateTwist: activation.param이 truth_params에 없으면 거부된다 (0.1646ms)
+✔ validateTwist: opponentRecovery.effect.issue가 targetIssue와 다르면 거부된다 (0.1312ms)
+ℹ tests 43
+ℹ suites 0
+ℹ pass 43
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 851.7225
+exit code: 0
+```
+
+### node --test generator/content/content.test.js
+
+```text
+✔ 폭행 4개·DUI 3개 반전이 기존 형식에 맞고 다른 원형 참조는 거부된다 (3.8993ms)
+✔ 일곱 반전은 0.60에서 활성화·0.59에서 비활성화하고 다른 원형에는 붙지 않는다 (1.7084ms)
+✔ ARCH_CRIMINAL_ASSAULT: 500시드 결정성·엔진 검증·문구 완결·활성/비활성 카드 참조 (309.3689ms)
+✔ ARCH_CRIMINAL_ASSAULT: 콘텐츠 구성은 기존 준비 접근법과 truth·시드·수치를 보존한다 (5.2097ms)
+✔ ARCH_CRIMINAL_ASSAULT: 일상 사건 문구에 민사 보증금이 섞이지 않고 입력이 결정적이다 (0.7123ms)
+✔ ARCH_CRIMINAL_ASSAULT: 준비 유무 양쪽에서 실제 서비스 완주·실패 원자성·기록 재생 (234.1333ms)
+✔ ARCH_DUI: 500시드 결정성·엔진 검증·문구 완결·활성/비활성 카드 참조 (194.5963ms)
+✔ ARCH_DUI: 콘텐츠 구성은 기존 준비 접근법과 truth·시드·수치를 보존한다 (3.7472ms)
+✔ ARCH_DUI: 일상 사건 문구에 민사 보증금이 섞이지 않고 입력이 결정적이다 (0.3594ms)
+✔ ARCH_DUI: 준비 유무 양쪽에서 실제 서비스 완주·실패 원자성·기록 재생 (207.1303ms)
+✔ 진실에 대응하는 문구가 분기 경계 양쪽을 반영한다 (0.4896ms)
+✔ 주신문은 입증할 내용을 말하고 한계·방어 정황은 카드 제시 때 드러난다 (0.4862ms)
+✔ 모든 접근법은 카드 없음·다른 카드·해당 카드의 기록과 근거 점수를 구분한다 (1.6714ms)
+✔ 알 수 없는 콘텐츠 요청은 원형 데이터를 오염시키지 않는다 (0.7604ms)
+✔ 정책 c: 예산·카드·limited 조건, 재반대 사용, 결정성과 기록 재생 (2325.0242ms)
+✔ 정책 e: 기존 무작위의 과욕·무근거 추궁·재반대 포기를 참고 경로로 보존 (244.4308ms)
+✔ 정책 b/d: 준비된 접근법 뒤 limited, 조사 우선순위만 바꾼 대조군 (565.2105ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4286.4143
+exit code: 0
+```
+
+### npm test
+
+```text
+
+> the-firm-courtroom-experiment@0.10.0 test
+> node --test tests/core.test.js tests/strategy.test.js tests/inference.test.js tests/procedure.test.js tests/flow.test.js tests/tactics.test.js tests/opening.test.js tests/closing.test.js tests/closing-profile.test.js tests/adjudication.test.js tests/trial.test.js
+
+✔ decision appends procedural marker only, preserving all prior record layers (75.9038ms)
+✔ same JSON CourtRecord produces identical finding and verdict without UI state (28.0795ms)
+✔ decision cannot run prematurely and unavailable before Closing publication (33.8448ms)
+✔ no Closing profile ends examinations and permits direct decision (15.3675ms)
+✔ legacy profile without adjudication still resolves normally (12.4517ms)
+✔ sparse Closing does not supply missing facts; direct testimony remains real evidence (28.0314ms)
+✔ Opening, procedural success and eloquent claims cannot substitute for evidence (0.6315ms)
+✔ issue scope cannot leak either direction (1.0136ms)
+✔ active Counter and valid qualification change local finding, never foreign finding (38.9966ms)
+✔ admission and subsequent overreach qualification both remain in findings (13.8363ms)
+✔ selected Closing arguments change context only, not evidence-based findings (19.5215ms)
+✔ required issues and assigned burden determine verdict using complete proof routes (25.2389ms)
+✔ all required issues must satisfy burden and recorded doubts defeat otherwise complete proof (2.6357ms)
+✔ duplicate evidence and duplicated advocacy never accumulate into proof (1.5871ms)
+✔ unresolved witness contradiction blocks proof and stays local (2.9768ms)
+✔ replay freezes referenced decision input and rejects missing input/version mismatch (12.1623ms)
+✔ reject unsupported/partial adjudication d=>delete d.adjudication (16.5877ms)
+✔ reject unsupported/partial adjudication d=>delete d.profile.phases.verdict (2.5769ms)
+✔ reject unsupported/partial adjudication d=>d.profile.actions=d.profile.actions.filter(a=>a!=='deliverVerdict') (3.1018ms)
+✔ reject unsupported/partial adjudication d=>d.adjudication.requiredIssues[0].standard='score_75' (1.7988ms)
+✔ reject unsupported/partial adjudication d=>d.adjudication.requiredIssues[0].burden='jury' (2.2309ms)
+✔ reject unsupported/partial adjudication d=>d.adjudication.factFinder='jury' (2.4642ms)
+✔ reject unsupported/partial adjudication d=>d.adjudication.decisionRule='sum' (2.2924ms)
+✔ reject unsupported/partial adjudication d=>d.adjudication.requiredIssues=[] (18.1458ms)
+✔ reject unsupported/partial adjudication d=>d.adjudication.issues[0].doubts[0].all=['P_PRINT_TIME_UNKNOWN'] (24.0996ms)
+✔ public commitment conflict is advocacy context, never a substitute for evidentiary doubt (1.3213ms)
+✔ finding reads records without mutation and does not infer evidence from available exhibits (2.3309ms)
+✔ proof route requires every recorded premise rather than number of facts (1.2299ms)
+✔ opposing complete proof paths remain unresolved instead of silently choosing a side (2.0762ms)
+✔ party evidence labels are authored data, not criminal strings in engine (1.4794ms)
+✔ reject partial Closing phaseOnly (15.7452ms)
+✔ reject partial Closing actionOnly (1.5979ms)
+✔ reject incomplete lifecycle missing closing (1.7299ms)
+✔ reject incomplete lifecycle missing closed (2.107ms)
+✔ reject incomplete lifecycle missing beginClosing (2.8472ms)
+✔ reject incomplete lifecycle missing submitClosing (9.5043ms)
+✔ no Closing resolves both witnesses and rejects both commands atomically (43.2677ms)
+✔ complete profile availability and commands agree through Closing (27.5116ms)
+✔ speech dedupe preserves every position, revision and conflict: mixed=false (12.8583ms)
+✔ speech dedupe preserves every position, revision and conflict: mixed=true (21.7489ms)
+✔ Closing requires both ended examinations and cannot create evidence or alter earlier advocacy (59.2771ms)
+✔ Case-wide catalog uses both witnesses and recorded frames; unrecorded variants unavailable (32.8289ms)
+✔ same CourtRecord and different selected arguments yield different Advocacy without auto inclusion (97.3597ms)
+✔ published Closing replays from JSON CourtRecord without UI, history or witness state (58.3794ms)
+✔ closing draft phase also replays from records, and reset clears it (45.5944ms)
+✔ Core/Peripheral independent of closing selection and no fabricated intent support (43.5941ms)
+✔ Opening revision links original commitment and appends conflict, preserving Strategy Revision history (22.8673ms)
+✔ maintaining or omitting public positions does not silently rewrite or invent conflicts (44.0832ms)
+✔ missing, foreign, duplicate and incomplete argument references fail atomically (83.5913ms)
+✔ active counters and later witness qualifications remain in selected closing synthesis (45.0253ms)
+✔ qualified counter uses only actual recorded qualification and preserves adverse record (46.9408ms)
+✔ unaddressed counters survive synthesis without being silently resolved (13.5069ms)
+✔ two witness arguments combine only their own cited premises in one Closing (99.6355ms)
+✔ authored content is valid and original input is not mutated (18.4219ms)
+✔ all favorable fact orders: G_DISTANCE/G_LIGHTING/G_DURATION/G_INITIAL (24.7197ms)
+✔ all favorable fact orders: G_DISTANCE/G_LIGHTING/G_INITIAL/G_DURATION (13.3631ms)
+✔ all favorable fact orders: G_DISTANCE/G_DURATION/G_LIGHTING/G_INITIAL (11.902ms)
+✔ all favorable fact orders: G_DISTANCE/G_DURATION/G_INITIAL/G_LIGHTING (71.8263ms)
+✔ all favorable fact orders: G_DISTANCE/G_INITIAL/G_LIGHTING/G_DURATION (12.1619ms)
+✔ all favorable fact orders: G_DISTANCE/G_INITIAL/G_DURATION/G_LIGHTING (10.0472ms)
+✔ all favorable fact orders: G_LIGHTING/G_DISTANCE/G_DURATION/G_INITIAL (34.4241ms)
+✔ all favorable fact orders: G_LIGHTING/G_DISTANCE/G_INITIAL/G_DURATION (47.284ms)
+✔ all favorable fact orders: G_LIGHTING/G_DURATION/G_DISTANCE/G_INITIAL (10.4675ms)
+✔ all favorable fact orders: G_LIGHTING/G_DURATION/G_INITIAL/G_DISTANCE (33.7588ms)
+✔ all favorable fact orders: G_LIGHTING/G_INITIAL/G_DISTANCE/G_DURATION (29.5241ms)
+✔ all favorable fact orders: G_LIGHTING/G_INITIAL/G_DURATION/G_DISTANCE (11.6735ms)
+✔ all favorable fact orders: G_DURATION/G_DISTANCE/G_LIGHTING/G_INITIAL (14.8295ms)
+✔ all favorable fact orders: G_DURATION/G_DISTANCE/G_INITIAL/G_LIGHTING (23.0767ms)
+✔ all favorable fact orders: G_DURATION/G_LIGHTING/G_DISTANCE/G_INITIAL (9.9788ms)
+✔ all favorable fact orders: G_DURATION/G_LIGHTING/G_INITIAL/G_DISTANCE (21.8638ms)
+✔ all favorable fact orders: G_DURATION/G_INITIAL/G_DISTANCE/G_LIGHTING (12.6417ms)
+✔ all favorable fact orders: G_DURATION/G_INITIAL/G_LIGHTING/G_DISTANCE (41.9217ms)
+✔ all favorable fact orders: G_INITIAL/G_DISTANCE/G_LIGHTING/G_DURATION (11.3227ms)
+✔ all favorable fact orders: G_INITIAL/G_DISTANCE/G_DURATION/G_LIGHTING (9.764ms)
+✔ all favorable fact orders: G_INITIAL/G_LIGHTING/G_DISTANCE/G_DURATION (23.1893ms)
+✔ all favorable fact orders: G_INITIAL/G_LIGHTING/G_DURATION/G_DISTANCE (10.1124ms)
+✔ all favorable fact orders: G_INITIAL/G_DURATION/G_DISTANCE/G_LIGHTING (10.0548ms)
+✔ all favorable fact orders: G_INITIAL/G_DURATION/G_LIGHTING/G_DISTANCE (30.6415ms)
+✔ ADMIT from uncertain statement plus two observation conditions (22.0368ms)
+✔ EXPLAIN adds durable counter and repeat adds familiarity (21.5094ms)
+✔ RESIST has no invented proposition (16.4702ms)
+✔ record context changes response without changing selected lighting premises (18.7006ms)
+✔ early stop is always available, including zero evidence (4.552ms)
+✔ one premise cannot press/frame, two can; unrecorded and duplicate premises fail atomically (22.5827ms)
+✔ counter propositions are recorded but incompatible with plan (12.5815ms)
+✔ all failed commands preserve complete state and ID allocation (31.4243ms)
+✔ Frame remains advocacy; duplicate combination rejected even if reordered (13.8474ms)
+✔ working strategy changes preserve argument frames without inventing a major commitment (7.0892ms)
+✔ theory B does not manufacture an intent finding (10.6588ms)
+✔ resolution reads records, not question counts, selection, advocacy or question IDs (5.2677ms)
+✔ returned state and input definition are defensive copies (13.8473ms)
+✔ reset creates a new session with no reused runtime IDs (10.8493ms)
+✔ complete sessions have globally unique runtime record IDs (18.9311ms)
+✔ terminal state rejects all gameplay commands atomically (48.1578ms)
+✔ a selected plan can be used before exhausting available facts (6.9979ms)
+✔ deterministic replay (27.7598ms)
+✔ content validator rejects missing proposition (1.7028ms)
+✔ content validator rejects missing evidence (1.4645ms)
+✔ content validator rejects duplicate ID (1.2391ms)
+✔ content validator rejects unreachable premise (1.175ms)
+✔ content validator rejects missing fallback (1.3851ms)
+✔ content validator rejects unknown condition (1.3169ms)
+✔ content validator rejects invalid tag (1.4156ms)
+✔ content validator rejects invalid bounds (1.2509ms)
+✔ civil architecture smoke: all IDs and content replaced without engine edits (10.6887ms)
+✔ forensic direct testimony is evidence once, attributed to the correct witness (74.6297ms)
+✔ either witness can be first without a seeding special case (25.7828ms)
+✔ exact new inference INF_PRINT_TIME_SHARED (33.0976ms)
+✔ exact new inference INF_PRINT_TIME_PRIOR (17.0956ms)
+✔ exact new inference INF_PRINT_TIME_SHARED_PRIOR (21.42ms)
+✔ strong new Press uses existing resolver and preserves adverse findings (26.1686ms)
+✔ limited then reinforced forensic Press remains signature based (38.1518ms)
+✔ same new argument has core versus peripheral value without locking questions (23.3902ms)
+✔ thread navigation is non-linear and ending a thread does not stop examination (28.5502ms)
+✔ lighting follow-up can be stopped, switched away or deliberately pursued (23.6701ms)
+✔ witness navigation preserves records and pressures without cross-witness reuse (39.0308ms)
+✔ closed witness stays closed and second witness remains examinable (31.8757ms)
+✔ current witness cannot ask another witness goals or select foreign evidence (23.8767ms)
+✔ multiple basis scene exposes available candidates, not a preselected solution (10.2275ms)
+✔ chosen basis changes procedural scope: report (24.2434ms)
+✔ chosen basis changes procedural scope: timing (30.1649ms)
+✔ chosen basis changes procedural scope: report-access (20.3983ms)
+✔ chosen basis changes procedural scope: access (19.8474ms)
+✔ strict data profile limits same connected basis with unchanged engine (17.1453ms)
+✔ basis size, duplicate, fabricated and foreign refs fail without state/ID pollution (72.242ms)
+✔ pending procedure locks witness and topic changes and stops (36.2632ms)
+✔ one available evidence basis retains automatic connection semantics (8.0953ms)
+✔ scoped record replay ignores other witness concessions and procedure transactions (16.4594ms)
+✔ forensic path works with every authored persistent ID renamed (17.7579ms)
+✔ engine and service contain no fingerprint/case/proposition-specific branch identifiers (2.3551ms)
+✔ data validation rejects foreign plan premise (1.6973ms)
+✔ data validation rejects foreign topic (1.4622ms)
+✔ data validation rejects foreign witness plan (1.7153ms)
+✔ data validation rejects foreign basis (1.7274ms)
+✔ data validation rejects missing direct response (2.4989ms)
+✔ data validation rejects bad judge (3.1191ms)
+✔ data validation rejects missing resolution fallback (1.5698ms)
+✔ different proposition combinations resolve to authored inference variants (64.1109ms)
+✔ weak, strong and compelling Frames create different record-only outcomes (39.8531ms)
+✔ mixed light-source exploration adds favorable and hard counter propositions (22.3135ms)
+✔ stopping before a mixed exploration preserves a strong uncontested argument (53.6152ms)
+✔ hard counter remains in CourtRecord without an immediate response route (7.2625ms)
+✔ argument frame is separate from a CaseTheory-level major commitment (20.1376ms)
+✔ the same inference remains core in Theory A and peripheral in Theory B (6.1523ms)
+✔ inference evaluation replays from CourtRecord and rejects forged variants (24.6711ms)
+✔ content validation rejects duplicate inference basis and invalid hard-counter routes (5.4702ms)
+✔ opening gates examination, choices are advocacy only and cannot be resubmitted (34.943ms)
+✔ invalid, duplicate and mutually inconsistent opening choices fail atomically (36.8443ms)
+✔ strategy revisions preserve opening and evidence, record explicit referential conflicts (33.7942ms)
+✔ priority change alone is not a factual conflict and initial private/public conflict is visible (27.4184ms)
+✔ record-only replay recovers public state and latest strategy with no history or selection (8.2701ms)
+✔ opening issue links reach witness arguments and actual evidence; Theory B remains peripheral (24.8358ms)
+✔ bad authored opening references fail construction (13.972ms)
+✔ same examination commands yield identical semantic evidence and outcomes with/without opening (34.1814ms)
+✔ IDENTITY counter reviews only same-issue public commitments after Opening and strategy revision (28.158ms)
+✔ INTENT counter reviews only same-issue public commitments after Opening and strategy revision (12.5319ms)
+✔ peripheral Frame keeps priority without challenging its same-issue commitment (13.3678ms)
+✔ record-only IDENTITY counter cannot contaminate the opposite issue (1.7977ms)
+✔ record-only INTENT counter cannot contaminate the opposite issue (0.7988ms)
+✔ all theories must explicitly declare every position key, including unspecified (34.8956ms)
+✔ case-wide links explicitly represent issue progression, not evidentiary support (5.5538ms)
+✔ clean facts and strong Press proceed without objections (70.7662ms)
+✔ foundation objection and Overruled are procedural only until witness answers (33.212ms)
+✔ Sustained creates no evidence, advocacy, asked fact or press history (12.7922ms)
+✔ Withdraw leaves only procedure and permits a different question (37.2948ms)
+✔ Narrow foundation sacrifices mixed exploration and only records limited answer (36.315ms)
+✔ Narrow Press abandons original conclusion without consuming Press history (24.6036ms)
+✔ form Maintain requests Court Address tied to frozen record, issue and inference (39.244ms)
+✔ Press Basis resumes original resolver exactly after ruling (13.8106ms)
+✔ Maintain repetition is Overruled for an ambiguous preceding answer (23.7073ms)
+✔ form discretion limits an otherwise connected conclusion {"proceduralStrictness":"strict"} (25.784ms)
+✔ form discretion limits an otherwise connected conclusion {"advocacyLatitude":"narrow"} (13.5442ms)
+✔ firm tolerance blocks repetition after ambiguous answer (35.6213ms)
+✔ judge cannot override missing foundation or already admitted conclusion {} (20.4459ms)
+✔ judge cannot override missing foundation or already admitted conclusion {"proceduralStrictness":"strict","tolerance":"firm","advocacyLatitude":"narrow"} (39.4065ms)
+✔ pending question freezes other commands at all procedural stages (93.7451ms)
+✔ invalid, duplicate, stale and unconnected basis payloads fail atomically (46.3436ms)
+✔ Court Address rejects absent or wrong record linkage; allows withdrawal (16.0232ms)
+✔ failed commands do not consume IDs or change subsequent results (35.1088ms)
+✔ procedural history cannot change record evaluation; Frame remains advocacy (12.6485ms)
+✔ major commitment source is advocacy only; legacy state is ignored (4.9512ms)
+✔ invalid procedural data fails validation without a running simulation (8.6972ms)
+✔ unused response metadata cannot inject unvalidated procedural basis (6.8874ms)
+✔ Safe / Constructive / Aggressive have distinct payoffs and advocacy records (96.1706ms)
+✔ Press can be worse than safe/framed play from identical premises (40.6555ms)
+✔ reinforced Press with new selected basis obtains admission (23.6655ms)
+✔ permutations and newly banked but unselected facts do not evade repetition (18.5633ms)
+✔ subsets and restoring an earlier strong basis remain repeated (21.8807ms)
+✔ incomparable new premise combination is not a simple repeat (15.1864ms)
+✔ counter requires both counter and initial statement; failures atomic (60.9461ms)
+✔ counter rebuttal preserves original, records provenance and improves framed outcome (35.0473ms)
+✔ familiarity rebuttal never erases sign-light counter (29.6404ms)
+✔ qualification without provenance does not neutralize counter (15.6621ms)
+✔ same record/argument means core progress in A and peripheral argument in B without a major commitment (27.5783ms)
+✔ identification counter conflicts with A but not contact-conceding B (15.3532ms)
+✔ record-only evaluation ignores invalid UI plan/selection and question/pressure history (10.457ms)
+✔ nested UI/pressure-dependent final rules are rejected (4.8443ms)
+✔ counter definitions reject missing targets, basis, qualification and action (5.5592ms)
+✔ invalid or press-only advocacy cannot create a Frame payoff (4.9348ms)
+✔ reinforced admission and qualified counter replay from record only (25.6225ms)
+✔ CONTACT: explicit commitments change same broad question response (53.5141ms)
+✔ CONTACT: identical basis supports different scopes and adverse overreach (37.0252ms)
+✔ CONTACT: stop preserves gain, extra conclusion leaves linked qualification (71.4329ms)
+✔ CONTACT: final assessment replays with no UI or question history (12.1866ms)
+✔ CONTACT: invalid foreign or missing claims are atomic (48.7209ms)
+✔ SIGHT: explicit commitments change same broad question response (22.011ms)
+✔ SIGHT: identical basis supports different scopes and adverse overreach (11.4972ms)
+✔ SIGHT: stop preserves gain, extra conclusion leaves linked qualification (21.5838ms)
+✔ SIGHT: final assessment replays with no UI or question history (7.7443ms)
+✔ SIGHT: invalid foreign or missing claims are atomic (22.9708ms)
+✔ opportunity before timing differs from locked prior-contact limitation (46.3735ms)
+✔ middle question can recover a missing lock without silently deleting adverse narrative (16.7163ms)
+✔ narrow claim does not allow repeating an admitted same claim; another scope is distinct (17.5561ms)
+✔ recorded support is qualified then re-emphasized without deleting original finding (12.1563ms)
+✔ default form has one substantive basis route, address fixture has one address route (17.8259ms)
+✔ tactical authoring rejects duplicate (2.2672ms)
+✔ tactical authoring rejects missing (1.8127ms)
+✔ tactical authoring rejects foreign (1.7292ms)
+✔ tactical authoring rejects fallback (1.7649ms)
+✔ tactical authoring rejects relation (2.0519ms)
+✔ tactical authoring rejects commitment (1.7351ms)
+✔ tactical authoring rejects silentConflict (2.336ms)
+✔ authored contradiction explicitly links and preserves earlier admission (30.921ms)
+✔ explicit claim reinforcement keeps the canonical premise signature and uses new lock (20.8093ms)
+✔ tactical response uses evidence commitments, never asked/history or a witness-specific ID (8.3543ms)
+✔ full renamed content retains both witness tactical grammar (11.2997ms)
+✔ claim and procedure IDs share one persistent namespace (3.4777ms)
+✔ retreat releases a commitment for future routing but keeps original evidence (13.6225ms)
+✔ definition validates and service does not mutate input (68.8257ms)
+✔ validation rejects broken references (1.951ms)
+✔ prep budget is enforced atomically and investigations are irreversible (3.574ms)
+✔ prosecution exhibits stay sealed until records are inspected; client reinterview adds a statement (1.2429ms)
+✔ phase gates: commands out of phase fail without state change (3.9316ms)
+✔ objection window blocks progress until decided (1.9247ms)
+✔ bait objection is overruled and costs judge credibility (19.3763ms)
+✔ approaches require prepared cards; time is limited per opening focus (6.4918ms)
+✔ no preparation leads to conviction (21.3644ms)
+✔ identity-focused preparation can win; knife-focused preparation can win (23.641ms)
+✔ limited press succeeds only with enough grounds; overreach always backfires (37.5203ms)
+✔ sign-light redirect: rebuttal card neutralizes it, absence is reported as missed prep (33.5687ms)
+✔ initial-statement contrast neutralizes the familiarity redirect (15.3112ms)
+✔ opening denial is attacked by the prosecutor; client reinterview reveals the trap (32.6182ms)
+✔ low credibility shortens the next cross-examination (17.3435ms)
+✔ determinism and record-only replay (35.7234ms)
+✔ records are append-only across commands and reset starts clean (2.1455ms)
+✔ projection exposes no numeric win probability or issue strength to the UI text (7.6046ms)
+✔ engine and service do not inspect case-specific ids (10.5658ms)
+ℹ tests 247
+ℹ suites 0
+ℹ pass 247
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1182.2037
+exit code: 0
+```
+
+### node generator/balance.js
+
+```text
+GEN-001 ARCH_CRIMINAL_ASSAULT seeds 1..300
+  (a) no preparation: 0/300 (0.0%)
+  (b) best path: 300/300 (100.0%)
+  (c) random preparation + sensible cross: 133/300 (44.3%)
+  (d) investigation choice alone: 300/300 (100.0%)
+  (e) legacy completely random (reference): 26/300 (8.7%)
+  old (d) different target strategies (reference): 0/300 (0.0%)
+  Unwinnable seeds: none
+  Errors: 0
+  PASS (a) no preparation: 0%
+  PASS (b) best path: >=90%
+  PASS (c) random preparation + sensible cross: 40..65%
+  PASS (d) investigation choice alone: >=50%
+GEN-001 ARCH_DUI seeds 1..300
+  (a) no preparation: 0/300 (0.0%)
+  (b) best path: 300/300 (100.0%)
+  (c) random preparation + sensible cross: 133/300 (44.3%)
+  (d) investigation choice alone: 300/300 (100.0%)
+  (e) legacy completely random (reference): 21/300 (7.0%)
+  old (d) different target strategies (reference): 0/300 (0.0%)
+  Unwinnable seeds: none
+  Errors: 0
+  PASS (a) no preparation: 0%
+  PASS (b) best path: >=90%
+  PASS (c) random preparation + sensible cross: 40..65%
+  PASS (d) investigation choice alone: >=50%
+Checks: 8, failures: 0
+exit code: 0
+```
+
+### node generator/content/check-balance.js
+
+```text
+{"id":"ARCH_CRIMINAL_ASSAULT","seedCount":300,"noPrep":0,"unsupported":0,"fullPrep":70,"sensible":133,"rate":0.44333333333333336,"rebuttals":6,"pass":true}
+{"id":"ARCH_DUI","seedCount":300,"noPrep":0,"unsupported":0,"fullPrep":89,"sensible":133,"rate":0.44333333333333336,"rebuttals":0,"pass":true}
+exit code: 0
+```
+
+## 조정 전 출력 전체
+
+### 원본 content.test.js (7개 실패)
+
+```text
+✔ 폭행 4개·DUI 3개 반전이 기존 형식에 맞고 다른 원형 참조는 거부된다 (4.2978ms)
+✔ 일곱 반전은 0.60에서 활성화·0.59에서 비활성화하고 다른 원형에는 붙지 않는다 (0.6241ms)
+✖ ARCH_CRIMINAL_ASSAULT: 500시드 결정성·엔진 검증·문구 완결·활성/비활성 카드 참조 (6.1636ms)
+✖ ARCH_CRIMINAL_ASSAULT: 콘텐츠 구성은 기존 준비 접근법과 truth·시드·수치를 보존한다 (1.1744ms)
+✔ ARCH_CRIMINAL_ASSAULT: 일상 사건 문구에 민사 보증금이 섞이지 않고 입력이 결정적이다 (0.6098ms)
+✖ ARCH_CRIMINAL_ASSAULT: 준비 유무 양쪽에서 실제 서비스 완주·실패 원자성·기록 재생 (6.9393ms)
+✖ ARCH_DUI: 500시드 결정성·엔진 검증·문구 완결·활성/비활성 카드 참조 (2.197ms)
+✖ ARCH_DUI: 콘텐츠 구성은 기존 준비 접근법과 truth·시드·수치를 보존한다 (0.4114ms)
+✔ ARCH_DUI: 일상 사건 문구에 민사 보증금이 섞이지 않고 입력이 결정적이다 (0.3128ms)
+✖ ARCH_DUI: 준비 유무 양쪽에서 실제 서비스 완주·실패 원자성·기록 재생 (3.2345ms)
+✔ 진실에 대응하는 문구가 분기 경계 양쪽을 반영한다 (0.6078ms)
+✔ 주신문은 입증할 내용을 말하고 한계·방어 정황은 카드 제시 때 드러난다 (0.6361ms)
+✖ 모든 접근법은 카드 없음·다른 카드·해당 카드의 기록과 근거 점수를 구분한다 (1.5901ms)
+✔ 알 수 없는 콘텐츠 요청은 원형 데이터를 오염시키지 않는다 (0.886ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 7
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 162.5977
+
+✖ failing tests:
+
+test at generator\content\content.test.js:42:3
+✖ ARCH_CRIMINAL_ASSAULT: 500시드 결정성·엔진 검증·문구 완결·활성/비활성 카드 참조 (6.1636ms)
+  TypeError: Cannot read properties of undefined (reading 'lines')
+      at C:\Users\Admin\Documents\ChatGPT\The Firm\courtroom-prototype\generator\content\content.test.js:62:115
+      at Array.flatMap (<anonymous>)
+      at TestContext.<anonymous> (C:\Users\Admin\Documents\ChatGPT\The Firm\courtroom-prototype\generator\content\content.test.js:62:91)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)
+
+test at generator\content\content.test.js:74:3
+✖ ARCH_CRIMINAL_ASSAULT: 콘텐츠 구성은 기존 준비 접근법과 truth·시드·수치를 보존한다 (1.1744ms)
+  TypeError: Cannot read properties of undefined (reading 'delta')
+      at C:\Users\Admin\Documents\ChatGPT\The Firm\courtroom-prototype\generator\content\content.test.js:86:68
+      at Array.map (<anonymous>)
+      at C:\Users\Admin\Documents\ChatGPT\The Firm\courtroom-prototype\generator\content\content.test.js:86:21
+      at Array.map (<anonymous>)
+      at mechanics (C:\Users\Admin\Documents\ChatGPT\The Firm\courtroom-prototype\generator\content\content.test.js:84:32)
+      at TestContext.<anonymous> (C:\Users\Admin\Documents\ChatGPT\The Firm\courtroom-prototype\generator\content\content.test.js:89:24)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+
+test at generator\content\content.test.js:100:3
+✖ ARCH_CRIMINAL_ASSAULT: 준비 유무 양쪽에서 실제 서비스 완주·실패 원자성·기록 재생 (6.9393ms)
+  AssertionError [ERR_ASSERTION]: rebut: 재반대신문할 수 없습니다.
+
+  false !== true
+
+      at ok (C:\Users\Admin\Documents\ChatGPT\The Firm\courtroom-prototype\generator\content\content.test.js:110:16)
+      at TestContext.<anonymous> (C:\Users\Admin\Documents\ChatGPT\The Firm\courtroom-prototype\generator\content\content.test.js:118:34)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at generator\content\content.test.js:42:3
+✖ ARCH_DUI: 500시드 결정성·엔진 검증·문구 완결·활성/비활성 카드 참조 (2.197ms)
+  TypeError: Cannot read properties of undefined (reading 'lines')
+      at C:\Users\Admin\Documents\ChatGPT\The Firm\courtroom-prototype\generator\content\content.test.js:62:115
+      at Array.flatMap (<anonymous>)
+      at TestContext.<anonymous> (C:\Users\Admin\Documents\ChatGPT\The Firm\courtroom-prototype\generator\content\content.test.js:62:91)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)
+
+test at generator\content\content.test.js:74:3
+✖ ARCH_DUI: 콘텐츠 구성은 기존 준비 접근법과 truth·시드·수치를 보존한다 (0.4114ms)
+  TypeError: Cannot read properties of undefined (reading 'delta')
+      at C:\Users\Admin\Documents\ChatGPT\The Firm\courtroom-prototype\generator\content\content.test.js:86:68
+      at Array.map (<anonymous>)
+      at C:\Users\Admin\Documents\ChatGPT\The Firm\courtroom-prototype\generator\content\content.test.js:86:21
+      at Array.map (<anonymous>)
+      at mechanics (C:\Users\Admin\Documents\ChatGPT\The Firm\courtroom-prototype\generator\content\content.test.js:84:32)
+      at TestContext.<anonymous> (C:\Users\Admin\Documents\ChatGPT\The Firm\courtroom-prototype\generator\content\content.test.js:89:24)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+
+test at generator\content\content.test.js:100:3
+✖ ARCH_DUI: 준비 유무 양쪽에서 실제 서비스 완주·실패 원자성·기록 재생 (3.2345ms)
+  AssertionError [ERR_ASSERTION]: rebut: 재반대신문할 수 없습니다.
+
+  false !== true
+
+      at ok (C:\Users\Admin\Documents\ChatGPT\The Firm\courtroom-prototype\generator\content\content.test.js:110:16)
+      at TestContext.<anonymous> (C:\Users\Admin\Documents\ChatGPT\The Firm\courtroom-prototype\generator\content\content.test.js:118:34)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at generator\content\content.test.js:169:1
+✖ 모든 접근법은 카드 없음·다른 카드·해당 카드의 기록과 근거 점수를 구분한다 (1.5901ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  false !== true
+
+      at TestContext.<anonymous> (C:\Users\Admin\Documents\ChatGPT\The Firm\courtroom-prototype\generator\content\content.test.js:191:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+exit code: 1
+```
+
+### 원본 balance.js
+
+```text
+GEN-001 밸런스 점검 — 300시드, ARCH_CRIMINAL_ASSAULT
+  (a) 준비 없이: 유죄 300 / 무죄 0
+  (b) 최선 경로 무죄 가능: 189/300 (63.0%)
+      재판으로 못 이기는 사건(111건): 1, 3, 4, 5, 7, 8, 9, 12, 17, 19, 24, 27, 28, 30, 31, 35, 36, 40, 41, 43, 44, 45, 46, 47, 49, 50, 55, 59, 66, 68 ...
+  (c) 무작위 준비·무작위 선택 무죄: 9/300 (3.0%)
+  (d) 조사 선택에 따라 결과가 달라지는 사건: 145/300 (48.3%)
+  PASS (a) 준비 없이 진행 시 무죄 0% — 무죄 0건 / 300건
+  FAIL (b) 최선 경로 기준 무죄 가능 사건 ≥ 90% — 189/300건 = 63.0%, 못 이기는 사건 111건
+  FAIL (c) 무작위 준비·무작위 선택 무죄 40~65% — 9/300건 = 3.0%
+  FAIL (d, 참고) 조사 선택에 따라 결과가 달라지는 사건 비율 ≥ 50% — 145/300건 = 48.3%
+
+GEN-001 밸런스 점검 — 300시드, ARCH_DUI
+  (a) 준비 없이: 유죄 300 / 무죄 0
+  (b) 최선 경로 무죄 가능: 184/300 (61.3%)
+      재판으로 못 이기는 사건(116건): 2, 9, 17, 18, 21, 26, 27, 30, 34, 36, 37, 38, 40, 44, 45, 47, 49, 55, 56, 57, 63, 64, 68, 70, 72, 80, 88, 91, 94, 95 ...
+  (c) 무작위 준비·무작위 선택 무죄: 6/300 (2.0%)
+  (d) 조사 선택에 따라 결과가 달라지는 사건: 147/300 (49.0%)
+  PASS (a) 준비 없이 진행 시 무죄 0% — 무죄 0건 / 300건
+  FAIL (b) 최선 경로 기준 무죄 가능 사건 ≥ 90% — 184/300건 = 61.3%, 못 이기는 사건 116건
+  FAIL (c) 무작위 준비·무작위 선택 무죄 40~65% — 6/300건 = 2.0%
+  FAIL (d, 참고) 조사 선택에 따라 결과가 달라지는 사건 비율 ≥ 50% — 147/300건 = 49.0%
+exit code: 1
+```
+
+### 정책·경로 수정 후 / 수치 조정 전 balance.js
+
+```text
+GEN-001 ARCH_CRIMINAL_ASSAULT seeds 1..300
+  (a) no preparation: 0/300 (0.0%)
+  (b) best path: 257/300 (85.7%)
+  (c) random preparation + sensible cross: 52/300 (17.3%)
+  (d) investigation choice alone: 256/300 (85.3%)
+  (e) legacy completely random (reference): 9/300 (3.0%)
+  old (d) different target strategies (reference): 132/300 (44.0%)
+  Unwinnable seeds: 5, 7, 17, 19, 24, 28, 30, 31, 45, 46, 47, 49, 50, 55, 77, 83, 115, 119, 126, 128, 149, 158, 161, 162, 167, 169, 179, 188, 200, 202, 203, 212, 248, 257, 259, 264, 267, 268, 270, 276, 278, 283, 294
+  Errors: 0
+  PASS (a) no preparation: 0%
+  FAIL (b) best path: >=90%
+  FAIL (c) random preparation + sensible cross: 40..65%
+  PASS (d) investigation choice alone: >=50%
+GEN-001 ARCH_DUI seeds 1..300
+  (a) no preparation: 0/300 (0.0%)
+  (b) best path: 255/300 (85.0%)
+  (c) random preparation + sensible cross: 46/300 (15.3%)
+  (d) investigation choice alone: 255/300 (85.0%)
+  (e) legacy completely random (reference): 6/300 (2.0%)
+  old (d) different target strategies (reference): 131/300 (43.7%)
+  Unwinnable seeds: 2, 9, 21, 26, 30, 36, 37, 38, 45, 49, 55, 56, 70, 72, 80, 88, 97, 99, 106, 108, 109, 122, 137, 144, 149, 151, 153, 161, 170, 173, 176, 179, 186, 192, 193, 201, 205, 222, 230, 244, 273, 275, 288, 289, 300
+  Errors: 0
+  PASS (a) no preparation: 0%
+  FAIL (b) best path: >=90%
+  FAIL (c) random preparation + sensible cross: 40..65%
+  PASS (d) investigation choice alone: >=50%
+Checks: 8, failures: 4
+exit code: 1
+```
+
+### 실행 경로 오류 및 수정
+
+```text
+$ node --test generator/core/tests
+node:internal/modules/cjs/loader:1520
+  throw err;
+  ^
+
+Error: Cannot find module 'C:\Users\Admin\Documents\ChatGPT\The Firm\courtroom-prototype\generator\core\tests'
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1517:15)
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1071:27)
+    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1095:10)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1122:12)
+    at Module._load (node:internal/modules/cjs/loader:1294:5)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v24.19.0
+✖ generator\core\tests (111.3864ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 122.5126
+
+✖ failing tests:
+
+test at generator\core\tests:1:1
+✖ generator\core\tests (111.3864ms)
+  'test failed'
+exit code: 1
+```
+
+최신 성공 명령은 `node --test generator/core/tests/*.test.js`이며 출력은 위에 있다.
+
+---
+
+## 이전 라운드 기록 (이하 내용은 당시 상태)
+
 # GEN-001 core 수정 (2026-09-30) — 자체 점검
 
 Lane: experiment. 브랜치 task/gen-001. 소유 범위: `generator/core/`, `generator/balance.js`,

@@ -4,9 +4,10 @@
 // services/trial.js, engine/trial.js는 courtroom-prototype 소유 파일이다. 이 모듈은 그 API를 '읽기'로만
 // 쓴다(require) — 수정하지 않았다.
 //
-// 세 가지 플레이 정책:
+// 플레이 정책:
 //   playThrough(caseDef, {fullPrep})      — 고정 정책(준비 없음 / 예산이 허락하는 만큼 전부). 결정론적.
-//   playThroughRandom(caseDef, rng)       — 무작위 합법 준비 + 매 순간 무작위 선택. balance.js (c).
+//   playThroughSensible(caseDef, rng)     — 무작위 준비 + 카드 기반 상식적 신문. balance.js (c).
+//   playThroughRandom(caseDef, rng)       — 기존 완전 무작위 선택. balance.js (e) 참고.
 //   playBestPathForIssue(caseDef, issueId) — 그 쟁점 하나를 doubt로 미는 데 전지적으로 최선을 다한다.
 //                                            balance.js (b)(d) — "탐색 기준 최선 경로".
 //
@@ -20,6 +21,7 @@
 
 const serviceModule = (typeof module !== 'undefined' && module.exports) ? require('../../services/trial.js') : root.FirmTrialService;
 const { createTrialService } = serviceModule;
+const trialEngine = (typeof module !== 'undefined' && module.exports) ? require('../../engine/trial.js') : root.FirmTrial;
 
 const MAX_STEPS = 5000;
 
@@ -76,7 +78,7 @@ function playThrough(caseDef, { fullPrep }) {
   return { outcome: view.verdict.outcome, view };
 }
 
-// balance.js (c) — "무작위 합법 준비·무작위 선택". rng는 generator/core/rng.js의 createRng(seedFor(...))로
+// balance.js (e) — 기존 "무작위 합법 준비·무작위 선택". rng는 generator/core/rng.js의 createRng(seedFor(...))로
 // 만든 결정적 스트림을 넘겨야 한다(재현 가능해야 하므로 Math.random 사용 금지). 예산 안에서 무작위 순서로
 // 살 수 있는 조사를 사고, focus/stance를 무작위로 고르고, cross에서 매 순간 "가능한 행동" 중 하나를
 // 무작위로 고른다(approach/press/endCross). objection·rebuttal 결정도 50/50 무작위.
@@ -92,7 +94,7 @@ function pickRandom(list, rng) {
   return list[Math.floor(rng() * list.length)];
 }
 
-function playThroughRandom(caseDef, rng) {
+function playRandomPolicy(caseDef, rng, sensible) {
   const { service, run } = driver(caseDef);
 
   for (const id of shuffle(caseDef.investigations.map((i) => i.id), rng)) {
@@ -111,12 +113,25 @@ function playThroughRandom(caseDef, rng) {
 
     if (view.state.pending) {
       if (view.state.pending.type === 'objection') { view = run('objection', { object: rng() < 0.5 }); continue; }
-      if (view.state.pending.type === 'rebuttal') { view = run('rebut', { use: rng() < 0.5 }); continue; }
+      if (view.state.pending.type === 'rebuttal') { view = run('rebut', { use: sensible || rng() < 0.5 }); continue; }
       throw new Error(`playThroughRandom: 알 수 없는 pending 타입 — ${view.state.pending.type}`);
     }
 
     const part = view.state.cursor && view.state.cursor.part;
     if (part === 'cross') {
+      if (sensible) {
+        const approaches = view.actions.approaches.filter(a => a.available && a.cards.length > 0);
+        if (approaches.length) {
+          view = run('approach', { id: pickRandom(approaches, rng).id });
+          continue;
+        }
+        const witness = caseDef.witnesses.find(w => w.id === view.witness.id);
+        const points = view.projection.witnesses.find(w => w.id === witness.id).points;
+        const press = view.actions.presses.find(p => p.available && p.kind === 'limited'
+          && trialEngine.pressSucceeds(witness.presses.find(pr => pr.id === p.id), points));
+        view = press ? run('press', { id: press.id }) : run('endCross');
+        continue;
+      }
       const options = [
         ...view.actions.approaches.filter((a) => a.available).map((a) => ({ action: 'approach', id: a.id })),
         ...view.actions.presses.filter((p) => p.available).map((p) => ({ action: 'press', id: p.id })),
@@ -134,6 +149,9 @@ function playThroughRandom(caseDef, rng) {
   return { outcome: view.verdict.outcome, view };
 }
 
+function playThroughRandom(caseDef, rng) { return playRandomPolicy(caseDef, rng, false); }
+function playThroughSensible(caseDef, rng) { return playRandomPolicy(caseDef, rng, true); }
+
 // balance.js (b)(d) — "탐색 기준 최선 경로". 전지적 시점(실제 플레이어는 모를 정보까지 안다는 전제)으로
 // targetIssueId 하나를 doubt band로 밀어붙이는 데 전념한다. adjudicate()가 필수 쟁점 중 하나라도 doubt면
 // not_guilty이므로(engine/trial.js adjudicate), 쟁점 하나만 제대로 밀어도 무죄가 나올 수 있다 — 모든
@@ -142,14 +160,15 @@ function playThroughRandom(caseDef, rng) {
 // 조사 순), 그 쟁점에 집중하는 focus를 고르고(F_${issueId}), 안전한 stance(S_CONTEST — 충돌 없음)를 쓰고,
 // 이의는 유리한 쪽으로(proper면 이의, improper면 통과), 그 쟁점 증인에게는 가능한 접근법·press를 전부,
 // 다른 증인은 즉시 endCross(시간 낭비 방지), 재반대는 항상 사용한다.
-function playBestPathForIssue(caseDef, issueId) {
+// investigationOrder는 (d)의 조사 대조군이다. 개회사·신문 정책은 그대로 둔다.
+function playBestPathForIssue(caseDef, issueId, { investigationOrder } = {}) {
   const { service, run } = driver(caseDef);
 
   const targetWitness = caseDef.witnesses.find((w) => w.issue === issueId);
   const targetCardIds = new Set([
     ...targetWitness.approaches.map((a) => (a.requiresAny || [])[0]).filter(Boolean)
   ]);
-  const priority = caseDef.investigations
+  const priority = investigationOrder || caseDef.investigations
     .filter((inv) => (inv.grants || []).some((cardId) => targetCardIds.has(cardId)))
     .map((inv) => inv.id);
   for (const id of priority) {
@@ -188,9 +207,11 @@ function playBestPathForIssue(caseDef, issueId) {
     if (part === 'cross') {
       const onTarget = view.witness && view.witness.id === targetWitness.id;
       if (onTarget) {
-        const approach = view.actions.approaches.find((a) => a.available && !a.id.includes('_STANCE_'));
+        const approach = view.actions.approaches.find((a) => a.available && a.cards.length > 0 && !a.id.includes('_STANCE_'));
         if (approach) { view = run('approach', { id: approach.id }); continue; }
-        const press = view.actions.presses.find((p) => p.available && p.kind === 'limited');
+        const points = view.projection.witnesses.find(w => w.id === targetWitness.id).points;
+        const press = view.actions.presses.find(p => p.available && p.kind === 'limited'
+          && trialEngine.pressSucceeds(targetWitness.presses.find(pr => pr.id === p.id), points));
         if (press) { view = run('press', { id: press.id }); continue; }
       }
       view = run('endCross');
@@ -204,6 +225,6 @@ function playBestPathForIssue(caseDef, issueId) {
   return { outcome: view.verdict.outcome, view };
 }
 
-const playthroughModule = { playThrough, playThroughRandom, playBestPathForIssue, shuffle, pickRandom };
+const playthroughModule = { playThrough, playThroughRandom, playThroughSensible, playBestPathForIssue, shuffle, pickRandom };
 if (typeof module !== 'undefined' && module.exports) module.exports = playthroughModule; else root.FirmGeneratorPlaythrough = playthroughModule;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

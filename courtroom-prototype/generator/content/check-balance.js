@@ -2,7 +2,8 @@
 
 // 콘텐츠 검증용 드라이버. 실제 상태·효과·판정은 기존 서비스로 처리한다.
 const C = require('./index');
-const { playThrough } = require('../core/playthrough');
+const { playThrough, playThroughSensible } = require('../core/playthrough');
+const { createRng, seedFor } = require('../core/rng');
 const { createTrialService } = require('../../services/trial');
 
 function playWithoutCards(d) {
@@ -16,7 +17,8 @@ function playWithoutCards(d) {
   let v = command('open', { focusId: d.opening.focus[0].id, stanceId: d.opening.stance[0].id });
   const acted = new Set();
   for (let step = 0; step < 200 && v.state.phase !== 'verdict'; step++) {
-    if (v.state.pending) v = command('rebut', { use: false });
+    if (v.state.pending?.type === 'objection') v = command('objection', { object: false });
+    else if (v.state.pending?.type === 'rebuttal') v = command('rebut', { use: false });
     else if (v.actions.verdict) v = command('verdict');
     else if (v.state.cursor.part === 'cross') {
       const w = d.witnesses.find(w => w.id === v.witness.id);
@@ -33,17 +35,18 @@ function playWithoutCards(d) {
 
 function run(seedCount = 300) {
   return Object.keys(C.archetypes).map(id => {
-    let noPrep = 0, unsupported = 0, fullPrep = 0, rebuttals = 0;
+    let noPrep = 0, unsupported = 0, fullPrep = 0, sensible = 0, rebuttals = 0;
     for (let seed = 1; seed <= seedCount; seed++) {
       const d = C.buildContestedCase(id, seed);
       noPrep += playThrough(d, { fullPrep: false }).outcome === 'not_guilty';
       unsupported += playWithoutCards(d) === 'not_guilty';
+      sensible += playThroughSensible(d, createRng(seedFor(seed, id + ':random-policy'))).outcome === 'not_guilty';
       const full = playThrough(d, { fullPrep: true });
       fullPrep += full.outcome === 'not_guilty';
       rebuttals += full.view.records.filter(r => r.kind === 'rebuttal').length;
     }
-    const rate = fullPrep / seedCount;
-    return { id, seedCount, noPrep, unsupported, fullPrep, rate, rebuttals,
+    const rate = sensible / seedCount;
+    return { id, seedCount, noPrep, unsupported, fullPrep, sensible, rate, rebuttals,
       pass: noPrep === 0 && unsupported === 0 && rate >= 0.40 && rate <= 0.65 };
   });
 }

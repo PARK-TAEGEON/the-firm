@@ -59,7 +59,20 @@ for (const id of Object.keys(C.archetypes)) {
       }
       const speakers = new Set([...Object.values(d.roles).map(r => r.id), ...d.witnesses.map(w => w.id)]);
       for (const w of d.witnesses) {
-        const lines = [w.direct[0].lines, ...w.approaches.map(a => a.lines), ...w.presses.flatMap(p => [p.success.lines, p.fail.lines])];
+        const lines = [w.direct[0].lines, ...w.approaches.map(a => a.lines)];
+        for (const step of w.direct.filter(s => s.type === 'objection')) {
+          lines.push([step.question], step.pass.lines);
+          assert.ok(step.proper ? step.sustained : step.overruled);
+          lines.push((step.proper ? step.sustained : step.overruled).lines);
+        }
+        assert.deepEqual(w.presses.map(p => p.kind), ['limited', 'overreach']);
+        for (const p of w.presses) {
+          lines.push(p.fail.lines);
+          if (p.kind === 'limited') { assert.ok(p.success); lines.push(p.success.lines); }
+          else assert.equal(p.success, undefined, '과욕은 성공 분기가 없다');
+        }
+        for (const a of w.approaches.filter(a => a.stanceConflict)) lines.push(a.stanceConflict.lines);
+        for (const r of w.redirect) lines.push(r.lines, r.rebuttal.lines);
         for (const group of lines) for (const [speaker, text] of group) {
           assert.ok(speakers.has(speaker));
           assert.ok(text.trim());
@@ -82,8 +95,10 @@ for (const id of Object.keys(C.archetypes)) {
         focus: x.opening.focus.map(f => [f.id, f.time]), stance: x.opening.stance.map(s => s.id),
         rule: [x.adjudication.rule, x.adjudication.required],
         witnesses: x.witnesses.map(w => [w.id, w.issue,
-          w.approaches.filter(a => !a.id.endsWith('_UNSUPPORTED')).map(a => [a.id, a.requiresAny, a.delta, a.points]),
-          w.presses.map(p => [p.id, p.kind, p.minPoints, p.success.delta, p.fail.delta]),
+          w.approaches.filter(a => !a.id.endsWith('_UNSUPPORTED')).map(a => [a.id, a.requiresAny, a.delta, a.byStance, a.points, a.stanceConflict?.stance, a.stanceConflict?.credibility]),
+          w.presses.map(p => [p.id, p.kind, p.minPoints, p.success?.delta, p.fail.delta, p.fail.credibility]),
+          w.direct.filter(s => s.type === 'objection').map(s => [s.id, s.proper,
+            ...['sustained', 'overruled', 'pass'].map(k => [s[k]?.effects, s[k]?.credibility])]),
           w.redirect.map(r => [r.id, r.when, r.delta, r.rebuttal.card, r.rebuttal.delta])])
       });
       assert.deepEqual(mechanics(d), mechanics(raw));
@@ -110,19 +125,28 @@ for (const id of Object.keys(C.archetypes)) {
         assert.equal(result.ok, true, `${action}: ${result.error}`);
         return result.view;
       };
-      if (prepared) d.investigations.forEach(i => ok('investigate', { id: i.id }));
+      if (prepared) for (const i of d.investigations) {
+        if (s.projection().investigations.find(inv => inv.id === i.id).affordable) ok('investigate', { id: i.id });
+        else {
+          const snapshot = s.projection();
+          assert.equal(s.command('investigate', { id: i.id }).ok, false);
+          assert.deepEqual(s.projection(), snapshot, '예산 초과 실패도 상태 불변');
+        }
+      }
       ok('finishPrep');
       let v = ok('open', { focusId: d.opening.focus[0].id, stanceId: d.opening.stance[0].id });
       const acted = new Set();
       for (let guard = 0; v.state.phase === 'trial' && guard < 150; guard++) {
-        if (v.state.pending) v = ok('rebut', { use: true });
+        if (v.state.pending?.type === 'objection') v = ok('objection', { object: true });
+        else if (v.state.pending?.type === 'rebuttal') v = ok('rebut', { use: true });
         else if (v.actions.verdict) v = ok('verdict');
         else if (v.state.cursor.part === 'cross') {
           if (acted.has(v.witness.id)) v = ok('endCross');
           else {
             acted.add(v.witness.id);
             const w = d.witnesses.find(w => w.id === v.witness.id);
-            const approach = prepared ? w.approaches[0] : w.approaches.find(a => a.id.endsWith('_UNSUPPORTED'));
+            const available = v.actions.approaches.find(a => a.available && a.cards.length);
+            const approach = prepared && available ? available : w.approaches.find(a => a.id.endsWith('_UNSUPPORTED'));
             ok('approach', { id: approach.id });
             v = ok('press', { id: w.presses[0].id });
           }
@@ -175,20 +199,43 @@ test('모든 접근법은 카드 없음·다른 카드·해당 카드의 기록�
       const before = structuredClone(p);
       assert.equal(T.resolveApproach(d, p, w.id, a.id).error, 'missing card');
       assert.deepEqual(p, before);
-      const resistance = T.resolveApproach(d, p, w.id, fallback.id);
-      assert.equal(resistance.delta, 0);
-      assert.deepEqual(resistance.points, []);
-      assert.deepEqual(resistance.cardsUsed, []);
-      assert.equal(T.pressSucceeds(w.presses[0], resistance.points), false);
       p.cards = [d.cards.find(c => !a.requiresAny.includes(c.id)).id];
       assert.equal(T.resolveApproach(d, p, w.id, a.id).error, 'missing card');
       p.cards = [...a.requiresAny];
-      const concession = T.resolveApproach(d, p, w.id, a.id);
-      assert.equal(concession.delta, -1);
-      assert.equal(concession.points.length, 1);
-      assert.deepEqual(concession.cardsUsed, a.requiresAny);
-      assert.notDeepEqual(concession.lines, resistance.lines);
-      assert.equal(T.pressSucceeds(w.presses[0], concession.points), true);
+      const limited = w.presses.find(pr => pr.kind === 'limited');
+      const overreach = w.presses.find(pr => pr.kind === 'overreach');
+      assert.equal(limited.minPoints, 2);
+      if (a.stanceConflict) {
+        assert.equal(fallback, undefined);
+        for (const stance of d.opening.stance) {
+          p.stanceId = stance.id;
+          const result = T.resolveApproach(d, p, w.id, a.id);
+          assert.equal(result.delta, 0);
+          assert.deepEqual(result.points, []);
+          assert.deepEqual(result.cardsUsed, a.requiresAny);
+          assert.equal(result.followups.length, stance.id === 'S_DENY' ? 1 : 0);
+          if (result.followups.length) assert.equal(result.followups[0].credibility, -1);
+        }
+      } else {
+        assert.ok(fallback);
+        const resistance = T.resolveApproach(d, before, w.id, fallback.id);
+        assert.equal(resistance.delta, 0);
+        assert.deepEqual(resistance.points, []);
+        assert.deepEqual(resistance.cardsUsed, []);
+        assert.equal(T.pressSucceeds(limited, resistance.points), false);
+        const concession = T.resolveApproach(d, p, w.id, a.id);
+        assert.equal(concession.delta, -1);
+        assert.equal(concession.points.length, 1);
+        assert.deepEqual(concession.cardsUsed, a.requiresAny);
+        assert.notDeepEqual(concession.lines, resistance.lines);
+        assert.equal(T.pressSucceeds(limited, concession.points), false, '카드 하나로는 limited 실패');
+        const allPoints = w.approaches.flatMap(a => a.points || []);
+        assert.equal(allPoints.length, 2);
+        assert.equal(T.pressSucceeds(limited, allPoints), true);
+        assert.equal(T.pressSucceeds(overreach, allPoints), false);
+        assert.equal(overreach.fail.delta, 2);
+        assert.equal(overreach.fail.credibility, -1);
+      }
     }
   }
 });
@@ -198,4 +245,93 @@ test('알 수 없는 콘텐츠 요청은 원형 데이터를 오염시키지 않
   assert.throws(() => C.buildContestedCase('ARCH_MISSING', 1), /콘텐츠가 없는 원형/);
   assert.throws(() => C.generateDailyCase('toString', 1), /콘텐츠가 없는 원형/);
   assert.deepEqual(C.archetypes, before);
+});
+
+
+const P = require('../core/playthrough');
+const { createRng, seedFor } = require('../core/rng');
+const { otherIssueFirst } = require('../balance');
+
+test('정책 c: 예산·카드·limited 조건, 재반대 사용, 결정성과 기록 재생', () => {
+  const observed = new Set(), focuses = new Set(), stances = new Set();
+  for (const id of Object.keys(C.archetypes)) for (let seed = 1; seed <= 100; seed++) {
+    const d = C.buildContestedCase(id, seed), before = structuredClone(d);
+    const play = () => P.playThroughSensible(d, createRng(seedFor(seed, id + ':random-policy')));
+    const result = play();
+    assert.deepEqual(result, play());
+    assert.deepEqual(d, before);
+    const records = result.view.records;
+    assert.deepEqual(T.replay(d, records).projection, result.view.projection);
+    const spending = records.filter(r => r.kind === 'investigation').reduce((s,r) => s + r.cost, 0);
+    assert.ok(spending <= d.prep.budget);
+    assert.ok(d.investigations.filter(i => !records.some(r => r.kind === 'investigation' && r.refId === i.id))
+      .every(i => i.cost > d.prep.budget - spending), '구입 가능한 조사를 남기지 않음');
+    for (let index = 0; index < records.length; index++) {
+      const r = records[index];
+      if (r.kind === 'opening') { focuses.add(r.focusId); stances.add(r.stanceId); }
+      if (r.kind === 'approach') {
+        assert.ok(r.cardsUsed.length > 0);
+        const held = T.project(d, records.slice(0,index)).cards;
+        assert.ok(r.cardsUsed.every(card => held.includes(card)));
+      }
+      if (r.kind === 'press') {
+        observed.add('limited');
+        assert.equal(r.pressKind, 'limited');
+        assert.equal(r.succeeded, true);
+        const w = d.witnesses.find(w => w.id === r.witnessId);
+        const points = T.project(d, records.slice(0,index)).witnesses.find(w => w.id === r.witnessId).points;
+        assert.equal(T.pressSucceeds(w.presses.find(p => p.id === r.refId), points), true);
+      }
+      if (r.kind === 'objection') observed.add(r.ruling);
+      if (r.kind === 'redirect') {
+        const w = d.witnesses.find(w => w.id === r.witnessId), redirect = w.redirect.find(h => h.id === r.refId);
+        if (T.project(d,records.slice(0,index)).cards.includes(redirect.rebuttal.card)) {
+          assert.ok(records.some(x => x.kind === 'rebuttal' && x.refId === r.refId));
+          observed.add('rebuttal');
+        }
+      }
+      assert.notEqual(r.kind, 'rebuttal_pass');
+    }
+  }
+  assert.deepEqual([...observed].sort(), ['limited','overruled','pass','rebuttal','sustained']);
+  assert.equal(focuses.size, 5); // 균형 + 두 원형의 쟁점별 2개
+  assert.equal(stances.size, 3);
+});
+
+test('정책 e: 기존 무작위의 과욕·무근거 추궁·재반대 포기를 참고 경로로 보존', () => {
+  const seen = new Set();
+  for (let seed = 1; seed <= 60; seed++) {
+    const id = 'ARCH_CRIMINAL_ASSAULT', d = C.buildContestedCase(id, seed);
+    const result = P.playThroughRandom(d, createRng(seedFor(seed, id + ':random-policy')));
+    for (const r of result.view.records) {
+      if (r.kind === 'press' && r.pressKind === 'overreach') seen.add('overreach');
+      if (r.kind === 'approach' && !r.cardsUsed.length) seen.add('unsupported');
+      if (r.kind === 'rebuttal_pass') seen.add('rebuttal_pass');
+    }
+    assert.deepEqual(T.replay(d,result.view.records).projection,result.view.projection);
+  }
+  assert.equal(seen.size,3);
+});
+
+test('정책 b/d: 준비된 접근법 뒤 limited, 조사 우선순위만 바꾼 대조군', () => {
+  let presses = 0, changed = 0;
+  for (const id of Object.keys(C.archetypes)) for (let seed = 1; seed <= 20; seed++) {
+    const d = C.buildContestedCase(id, seed);
+    for (const issue of d.issues) {
+      const best = P.playBestPathForIssue(d, issue.id);
+      const alternate = P.playBestPathForIssue(d, issue.id, { investigationOrder: otherIssueFirst(d, issue.id) });
+      const opening = v => v.view.records.find(r => r.kind === 'opening');
+      assert.deepEqual(opening(best),opening(alternate));
+      for (const r of best.view.records.filter(r => r.kind === 'press')) {
+        assert.equal(r.pressKind,'limited'); assert.equal(r.succeeded,true); presses++;
+      }
+      assert.ok(best.view.records.filter(r => r.kind === 'approach').every(r => r.cardsUsed.length));
+      for (const v of [best,alternate]) {
+        assert.ok(v.view.records.filter(r => r.kind === 'investigation').reduce((s,r)=>s+r.cost,0) <= d.prep.budget);
+        assert.deepEqual(T.replay(d,v.view.records).projection,v.view.projection);
+      }
+      if (best.outcome !== alternate.outcome) changed++;
+    }
+  }
+  assert.ok(presses > 0); assert.ok(changed > 0);
 });

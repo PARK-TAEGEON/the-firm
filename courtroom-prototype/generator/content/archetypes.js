@@ -2,6 +2,8 @@
 
 // 실험용 authored 규칙, DEC 아님. 수치·사실 범위는 RULES.md 참조.
 const assault = structuredClone(require('../core/archetype.criminal.example.js'));
+// 실험용 authored 조정: 무준비 하한 3, 두 쟁점의 준비 난도 차이 유지.
+assault.evidence_strength_rules.forEach((rule, i) => { rule.strengthRange = i === 0 ? [3, 4] : [3, 5]; });
 assault.twists_allowed = [
   'TWIST_WITNESS_CONFLICT_OF_INTEREST', 'TWIST_MEDIA_ATTENTION',
   'TWIST_LATE_DECISIVE_DOCUMENT', 'TWIST_CLIENT_HIDES_CONTACT'
@@ -26,8 +28,8 @@ const dui = {
     measurement_delay: [0, 1], driver_revision: [0, 1], device_log_gap: [0, 1]
   },
   evidence_strength_rules: [
-    { issueId: 'ISSUE_DRIVER', truthParam: 'driver_observation', direction: 'direct', strengthRange: [3, 7], noise: 1 },
-    { issueId: 'ISSUE_INTOXICATION', truthParam: 'measurement_connection', direction: 'direct', strengthRange: [3, 7], noise: 1 }
+    { issueId: 'ISSUE_DRIVER', truthParam: 'driver_observation', direction: 'direct', strengthRange: [3, 4], noise: 1 },
+    { issueId: 'ISSUE_INTOXICATION', truthParam: 'measurement_connection', direction: 'direct', strengthRange: [3, 5], noise: 1 }
   ]
 };
 

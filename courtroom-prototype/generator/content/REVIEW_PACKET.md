@@ -1,82 +1,58 @@
-# GEN-001 콘텐츠 검토 자료 — 0.0.3-gen-content
+# GEN-001 조정 — REVIEW_PACKET
 
-## 현재 인계 — 일부 슬롯 연결 대기
+날짜: 2026-10-01. 브랜치: task/gen-001. 기준 HEAD: b7bfeba. Lane: experiment. 커밋·병합은 사람이 한다.
 
-목적: 공판 문구와 대형 사건 3개 설계, 첫 사건의 DEMO-001 데이터·경로 상세화. **새 core 슬롯, balance (c)(d) 목표, 설계 메모 §1.10 본문 부재로 전체 요청은 미완료다.**
+## 목적
 
-변경 파일:
-
-- hearing-copy.js: 개회사 후보, 네 증인의 유효/무효 이의·통과 문구와 과욕 반박. balanced/contest만 현재 연결.
-- index.js: 기존 개회사 슬롯 연결, 버전 0.0.3-gen-content.
-- copy.js: limited 성공 답변에 유지되는 관찰·기록 명시, 중복 개회사 제거.
-- SIGNATURE.md: 가상 사건 3개, 대표 사건의 고정 진실·준비·ID·효과·신문·3개 결과 경로. 선택적 합의의 서비스 소유 범위는 TBD.
-- RULES.md, REPORT.md, REVIEW_PACKET.md, test-results.log: 규칙·수치 유지 이유·미완료 의존 사항·결과.
-
-새 실행 불변식·추가 테스트 없음. 카드 조건·효과·RNG·판정은 유지했다. 기존 콘텐츠 14개 회귀의 결정성, 카드 없음/다른 카드 거부, 서비스 실패 원자성·replay를 실행했다. 미연결 이의·과욕은 플레이 검증 대기다.
-
-실행 명령·결과:
-
-- node --test generator/content/content.test.js generator/core/tests/*.test.js: 44/44, 실패 0, exit 0.
-- npm test: 247/247, 실패 0, exit 0.
-- node --test: 333개, 통과 323/실패 10, exit 1. 기존 Playwright 누락 브라우저 테스트 10개.
-- node --check generator/content/hearing-copy.js: 통과, exit 0.
-- node generator/content/check-balance.js: 1,800회, 예외 0, 두 원형 PASS, exit 0.
-- node generator/balance.js: 현행 (a)(b) 4 checks/0 failures/exit 0. 준비 후 무죄 57.7%/56.7%. (c) 85.7%/77.0%, (d) 452/344회, 합격 목표 부재로 미판정.
-
-fixture: 모든 사실·대사·효과와 DEMO 수치. 미구현/TBD: 새 슬롯 연결·회귀, 새 목표별 튜닝, §1.10 대조, DEMO 구현·사람 검수, 민사 판정 모델. 설계 판단 없이 건드리지 않은 부분: core 슬롯 ID·규칙, 법적 일부 유죄와 합의의 절차 효과, DEMO 서비스 소유 범위.
-
-generator/content/만 변경했다. core·balance·engine·service·UI·설계 원문과 world/ 미수정. diff 검토, 범위 외 변경 없음. 다음 단계·병합·push 없음.
-
----
-
-## 이전 검토 — 0.0.2-gen-content
-
-## 최신 변경
-
-주신문 약점 선공개를 제거하고 카드 제시를 통해 한계를 끌어내도록 했다. DUI 반전 3개를 추가했으며 효과를 40~65% 목표에 맞췄다.
-
-- copy.js: 네 증인 주신문과 8개 접근법의 자료 없는 질문·저항 답변.
-- index.js: 대응하는 자료 없는 접근법(delta 0, points [], 시간 1회)과 버전 갱신. 기존 카드 제시 접근법 유지.
-- archetypes.js: DUI 진실 파라미터·허용 반전 3개.
-- twists.js: DUI 3개 세트, 폭행 재반대 -2→-1 두 개/-3→-2 두 개. 수습 유지.
-- content.test.js: 콘텐츠 회귀 14개. 미준비·다른 카드·정확한 카드의 결과 및 기록·원본 보존.
-- check-balance.js: 300시드에서 실제 카드 없는 추궁·한정 결론 요구까지 서비스로 실행하는 보조 점검.
-- RULES.md, REPORT.md, REVIEW_PACKET.md, test-results.log: 규칙·조정 내역·최신 결과.
-
-불변식: 카드 없이 한계 인정·근거 점수를 얻지 못한다. 다른 카드로 준비 접근법을 실행하지 못한다. 실패 명령은 상태를 오염시키지 않는다. 진실 조건·원형에 맞는 반전만 붙는다. 동일 버전·원형·시드의 결과가 재현된다. 기존 준비 접근법·baseline·시간·판정 수치는 보존한다.
-
-검증: 관련 44/44(exit 0), npm test 247/247(exit 0), 전체 333개 중 323 통과·기존 Playwright 누락 10 실패(exit 1). node generator/balance.js는 4 checks·0 failures·exit 0. 준비 후 무죄 폭행 57.7%, DUI 56.7%, 미준비는 각각 0/300. 보조 check-balance.js는 1,800회 완주·두 원형 PASS·exit 0, 카드 없이 추궁 후 결론을 요구해도 무죄·근거 점수 0.
-
-fixture는 모든 사건 사실·대사·효과다. 사람 검수·재미·모든 전략의 승패 검증은 남아 있다. 실제 법률 추론·측정값 역산·장비 고장 판정·새 증인·UI는 추가하지 않았다. generator/content/만 수정했다. 병행 변경된 balance.js와 generator/REPORT.md는 이번 커밋에서 제외한다. core 미수정, diff 검토 완료. 다음 단계·병합·push 없음.
-
----
-
-## 이전 검토 기록 — 0.0.1 (이하 현재 결과 아님)
-
-목적: 폭행 반전 4개, 폭행 템플릿 문구 완성, 같은 형식의 DUI 원형 초안. [REPORT.md](REPORT.md)에 실행 결과와 계약 기준을 기록했다.
-
-동일 요청 재확인: HEAD `02a13a3`의 기존 콘텐츠를 유지했다. 관련 회귀 42/42와 `node generator/balance.js` 2/2를 다시 확인했고 모두 exit 0이다. 이번 diff는 content 내 문서·로그의 재확인 기록뿐이며 core·콘텐츠 코드는 수정하지 않았다. 아래 나머지 결과는 앞선 실행 기록이다.
+새 core 구조에 콘텐츠 회귀와 balance 정책을 맞추고, 사용자 목표 (a)~(d)에 맞춰 콘텐츠 원형 강도를 조정한다. 요청한 법률 문서 정정을 반영한다.
 
 ## 변경 파일
 
-- `archetypes.js`: 폭행 콘텐츠 원형의 반전 목록·진실 파라미터, DUI 원형.
-- `twists.js`: 폭행용 TwistModule 4개. 기존 임대차 예시 반전은 수정하지 않음.
-- `copy.js`: 진실 조건에 따른 폭행·DUI 대사·제목·메모 데이터.
-- `index.js`: 기존 core 생성 결과에 문구를 채우는 Node 진입점. 서비스 상태를 변경하지 않음.
-- `content.test.js`: 콘텐츠 연결·결정성·기록 재생·입력 보존 등 12개 회귀.
-- `RULES.md`: 실험 수치·조건·공통 사실·연결 범위.
-- `REPORT.md`, `REVIEW_PACKET.md`, `test-results.log`: 자체 점검·검토·최신 실행 요약.
+| 파일 (generator/ 기준) | 변경 |
+| --- | --- |
+| core/playthrough.js | 새 상식적 신문 정책, 기존 무작위 보존, 최선 경로의 무근거 접근 제외·limited 조건 확인, 조사 대조군 옵션 |
+| balance.js | (c)/(e) 분리, 조사만 바꾸는 (d), 기존 전략 차이 참고 출력, 4개 게이트 및 오류 실패 처리 |
+| content/archetypes.js | 쟁점 strengthRange [3,4]·[3,5] |
+| content/content.test.js | 실패 7개 수리, 정책 3개 추가, 카드/점수·원자성·replay 조건 유지 및 새 분기 검증 |
+| content/check-balance.js | 이의/재반대 처리 분리, 새 (c) 비율 검증 및 기존 고정 준비 참고 출력 |
+| content/CATALOG.md | 명예훼손·모욕, 친족상도례·2024 결정·2025 개정, 공탁, 무고 목적, 공용부 주거성 및 공식 출처 |
+| content/SIGNATURE.md | 9행 §1.10 설명, §3 민사 엔진 제한만 수정 |
+| content/RULES.md | 이번 실험 정책·수치·측정 정의 |
+| REPORT.md | 전후 표·진단·완료 기준·전체 테스트/balance 출력 |
+| content/REPORT.md | 최신 결과 및 통합 REPORT 링크 |
+| content/REVIEW_PACKET.md | 이 인계 |
+| content/test-results.log | 최신 5개 검증 명령 출력 |
 
-## 새로 확인하는 불변식
+## 강제 불변식과 검증
 
-반전 활성 조건과 카드·수습의 존재가 일치한다. 다른 원형에 폭행 반전이 붙지 않는다. 동일 원형·시드는 동일 문구를 만든다. 문구 적용이 core가 만든 기계적 값을 바꾸지 않는다. 출력에 임시 문구나 없는 증인 화자 참조가 없다. 잘못된 요청이 입력·서비스 기록을 오염시키지 않는다.
+- 새 (c): 예산 준수·보유 카드만 사용·overreach 없음·limited 성공 조건 충족·가능한 재반대 사용·동일 seed 재현·기록 replay.
+- 기존 카드 없음/다른 카드 거부, unsupported 무효, 실패 원자성, limited 근거 2개 필요, overreach 항상 실패를 유지한다.
+- byStance 점수 0·DENY 충돌 비용, 이의·재주신문·재반대 문구와 효과를 검증한다.
+- (d)는 opening과 신문 정책을 고정하고 조사 우선순위만 바꾼다.
+- 판정 RNG·능력 가산·UI 도메인 로직을 추가하지 않는다.
+- DEMO-DESIGN 전체와 SIGNATURE §1은 HEAD 대조 결과 변경 없음.
 
-## 검증·남은 판단
+## 실행 명령과 결과
 
-- 관련 회귀 42/42, 기존 `npm test` 247/247, exit 0.
-- 전수 `node --test`: 331개 중 321 통과·10 실패, exit 1. 기존 Playwright 모듈 누락.
-- `node generator/balance.js`: 2 checks·0 failures·exit 0. 기존 템플릿 대상.
-- 새 콘텐츠 별도 관찰: 폭행 77.0%, DUI 57.3% 무죄(모두 준비). 두 원형 모두 미준비 무죄 0/300. 폭행은 30~70% 구간 밖이며 튜닝하지 않음.
-- fixture는 모든 사건 사실·대사·효과다. 실제 판결 추출 검증·사람 플레이테스트·모든 전략 탐색·웹 연결은 미완료다. 법리 판단이나 다음 VS 작업을 시작하지 않았다.
-- 본 작업은 `generator/content/`만 작성했다. 작업 중 병행 변경된 core/balance/report와 기존 world/patch 파일은 별도 작업이다. 이 파일들의 변경을 되돌리거나 포함시키지 않았다.
-- 새 파일 diff와 참조를 검토했다. 커밋·병합·push는 하지 않았다.
+courtroom-prototype/에서 실행:
+
+| 명령 | checks | failures | exit |
+| --- | ---: | ---: | ---: |
+| node --test generator/core/tests/*.test.js | 43 | 0 | 0 |
+| node --test generator/content/content.test.js | 17 | 0 | 0 |
+| npm test | 247 | 0 | 0 |
+| node generator/balance.js | 8 | 0 | 0 |
+| node generator/content/check-balance.js | 2 | 0 | 0 |
+| **합계** | **317** | **0** | **0** |
+
+원본 content 실패 7개 및 balance 실패, Node의 디렉터리 테스트 경로 오류는 [REPORT](../REPORT.md)에 보존했다. 최종 검증은 위 명령으로 모두 통과했다. git diff --check 및 수정 파일 diff 검토 완료.
+
+## Fixture·미구현·설계 판단
+
+- 원형·대사·반전·이의 proper/improper 배치는 authored fixture다.
+- (b)는 쟁점별 집중 경로 탐색이며 모든 명령열의 완전 탐색이 아니다.
+- seed 1~300은 조정에 쓴 표본이다. 전 seed 보증·holdout 성능을 주장하지 않는다.
+- 옛 (d)는 조정 후 0%; 새 (d)는 조사만 바꾸는 인과 비교로 두 원형 100%. 정의와 전후 비교 한계는 REPORT에 명시했다.
+- 민사 공판, 법률 자동 적용·양형, 새 원형 구현, DEMO 실행/UI는 범위 밖으로 남겼다.
+- 원 계약의 분야 3개 × 10개 사람 검수와 체감 난도·법률 적용 검토는 미완이다. 사람 질문 3개는 REPORT 참조.
+- 범위 외 수정 없음. 사용자 추가 허용인 core/playthrough.js·balance.js 외 core 파일은 수정하지 않았다. 기존 미추적 world/도 그대로다.
