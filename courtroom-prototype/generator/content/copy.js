@@ -167,3 +167,5 @@ function duiCopy(truth) {
 }
 
 module.exports = { ARCH_CRIMINAL_ASSAULT: assaultCopy, ARCH_DUI: duiCopy };
+
+Object.assign(module.exports, require('./catalog-content').copies);

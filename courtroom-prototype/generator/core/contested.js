@@ -289,6 +289,22 @@ function buildContestedCase(archetype, seed, availableTwists) {
     witness.approaches.push(buildStanceConflictApproach(twist, witness.id)); // 항목 2
   }
 
+  // GEN-002: lead availability cannot reveal whether a hidden discovery exists.
+  // Negative investigations use authored data; they create no redirect or defense effect.
+  if (archetype.catalogId) for (const twist of availableTwists || []) {
+    if (!archetype.twists_allowed.includes(twist.id) || activatedTwists.some(t => t.id === twist.id)) continue;
+    const card = twist.investigationCard;
+    investigations.push({ id: card.investigationId, title: card.investigationTitle, cost: card.cost,
+      blurb: card.cardTitle, grants: [card.cardId] });
+    cards.push({ id: card.cardId, title: card.cardTitle, text: card.absentText, issue: twist.targetIssue, rebuttal: true });
+  }
+  if (archetype.catalogId) {
+    const order = new Map(archetype.twists_allowed.map((id, index) => [`INV_${id}`, index]));
+    investigations.sort((a, b) => (order.has(a.id) ? 100 + order.get(a.id) : 0) - (order.has(b.id) ? 100 + order.get(b.id) : 0));
+    const cardOrder = new Map(archetype.twists_allowed.map((id, index) => [`CARD_${id}`, index]));
+    cards.sort((a, b) => (cardOrder.has(a.id) ? 100 + cardOrder.get(a.id) : 0) - (cardOrder.has(b.id) ? 100 + cardOrder.get(b.id) : 0));
+  }
+
   const witnesses = templates.map((t) => t.witness);
   const opening = buildOpening(archetype, witnesses);
 

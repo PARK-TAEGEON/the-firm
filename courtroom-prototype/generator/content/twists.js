@@ -136,3 +136,5 @@ module.exports = [
     }
   }
 ];
+
+module.exports.push(...require('./catalog-content').twists);

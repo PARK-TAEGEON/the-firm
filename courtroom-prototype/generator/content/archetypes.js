@@ -34,3 +34,5 @@ const dui = {
 };
 
 module.exports = { ARCH_CRIMINAL_ASSAULT: assault, ARCH_DUI: dui };
+
+Object.assign(module.exports, require('./catalog-content').archetypes);

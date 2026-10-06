@@ -149,7 +149,7 @@
  */
 
 const CASE_GRADES = ['daily', 'contested', 'signature'];
-const FIELDS = ['criminal_assault', 'dui', 'lease_deposit'];
+const FIELDS = ['criminal_assault', 'dui', 'lease_deposit', 'criminal_catalog'];
 const ACTIVATION_OPS = ['>=', '<=', '>', '<', '=='];
 
 // TwistActivation 평가. 순수 함수 — RNG 없음. 시드로 확정된 truth 값에만 의존하므로 결정적이다.

@@ -10,8 +10,8 @@ const { createTrialService } = require('../../services/trial');
 
 test('폭행 4개·DUI 3개 반전이 기존 형식에 맞고 다른 원형 참조는 거부된다', () => {
   for (const a of Object.values(C.archetypes)) assert.deepEqual(validateArchetype(a), []);
-  assert.equal(C.twists.length, 7);
-  assert.equal(new Set(C.twists.map(t => t.id)).size, 7);
+  assert.equal(C.twists.length, 31);
+  assert.equal(new Set(C.twists.map(t => t.id)).size, 31);
   assert.equal(C.archetypes.ARCH_CRIMINAL_ASSAULT.twists_allowed.length, 4);
   assert.equal(C.archetypes.ARCH_DUI.twists_allowed.length, 3);
   for (const a of Object.values(C.archetypes)) {
@@ -53,8 +53,9 @@ for (const id of Object.keys(C.archetypes)) {
       seen.add(d.twistsApplied.join(','));
       for (const t of C.twists) {
         const active = d.twistsApplied.includes(t.id);
-        assert.equal(d.cards.some(c => c.id === t.investigationCard.cardId), active);
-        assert.equal(d.investigations.some(i => i.id === t.investigationCard.investigationId), active);
+        const offered = active || (Boolean(C.archetypes[id].catalogId) && t.appliesTo.includes(id));
+        assert.equal(d.cards.some(c => c.id === t.investigationCard.cardId), offered);
+        assert.equal(d.investigations.some(i => i.id === t.investigationCard.investigationId), offered);
         assert.equal(d.witnesses.some(w => w.redirect.some(r => r.id === `RH_${t.id}`)), active);
       }
       const speakers = new Set([...Object.values(d.roles).map(r => r.id), ...d.witnesses.map(w => w.id)]);
@@ -294,7 +295,7 @@ test('정책 c: 예산·카드·limited 조건, 재반대 사용, 결정성과 �
     }
   }
   assert.deepEqual([...observed].sort(), ['limited','overruled','pass','rebuttal','sustained']);
-  assert.equal(focuses.size, 5); // 균형 + 두 원형의 쟁점별 2개
+  assert.equal(focuses.size, 1 + Object.keys(C.archetypes).length * 2); // 균형 + 두 원형의 쟁점별 2개
   assert.equal(stances.size, 3);
 });
 

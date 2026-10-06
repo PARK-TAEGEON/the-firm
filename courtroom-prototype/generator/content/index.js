@@ -15,10 +15,13 @@ function getArchetype(id) {
 
 function buildContestedCase(archetypeId, seed) {
   const d = buildTemplate(getArchetype(archetypeId), seed, twists);
+  if (getArchetype(archetypeId).catalogId) d.facts = require('./catalog-facts').factsFor(archetypeId, d.truth);
   const copy = copies[archetypeId](d.truth);
   const hearing = hearingCopies[archetypeId];
-  d.version = '0.0.4-gen-content';
+  d.version = '0.0.5-gen-content';
   for (const key of ['title', 'charge', 'client', 'briefing', 'clientStatements']) d[key] = copy[key];
+  if (!d.briefing.includes(require('./catalog-content').PRESS_HINT)) d.briefing.push(require('./catalog-content').PRESS_HINT);
+  d.legalSystem = { id: 'ko', version: require('./packs/ko.json').version };
   d.prep.deadlineLabel = '첫 공판 전 조사';
 
   // core 수정 항목 2: focus는 이제 균형 1개 + 쟁점별 1개씩(2~3개), stance는 contest/admit/deny 3개다.
@@ -92,7 +95,7 @@ function buildContestedCase(archetypeId, seed) {
 
     // core 수정 항목 4: presses[0]=limited(기존), presses[1]=overreach(신규) — hearing-copy의 overreach로 채운다.
     const [limited, overreach] = w.presses;
-    Object.assign(limited, { title: c.press.title, question: c.press.question });
+    Object.assign(limited, { title: c.press.title, question: c.press.question, hint: require('./catalog-content').PRESS_HINT });
     Object.assign(limited.success, { lines: [[w.id, c.press.success]], memo: c.press.successMemo });
     Object.assign(limited.fail, { lines: [[w.id, c.press.fail]], memo: c.press.failMemo });
     Object.assign(overreach, { title: h.overreach.title, question: h.overreach.question });
@@ -107,7 +110,7 @@ function buildContestedCase(archetypeId, seed) {
       r.rebuttal.memo = `${twist.title}: ${twist.playerCounter.text}`;
       r.missed = `${twist.investigationCard.investigationTitle} 조사를 했다면 수습 주장의 범위를 다툴 수 있었다.`;
       const inv = d.investigations.find(item => item.id === twist.investigationCard.investigationId);
-      inv.blurb = `${twist.investigationCard.cardTitle} 자료를 확보해 진술과 대조한다.`;
+      inv.blurb = getArchetype(archetypeId).catalogId ? twist.investigationCard.cardTitle : `${twist.investigationCard.cardTitle} 자료를 확보해 진술과 대조한다.`;
 
       // core 수정 항목 2: 이 twist가 만든 stance 충돌 접근법(id: A_${issueId}_STANCE_${twist.id})에 문구를
       // 채운다. hearing-copy에는 이 조합 전용 대사가 없어 이미 작성된 twist 문구를 다시 구성한다 — 새
@@ -152,9 +155,26 @@ function buildContestedCase(archetypeId, seed) {
 function generateDailyCase(archetypeId, seed) {
   const archetype = getArchetype(archetypeId);
   const d = buildDailyTemplate(archetype, seed);
+  // New daily summaries and contested hearings share the same hidden case, not two RNG orders.
+  if (archetype.catalogId) {
+    const hearing = buildContestedCase(archetypeId, seed);
+    d.truth = hearing.truth;
+    d.facts = hearing.facts;
+    d.issueStrengths = Object.fromEntries(hearing.issues.map(i => [i.id, i.baseline]));
+    d.fee.retainer = hearing.fee.retainer;
+    d.legalSystem = hearing.legalSystem;
+  }
   const amount = archetypeId === 'ARCH_CRIMINAL_ASSAULT' ? ` 합의금 참고액 ${d.claimAmount}만원.` : '';
   d.outcomeSummary = `${archetype.title} — 착수금 ${d.fee.retainer}만원, 예상 기간 ${d.durationWeeks}주.${amount} 쟁점: ${archetype.issues.map(i => i.question).join(' ')}`;
   return d;
 }
 
-module.exports = { archetypes, twists, buildContestedCase, generateDailyCase };
+function resolveCase(archetypeId, seed, options = {}) {
+  const { grade = 'daily', ...policy } = options;
+  if (!['daily', 'contested'].includes(grade)) throw new Error('자동 진행 등급은 daily 또는 contested여야 합니다.');
+  const d = buildContestedCase(archetypeId, seed);
+  const { automaticCase } = require('../core/automatic');
+  return { ...automaticCase(d, policy).player, grade };
+}
+
+module.exports = { archetypes, twists, buildContestedCase, generateDailyCase, resolveCase };

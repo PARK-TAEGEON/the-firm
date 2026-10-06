@@ -46,7 +46,7 @@ function runForArchetype(archetypeId, seedCount = SEED_COUNT) {
 function run() { return Object.keys(content.archetypes).map(id => runForArchetype(id)); }
 function report(results) {
   for (const r of results) {
-    console.log('GEN-001 ' + r.archetypeId + ' seeds 1..' + r.seedCount);
+    console.log('GEN-002 ' + r.archetypeId + ' seeds 1..' + r.seedCount);
     for (const [label, count] of [['(a) no preparation', r.noPrepNotGuilty], ['(b) best path', r.bestPathWinnable],
       ['(c) random preparation + sensible cross', r.randomNotGuilty], ['(d) investigation choice alone', r.choiceMattersSeeds],
       ['(e) legacy completely random (reference)', r.legacyRandomNotGuilty],

@@ -1,0 +1,10 @@
+'use strict';
+const C = require('./content');
+const { automaticCase } = require('./core/automatic');
+const id = process.argv[2] || 'ARCH_THEFT';
+const seed = Number(process.argv[3] || 1);
+if (!Number.isSafeInteger(seed) || seed < 1) throw Error('seed must be a positive integer');
+const d = C.buildContestedCase(id, seed);
+const targetIssue = d.issues[0].id;
+const investigations = d.investigations.filter(i => i.id.startsWith(`INV_${targetIssue}_`)).map(i => i.id);
+console.log(JSON.stringify(automaticCase(d, { targetIssue, investigations, skill: process.argv[4] || 'experienced' }).player, null, 2));

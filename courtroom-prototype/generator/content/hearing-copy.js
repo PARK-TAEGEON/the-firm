@@ -150,3 +150,5 @@ module.exports = {
     }
   }
 };
+
+Object.assign(module.exports, require('./catalog-content').hearings);

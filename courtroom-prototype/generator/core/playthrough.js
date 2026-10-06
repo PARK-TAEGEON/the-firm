@@ -120,15 +120,18 @@ function playRandomPolicy(caseDef, rng, sensible) {
     const part = view.state.cursor && view.state.cursor.part;
     if (part === 'cross') {
       if (sensible) {
-        const approaches = view.actions.approaches.filter(a => a.available && a.cards.length > 0);
+        const approaches = view.actions.approaches.filter(a => a.available && a.cards.length > 0
+          && !a.title.includes('최초 입장과 다른 사실'));
         if (approaches.length) {
           view = run('approach', { id: pickRandom(approaches, rng).id });
           continue;
         }
         const witness = caseDef.witnesses.find(w => w.id === view.witness.id);
-        const points = view.projection.witnesses.find(w => w.id === witness.id).points;
+        const confirmed = new Set(view.records.filter(r => r.kind === 'approach' && r.witnessId === witness.id
+          && !r.refId.includes('_STANCE_')).flatMap(r => r.cardsUsed || []));
         const press = view.actions.presses.find(p => p.available && p.kind === 'limited'
-          && trialEngine.pressSucceeds(witness.presses.find(pr => pr.id === p.id), points));
+          && witness.presses.find(pr => pr.id === p.id).hint === '결론 요구는 이 증인에게 서로 다른 자료로 확인한 근거 2개 이상 필요'
+          && confirmed.size >= 2);
         view = press ? run('press', { id: press.id }) : run('endCross');
         continue;
       }
