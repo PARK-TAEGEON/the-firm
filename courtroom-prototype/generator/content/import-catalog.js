@@ -19,6 +19,7 @@ const rows = source.split(/\r?\n## \d+\. /).slice(1).map(block => {
 });
 if (rows.length !== 8 || rows.some(r => r.issues.length !== 2 || r.twists.length !== 3)) throw Error('catalog shape');
 fs.mkdirSync(path.join(__dirname, 'packs'), { recursive: true });
-for (const [name, data] of [['catalog-data.json', rows], ['packs/ko.json', {
-  id: 'ko', version: 'gen-002-1', criminalSuccessFee: { allowed: false, range: [0, 0], status: 'accepted DEC-032 D3' }, legalCandidates
-}]]) fs.writeFileSync(path.join(__dirname, name), JSON.stringify(data, null, 2) + '\n');
+// Reimporting design candidates must not erase the separately authored machine-readable pack.
+const pack = JSON.parse(fs.readFileSync(path.join(__dirname, 'packs/ko.json'), 'utf8'));
+for (const [name, data] of [['catalog-data.json', rows], ['packs/ko.json', { ...pack, legalCandidates }]])
+  fs.writeFileSync(path.join(__dirname, name), JSON.stringify(data, null, 2) + '\n');

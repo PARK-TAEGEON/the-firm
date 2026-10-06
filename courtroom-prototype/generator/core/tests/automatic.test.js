@@ -6,11 +6,12 @@ const path = require('node:path');
 const C = require('../../content');
 const rows = require('../../content/catalog-data.json');
 const { factsFor } = require('../../content/catalog-facts');
-const { runPolicy, automaticCase, observedDefinition } = require('../automatic');
+const { runPolicy, automaticCase } = require('../automatic');
 const { playThroughSensible } = require('../playthrough');
 const { createRng, seedFor } = require('../rng');
 const { createTrialService } = require('../../../services/trial');
 const T = require('../../../engine/trial');
+const { publicForecastInput, forecastFromPublic } = require('../forecast');
 
 test('GEN-002: eight catalog mappings, complete factual profiles and pack provenance', () => {
   assert.equal(rows.length, 8);
@@ -29,7 +30,7 @@ test('GEN-002: eight catalog mappings, complete factual profiles and pack proven
     assert.deepEqual(daily.truth, d.truth);
     assert.deepEqual(daily.facts, d.facts);
     assert.equal(daily.fee.retainer, d.fee.retainer);
-    assert.deepEqual(d.legalSystem, { id: 'ko', version: 'gen-002-1' });
+    assert.deepEqual(d.legalSystem, { id: 'ko', version: 'gen-002-2' });
     assert.deepEqual(a.fee.success_pct, require('../../content/packs/ko.json').criminalSuccessFee.range);
     assert.equal(require('../../content/packs/ko.json').legalCandidates[row.id].status, 'unverified');
   }
@@ -83,7 +84,7 @@ test('GEN-002: sensible policy does not read hidden press success requirements',
   assert.ok(attemptedAgainstHiddenRule > 0, 'policy must try public hint even when hidden success condition disagrees');
 });
 
-test('GEN-002: automatic policies deterministic, atomic, replayable; all forecast disagreements have hidden records', () => {
+test('GEN-002: automatic policies deterministic, atomic, replayable; forecast disagreement is audited without replay', () => {
   let mismatches = 0, upsets = 0, policyDifferences = 0;
   const oldRandom = Math.random;
   Math.random = () => { throw Error('courtroom RNG forbidden'); };
@@ -95,12 +96,10 @@ test('GEN-002: automatic policies deterministic, atomic, replayable; all forecas
       const options = { investigations, targetIssue, skill: 'experienced' };
       const a = automaticCase(d, options), b = automaticCase(d, options);
       assert.deepEqual(a, b); assert.deepEqual(d, before);
-      assert.equal(a.audit.replayOutcome, a.audit.outcome);
+      assert.equal(T.replay(d, a.audit.records).verdict.outcome, a.audit.outcome);
       assert.deepEqual(T.replay(d, a.audit.records).projection, a.audit.projection);
-      const known = observedDefinition(d, investigations.flatMap(id => d.investigations.find(i => i.id === id).grants));
-      assert.deepEqual(automaticCase(known, options).audit.forecast, a.audit.forecast);
-      assert.equal(automaticCase(known, options).audit.matched, true);
-      if (!a.audit.matched) { mismatches++; assert.ok(a.player.discoveries.length); }
+      assert.equal(forecastFromPublic(a.audit.publicInput).band, a.audit.forecast);
+      if (!a.audit.matched) { mismatches++; assert.ok(['uninvestigated_discovery', 'coarse_public_estimate'].includes(a.audit.mismatchReason)); }
       if (a.audit.upset) { upsets++; assert.ok(a.player.discoveries.every(x => x.recordId && x.issue && x.missed)); }
       const rookie = automaticCase(d, { ...options, skill: 'novice' });
       if (rookie.audit.outcome !== a.audit.outcome) policyDifferences++;
@@ -120,7 +119,8 @@ test('GEN-002: unobserved discoveries cannot influence forecast; investigation c
   const altered = structuredClone(d);
   altered.truth = { secret: 'changed' }; altered.facts = { secret: 'changed' };
   altered.witnesses.forEach(w => w.redirect.forEach(r => { r.delta += 50; r.memo = 'unobserved alteration'; }));
-  assert.deepEqual(observedDefinition(d, []), observedDefinition(altered, []));
+  const options = { targetIssue: d.issues[0].id };
+  assert.deepEqual(publicForecastInput(createTrialService(d).projection(), options), publicForecastInput(createTrialService(altered).projection(), options));
   let worsening = false;
   for (let seed = 1; seed <= 30 && !worsening; seed++) {
     const def = C.buildContestedCase('ARCH_THEFT', seed);

@@ -1,6 +1,6 @@
 {
   "id": "ko",
-  "version": "gen-002-1",
+  "version": "gen-002-2",
   "criminalSuccessFee": {
     "allowed": false,
     "range": [
@@ -50,5 +50,453 @@
       "label": "[확인 필요] 사건별 소추·양형·적용법 확인 전 실행 금지",
       "notes": "- 반의사불벌죄 아님을 전제로 한 후보 **[확인 필요: 형법 제136조, 협박 및 적법한 공무집행의 판단]**.\n- 담당 공무원의 의사·실제 업무 지장·사과·재발 방지 자료 **[확인 필요: 양형 반영]**. 개인의 용서를 국가 형벌권 처분이나 사건 종결로 취급하지 않는다. 별도 협박죄 추가·죄수 관계는 이 초안에서 결정하지 않는다.\n- 고정 보수 **350~700만원**, 성공보수 **0원**."
     }
+  },
+  "archetypeRules": {
+    "ARCH_CRIMINAL_ASSAULT": {
+      "status": "unverified",
+      "offense": "폭행치상",
+      "nonProsecutionAgainstWill": false,
+      "complaintRequired": false,
+      "sources": [
+        "https://www.law.go.kr/법령/형법/제262조",
+        "https://www.law.go.kr/법령/형법/제260조",
+        "https://www.law.go.kr/법령/형법/제257조"
+      ],
+      "settlement": {
+        "paymentAloneEndsCase": false,
+        "victimWillRequired": false,
+        "complaintWithdrawalRequired": false,
+        "proceduralEffect": "none",
+        "deadline": null,
+        "sentencingEffect": "consider_repair_and_victim_opinion",
+        "automaticAcquittal": false,
+        "amountSummary": "합의금 참고액 {amount}만원."
+      },
+      "execution": {
+        "prosecutionConditions": false,
+        "sentencing": false
+      },
+      "limits": [
+        "구체적 적용 죄명과 유효한 의사 표시 여부는 별도 심사한다.",
+        "양형 수치와 절차 종결 실행은 이 단계에 포함되지 않는다."
+      ],
+      "variants": {
+        "simple_assault": {
+          "status": "unverified",
+          "offense": "단순폭행",
+          "nonProsecutionAgainstWill": true,
+          "complaintRequired": false,
+          "sources": [
+            "https://www.law.go.kr/법령/형법/제260조"
+          ],
+          "settlement": {
+            "paymentAloneEndsCase": false,
+            "victimWillRequired": true,
+            "complaintWithdrawalRequired": false,
+            "proceduralEffect": "dismissal_if_valid_victim_nonpunishment",
+            "deadline": "before_first_instance_judgment",
+            "sentencingEffect": "consider_repair_and_victim_opinion",
+            "automaticAcquittal": false,
+            "amountSummary": null
+          },
+          "execution": {
+            "prosecutionConditions": false,
+            "sentencing": false
+          },
+          "limits": [
+            "구체적 적용 죄명과 유효한 의사 표시 여부는 별도 심사한다.",
+            "양형 수치와 절차 종결 실행은 이 단계에 포함되지 않는다."
+          ]
+        }
+      }
+    },
+    "ARCH_DUI": {
+      "status": "unverified",
+      "offense": "음주운전",
+      "nonProsecutionAgainstWill": false,
+      "complaintRequired": false,
+      "sources": [
+        "https://www.law.go.kr/법령/도로교통법/제148조의2"
+      ],
+      "settlement": {
+        "paymentAloneEndsCase": false,
+        "victimWillRequired": false,
+        "complaintWithdrawalRequired": false,
+        "proceduralEffect": "none",
+        "deadline": null,
+        "sentencingEffect": "consider_remorse_and_prevention",
+        "automaticAcquittal": false,
+        "amountSummary": null,
+        "victimAgreementApplicable": false
+      },
+      "execution": {
+        "prosecutionConditions": false,
+        "sentencing": false
+      },
+      "limits": [
+        "구체적 적용 죄명과 유효한 의사 표시 여부는 별도 심사한다.",
+        "양형 수치와 절차 종결 실행은 이 단계에 포함되지 않는다."
+      ]
+    },
+    "ARCH_THEFT": {
+      "status": "unverified",
+      "offense": "절도",
+      "nonProsecutionAgainstWill": false,
+      "complaintRequired": "conditional",
+      "sources": [
+        "https://www.law.go.kr/법령/형법/제329조",
+        "https://www.law.go.kr/법령/형법/제344조",
+        "https://www.law.go.kr/법령/형법/제328조"
+      ],
+      "settlement": {
+        "paymentAloneEndsCase": false,
+        "victimWillRequired": false,
+        "complaintWithdrawalRequired": "conditional",
+        "proceduralEffect": "conditional_dismissal_if_valid_complaint_withdrawal",
+        "deadline": "before_first_instance_judgment_if_complaint_required",
+        "sentencingEffect": "consider_repair_and_victim_opinion",
+        "automaticAcquittal": false,
+        "amountSummary": null
+      },
+      "execution": {
+        "prosecutionConditions": false,
+        "sentencing": false
+      },
+      "limits": [
+        "구체적 적용 죄명과 유효한 의사 표시 여부는 별도 심사한다.",
+        "양형 수치와 절차 종결 실행은 이 단계에 포함되지 않는다."
+      ],
+      "complaintConditions": {
+        "kind": "relative_property_exception",
+        "status": "unverified",
+        "requires": [
+          "applicable_offense_date",
+          "victim_legal_identity",
+          "kinship",
+          "transition_provisions",
+          "complaint_deadline"
+        ],
+        "defaultWhenUnknown": "unresolved"
+      }
+    },
+    "ARCH_RESALE_FRAUD": {
+      "status": "unverified",
+      "offense": "사기",
+      "nonProsecutionAgainstWill": false,
+      "complaintRequired": "conditional",
+      "sources": [
+        "https://www.law.go.kr/법령/형법/제347조",
+        "https://www.law.go.kr/법령/형법/제354조",
+        "https://www.law.go.kr/법령/형법/제328조"
+      ],
+      "settlement": {
+        "paymentAloneEndsCase": false,
+        "victimWillRequired": false,
+        "complaintWithdrawalRequired": "conditional",
+        "proceduralEffect": "conditional_dismissal_if_valid_complaint_withdrawal",
+        "deadline": "before_first_instance_judgment_if_complaint_required",
+        "sentencingEffect": "consider_repair_and_victim_opinion",
+        "automaticAcquittal": false,
+        "amountSummary": null
+      },
+      "execution": {
+        "prosecutionConditions": false,
+        "sentencing": false
+      },
+      "limits": [
+        "구체적 적용 죄명과 유효한 의사 표시 여부는 별도 심사한다.",
+        "양형 수치와 절차 종결 실행은 이 단계에 포함되지 않는다."
+      ],
+      "complaintConditions": {
+        "kind": "relative_property_exception",
+        "status": "unverified",
+        "requires": [
+          "applicable_offense_date",
+          "victim_legal_identity",
+          "kinship",
+          "transition_provisions",
+          "complaint_deadline"
+        ],
+        "defaultWhenUnknown": "unresolved"
+      }
+    },
+    "ARCH_BUSINESS_EMBEZZLEMENT": {
+      "status": "unverified",
+      "offense": "업무상횡령",
+      "nonProsecutionAgainstWill": false,
+      "complaintRequired": "conditional",
+      "sources": [
+        "https://www.law.go.kr/법령/형법/제356조",
+        "https://www.law.go.kr/법령/형법/제361조",
+        "https://www.law.go.kr/법령/형법/제328조"
+      ],
+      "settlement": {
+        "paymentAloneEndsCase": false,
+        "victimWillRequired": false,
+        "complaintWithdrawalRequired": "conditional",
+        "proceduralEffect": "conditional_dismissal_if_valid_complaint_withdrawal",
+        "deadline": "before_first_instance_judgment_if_complaint_required",
+        "sentencingEffect": "consider_repair_and_victim_opinion",
+        "automaticAcquittal": false,
+        "amountSummary": null
+      },
+      "execution": {
+        "prosecutionConditions": false,
+        "sentencing": false
+      },
+      "limits": [
+        "구체적 적용 죄명과 유효한 의사 표시 여부는 별도 심사한다.",
+        "양형 수치와 절차 종결 실행은 이 단계에 포함되지 않는다."
+      ],
+      "complaintConditions": {
+        "kind": "relative_property_exception",
+        "status": "unverified",
+        "requires": [
+          "applicable_offense_date",
+          "victim_legal_identity",
+          "kinship",
+          "transition_provisions",
+          "complaint_deadline"
+        ],
+        "defaultWhenUnknown": "unresolved"
+      }
+    },
+    "ARCH_ONLINE_DEFAMATION": {
+      "status": "unverified",
+      "offense": "명예훼손",
+      "nonProsecutionAgainstWill": true,
+      "complaintRequired": false,
+      "sources": [
+        "https://www.law.go.kr/법령/형법/제307조",
+        "https://www.law.go.kr/법령/형법/제312조"
+      ],
+      "settlement": {
+        "paymentAloneEndsCase": false,
+        "victimWillRequired": true,
+        "complaintWithdrawalRequired": false,
+        "proceduralEffect": "dismissal_if_valid_victim_nonpunishment",
+        "deadline": "before_first_instance_judgment",
+        "sentencingEffect": "consider_repair_and_victim_opinion",
+        "automaticAcquittal": false,
+        "amountSummary": null
+      },
+      "execution": {
+        "prosecutionConditions": false,
+        "sentencing": false
+      },
+      "limits": [
+        "구체적 적용 죄명과 유효한 의사 표시 여부는 별도 심사한다.",
+        "양형 수치와 절차 종결 실행은 이 단계에 포함되지 않는다."
+      ],
+      "variants": {
+        "insult": {
+          "status": "unverified",
+          "offense": "모욕",
+          "nonProsecutionAgainstWill": false,
+          "complaintRequired": true,
+          "sources": [
+            "https://www.law.go.kr/법령/형법/제311조",
+            "https://www.law.go.kr/법령/형법/제312조"
+          ],
+          "settlement": {
+            "paymentAloneEndsCase": false,
+            "victimWillRequired": false,
+            "complaintWithdrawalRequired": true,
+            "proceduralEffect": "dismissal_if_valid_complaint_withdrawal",
+            "deadline": "before_first_instance_judgment",
+            "sentencingEffect": "consider_repair_and_victim_opinion",
+            "automaticAcquittal": false,
+            "amountSummary": null
+          },
+          "execution": {
+            "prosecutionConditions": false,
+            "sentencing": false
+          },
+          "limits": [
+            "구체적 적용 죄명과 유효한 의사 표시 여부는 별도 심사한다.",
+            "양형 수치와 절차 종결 실행은 이 단계에 포함되지 않는다."
+          ]
+        },
+        "network_defamation": {
+          "status": "unverified",
+          "offense": "정보통신망 명예훼손",
+          "nonProsecutionAgainstWill": true,
+          "complaintRequired": false,
+          "sources": [
+            "https://www.law.go.kr/법령/정보통신망이용촉진및정보보호등에관한법률/제70조"
+          ],
+          "settlement": {
+            "paymentAloneEndsCase": false,
+            "victimWillRequired": true,
+            "complaintWithdrawalRequired": false,
+            "proceduralEffect": "dismissal_if_valid_victim_nonpunishment",
+            "deadline": "before_first_instance_judgment",
+            "sentencingEffect": "consider_repair_and_victim_opinion",
+            "automaticAcquittal": false,
+            "amountSummary": null
+          },
+          "execution": {
+            "prosecutionConditions": false,
+            "sentencing": false
+          },
+          "limits": [
+            "구체적 적용 죄명과 유효한 의사 표시 여부는 별도 심사한다.",
+            "양형 수치와 절차 종결 실행은 이 단계에 포함되지 않는다."
+          ]
+        }
+      }
+    },
+    "ARCH_TRAFFIC_INJURY": {
+      "status": "unverified",
+      "offense": "교통사고 치상",
+      "nonProsecutionAgainstWill": "conditional",
+      "complaintRequired": false,
+      "sources": [
+        "https://www.law.go.kr/법령/교통사고처리특례법/제3조",
+        "https://www.law.go.kr/법령/교통사고처리특례법/제4조"
+      ],
+      "settlement": {
+        "paymentAloneEndsCase": false,
+        "victimWillRequired": "conditional",
+        "complaintWithdrawalRequired": false,
+        "proceduralEffect": "conditional_dismissal",
+        "deadline": "before_first_instance_judgment",
+        "sentencingEffect": "consider_repair_and_victim_opinion",
+        "automaticAcquittal": false,
+        "amountSummary": null
+      },
+      "execution": {
+        "prosecutionConditions": false,
+        "sentencing": false
+      },
+      "limits": [
+        "구체적 적용 죄명과 유효한 의사 표시 여부는 별도 심사한다.",
+        "양형 수치와 절차 종결 실행은 이 단계에 포함되지 않는다."
+      ],
+      "prosecutionConditions": {
+        "kind": "traffic_injury_exceptions",
+        "status": "unverified",
+        "requires": [
+          "valid_victim_nonpunishment",
+          "no_statutory_exception"
+        ],
+        "exceptionChecks": [
+          "hit_and_run",
+          "measurement_refusal",
+          "signal_violation",
+          "center_line_violation",
+          "excess_speed",
+          "overtaking_violation",
+          "rail_crossing_violation",
+          "crosswalk_duty_violation",
+          "no_license",
+          "intoxication",
+          "sidewalk_violation",
+          "passenger_fall_prevention",
+          "school_zone_child_injury",
+          "cargo_securing"
+        ],
+        "insuranceSeparate": true,
+        "defaultWhenUnknown": "unresolved"
+      }
+    },
+    "ARCH_RESIDENTIAL_INTRUSION": {
+      "status": "unverified",
+      "offense": "주거침입",
+      "nonProsecutionAgainstWill": false,
+      "complaintRequired": false,
+      "sources": [
+        "https://www.law.go.kr/법령/형법/제319조"
+      ],
+      "settlement": {
+        "paymentAloneEndsCase": false,
+        "victimWillRequired": false,
+        "complaintWithdrawalRequired": false,
+        "proceduralEffect": "none",
+        "deadline": null,
+        "sentencingEffect": "consider_repair_and_victim_opinion",
+        "automaticAcquittal": false,
+        "amountSummary": null
+      },
+      "execution": {
+        "prosecutionConditions": false,
+        "sentencing": false
+      },
+      "limits": [
+        "구체적 적용 죄명과 유효한 의사 표시 여부는 별도 심사한다.",
+        "양형 수치와 절차 종결 실행은 이 단계에 포함되지 않는다."
+      ]
+    },
+    "ARCH_FALSE_REPORT": {
+      "status": "unverified",
+      "offense": "무고",
+      "nonProsecutionAgainstWill": false,
+      "complaintRequired": false,
+      "sources": [
+        "https://www.law.go.kr/법령/형법/제156조"
+      ],
+      "settlement": {
+        "paymentAloneEndsCase": false,
+        "victimWillRequired": false,
+        "complaintWithdrawalRequired": false,
+        "proceduralEffect": "none",
+        "deadline": null,
+        "sentencingEffect": "consider_repair_and_victim_opinion",
+        "automaticAcquittal": false,
+        "amountSummary": null
+      },
+      "execution": {
+        "prosecutionConditions": false,
+        "sentencing": false
+      },
+      "limits": [
+        "구체적 적용 죄명과 유효한 의사 표시 여부는 별도 심사한다.",
+        "양형 수치와 절차 종결 실행은 이 단계에 포함되지 않는다."
+      ]
+    },
+    "ARCH_OBSTRUCTION_THREAT": {
+      "status": "unverified",
+      "offense": "협박에 의한 공무집행방해",
+      "nonProsecutionAgainstWill": false,
+      "complaintRequired": false,
+      "sources": [
+        "https://www.law.go.kr/법령/형법/제136조"
+      ],
+      "settlement": {
+        "paymentAloneEndsCase": false,
+        "victimWillRequired": false,
+        "complaintWithdrawalRequired": false,
+        "proceduralEffect": "none",
+        "deadline": null,
+        "sentencingEffect": "consider_repair_and_victim_opinion",
+        "automaticAcquittal": false,
+        "amountSummary": null
+      },
+      "execution": {
+        "prosecutionConditions": false,
+        "sentencing": false
+      },
+      "limits": [
+        "구체적 적용 죄명과 유효한 의사 표시 여부는 별도 심사한다.",
+        "양형 수치와 절차 종결 실행은 이 단계에 포함되지 않는다."
+      ]
+    }
+  },
+  "readingPolicy": {
+    "unknownConditions": "unresolved",
+    "proceduralEffectsExecutable": false,
+    "sentencingExecutable": false
+  },
+  "sourceReview": {
+    "checkedAt": "2026-10-06",
+    "verifiedFragments": [
+      "형법 제260조 제3항",
+      "형법 제312조 제1항·제2항"
+    ],
+    "verifiedSources": [
+      "https://www.law.go.kr/LSW/lsLinkCommonInfo.do?lsJoLnkSeq=1032387017",
+      "https://law.go.kr/LSW/lsInfoP.do?ancYnChk=0&chrClsCd=010202&efYd=20250408&lsiSeq=270563&urlMode=lsInfoP"
+    ],
+    "scope": "조문 분류 참고. 각 사건의 적용 시점·예외까지 검증하지 않았으므로 실행 불가 상태를 유지한다."
   }
 }

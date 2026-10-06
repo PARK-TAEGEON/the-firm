@@ -1,74 +1,102 @@
-'use strict';
+﻿'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
 const C = require('./content');
-const rows = require('./content/catalog-data.json');
-const { automaticCase } = require('./core/automatic');
-
-function sampleReport() {
-  const lines = ['## 원형별 사건 샘플 — 시드 1~10', '', '검토용 출력이며 반전은 숨은 정보를 포함한다. 플레이어에게 이 표를 제공하지 않는다.', ''];
-  for (const row of rows) {
-    lines.push(`### ${row.title}`, '', '| 시드 | 제목 | 쟁점 | 반전 | 증인 첫 대사 |', '|---|---|---|---|---|');
-    for (let seed = 1; seed <= 10; seed++) {
-      const d = C.buildContestedCase(row.id, seed);
-      const discoveries = d.twistsApplied.map(id => C.twists.find(t => t.id === id).truthEffect).join('<br>') || '추가 반전 없음';
-      lines.push(`| ${seed} | ${d.title} | ${d.issues.map(i => i.question).join('<br>')} | ${discoveries} | ${d.witnesses.map(w => `${w.role}: ${w.direct[0].lines[1][1]}`).join('<br>')} |`);
-    }
-    lines.push('');
-  }
-  return lines.join('\n');
+const { automaticCase, runPolicy } = require('./core/automatic');
+const out = path.join(__dirname, 'out');
+function schedule(d, seed) {
+  const targetIssue = d.issues[seed % 2].id, preparation = seed % 5;
+  const investigations = d.investigations.filter(i => i.id.startsWith(`INV_${targetIssue}_`))
+    .slice(0, Math.min(2, preparation)).map(i => i.id);
+  const leads = new Set(d.cards.filter(c => c.rebuttal).map(c => c.id));
+  investigations.push(...d.investigations.filter(i => i.grants.some(id => leads.has(id)))
+    .slice(0, Math.max(0, preparation - 2)).map(i => i.id));
+  return { targetIssue, investigations };
 }
-
 function automaticReport(n = 300) {
   const results = [];
-  for (const row of rows) for (const skill of ['novice', 'experienced']) {
-    const stats = { id: row.id, skill, n, matched: 0, upset: 0, unexplained: 0, favorable: 0, contested: 0, adverse: 0, correctBinary: 0 };
+  for (const row of Object.values(C.archetypes)) for (const skill of ['novice', 'experienced']) {
+    const r = { id: row.id, title: row.title, skill, n, matched: 0, upset: 0, unexplained: 0,
+      favorable: 0, contested: 0, adverse: 0, coarseMismatch: 0, discoveryMismatch: 0,
+      matrix: Array.from({ length: 3 }, () => [0, 0, 0]) };
     for (let seed = 1; seed <= n; seed++) {
-      const d = C.buildContestedCase(row.id, seed);
-      // Same public preparation schedule across archetypes; alternate target without reading truth.
-      const targetIssue = d.issues[seed % 2].id;
-      const preparation = seed % 5;
-      const investigations = d.investigations.filter(i => i.id.startsWith(`INV_${targetIssue}_`))
-        .slice(0, Math.min(2, preparation)).map(i => i.id);
-      // Five public schedules: none, one basic, two basic, plus one lead, plus two leads.
-      investigations.push(...d.investigations.filter(i => i.id.startsWith('INV_TWIST_'))
-        .slice(0, Math.max(0, preparation - 2)).map(i => i.id));
-      const result = automaticCase(d, { investigations, targetIssue, skill });
-      const a = result.audit;
-      stats.matched += a.matched; stats.upset += a.upset;
-      stats.unexplained += a.upset && !result.player.discoveries.length;
-      stats.favorable += a.forecast === '유리'; stats.contested += a.forecast === '다툼'; stats.adverse += a.forecast === '불리';
-      stats.correctBinary += (a.forecast === '유리') === (a.outcome === 'not_guilty');
+      const d = C.buildContestedCase(row.id, seed), result = automaticCase(d, { ...schedule(d, seed), skill });
+      const a = result.audit, bands = ['유리', '다툼', '불리'];
+      r.matched += a.matched; r.upset += a.upset; r.unexplained += a.upset && !result.player.discoveries.length;
+      r.favorable += a.forecast === '유리'; r.contested += a.forecast === '다툼'; r.adverse += a.forecast === '불리';
+      r.coarseMismatch += a.mismatchReason === 'coarse_public_estimate';
+      r.discoveryMismatch += a.mismatchReason === 'uninvestigated_discovery';
+      r.matrix[bands.indexOf(a.forecast)][bands.indexOf(a.actualBand)]++;
     }
-    results.push(stats);
+    results.push(r);
+    if (require.main === module) console.log(`${row.id} ${skill}: ${r.matched}/${n}`);
   }
   return results;
 }
-
-function stageOne() {
-  const bytes = fs.readFileSync(path.join(__dirname, 'balance-results.log'));
-  const balance = bytes.toString(bytes[0] === 255 && bytes[1] === 254 ? 'utf16le' : 'utf8').replace(/^\uFEFF/, '');
-  const report = '# GEN-002 REPORT\n\nLane: experiment. 사용자 요청은 `TASK-GEN-002.md`에 보존. 커밋·병합 없음.\n\n' +
-    '## 1단계 — 콘텐츠와 밸런스\n\n8개 원형·24개 반전, 기존 2종 보존. 각 원형 시드 1~300을 검사했다.\n\n' +
-    '상식적 정책은 `pressSucceeds`를 읽지 않는다. 모든 사건의 limited press에 hint “결론 요구는 이 증인에게 서로 다른 자료로 확인한 근거 2개 이상 필요”를 명시하고 briefing에도 표시했다. 기존 서비스는 press hint를 투영하지 않으므로 briefing이 현재 화면에서의 공개 경로다.\n\n' +
-    '```text\n' + balance + '\n```\n\n' + sampleReport() + '\n\n## 2단계\n\n진행 중.\n\n## 3단계\n\n전체 회귀 대기. 사람 플레이테스트 대기.\n';
-  fs.writeFileSync(path.join(__dirname, 'REPORT.md'), report);
-}
-if (require.main === module) {
-  if (process.argv.includes('--stage-one')) stageOne();
-  else {
-    const results = automaticReport();
-    fs.writeFileSync(path.join(__dirname, 'automatic-results.json'), JSON.stringify(results, null, 2) + '\n');
-    const lines = ['## 2단계 — 자동 정책과 전망', '', '원형·정책마다 시드 1~300. 같은 엔진의 동일 정책을 조사된 정보로 예상한 뒤 실제 기록과 비교했다.',
-      '시드 순서로 무준비 / 기본 자료 하나 / 기본 자료 둘 / 기본 자료 둘+반전 조사 하나 / 기본 자료 둘+반전 조사 둘을 각 60건씩 배정했다. 집중 쟁점은 교대로 선택하며 숨은 사실을 보고 준비를 고르지 않는다.',
-      '결과 밴드: 무죄=유리, 유죄이지만 shaken 쟁점이 있으면 다툼, 나머지 유죄=불리. 다툼은 무승부나 제3의 판결을 뜻하지 않는다.',
-      '일치율은 3단계 전망과 판결 후 기록 밴드의 정확 일치율이다. 숫자는 개발자 보고서에만 표시한다.', '',
-      '| 원형 | 정책 | 유리/다툼/불리 건수 | 일치 건수 | 일치율 | 유리→유죄 | 설명 없는 역배 |', '|---|---|---|---|---|---|---|'];
-    results.forEach(r => lines.push(`| ${r.id} | ${r.skill} | ${r.favorable}/${r.contested}/${r.adverse} | ${r.matched}/${r.n} | ${(100 * r.matched / r.n).toFixed(1)}% | ${r.upset} | ${r.unexplained} |`));
-    lines.push('', '역배에는 실제 실행된 미조사 재주신문의 recordId·쟁점·빠뜨린 조사 문구가 남는다. 조사로 확인된 반전만 전망에 반영한다. 정책의 숙련 차이는 결론 요구·재반대 행동에만 있다.');
-    const f = path.join(__dirname, 'REPORT.md');
-    fs.writeFileSync(f, fs.readFileSync(f, 'utf8').replace(/## 2단계\n[\s\S]*?(?=## 3단계)/, lines.join('\n') + '\n\n'));
-    console.log(JSON.stringify({ rows: results.length, cases: results.reduce((s, r) => s + r.n, 0), unexplained: results.reduce((s, r) => s + r.unexplained, 0) }));
+function sampleReport() {
+  const lines = ['## 사건 전문 — 원형 10개 × 시드 1·2·3', '',
+    '실제 서비스 기록이다. 시드 1·3은 두 번째 쟁점, 시드 2는 첫 번째 쟁점에 집중한다. 기본 자료 둘을 우선 조사하고 메뉴 순서의 추가 조사 둘을 예산 안에서 한다. 숙련 정책으로 선고까지 진행하며 이의 창은 통과한다. 미선택 저항·이의·과욕 대사는 사건 뒤에 별도로 싣는다.', ''];
+  for (const a of Object.values(C.archetypes)) for (let seed = 1; seed <= 3; seed++) {
+    const d = C.buildContestedCase(a.id, seed), options = schedule(d, seed % 2 ? 9 : 4);
+    const { prepared, view } = runPolicy(d, options), result = automaticCase(d, options);
+    const names = Object.fromEntries([...Object.values(d.roles), ...d.witnesses].map(x => [x.id, x.name]));
+    lines.push(`### ${a.title} / 시드 ${seed}`, '', `사건명: ${d.title}`, `의뢰인: ${d.client.name} · ${d.client.role}`, '',
+      ...d.briefing.map(t => t + '\n'), ...prepared.clientStatements.map(c => `의뢰인: ${c.text}\n`),
+      `전망: ${result.player.forecast}. ${result.player.explanation}`, '', '증인:', ...d.witnesses.map(w => `- ${w.name} · ${w.role}${w.speechStyle ? ' · ' + w.speechStyle : ''}`), '', '확보한 자료:', '');
+    for (const c of prepared.cards) lines.push(`자료: ${c.title}`, c.text, '');
+    lines.push('공판 기록:', '');
+    for (const r of view.records) for (const l of r.lines || []) lines.push(`${names[l.speaker] || l.speaker}: ${l.text}`, '');
+    lines.push(`결과: ${view.verdict.text.title} / 판세 ${result.player.resultBand}`, '', '선고 이유:', ...view.verdict.issues.map(i => `- ${i.title}: ${i.memo}`), '',
+      '복기:', ...view.review.effective.map(x => `- 확인한 근거: ${x.text}`), ...view.review.missed.map(x => `- 남긴 쟁점: ${x.text}`), '', '선택하지 않은 대안 대사:', '');
+    for (const w of d.witnesses) {
+      lines.push(`${w.name}에게 자료 없이 추궁:`, '');
+      for (const a of w.approaches.filter(a => a.id.endsWith('_UNSUPPORTED'))) for (const [speaker, text] of a.lines) lines.push(`${names[speaker]}: ${text}`, '');
+      const obj = w.direct.find(x => x.type === 'objection');
+      lines.push('이의를 제기했다면:', '');
+      for (const [speaker, text] of (obj.sustained || obj.overruled).lines) lines.push(`${names[speaker]}: ${text}`, '');
+      const over = w.presses.find(p => p.kind === 'overreach');
+      lines.push(`변호인: ${over.question}`, ...over.fail.lines.map(([speaker, text]) => `${names[speaker]}: ${text}`), '');
+    }
   }
+  return lines.join('\n');
 }
-module.exports = { sampleReport, automaticReport };
+function generateReport() {
+  fs.mkdirSync(out, { recursive: true });
+  const f = path.join(__dirname, 'REPORT.md'), previous = path.join(out, 'REPORT-before-rework.md');
+  if (fs.existsSync(f) && !fs.existsSync(previous)) fs.copyFileSync(f, previous);
+  const verification = JSON.parse(fs.readFileSync(path.join(out, 'verification.json'), 'utf8'));
+  const results = automaticReport();
+  fs.writeFileSync(path.join(out, 'automatic-results.json'), JSON.stringify(results, null, 2) + '\n');
+  const lines = ['# GEN-002 1단계 재작업 REPORT', '', '2026-10-06 · Lane: experiment · 커밋·병합 없음 · 사람 플레이테스트 대기', '',
+    '## 검증', '', '| 실행 | checks | failures | exit code |', '|---|---:|---:|---:|',
+    ...verification.map(r => `| ${r.command} | ${r.checks} | ${r.failures} | ${r.exitCode} |`), '',
+    '재실행: courtroom-prototype에서 `node generator/verify.js`, 이어서 `node generator/report-gen002.js`. 로그와 집계는 generator/out/에 저장한다.', '',
+    '## 숫자 게이트', '', '기존 시드·판정 강도·준비 예산·효과·반전 조건은 변경하지 않았다. 원형 10개 각각 300시드의 네 게이트를 동일한 balance.js로 검사했다.', '',
+    '```text', fs.readFileSync(path.join(out, 'balance-test-results.log'), 'utf8').trim(), '```', '',
+    '## 요청별 자체 점검', '',
+    '1. 충족: 새 원형 8개에 의뢰인 8명·증인 16명, 직업·말투·주신문·반박·저항·압박·과욕·이의·판결문을 별도로 집필했다. 장소·날짜·시각·금액·관계는 별도 결정적 스트림에서 생성해 브리핑·진술·카드·선고문에 쓴다. 기존 폭행·음주운전은 반복 단답만 제거하고 사건과 수치는 보존했다.',
+    '2. 충족: 화면에 들어갈 authored 문자열을 대안 분기까지 검사한다. 코드·링크·마크다운·검토 표시를 주입한 음성 테스트가 누출을 검출한다. 설계 문서 문구를 화면에 그대로 쓰지 않는다.',
+    '3. 충족: 변호인 재반대는 구체적 기록에 대한 주장이다. 증언을 문장 단위로 정규화하여 원형 안에서 같은 문장이 두 번 나오면 실패한다. 원고의 응답과 실제 서비스 경로를 검사한다.',
+    '4. 충족: forecast.js는 import나 재판 실행 없이 공개 카드 본문·조사 완료·선택 쟁점·정책·화면의 언어 밴드만 쓴다. 준비 화면에 숨겨진 초기 강도는 제외한다. 아래 표는 기존 2종 포함 10개다.',
+    '5. 충족: ko.json에 10개 원형의 반의사불벌·친고죄·합의 효과·예외·실행 여부를 구조화했다. 폭행치상/단순폭행, 명예훼손/모욕을 구별한다. 합의금 문구 조건은 팩 데이터다. 사건별 적용은 미검증이므로 절차 종결·양형 실행은 하지 않는다.',
+    '6. 충족: 아래 10개 원형 각각 3시드, 실제 서비스 공판 전문 30건과 미선택 대안을 출력했다.', '',
+    '## 새로 정한 실험 규칙', '', '실험용 authored 규칙, DEC 아님. RULES.md 재작업 절 참조. 장면 난수 스트림, 개별 인물/대사, 카드에 보이는 쟁점·용도·발견 표시, 공개 정보의 거친 전망 규칙을 정했다. 판정 수치는 그대로다.', '',
+    '## 전망·실제 일치표', '',
+    '각 원형×정책 300시드. 무준비 / 기본 하나 / 기본 둘 / 기본 둘+추가 하나 / 기본 둘+추가 둘 일정을 순환하고 쟁점을 교대한다. 기존 2종은 활성 단서만 조사 메뉴에 나오는 기존 동작을 유지한다.',
+    '행렬의 행은 전망 유리·다툼·불리, 열은 실제 유리·다툼·불리다. 실제 유리는 무죄, 다툼은 유죄지만 흔들린 쟁점이 남은 경우, 불리는 나머지 유죄다. 전망을 맞추기 위해 실제 기록을 미리 실행하지 않는다.',
+    '미조사 자료 동반 불일치는 숨은 사실이 공판에 나온 경우다. 그 사실만이 오차 원인이라는 인과 판정은 아니다. 나머지는 거친 공개 정보 추정의 한계로 따로 집계한다.', '',
+    '| 원형 | 정책 | 전망→실제 행렬 | 일치 | 일치율 | 미조사 자료 동반 불일치 | 그 외 추정 오차 | 유리→유죄 중 미조사 자료 등장 |',
+    '|---|---|---|---:|---:|---:|---:|---:|',
+    ...results.map(r => `| ${r.title} | ${r.skill} | ${r.matrix.map(row => row.join('/')).join(' ; ')} | ${r.matched}/${r.n} | ${(100*r.matched/r.n).toFixed(1)}% | ${r.discoveryMismatch} | ${r.coarseMismatch} | ${r.upset} |`), '',
+    '## 한계와 사람 판단', '',
+    '- 대사와 사실은 직접 작성한 실험 콘텐츠다. 법률 추론·자동 양형·합의 종결을 구현한 것이 아니다. 사건별 적용법·친족 예외·교통 특례는 미검증 표시를 유지한다.',
+    '- 공개 정보 전망은 승소 보증이 아니다. 자료의 준비 정도와 언어 판세에 따른 거친 추정이며 같은 공개 정보에서도 실제 결과는 달라질 수 있다. 오차를 숨은 반전 탓으로 일괄 처리하지 않는다.',
+    '- 기존 브라우저 UI에 생성기를 연결하는 다음 단계는 시작하지 않았다. 콘텐츠 API와 기존 공판 서비스 출력까지 검증했다.',
+    '- 사람 질문 1: 증인마다 다른 사람으로 느껴지는가?',
+    '- 사람 질문 2: 자료를 제시한 뒤 답변이 좁혀지는 흐름이 설득력 있는가?',
+    '- 사람 질문 3: 준비 정보 전망과 실제 판결의 차이를 받아들일 수 있는가?', '', sampleReport(), ''];
+  fs.writeFileSync(f, lines.join('\n').trimEnd() + '\n');
+  console.log(`REPORT: ${results.length} comparison rows, ${results.reduce((s,r)=>s+r.n,0)} cases, 30 full transcripts`);
+}
+if (require.main === module) generateReport();
+module.exports = { sampleReport, automaticReport, schedule };

@@ -1,7 +1,7 @@
 'use strict';
 // Deterministic service policy. No seed, RNG, verdict bonus, or truth access.
 const { createTrialService } = require('../../services/trial');
-const T = require('../../engine/trial');
+const { publicForecastInput, forecastFromPublic } = require('./forecast');
 
 function runPolicy(d, { investigations = [], targetIssue = d.issues[0].id, skill = 'experienced' } = {}) {
   if (!['novice', 'experienced'].includes(skill)) throw Error('unknown automatic policy');
@@ -35,7 +35,7 @@ function runPolicy(d, { investigations = [], targetIssue = d.issues[0].id, skill
       const p = target && skill === 'experienced' && confirmed >= 2 && v.actions.presses.find(p => p.available && p.kind === 'limited');
       if (a) v = command('approach', { id: a.id });
       else if (p && d.witnesses.find(w => w.id === v.witness.id).presses.find(x => x.id === p.id).hint
-        === '결론 요구는 이 증인에게 서로 다른 자료로 확인한 근거 2개 이상 필요')
+        === require('../content/catalog-content').PRESS_HINT)
         v = command('press', { id: p.id });
       else v = command('endCross');
     } else v = command('continue');
@@ -47,19 +47,6 @@ function runPolicy(d, { investigations = [], targetIssue = d.issues[0].id, skill
 function outcomeBand(view) {
   if (view.verdict.outcome === 'not_guilty') return '유리';
   return view.verdict.issues.some(i => i.band === 'shaken') ? '다툼' : '불리';
-}
-
-// Boundary for forecast input: only investigated discoveries may affect the simulated hearing.
-// Baseline evidence and ordinary hearing rules are the known case model; hidden truth is never read.
-function observedDefinition(d, heldCards) {
-  const known = structuredClone(d), held = new Set(heldCards);
-  delete known.truth; delete known.facts; delete known.twistsApplied;
-  known.cards.forEach(c => { if (!held.has(c.id)) c.text = ''; });
-  known.witnesses.forEach(w => {
-    w.redirect = w.redirect.filter(r => held.has(r.rebuttal.card));
-    w.approaches = w.approaches.filter(a => !a.stanceConflict || a.requiresAny.some(id => held.has(id)));
-  });
-  return known;
 }
 
 function automaticCase(d, options = {}) {
@@ -74,9 +61,10 @@ function automaticCase(d, options = {}) {
     }
   }
   const prepared = prepService.projection();
-  const known = observedDefinition(d, prepared.cards.map(c => c.id));
-  const predicted = runPolicy(known, options);
-  const forecast = outcomeBand(predicted.view);
+  const targetIssue = options.targetIssue || prepared.projection.issues[0].id;
+  const publicInput = publicForecastInput(prepared, { ...options, targetIssue });
+  const estimate = forecastFromPublic(publicInput);
+  const forecast = estimate.band;
   const actual = runPolicy(d, options);
   const band = outcomeBand(actual.view);
   const held = new Set(prepared.cards.map(c => c.id));
@@ -85,18 +73,17 @@ function automaticCase(d, options = {}) {
     if (held.has(redirect.rebuttal.card)) return [];
     return [{ recordId: r.id, issue: w.issue, text: r.memo, missed: redirect.missed }];
   });
-  const upset = forecast === '유리' && actual.outcome !== 'not_guilty';
-  // A forecast disagreement without an executed, uninvestigated redirect is an implementation error.
-  if (forecast !== band && discoveries.length === 0) throw Error('unexplained forecast mismatch');
+  const disagreement = forecast !== band;
+  const upset = forecast === '유리' && actual.outcome !== 'not_guilty' && discoveries.length > 0;
   return {
     player: { id: d.id, title: d.title, forecast,
-      explanation: `${prepared.cards.length ? '조사 자료를 확인한' : '준비 자료가 없는'} 상태에서 ${options.skill === 'novice' ? '기본 신문' : '한정 결론·재반대 포함 신문'}을 예정했습니다. 미조사 자료는 전망에 반영하지 않았습니다.`,
+      explanation: estimate.explanation,
       outcome: actual.view.verdict.text.title, resultBand: band, upset,
       discoveries, review: { effective: actual.view.review.effective.map(({ recordId, text }) => ({ recordId, text })),
         missed: actual.view.review.missed.map(({ recordId, text }) => ({ recordId, text })) } },
     audit: { forecast, actualBand: band, matched: forecast === band, upset, outcome: actual.outcome,
-      records: actual.view.records, projection: actual.view.projection, knownRecords: predicted.view.records,
-      replayOutcome: T.replay(d, actual.view.records).verdict.outcome }
+      records: actual.view.records, projection: actual.view.projection, publicInput,
+      mismatchReason: !disagreement ? null : discoveries.length ? 'uninvestigated_discovery' : 'coarse_public_estimate' }
   };
 }
-module.exports = { runPolicy, observedDefinition, outcomeBand, automaticCase };
+module.exports = { runPolicy, outcomeBand, automaticCase };

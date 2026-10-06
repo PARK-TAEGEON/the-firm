@@ -130,7 +130,7 @@ function playRandomPolicy(caseDef, rng, sensible) {
         const confirmed = new Set(view.records.filter(r => r.kind === 'approach' && r.witnessId === witness.id
           && !r.refId.includes('_STANCE_')).flatMap(r => r.cardsUsed || []));
         const press = view.actions.presses.find(p => p.available && p.kind === 'limited'
-          && witness.presses.find(pr => pr.id === p.id).hint === '결론 요구는 이 증인에게 서로 다른 자료로 확인한 근거 2개 이상 필요'
+          && witness.presses.find(pr => pr.id === p.id).hint === require('../content/catalog-content').PRESS_HINT
           && confirmed.size >= 2);
         view = press ? run('press', { id: press.id }) : run('endCross');
         continue;

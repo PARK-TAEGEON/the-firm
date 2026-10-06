@@ -15,10 +15,11 @@ function getArchetype(id) {
 
 function buildContestedCase(archetypeId, seed) {
   const d = buildTemplate(getArchetype(archetypeId), seed, twists);
-  if (getArchetype(archetypeId).catalogId) d.facts = require('./catalog-facts').factsFor(archetypeId, d.truth);
-  const copy = copies[archetypeId](d.truth);
-  const hearing = hearingCopies[archetypeId];
-  d.version = '0.0.5-gen-content';
+  const catalogIndex = require('./catalog-data.json').findIndex(r => r.id === archetypeId);
+  if (catalogIndex >= 0) d.facts = require('./catalog-facts').factsFor(archetypeId, d.truth, seed);
+  const copy = copies[archetypeId](d.truth, d.facts);
+  const hearing = typeof hearingCopies[archetypeId] === 'function' ? hearingCopies[archetypeId](d.facts) : hearingCopies[archetypeId];
+  d.version = '0.0.6-gen-content';
   for (const key of ['title', 'charge', 'client', 'briefing', 'clientStatements']) d[key] = copy[key];
   if (!d.briefing.includes(require('./catalog-content').PRESS_HINT)) d.briefing.push(require('./catalog-content').PRESS_HINT);
   d.legalSystem = { id: 'ko', version: require('./packs/ko.json').version };
@@ -48,6 +49,7 @@ function buildContestedCase(archetypeId, seed) {
     });
     const w = d.witnesses.find(item => item.issue === issue.id);
     Object.assign(w, { name: c.name, role: c.role, initial: c.initial });
+    if (c.speechStyle) w.speechStyle = c.speechStyle;
     Object.assign(w.direct[0], {
       lines: [['PROSECUTOR', c.directQuestion], [w.id, c.directAnswer]],
       memo: c.directMemo, tone: 'neutral'
@@ -134,6 +136,25 @@ function buildContestedCase(archetypeId, seed) {
     }
   }
 
+  if (catalogIndex >= 0) {
+    const { render } = require('./catalog-content');
+    getArchetype(archetypeId).twists_allowed.forEach((id, index) => {
+      const card = d.cards.find(c => c.id === `CARD_${id}`);
+      const active = d.twistsApplied.includes(id);
+      card.text = render(require('./catalog-discoveries')[catalogIndex][index][active ? 0 : 1], d.facts);
+      const approach = d.witnesses.flatMap(w => w.approaches).find(a => a.id.endsWith(`_STANCE_${id}`));
+      if (approach) {
+        // Counsel owns this assertion; a witness does not read an author's hidden-truth synopsis.
+        approach.lines = [['DEFENSE', card.text]];
+      }
+    });
+  }
+  // These headings are actual card text, so forecast attribution uses visible information.
+  d.cards.forEach(card => {
+    const status = card.rebuttal ? (d.witnesses.some(w => w.redirect.some(r => r.rebuttal.card === card.id)) ? '추가 확인 사항 있음' : '추가 확인 사항 없음') : '관찰 범위 자료';
+    card.text = `${d.issues.find(i => i.id === card.issue).title}\n${card.rebuttal ? '수습 대응 자료' : '신문 자료'}\n${status}\n${card.text}`;
+  });
+
   d.lines = {
     trialOpen: [['JUDGE', `피고인의 ${copy.charge} 사건 공판을 시작합니다.`], ['PROSECUTOR', '검찰은 제출 자료와 증인 신문으로 공소사실을 입증하겠습니다.']],
     crossStart: [['JUDGE', '변호인, 반대신문 하십시오.']],
@@ -164,7 +185,8 @@ function generateDailyCase(archetypeId, seed) {
     d.fee.retainer = hearing.fee.retainer;
     d.legalSystem = hearing.legalSystem;
   }
-  const amount = archetypeId === 'ARCH_CRIMINAL_ASSAULT' ? ` 합의금 참고액 ${d.claimAmount}만원.` : '';
+  const summary = require('./packs/ko.json').archetypeRules[archetypeId].settlement.amountSummary;
+  const amount = summary ? ' ' + summary.replace('{amount}', d.claimAmount) : '';
   d.outcomeSummary = `${archetype.title} — 착수금 ${d.fee.retainer}만원, 예상 기간 ${d.durationWeeks}주.${amount} 쟁점: ${archetype.issues.map(i => i.question).join(' ')}`;
   return d;
 }

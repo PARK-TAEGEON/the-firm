@@ -1,7 +1,25 @@
 'use strict';
 const rows = require('./catalog-data.json');
+const { createRng, seedFor } = require('../core/rng');
+const settings = [
+  [['달우림 소극장', '해솔 문화창고', '물든마루 공연장'], ['순회 공연 동료', '장비 공동 대여자', '축제 스태프 동료'], [45, 70, 110]],
+  [['별꽃 사진 동호회', '달빛 장비 장터', '새물 촬영 모임'], ['동호회 회원', '이전 거래 상대', '지인의 소개로 만난 사이'], [32, 68, 95]],
+  [['솔결 가구공방', '모래빛 인쇄소', '푸른실 봉제공방'], ['창업 때부터 일한 동료', '전 직장 선후배', '협력업체에서 옮겨 온 직원과 대표'], [240, 380, 620]],
+  [['느린책 독서모임', '별이든 책방 모임', '물소리 낭독회'], ['공동구매 담당 동료', '모임 운영진', '오래된 독서 친구'], [18, 35, 52]],
+  [['느티골 시장길', '하늘못 상가 앞', '가온뜰 골목'], ['서로 모르는 사이', '이웃 가게 직원', '단골 배달처의 이웃'], [75, 120, 180]],
+  [['연두빌라', '물결주택', '달고개 다세대주택'], ['지난 전시의 협업자', '소품을 빌려 준 이웃', '행사 운영 동료'], [25, 60, 85]],
+  [['은빛 공유작업실', '새잎 제작소', '돌담 창작실'], ['작업실 공동 운영자', '납품 담당 동료', '장비 관리 교대자'], [55, 90, 140]],
+  [['잔솔 수선공방', '구름실 작업장', '꽃비 의상실'], ['이전 점검에서 만난 사이', '이번에 처음 만난 사이', '보완 서류를 주고받은 사이'], [80, 160, 230]]
+];
+function settingFor(id, seed) {
+  const row = settings[rows.findIndex(r => r.id === id)];
+  const rng = createRng(seedFor(seed, id + ':scene'));
+  const pick = a => a[Math.floor(rng() * a.length)];
+  return { place: pick(row[0]), relation: pick(row[1]), amount: pick(row[2]),
+    date: `9월 ${1 + Math.floor(rng() * 28)}일`, time: `${9 + Math.floor(rng() * 12)}시 ${pick(['10', '25', '40', '55'])}분` };
+}
 // Coherent authored profiles, rather than independently combining incompatible factual alternatives.
-function factsFor(id, truth) {
+function factsFor(id, truth, seed = 0) {
   const row = rows.find(r => r.id === id);
   const facts = Object.fromEntries(Object.entries(row.variables).map(([key, values]) => [key, values.split(' / ')[0].replace(/\.$/, '')]));
   const [a, b, c] = [1, 2, 3].map(i => truth[`twist_${i}`] >= .6);
@@ -26,7 +44,7 @@ function factsFor(id, truth) {
       utterance: a ? '공식 불복 예고와 별도 해악 고지의 경계가 문제 된 발언' : '구체적 불이익을 가하겠다는 해악 고지',
       context: c ? '반복적·강압적인 발언 상황' : '한 차례 항의' }
   };
-  return { ...facts, ...patches[id], observation_detail: [truth.observation_a >= .6, truth.observation_b >= .6],
+  return { ...facts, ...patches[id], ...settingFor(id, seed), observation_detail: [truth.observation_a >= .6, truth.observation_b >= .6],
     discoveries: row.twists.filter((_, i) => [a, b, c][i]).map(t => t[0]) };
 }
-module.exports = { factsFor };
+module.exports = { factsFor, settingFor };
