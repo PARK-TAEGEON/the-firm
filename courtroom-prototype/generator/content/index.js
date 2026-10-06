@@ -5,6 +5,7 @@ const archetypes = require('./archetypes');
 const twists = require('./twists');
 const copies = require('./copy');
 const hearingCopies = require('./hearing-copy');
+const { varyCopy } = require('./sentence-variants');
 const { buildContestedCase: buildTemplate } = require('../core/contested');
 const { generateDailyCase: buildDailyTemplate } = require('../core/generate');
 
@@ -16,10 +17,11 @@ function getArchetype(id) {
 function buildContestedCase(archetypeId, seed) {
   const d = buildTemplate(getArchetype(archetypeId), seed, twists);
   const catalogIndex = require('./catalog-data.json').findIndex(r => r.id === archetypeId);
-  if (catalogIndex >= 0) d.facts = require('./catalog-facts').factsFor(archetypeId, d.truth, seed);
-  const copy = copies[archetypeId](d.truth, d.facts);
+  const { factsFor, settingFor } = require('./catalog-facts');
+  d.facts = catalogIndex >= 0 ? factsFor(archetypeId, d.truth, seed) : settingFor(archetypeId, seed);
+  const copy = varyCopy(copies[archetypeId](d.truth, d.facts), archetypeId, seed, d.facts, d.truth);
   const hearing = typeof hearingCopies[archetypeId] === 'function' ? hearingCopies[archetypeId](d.facts) : hearingCopies[archetypeId];
-  d.version = '0.0.6-gen-content';
+  d.version = '0.0.7-gen-content';
   for (const key of ['title', 'charge', 'client', 'briefing', 'clientStatements']) d[key] = copy[key];
   if (!d.briefing.includes(require('./catalog-content').PRESS_HINT)) d.briefing.push(require('./catalog-content').PRESS_HINT);
   d.legalSystem = { id: 'ko', version: require('./packs/ko.json').version };
@@ -149,17 +151,20 @@ function buildContestedCase(archetypeId, seed) {
       }
     });
   }
-  // These headings are actual card text, so forecast attribution uses visible information.
+  // Metadata describes the investigation result shown in the prose, not a future hearing outcome.
   d.cards.forEach(card => {
-    const status = card.rebuttal ? (d.witnesses.some(w => w.redirect.some(r => r.rebuttal.card === card.id)) ? '추가 확인 사항 있음' : '추가 확인 사항 없음') : '관찰 범위 자료';
-    card.text = `${d.issues.find(i => i.id === card.issue).title}\n${card.rebuttal ? '수습 대응 자료' : '신문 자료'}\n${status}\n${card.text}`;
+    const found = d.witnesses.some(w => w.redirect.some(r => r.rebuttal.card === card.id));
+    card.assessment = { issueId: card.issue, kind: card.rebuttal ? 'response' : 'foundation',
+      finding: card.rebuttal ? (found ? 'additional' : 'none') : 'observation' };
+    const question = d.issues.find(i => i.id === card.issue).title.replace(/[?.]$/, '') + '?';
+    card.text = `${question}\n${card.text}`;
   });
 
   d.lines = {
     trialOpen: [['JUDGE', `피고인의 ${copy.charge} 사건 공판을 시작합니다.`], ['PROSECUTOR', '검찰은 제출 자료와 증인 신문으로 공소사실을 입증하겠습니다.']],
     crossStart: [['JUDGE', '변호인, 반대신문 하십시오.']],
     crossWarn: [['JUDGE', '변호인, 확인할 사항을 간결하게 질문하십시오.']],
-    crossTimeUp: [['JUDGE', '반대신문을 마치겠습니다.']],
+    crossTimeUp: [['JUDGE', '변호인, 예정된 신문 시간이 지났습니다. 질문을 마무리해 주십시오.']],
     crossStop: [['DEFENSE', '이상입니다.']],
     noRedirect: [['PROSECUTOR', '추가로 확인할 사항은 없습니다.']],
     rebutPass: [['DEFENSE', '재반대신문은 하지 않겠습니다.']],

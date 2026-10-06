@@ -7,27 +7,31 @@ function publicForecastInput(view, { targetIssue, skill = 'experienced' } = {}) 
   // The existing UI hides baseline bands until a hearing record supplies a note.
   const started = view.state.phase === 'trial' || view.state.phase === 'verdict';
   return {
-    skill, target: target.title,
-    issues: view.projection.issues.map(i => ({ title: i.title,
+    skill, targetIssue: target.id,
+    issues: view.projection.issues.map(i => ({ id: i.id, title: i.title,
       band: started && i.notes.length ? labels[i.band] : '아직 심리 전' })),
     investigations: view.investigations.map(i => ({ title: i.title, done: i.done })),
-    cards: view.cards.map(c => ({ title: c.title, text: c.text, appearance: c.text.split('\n')[1] }))
+    cards: view.cards.map(c => ({ id: c.id, title: c.title, text: c.text,
+      issueId: c.assessment.issueId, kind: c.assessment.kind, finding: c.assessment.finding }))
   };
 }
 function forecastFromPublic(input) {
   if (!['novice', 'experienced'].includes(input.skill)) throw Error('unknown automatic policy');
-  const issue = input.issues.find(i => i.title === input.target);
+  const issue = input.issues.find(i => i.id === input.targetIssue);
   if (!issue) throw Error('unknown public target');
-  const cards = input.cards.filter(c => c.text.split('\n')[0] === input.target);
-  const basic = new Set(cards.filter(c => c.appearance === '신문 자료').map(c => c.title));
-  const adverse = cards.filter(c => c.appearance === '수습 대응 자료' && c.text.split('\n')[2] === '추가 확인 사항 있음');
+  const cards = input.cards.filter(c => c.issueId === input.targetIssue);
+  const basic = new Set(cards.filter(c => c.kind === 'foundation').map(c => c.id));
+  const adverse = cards.filter(c => c.kind === 'response' && c.finding === 'additional');
   let band;
   if (issue.band === '의심') band = '유리';
-  else if (basic.size === 0) band = '불리';
-  else if (basic.size < 2 || input.skill === 'novice' || issue.band === '입증 유지') band = '다툼';
+  else if (basic.size === 0) band = '다툼';
+  else if (basic.size < 2 || issue.band === '입증 유지') band = '다툼';
   else band = '유리';
-  // A novice does not execute a rebuttal. Discovered adverse material can worsen an estimate.
-  if (input.skill === 'novice' && adverse.length) band = '불리';
+  // Two independent sources can support a novice even without a press. Known uncountered
+  // discoveries still reduce confidence, but one discovery no longer erases all preparation.
+  if (issue.band !== '의심' && input.skill === 'novice' && adverse.length) {
+    band = basic.size >= 2 && adverse.length === 1 ? '다툼' : '불리';
+  }
   const pending = input.investigations.some(i => !i.done);
   const explanation = [
     basic.size >= 2 ? '선택한 쟁점을 서로 다른 자료로 다툴 준비가 되어 있습니다.' :

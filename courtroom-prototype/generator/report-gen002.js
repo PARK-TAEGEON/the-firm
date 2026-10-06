@@ -13,15 +13,31 @@ function schedule(d, seed) {
     .slice(0, Math.max(0, preparation - 2)).map(i => i.id));
   return { targetIssue, investigations };
 }
+// Previous published heuristic, retained only for before/after measurement on identical public inputs.
+function previousForecast(input) {
+  const issue = input.issues.find(i => i.id === input.targetIssue);
+  const cards = input.cards.filter(c => c.issueId === input.targetIssue);
+  const basic = new Set(cards.filter(c => c.kind === 'foundation').map(c => c.id)).size;
+  const extra = cards.some(c => c.kind === 'response' && c.finding === 'additional');
+  if (input.skill === 'novice' && extra) return '불리';
+  if (issue.band === '의심') return '유리';
+  if (basic === 0) return '불리';
+  return basic < 2 || input.skill === 'novice' || issue.band === '입증 유지' ? '다툼' : '유리';
+}
 function automaticReport(n = 300) {
   const results = [];
   for (const row of Object.values(C.archetypes)) for (const skill of ['novice', 'experienced']) {
     const r = { id: row.id, title: row.title, skill, n, matched: 0, upset: 0, unexplained: 0,
       favorable: 0, contested: 0, adverse: 0, coarseMismatch: 0, discoveryMismatch: 0,
+      previousMatched: 0, previousPessimisticAcquittals: 0, pessimisticAcquittals: 0,
       matrix: Array.from({ length: 3 }, () => [0, 0, 0]) };
     for (let seed = 1; seed <= n; seed++) {
       const d = C.buildContestedCase(row.id, seed), result = automaticCase(d, { ...schedule(d, seed), skill });
       const a = result.audit, bands = ['유리', '다툼', '불리'];
+      const previous = previousForecast(a.publicInput);
+      r.previousMatched += previous === a.actualBand;
+      r.previousPessimisticAcquittals += previous !== '유리' && a.outcome === 'not_guilty';
+      r.pessimisticAcquittals += a.forecast !== '유리' && a.outcome === 'not_guilty';
       r.matched += a.matched; r.upset += a.upset; r.unexplained += a.upset && !result.player.discoveries.length;
       r.favorable += a.forecast === '유리'; r.contested += a.forecast === '다툼'; r.adverse += a.forecast === '불리';
       r.coarseMismatch += a.mismatchReason === 'coarse_public_estimate';
@@ -67,20 +83,26 @@ function generateReport() {
   const verification = JSON.parse(fs.readFileSync(path.join(out, 'verification.json'), 'utf8'));
   const results = automaticReport();
   fs.writeFileSync(path.join(out, 'automatic-results.json'), JSON.stringify(results, null, 2) + '\n');
-  const lines = ['# GEN-002 1단계 재작업 REPORT', '', '2026-10-06 · Lane: experiment · 커밋·병합 없음 · 사람 플레이테스트 대기', '',
+  const lines = ['# GEN-002 마무리 REPORT', '', '2026-10-06 · Lane: experiment · 커밋·병합 없음 · 사람 플레이테스트 대기', '',
     '## 검증', '', '| 실행 | checks | failures | exit code |', '|---|---:|---:|---:|',
     ...verification.map(r => `| ${r.command} | ${r.checks} | ${r.failures} | ${r.exitCode} |`), '',
     '재실행: courtroom-prototype에서 `node generator/verify.js`, 이어서 `node generator/report-gen002.js`. 로그와 집계는 generator/out/에 저장한다.', '',
     '## 숫자 게이트', '', '기존 시드·판정 강도·준비 예산·효과·반전 조건은 변경하지 않았다. 원형 10개 각각 300시드의 네 게이트를 동일한 balance.js로 검사했다.', '',
     '```text', fs.readFileSync(path.join(out, 'balance-test-results.log'), 'utf8').trim(), '```', '',
-    '## 요청별 자체 점검', '',
+    '## 마무리 요청 자체 점검', '',
+    '1. 충족: 조사 다섯 쌍 자동 선택, ㄹ 예외·양성/음성 검증. 원형 10종 × 60시드 표시 문자열과 실제 공판 전수 검사. 겹치는 관계 표현 제거.',
+    '2. 충족: 원형별 기본 원고와 별도 두 원고로 브리핑 및 두 증인의 주신문 구조를 세 종류로 변형. 절도 장소는 연속 세 시드마다 세 곳으로 달라진다.',
+    '3. 충족: 판사는 변호인에게 예정된 시간이 지났음을 알리고 질문 마무리를 요구한다.',
+    '4. 충족: 카드 내부 표지를 제거하고 쟁점 질문·조사 사실로 표시. 전망은 확보 카드 assessment 필드만 읽으며 본문을 바꿔도 전망이 변하지 않는 회귀를 둔다.',
+    '5. 충족: 초보 정책의 기본 자료 둘 및 추가 발견 대응 기준을 보정. 별도 1001~1060시드에서 일치 증가·비관적 무죄 감소를 검사. 기존 숫자 게이트 유지.', '',
+    '## 앞선 재작업 유지 확인', '',
     '1. 충족: 새 원형 8개에 의뢰인 8명·증인 16명, 직업·말투·주신문·반박·저항·압박·과욕·이의·판결문을 별도로 집필했다. 장소·날짜·시각·금액·관계는 별도 결정적 스트림에서 생성해 브리핑·진술·카드·선고문에 쓴다. 기존 폭행·음주운전은 반복 단답만 제거하고 사건과 수치는 보존했다.',
     '2. 충족: 화면에 들어갈 authored 문자열을 대안 분기까지 검사한다. 코드·링크·마크다운·검토 표시를 주입한 음성 테스트가 누출을 검출한다. 설계 문서 문구를 화면에 그대로 쓰지 않는다.',
     '3. 충족: 변호인 재반대는 구체적 기록에 대한 주장이다. 증언을 문장 단위로 정규화하여 원형 안에서 같은 문장이 두 번 나오면 실패한다. 원고의 응답과 실제 서비스 경로를 검사한다.',
-    '4. 충족: forecast.js는 import나 재판 실행 없이 공개 카드 본문·조사 완료·선택 쟁점·정책·화면의 언어 밴드만 쓴다. 준비 화면에 숨겨진 초기 강도는 제외한다. 아래 표는 기존 2종 포함 10개다.',
+    '4. 충족: forecast.js는 import나 재판 실행 없이 확보 카드의 구조화 필드·조사 완료·선택 쟁점·정책·화면의 언어 밴드만 쓴다. 준비 화면에 숨겨진 초기 강도는 제외한다. 아래 표는 기존 2종 포함 10개다.',
     '5. 충족: ko.json에 10개 원형의 반의사불벌·친고죄·합의 효과·예외·실행 여부를 구조화했다. 폭행치상/단순폭행, 명예훼손/모욕을 구별한다. 합의금 문구 조건은 팩 데이터다. 사건별 적용은 미검증이므로 절차 종결·양형 실행은 하지 않는다.',
     '6. 충족: 아래 10개 원형 각각 3시드, 실제 서비스 공판 전문 30건과 미선택 대안을 출력했다.', '',
-    '## 새로 정한 실험 규칙', '', '실험용 authored 규칙, DEC 아님. RULES.md 재작업 절 참조. 장면 난수 스트림, 개별 인물/대사, 카드에 보이는 쟁점·용도·발견 표시, 공개 정보의 거친 전망 규칙을 정했다. 판정 수치는 그대로다.', '',
+    '## 새로 정한 실험 규칙', '', '실험용 authored 규칙, DEC 아님. RULES.md 재작업 절 참조. 장면 난수 스트림, 개별 인물/대사, 카드의 자연어와 이에 대응하는 구조화된 쟁점·용도·발견 필드, 공개 정보의 거친 전망 규칙을 정했다. 판정 수치는 그대로다.', '',
     '## 전망·실제 일치표', '',
     '각 원형×정책 300시드. 무준비 / 기본 하나 / 기본 둘 / 기본 둘+추가 하나 / 기본 둘+추가 둘 일정을 순환하고 쟁점을 교대한다. 기존 2종은 활성 단서만 조사 메뉴에 나오는 기존 동작을 유지한다.',
     '행렬의 행은 전망 유리·다툼·불리, 열은 실제 유리·다툼·불리다. 실제 유리는 무죄, 다툼은 유죄지만 흔들린 쟁점이 남은 경우, 불리는 나머지 유죄다. 전망을 맞추기 위해 실제 기록을 미리 실행하지 않는다.',
@@ -88,6 +110,11 @@ function generateReport() {
     '| 원형 | 정책 | 전망→실제 행렬 | 일치 | 일치율 | 미조사 자료 동반 불일치 | 그 외 추정 오차 | 유리→유죄 중 미조사 자료 등장 |',
     '|---|---|---|---:|---:|---:|---:|---:|',
     ...results.map(r => `| ${r.title} | ${r.skill} | ${r.matrix.map(row => row.join('/')).join(' ; ')} | ${r.matched}/${r.n} | ${(100*r.matched/r.n).toFixed(1)}% | ${r.discoveryMismatch} | ${r.coarseMismatch} | ${r.upset} |`), '',
+    '## 정책별 보정 전후', '',
+    '동일한 사건과 실제 결과에 구 전망과 새 전망을 적용했다. 비관적 무죄는 전망이 다툼/불리였지만 실제 무죄였던 건수다. 기본 둘의 유리 추정은 일부 유죄도 낙관적으로 보므로 위 행렬의 오차를 함께 확인해야 한다.', '',
+    '| 원형 | 정책 | 이전 일치 | 현재 일치 | 이전 비관적 무죄 | 현재 비관적 무죄 |',
+    '|---|---|---:|---:|---:|---:|',
+    ...results.map(r=>`| ${r.title} | ${r.skill} | ${r.previousMatched}/${r.n} | ${r.matched}/${r.n} | ${r.previousPessimisticAcquittals} | ${r.pessimisticAcquittals} |`), '',
     '## 한계와 사람 판단', '',
     '- 대사와 사실은 직접 작성한 실험 콘텐츠다. 법률 추론·자동 양형·합의 종결을 구현한 것이 아니다. 사건별 적용법·친족 예외·교통 특례는 미검증 표시를 유지한다.',
     '- 공개 정보 전망은 승소 보증이 아니다. 자료의 준비 정도와 언어 판세에 따른 거친 추정이며 같은 공개 정보에서도 실제 결과는 달라질 수 있다. 오차를 숨은 반전 탓으로 일괄 처리하지 않는다.',
@@ -99,4 +126,4 @@ function generateReport() {
   console.log(`REPORT: ${results.length} comparison rows, ${results.reduce((s,r)=>s+r.n,0)} cases, 30 full transcripts`);
 }
 if (require.main === module) generateReport();
-module.exports = { sampleReport, automaticReport, schedule };
+module.exports = { sampleReport, automaticReport, schedule, previousForecast };

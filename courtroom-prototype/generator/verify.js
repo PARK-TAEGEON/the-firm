@@ -9,7 +9,7 @@ const cwd = path.dirname(__dirname);
 const suites = [
   ['generator', process.execPath, ['--test', '--test-reporter=tap',
     ...fs.readdirSync(path.join(__dirname, 'core/tests')).filter(f => f.endsWith('.test.js')).map(f => `generator/core/tests/${f}`),
-    'generator/content/content.test.js', 'generator/content/rework.test.js']],
+    'generator/content/content.test.js', 'generator/content/rework.test.js', 'generator/content/finish.test.js']],
   ['npm', process.platform === 'win32' ? 'cmd.exe' : 'npm', process.platform === 'win32' ? ['/d', '/s', '/c', 'npm test'] : ['test']],
   ['balance', process.execPath, ['generator/balance.js']]
 ];

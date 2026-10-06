@@ -12,10 +12,17 @@ const settings = [
   [['잔솔 수선공방', '구름실 작업장', '꽃비 의상실'], ['이전 점검에서 만난 사이', '이번에 처음 만난 사이', '보완 서류를 주고받은 사이'], [80, 160, 230]]
 ];
 function settingFor(id, seed) {
-  const row = settings[rows.findIndex(r => r.id === id)];
+  const row = settings[rows.findIndex(r => r.id === id)] || {
+    ARCH_CRIMINAL_ASSAULT: [['솔내 공동판매장', '다온 직거래시장', '들꽃 나눔장터'], ['공동 판매대 운영자'], [40, 70, 100]],
+    ARCH_DUI: [['은솔 주차장', '달뜰 공영주차장', '새봄 주차장'], ['현장 확인자와 운전자'], [0]]
+  }[id];
+  if (!row) throw Error(`unknown scene: ${id}`);
   const rng = createRng(seedFor(seed, id + ':scene'));
   const pick = a => a[Math.floor(rng() * a.length)];
-  return { place: pick(row[0]), relation: pick(row[1]), amount: pick(row[2]),
+  // Keep the existing scene stream consumption, but cover all theft locations in every three seeds.
+  const sampledPlace = pick(row[0]);
+  const place = id === 'ARCH_THEFT' ? row[0][((seed - 1) % row[0].length + row[0].length) % row[0].length] : sampledPlace;
+  return { place, relation: pick(row[1]), amount: pick(row[2]),
     date: `9월 ${1 + Math.floor(rng() * 28)}일`, time: `${9 + Math.floor(rng() * 12)}시 ${pick(['10', '25', '40', '55'])}분` };
 }
 // Coherent authored profiles, rather than independently combining incompatible factual alternatives.

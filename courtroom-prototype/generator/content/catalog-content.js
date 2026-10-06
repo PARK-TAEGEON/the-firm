@@ -5,6 +5,7 @@ const dialogue = require('./catalog-dialogue');
 const voices = require('./catalog-voices');
 const ko = require('./packs/ko.json');
 const { factsFor } = require('./catalog-facts');
+const { render } = require('./korean');
 const archetypes = {}, twists = [], copies = {}, hearings = {};
 const PRESS_HINT = '서로 다른 두 자료를 증인에게 확인한 뒤, 그 범위 안에서 답변을 요구할 수 있습니다.';
 const twistTargets = [[0, 1, 1], [1, 0, 1], [1, 1, 1], [0, 1, 1], [0, 1, 0], [0, 1, 1], [0, 1, 1], [1, 0, 1]];
@@ -59,15 +60,6 @@ const overreachRulings = [
   ['어떤 조치의 근거가 부족한지 특정하십시오.', '청취하지 못한 구간과 실제 들은 말을 혼동하지 마십시오.']
 ];
 const leadTitle = s => s.replace(/^[A-Z]\d+\s*/, '').replace(/\.$/, '');
-function render(value, facts) {
-  if (typeof value === 'string') return value.replace(/\{(\w+)\}/g, (_, k) => {
-    if (!(k in facts)) throw Error(`missing scene fact: ${k}`);
-    return facts[k];
-  });
-  if (Array.isArray(value)) return value.map(x => render(x, facts));
-  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, render(v, facts)]));
-  return value;
-}
 rows.forEach((row, ri) => {
   const issueIds = ['A', 'B'].map(letter => `ISSUE_${row.id.slice(5)}_${letter}`);
   const twistIds = row.twists.map((_, j) => `TWIST_${row.id.slice(5)}_${j + 1}`);
