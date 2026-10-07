@@ -151,7 +151,7 @@ async function run() {
       check(!(await page.isVisible('.card p >> nth=0')), 'cards start collapsed');
       const cardKey = await page.getAttribute('.card >> nth=0', 'data-disclosure');
       await page.locator('.card summary').first().focus(); await page.keyboard.press('Enter');
-      check(await page.isVisible('.card p >> nth=0'), 'card opens with keyboard');
+      check(await page.isVisible('.card p >> nth=0'), tag + ': card opens with keyboard; ' + await page.evaluate(()=>JSON.stringify({active:document.activeElement.outerHTML,dialog:document.querySelector('#reader').open,phase:document.querySelector('#phaseTitle')?.textContent})));
       const revealed = page.locator('.exhibit:not(.sealed)').first();
       if (await revealed.count()) {
         const unchanged = await page.evaluate(() => window.demoSnapshot());

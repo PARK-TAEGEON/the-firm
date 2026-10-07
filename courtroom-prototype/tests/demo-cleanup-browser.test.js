@@ -18,7 +18,11 @@ const {createServer}=require('../serve');
     if(mode==='filed')await page.screenshot({animations:'disabled',path:path.resolve(__dirname,'artifacts/cleanup-'+transport+'-'+width+'-result-choices.png'),fullPage:true});
     if(mode==='escape')await page.keyboard.press('Escape');
     else if(mode==='outside')await page.mouse.click(1,1);
-    else await page.click('[data-action=fileEvidence][data-status='+mode+']');
+    else if(mode==='deferred' && width===1440){
+      await page.evaluate(()=>{document.querySelector('[data-action=fileEvidence][data-status=deferred]').click();document.querySelector('.card summary').focus();});
+      await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+      check(await page.evaluate(()=>document.activeElement.matches('.card summary')),'queued close does not steal the next focus');
+    }else await page.click('[data-action=fileEvidence][data-status='+mode+']');
     check(!(await page.locator('#reader[open]').count()),'choice/Escape/outside closes immediately');
     const expected={filed:'신청',withheld:'미신청'}[mode]||'보류';
     check((await page.textContent('[data-disclosure="card:CARD_SIG_SEQUENCE"] summary')).endsWith(' · '+expected),'chosen or deferred state retained');

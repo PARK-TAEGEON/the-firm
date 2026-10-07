@@ -1,3 +1,28 @@
+# DEMO-001 절차 라운드 정리 Review Packet (2026-10-07)
+
+목적: 화면의 법률/메타 안내를 정리하고 검찰 증거 초기 열람, 즉시 선택 닫기, HTTP SVG 지원.
+이번 변경:
+- data/demo-ko-pack.js: 기록 열람 제266조의3/unverified 추가.
+- data/demo-separated-moments.js: 조사 reveals 제거(grants 유지).
+- services/demo-trial.js: 4검찰 증거 초기 열람 projection, 조사 기록 reveals는 엔진 호환 빈 배열.
+- ui/trial-demo-app.js: 조문/미열람 경고 제거, 최후변론 안내, optional reader 버튼·조사 세 선택지, 비동기 close 포커스 경합 방지.
+- serve.js: SVG MIME. 계약 Owns 밖이지만 이번 사용자 5번에서 명시적으로 수정 요청.
+- tests/demo.test.js: 초기 열람/grants invariant 추가, 기존 결과 기대값 유지.
+- tests/demo-browser.test.js: HTTP/file × desktop/mobile 28경로, MIME/문구/선택 즉시 닫힘/스냅샷.
+- tests/demo-procedure-browser.test.js: 미열람 경고 없음으로 갱신.
+- tests/demo-cleanup-browser.test.js 신규: 세 선택지·Esc·바깥 클릭·지연 포커스 회귀.
+- demo/REPORT.md, RULES.md §15, REVIEW_PACKET.md, test-results.log.
+이전 공판 절차 미커밋 변경은 유지했다.
+
+불변: 판정/수치/결과 경로 그대로. 기존 engine/trial.js/services/trial.js/trial.html 무변경. 실패 명령 원자성/같은 입력 같은 기록 회귀 유지.
+검증 명령/결과: node --test tests/demo.test.js 30; node tests/demo-browser.test.js 3828; node tests/demo-cleanup-browser.test.js 122; node tests/demo-procedure-browser.test.js 46; node tests/demo-art-browser.test.js 24; npm test 247; node tests/browser-trial.test.js 217.
+합계 4514 tests/checks / failures 0 / 모든 exit 0. git diff --check와 diff 검토 완료. 스크린샷 REPORT 참조.
+Fixture/injected: 기존 authored 내용, 법률 팩 unverified. 새로운 판정 규칙 없음.
+미구현/TBD: 사람 플레이테스트·독립 리뷰·단일 HTML 묶기. 범위 밖 추가 작업·다음 단계 없음.
+커밋/stage/push 없음.
+
+---
+
 # DEMO-001 공판 절차 보강 Review Packet (2026-10-07)
 
 목적: 의견·신청·최종 절차를 기록 기반으로 추가하고 기존 결과 종류/검사 차이를 유지.

@@ -1,3 +1,61 @@
+# DEMO-001 절차 라운드 정리 — 자체 점검 (2026-10-07)
+
+판정 규칙·수치·기존 경로 결과는 유지. 이전 공판 절차 변경 위에 이번 정리를 적용했다. 커밋·stage·push 없음.
+
+## 요청별 전/후
+
+| 항목 | 전 | 후 |
+| --- | --- | --- |
+| 증거 의견 법률 안내 | 제318조·unverified 표시 | 화면에서 삭제. 팩 값 보존 |
+| 최후변론 안내 | 판정에 영향이 없다는 설명 | “재판부에 마지막으로 할 말을 고르세요.” 판정 무관 안내는 판결 후 복기에만 유지 |
+| 조사 결과(required) | 세 선택지+별도 보류하고 닫기 | 증거 신청/신청 안 함/보류 세 선택지만. 선택 직후 닫힘, Esc/바깥 클릭은 보류 유지 |
+| 검찰 증거 | 조사로 원문 열람 해제 | 네 증거 모두 처음부터 원문 열람. 미열람 문구·경고 제거 |
+| 조사 데이터 | grants+reveals | grants만. 조사로 확보하는 준비 카드와 예산은 기존대로 |
+| 법체계 팩 | 기록 열람 항목 없음 | procedure.recordAccess: 형사소송법 제266조의3, verified:'unverified'. 화면 비노출 |
+| SVG 서버 | application/octet-stream | image/svg+xml |
+| 브라우저 환경 | 데모 file://만 | HTTP와 file:// 각각 1440/390, 기존 7경로씩 총 28회 완주 |
+
+판결 근거의 기존 “조문 표기는 법률 검수 전” 문구와 판결 후 최후변론 복기는 유지했다.
+조사 정의에서 reveals를 제거했다. 기록의 reveals:[]는 변경 금지인 v0.10 엔진의 investigation record 형식 호환용으로만 남는다. 읽을 수 있는 검찰 원문은 데모 projection의 초기 제공 정보이며 판정 효과를 추가하지 않는다.
+
+## 검증
+
+| 명령 | tests/checks | failures | exit |
+| --- | ---: | ---: | ---: |
+| node --test tests/demo.test.js | 30 | 0 | 0 |
+| node tests/demo-browser.test.js | 3828 | 0 | 0 |
+| node tests/demo-cleanup-browser.test.js | 122 | 0 | 0 |
+| node tests/demo-procedure-browser.test.js | 46 | 0 | 0 |
+| node tests/demo-art-browser.test.js | 24 | 0 | 0 |
+| npm test | 247 | 0 | 0 |
+| node tests/browser-trial.test.js | 217 | 0 | 0 |
+| 합계 | 4514 | 0 | 0 |
+
+기존 신참 무죄/공소기각/폭행/상해, 노련한 검사 공소기각/상해를 포함한 결과 5종 기대값 그대로 통과.
+추가 검증: 시작 직후 4원문/조사 grants, HTTP SVG MIME, 화면 법률 메타데이터 제거, 최후변론 안내, 세 신청 선택/ESC/바깥 클릭의 닫힘·상태, 390 넘침.
+초기 브라우저 실행에서 조사 창을 닫은 뒤 카드 키보드 펼침이 한 번 실패했다. 늦게 도착한 close 이벤트가 새 포커스를 빼앗을 수 있는 처리를 보완하고 같은 틱에 닫기→카드 포커스를 주는 회귀를 추가했다. 최종 전체 브라우저 재실행 통과.
+git diff --check·diff 검토 완료. engine/trial.js·services/trial.js·trial.html·원본 에셋 무변경.
+
+## 화면 확인 스크린샷
+
+아래는 HTTP 캡처. file://도 cleanup-file-* 이름으로 동일하게 저장했다. tests/artifacts/는 기존 gitignore 대상, 파일은 로컬 보존한다.
+
+| 확인 화면 | 데스크톱 | 모바일 |
+| --- | --- | --- |
+| 초기 원문 열람 | [보기](../tests/artifacts/cleanup-http-desktop-document.png) | [보기](../tests/artifacts/cleanup-http-mobile-document.png) |
+| 조사 결과 세 선택지 | [보기](../tests/artifacts/cleanup-http-1440-result-choices.png) | [보기](../tests/artifacts/cleanup-http-390-result-choices.png) |
+| 증거 의견·문구 삭제 | [보기](../tests/artifacts/cleanup-http-desktop-evidence.png) | [보기](../tests/artifacts/cleanup-http-mobile-evidence.png) |
+| 최후변론 안내 | [보기](../tests/artifacts/cleanup-http-desktop-closing.png) | [보기](../tests/artifacts/cleanup-http-mobile-closing.png) |
+
+## 규칙·범위·한계
+
+RULES.md §15가 이전 미열람/조사 해제 규칙을 대체한다. serve.js 수정은 이번 사용자 5번의 명시적 허용 범위.
+새 판정/수치 규칙 없음. 기록 열람 조문은 사용자 지정 팩 값이며 검증 완료를 뜻하지 않는다. 대사·증거·구형은 기존 authored fixture.
+사람 플레이테스트·독립 리뷰·단일 HTML 묶기·커밋은 미실시. 다음 단계 작업 없음.
+사람 판단 질문: 항상 읽을 수 있는 검찰 원문과 조사로 얻는 준비 카드의 구분이 명확한가?
+
+---
+
 # DEMO-001 공판 절차 보강 — 자체 점검 (2026-10-07)
 
 사용자의 이번 실험 규칙을 구현했다. 기존 v0.10 엔진·서비스는 유지하고 데모 전용 공판 서비스를 추가했다. 커밋·stage·push 없음.

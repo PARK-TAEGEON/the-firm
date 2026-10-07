@@ -382,8 +382,11 @@ function openExhibit(id) {
 }
 function closeReader() { $('#reader').close(); }
 $('#reader').addEventListener('close', () => {
-  const target = dialogReturn;
-  if (target && target.isConnected) target.focus({ preventScroll: true });
+  const target = dialogReturn, active = document.activeElement;
+  // A queued close event must not steal focus from the user's next action.
+  if ($('#reader').open || (active !== document.body && active !== target && !$('#reader').contains(active))) return;
+  const fallback = target && target.isConnected ? target : $('#phaseTitle');
+  if (fallback) fallback.focus({ preventScroll: true });
 });
 $('#reader').addEventListener('click', e => {
   const r = e.currentTarget.getBoundingClientRect();
