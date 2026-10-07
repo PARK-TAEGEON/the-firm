@@ -1,5 +1,5 @@
 'use strict';
-// DEMO-001 — browser completion runs at 1440 and 390 width (file://; SVG assets require image/svg+xml on HTTP hosts): no horizontal overflow, no numeric odds, outcome + review shown.
+// DEMO-001 — browser completion runs at 1440 and 390 width (HTTP and file://): no horizontal overflow, no numeric odds, outcome + review shown.
 const { chromium } = require('playwright');
 const assert = require('node:assert/strict');
 const fs = require('node:fs'), path = require('node:path'), { pathToFileURL } = require('node:url');
@@ -30,8 +30,8 @@ async function run() {
   const browser = await launch();
   let checks = 0; const check = (cond, msg) => { assert.ok(cond, msg); checks++; };
   try {
-    for (const [vpName, vp] of Object.entries(VIEWPORTS)) for (const [pName, plan] of Object.entries(PLANS)) {
-      const tag = vpName + '/' + pName;
+    for (const transport of ['http','file']) for (const [vpName, vp] of Object.entries(VIEWPORTS)) for (const [pName, plan] of Object.entries(PLANS)) {
+      const tag = transport + '/' + vpName + '/' + pName;
       const prosecutorName = plan.prosecutor === 'novice' ? '윤가람' : '최형석';
       const page = await browser.newPage({ viewport: vp }); page.setDefaultTimeout(4000);
       const errors = []; page.on('pageerror', e => errors.push(e.message)); page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
@@ -46,7 +46,8 @@ async function run() {
           Object.defineProperty(window, 'FirmDemoSession', { value: api, configurable: true });
         } });
       });
-      await page.goto(fileUrl);
+      await page.goto(transport === 'http' ? httpUrl : fileUrl);
+      if (transport === 'http') { const response=await page.request.get(httpUrl.replace('demo.html','assets/portraits/default.svg')); check(response.headers()['content-type']==='image/svg+xml','SVG MIME'); }
       const noOverflow = async label => check(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${tag}: no horizontal overflow at ${label}`);
       const noNumbers = async label => { const t = await page.textContent('#app'); check(!/\d+\s*%|승률|점수|확률/.test(t), `${tag}: no numeric odds at ${label}`); };
 
@@ -60,7 +61,7 @@ async function run() {
       check((await page.textContent('.file-card.daily >> nth=0')).includes('닫기'), 'daily toggle label');
       await page.click('.file-card.daily >> nth=0');
       check(!(await page.$('.daily-open')), 'same daily button closes summary');
-      check((await page.textContent('#stage')).includes('베테랑 = 어려움 모드, 첫 판은 신참 권장'), 'difficulty guidance');
+      check((await page.textContent('#stage')).includes('노련한 공판검사 = 어려움 모드, 첫 판은 신참 권장'), 'difficulty guidance');
       check((await page.textContent(`label:has(input[value=${plan.prosecutor}])`)).includes(prosecutorName), 'named prosecutor choice');
       await page.click(`label:has(input[value=${plan.prosecutor}])`);
       await noOverflow('start');
@@ -120,7 +121,9 @@ async function run() {
       check(await page.isVisible('#filePanel'), 'file tab accessible');
       if (vpName === 'mobile') check(!(await page.isVisible('#courtPanel')) && !(await page.isVisible('#memoPanel')), 'one mobile panel visible');
       await page.click('[data-action=exhibit] >> nth=0');
-      check((await page.textContent('#reader')).includes('아직 열람하지 않은'), 'sealed contents not leaked');
+      check((await page.textContent('#reader .document-body')).includes('팔을 뻗는'), 'prosecution statement available before investigation');
+      check(await page.locator('.exhibit.sealed').count() === 0, 'all four exhibits initially readable');
+      if (pName==='novice_acquittal') await page.screenshot({animations:'disabled',path:path.join(out,'cleanup-'+transport+'-'+vpName+'-document.png'),fullPage:true});
       await page.keyboard.press('Escape');
       await panel('courtPanel');
 
@@ -135,7 +138,15 @@ async function run() {
       if (pName === 'novice_acquittal') await page.screenshot({ animations: 'disabled',path:path.join(out, 'ui1-after-' + vpName + '-settlement.png'), fullPage:true});
       check((await page.textContent('.settle')).includes('오태윤') && (await page.textContent('.victim-situation')).includes('3주째'), 'victim settlement circumstances');
       check((await page.$$('[data-action=investigate]')).length === 5, 'five investigations (settlement consult is separate)');
-      for (const id of plan.prep) await page.click(`[data-action=investigate][data-id=${id}]`);
+      for (const id of plan.prep) {
+        await page.click('[data-action=investigate][data-id=' + id + ']');
+        check(await page.isVisible('#reader'), 'investigation result scene');
+        await noOverflow('investigation result');
+        if (pName === 'novice_acquittal') await page.screenshot({ animations:'disabled', path:path.join(out,'cleanup-' + transport + '-' + vpName + '-investigation.png'),fullPage:true });
+        const filing = page.locator('[data-action=fileEvidence][data-status=filed]');
+        if (await filing.count() && id !== 'INV_SIG_LAYOUT') { check(await page.locator('#reader [data-action=closeReader]').count()===0,'no extra investigation close button'); await filing.click(); check(!(await page.locator('#reader[open]').count()),'filing closes result immediately'); }
+        else await page.keyboard.press('Escape');
+      }
       await panel('filePanel');
       check(!(await page.isVisible('.card p >> nth=0')), 'cards start collapsed');
       const cardKey = await page.getAttribute('.card >> nth=0', 'data-disclosure');
@@ -186,11 +197,35 @@ async function run() {
       await page.click(`label:has(input[value=${plan.stance}])`);
       await noOverflow('opening');
       await page.click('[data-action=open]');
+      check(await page.isVisible('[data-action=evidenceOpinions]'), 'evidence opinion stage');
+      check(!/제318조|unverified|열람하지 않은|미열람/.test(await page.textContent('#stage')), 'no legal metadata or unread warning in opinions');
+      check(await page.locator('.evidence-opinion [data-action=exhibit]').count()===4,'all four opinion documents readable');
+      check(await page.isDisabled('[data-action=evidenceOpinions]'), 'all four opinions required');
+      await noOverflow('evidence opinions');
+      if (pName === 'novice_acquittal') await page.screenshot({animations:'disabled',path:path.join(out,'cleanup-' + transport + '-' + vpName + '-evidence.png'),fullPage:true});
+      for (const [id, value] of Object.entries({PX_SIG_STATEMENT:'disagree',PX_SIG_REPORT:'disagree',PX_SIG_MEDICAL:'agree',PX_SIG_VIDEO:'agree'})) {
+        await page.locator('input[name="opinion:' + id + '"][value=' + value + ']').check();
+      }
+      await page.click('[data-action=evidenceOpinions]');
+      if (plan.prep.includes('INV_SIG_LAYOUT')) {
+        await panel('filePanel');
+        const card=page.locator('[data-disclosure="card:CARD_SIG_LAYOUT"]');
+        if (!(await card.getAttribute('open'))) await card.locator('summary').click();
+        await card.locator('[data-action=filing]').click();
+        await page.click('[data-action=fileEvidence][data-status=filed]');
+        await panel('courtPanel');
+      }
 
       // trial
       const queues = { '목격자': [...plan.obs], '담당 수사관': [...plan.inv] }; let guard = 0, sawCross = 0;
       while (guard++ < 150) {
-        if (await page.$('[data-action=verdict]')) { await noOverflow('closing'); await page.click('[data-action=verdict]'); break; }
+        if (await page.$('[data-action=closingArgument]')) {
+          await noOverflow('closing argument');
+          check((await page.textContent('#stage')).includes('재판부에 마지막으로 할 말을 고르세요.') && !(await page.textContent('#stage')).includes('판정에 영향'), 'closing guidance is in-world');
+          if (pName === 'novice_acquittal') await page.screenshot({animations:'disabled',path:path.join(out,'cleanup-' + transport + '-' + vpName + '-closing.png'),fullPage:true});
+          await page.click('[data-action=closingArgument][data-id=FINAL_SIG_CAUSE]'); continue;
+        }
+        if (await page.$('[data-action=verdict]')) { await noOverflow('closing'); if(pName==='novice_acquittal') await page.screenshot({animations:'disabled',path:path.join(out,'procedure-' + vpName + '-sentencing-date.png'),fullPage:true}); await page.click('[data-action=verdict]'); break; }
         if (await page.$('[data-action=object]')) {
           const txt = await page.textContent('.dialogue');
           const stepId = txt.includes('넘어뜨린 동작이었지요') ? VALID[0] : txt.includes('그 밀침 때문에 다친 것이지요') ? VALID[1] : 'INVALID';
@@ -230,7 +265,13 @@ async function run() {
           await page.click(`[data-action=${kind}][data-id=${id}]`);
           continue;
         }
-        if (await page.$('[data-action=continue]')) { await page.click('[data-action=continue]'); continue; }
+        if (await page.$('[data-action=continue]')) {
+          const phaseTitle=await page.locator('#phaseTitle').count() ? await page.textContent('#phaseTitle') : '';
+          if (['구형','최후진술'].includes(phaseTitle)) {
+            await noOverflow(phaseTitle);
+            if(pName==='novice_acquittal')await page.screenshot({animations:'disabled',path:path.join(out,'procedure-' + vpName + '-' + (phaseTitle==='구형'?'request':'statement') + '.png'),fullPage:true});
+          }
+          await page.click('[data-action=continue]'); continue; }
         break;
       }
       check(sawCross >= 2, `${tag}: cross-examination shown`);
@@ -288,6 +329,7 @@ async function run() {
       }
       await page.click('[data-scene=all]'); await page.click('[data-scene=finish]');
       await page.click('[data-action=investigate][data-id=' + plan.prep[0] + ']');
+      await page.keyboard.press('Escape');
       check(await page.locator('details[open]').count() === 0, 'new game resets all disclosure states');
       if (vpName === 'mobile') check(await page.isVisible('#courtPanel') && !(await page.isVisible('#filePanel')), 'new game resets mobile tab');
       check(!errors.length, `${tag}: no page errors ${errors.join(';')}`);

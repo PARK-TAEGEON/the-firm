@@ -76,11 +76,11 @@ function decide(caseDef, pack, trialDef, trialRecords, sessionRecords) {
   const rv = T.review(trialDef, trialRecords);
   const directOf = r => r && r.kind === 'direct'
     ? trialDef.witnesses.find(w => w.id === r.witnessId).direct.find(x => x.id === r.refId) : null;
-  const backfired = rv.backfired.map(m => {
+  const backfired = rv.backfired.filter(m => !['evidence_opinion', 'evidence_filing'].includes(trialRecords.find(r => r.id === m.recordId)?.kind)).map(m => {
     const step = directOf(trialRecords.find(r => r.id === m.recordId));
     return step && p.cards.includes(step.missedUnlessCard) && step.knownMemo ? { ...m, text: step.knownMemo } : m;
   });
-  const blocked = trialRecords.filter(r => (r.kind === 'redirect' && sum(r) > 0) || (r.kind === 'approach' && r.tone === 'prosecution'))
+  const blocked = trialRecords.filter(r => (r.kind === 'redirect' && sum(r) > 0) || (r.kind === 'approach' && r.tone === 'prosecution') || r.blockedReason)
     .map(r => ({ recordId: r.id, text: r.memo }));
   const passed = trialRecords.filter(r => r.kind === 'objection' && r.ruling === 'pass' && sum(r) > 0)
     .flatMap(r => {
@@ -107,10 +107,15 @@ function decide(caseDef, pack, trialDef, trialRecords, sessionRecords) {
   const ctx = { key, cards: p.cards, focusId: p.focusId,
     bands: Object.fromEntries(p.issues.map(i => [i.id, i.band])),
     recoveredIssues: recovered.map(r => trialDef.witnesses.find(w => w.id === r.witnessId).issue),
-    rebuttals: trialRecords.filter(r => r.kind === 'rebuttal').map(r => r.refId) };
+    rebuttals: trialRecords.filter(r => r.kind === 'rebuttal' && sum(r) < 0).map(r => r.refId) };
   const next = (caseDef.nextTry.find(n => matches(n.when, ctx)) || { text: '' }).text;
 
+  const final = trialRecords.find(r => r.kind === 'closing_argument');
+  const closingMatch = final && (final.basis === 'act' ? act.band === 'doubt' : final.basis === 'cause' ? cause.band === 'doubt' : convicted);
+  const closingReview = final ? final.title + ' — ' + (closingMatch ? '판결 근거와 맞닿았습니다.' : '판결 근거와 달랐습니다.') + ' (선택 자체는 판정에 영향 없음)' : null;
+  const procedureReview = trialRecords.filter(r => ['evidence_opinion', 'evidence_filing', 'sentencing_request'].includes(r.kind)).map(r => ({ recordId: r.id, text: r.memo }));
   return {
+    closingReview, procedureReview,
     key, convicted, victimWill: !!will,
     judgment: { label: judgment.label, article: judgment.article || null },
     offense: offense ? { id: offenseId, label: offense.label, article: offense.article } : null,

@@ -7,7 +7,7 @@ const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&a
 let expanded = new Map(), mobilePanel = 'courtPanel', dialogReturn = null;
 const disclosure = (key, title, body, cls = '') => '<details class="' + cls + '" data-disclosure="' + esc(key) + '"><summary>' + esc(title) + '</summary>' + body + '</details>';
 let seen = 0, lastError = '';
-let draft = { caseId: null, prosecutorId: 'novice', dailyId: null, focusId: null, stanceId: null, consultOpen: false };
+let draft = { caseId: null, prosecutorId: 'novice', dailyId: null, focusId: null, stanceId: null, consultOpen: false, opinions: {} };
 
 function names(t, presentation) {
   const r = t.definition.roles, m = { JUDGE: r.judge.name, PROSECUTOR: r.prosecutor.name + ' · ' + r.prosecutor.role, DEFENSE: r.defense.name, CLIENT: presentation.client.name, VICTIM: presentation.victim.name + ' · 피해자' };
@@ -21,9 +21,10 @@ function run(action, payload) {
   const res = session.command(action, payload);
   lastError = res.ok ? '' : res.error;
   if (res.ok && action === 'reset') draft.prosecutorId = 'novice';
-  if (res.ok && (action === 'reset' || action === 'start')) { expanded.clear(); mobilePanel = 'courtPanel'; seen = 0; draft = Object.assign(draft, { focusId: null, stanceId: null, consultOpen: false, dailyId: null }); }
+  if (res.ok && (action === 'reset' || action === 'start')) { expanded.clear(); mobilePanel = 'courtPanel'; seen = 0; draft = Object.assign(draft, { focusId: null, stanceId: null, consultOpen: false, opinions: {}, dailyId: null }); }
   else seen = res.ok ? before : seen;
   render(res.ok ? (action === 'trial' ? payload.action : action) : null);
+  if (res.ok && action === 'trial' && payload.action === 'investigate') openInvestigation(payload.payload.id);
   if (res.ok && action === 'start') window.FirmDemoConsultation.open(res.view.presentation.consultation);
 }
 const trial = (action, payload) => run('trial', { action, payload });
@@ -42,8 +43,8 @@ function renderTop(view) {
   const t = view.trial, d = t.definition, ts = t.state, p = t.projection;
   $('#caseTitle').innerHTML = '<b>' + esc(view.presentation.title) + '</b> · 상대 ' + esc(d.roles.prosecutor.name) + ' 검사' + ' <button class="btn quiet memo-open" data-action="memo">사건 메모</button>';
   const w = ts.cursor ? ts.cursor.w : -1;
-  const steps = [['prep', '준비'], ['opening', '모두진술'], ...d.witnesses.map((x, i) => ['w' + i, x.name]), ['verdict', '판결']];
-  const nowKey = ts.phase === 'trial' ? (ts.cursor.part === 'closed' ? 'verdict' : 'w' + w) : ts.phase;
+  const steps = [['prep', '준비'], ['opening', '모두진술'], ['evidence', '증거 의견'], ...d.witnesses.filter(x => !t.records.some(r => r.kind === 'evidence_opinions') || t.summoned.includes(x.id)).map(x => ['w' + d.witnesses.findIndex(w => w.id === x.id), x.name]), ['final', '최종 변론'], ['verdict', '판결']];
+  const nowKey = ts.phase === 'trial' ? (ts.cursor.part === 'evidence' ? 'evidence' : ['request', 'closing', 'last_statement', 'sentencing_date'].includes(ts.cursor.part) ? 'final' : 'w' + w) : ts.phase;
   const nowIdx = steps.map(s => s[0]).indexOf(nowKey);
   $('#steps').innerHTML = steps.map(([k, label], i) => '<li class="' + (i < nowIdx ? 'done' : i === nowIdx ? 'now' : '') + '"' + (i === nowIdx ? ' aria-current="step"' : '') + '>' + esc(label) + '</li>').join('');
   let g = '';
@@ -65,10 +66,10 @@ function renderFile(view, freshCards) {
   if (t.state.pending && t.state.pending.type === 'rebuttal') {
     usable.add(t.state.pending.card);
   }
-  const cards = t.cards.length ? t.cards.map(c => disclosure('card:' + c.id, c.title,
-    '<p>' + esc(c.text) + '</p>', 'card' + (usable.has(c.id) ? ' usable' : '') + (freshCards.includes(c.id) ? ' new' : ''))).join('')
+  const cards = t.cards.length ? t.cards.map(c => disclosure('card:' + c.id, c.title + (c.filing === 'required' ? ' · ' + t.legalProcedure.filingLabels[c.filingStatus] : ''),
+    '<p>' + esc(c.text) + '</p>' + (c.filing === 'required' ? '<span class="chip">' + esc(t.legalProcedure.filingLabels[c.filingStatus]) + '</span>' + (t.filingOpen ? '<button class="btn quiet" data-action="filing" data-id="' + esc(c.id) + '">신청 상태 변경</button>' : '') : '<span class="chip">증거 신청 불필요</span>'), 'card' + (usable.has(c.id) ? ' usable' : '') + (freshCards.includes(c.id) ? ' new' : ''))).join('')
     : '<p class="empty">아직 확보한 자료가 없습니다.</p>';
-  const ex = t.exhibits.map(x => '<button class="exhibit document-link' + (x.revealed ? '' : ' sealed') + '" data-action="exhibit" data-id="' + esc(x.id) + '" aria-haspopup="dialog"><b>' + esc(x.title) + '</b><span class="exhibit-summary">' + (x.revealed ? esc(x.content.split(/[.!?]\s/)[0]) : ' 미열람') + '</span></button>').join('');
+  const ex = t.exhibits.map(x => '<button class="exhibit document-link" data-action="exhibit" data-id="' + esc(x.id) + '" aria-haspopup="dialog"><b>' + esc(x.title) + '</b><span class="exhibit-summary">' + esc(x.content.split(/[.!?]\s/)[0]) + '</span></button>').join('');
   const client = t.clientStatements.map((c, i) => '<p class="client' + (i > 0 ? ' new' : '') + '">“' + esc(c.text) + '”</p>').join('');
   const st = view.settlement;
   const settle = st ? '<section><h2 class="section">합의</h2><p class="opp">' + (st.filed ? '<b style="color:var(--ok)">' + esc(st.documentLabel) + ' 제출됨</b><br>재판은 계속됩니다.' : st.consult ? '합의 불성립 — 의뢰인의 결정' : '피해자 측 제안 검토 전') + '</p></section>' : '';
@@ -115,6 +116,7 @@ function renderStage(view, newRecords) {
   const t = view.trial, st = t.state, nm = names(t, view.presentation);
   if (st.phase === 'prep') return renderPrep(view);
   if (st.phase === 'opening') return renderOpening(view);
+  if (st.phase === 'trial' && ['evidence', 'request', 'closing', 'last_statement', 'sentencing_date'].includes(st.cursor.part)) return renderProcedure(view);
   const all = t.displayRecords;
   let shown = linesOf(newRecords);
   if (!shown.length) { const last = [...all].reverse().find(r => (r.lines || []).length); shown = last ? last.lines : []; }
@@ -156,13 +158,13 @@ function renderOutcome(view) {
     '<p class="client-stakes">' + esc(view.presentation.stakes[clear ? 'cleared' : 'convicted']) + '</p><ol class="outcome-core"><li class="pronouncement">' + esc(o.pronouncement) + '</li><li>' + esc(o.convicted && o.passed.length ? o.passed[0].text : o.reviewText) + '</li><li>' + esc(o.next) + '</li></ol>' +
     disclosure('outcome-reasons', '판결 근거와 양형', '<p>' + esc(o.text) + '</p>' + (basis ? '<p class="basis">' + esc(basis) + ' · ' + esc(view.pack.label) + ' · 조문 표기는 법률 검수 전</p>' : '') +
     '<ul class="findings">' + o.issues.map(i => '<li><b>' + esc(i.title) + '</b><span class="' + i.band + '">' + esc(i.bandLabel) + ' — ' + esc(i.memo) + '</span></li>').join('') + '</ul>' +
-    sentence + why) + '</div>' +
+    sentence + why + (o.closingReview ? '<p class="closing-review"><b>최후변론</b> ' + esc(o.closingReview) + '</p>' : '')) + '</div>' +
     disclosure('review', '세부 복기', '<div class="review four" aria-label="복기"><section class="good"><h3>당신이 뚫은 것</h3>' + list(o.broke.slice(0, 5), '뚜렷하게 뚫은 곳이 없었습니다.') + '</section>' +
     '<section class="opp"><h3>상대가 막은 것</h3>' + list(o.blocked, '검사가 막거나 다시 세운 것은 없었습니다.') + '</section>' +
     '<section class="opp passed"><h3>통과시킨 이의</h3>' + list(o.passed, '통과시킨 유효 이의 없음.') + '</section>' +
     '<section class="bad"><h3>역효과</h3>' + list(o.backfired, '역효과 없음.') + '</section>' +
     '<section class="miss"><h3>놓친 준비</h3>' + list(o.missed, '놓친 준비 없음.') + '</section></div>' +
-    '<p class="next"><b>다음에 시도해 볼 것</b>' + esc(o.next) + '</p>');
+    disclosure('procedure-review', '증거 의견·신청 및 절차 기록', list(o.procedureReview, '절차 기록 없음')) + '<p class="next"><b>다음에 시도해 볼 것</b>' + esc(o.next) + '</p>');
 }
 
 function renderSettlement(view) {
@@ -203,6 +205,41 @@ function renderOpening(view) {
     (o.caution ? '<p class="warn">' + esc(o.caution) + '</p>' : '') + '</div>';
 }
 
+function renderProcedure(view) {
+  const t = view.trial, part = t.state.cursor.part;
+  const titles = { evidence: '증거 의견', request: '구형', closing: '최후변론', last_statement: '최후진술', sentencing_date: '선고 기일' };
+  let body = '';
+  if (part === 'evidence') {
+    body = '<p class="lead">각 증거에 동의 또는 부동의를 선택하세요. 확정 후 되돌릴 수 없습니다. 동의한 진술 증거의 증인은 소환하지 않습니다.</p>' +
+      t.exhibits.map(x => '<fieldset class="evidence-opinion"><legend>' + esc(x.title) + '</legend>' +
+      ('<button class="btn quiet" data-action="exhibit" data-id="' + esc(x.id) + '">원문 읽기</button>') +
+      ['agree', 'disagree'].map((value, i) => '<label><input type="radio" name="opinion:' + esc(x.id) + '" value="' + value + '"' + (draft.opinions[x.id] === value ? ' checked' : '') + '> ' + (i ? '부동의' : '동의') + '</label>').join(' ') + '</fieldset>').join('');
+  } else if (part === 'closing') {
+    body = '<p class="lead">재판부에 마지막으로 할 말을 고르세요.</p>' + t.procedure.closingChoices.map(c => '<button class="btn final-choice" data-action="closingArgument" data-id="' + esc(c.id) + '">' + esc(c.title) + '</button>').join('');
+  } else {
+    const kind = { request: 'sentencing_request', last_statement: 'last_statement', sentencing_date: 'sentencing_date' }[part];
+    const rec = t.records.findLast(r => r.kind === kind);
+    body = rec.lines.map(l => '<p class="speech"><b>' + esc(names(t, view.presentation)[l.speaker]) + '</b><br>' + esc(l.text) + '</p>').join('');
+  }
+  $('#stage').innerHTML = '<div class="desk"><h1 id="phaseTitle" tabindex="-1">' + titles[part] + '</h1>' + body + '</div>';
+}
+function filingButtons(card) {
+  return ['filed', 'withheld', 'deferred'].map((status, i) => '<button class="btn" data-action="fileEvidence" data-id="' + esc(card.id) + '" data-status="' + status + '">' + ['증거 신청', '신청 안 함', '보류'][i] + '</button>').join('');
+}
+function openFiling(id) {
+  const card = session.projection().trial.cards.find(c => c.id === id);
+  if (!card) return;
+  openReader(card.title, '<p>' + esc(card.text) + '</p><div class="filing-options">' + filingButtons(card) + '</div>', '현재 상태 유지하고 닫기');
+}
+function openInvestigation(id) {
+  const t = session.projection().trial, inv = t.investigations.find(x => x.id === id);
+  if (!inv || !inv.grants.length) return;
+  const card = t.cards.find(c => c.id === inv.grants[0]);
+  openReader('조사 결과 · ' + inv.title, inv.resultLines.map(l => '<p>' + esc(l) + '</p>').join('') +
+    '<h2>' + esc(card.title) + '</h2><p>' + esc(card.text) + '</p>' +
+    (card.filing === 'required' ? '<p class="note">현재 보류 · 효과를 내려면 증거 신청이 필요합니다.</p><div class="filing-options">' + filingButtons(card) + '</div>' : '<p class="note">증거 신청이 필요하지 않은 준비 자료입니다.</p>'), card.filing === 'required' ? null : '확인');
+}
+
 // ---------- bottom bar ----------
 function renderBar(view) {
   const err = lastError ? '<p class="warn" role="alert">' + esc(lastError) + '</p>' : '';
@@ -220,18 +257,22 @@ function renderBar(view) {
     h = '<div class="bar-head"><span class="label calm">모두진술</span><span class="sub">' + (ready ? '입장이 정해졌습니다.' : '두 가지를 모두 고르십시오.') + '</span></div><div class="row"><button class="btn primary" data-action="open"' + (ready ? '' : ' disabled') + '>모두진술을 하고 공판 시작</button></div>';
   } else if (st.phase === 'verdict') {
     h = '<div class="row"><button class="btn primary" data-action="reset">사건 파일로 돌아가기</button></div>';
+  } else if (a.evidence) {
+    h = '<button class="btn primary" data-action="evidenceOpinions"' + (t.exhibits.every(x => draft.opinions[x.id]) ? '' : ' disabled') + '>증거 의견 확정</button>';
+  } else if (a.closing) {
+    h = '<span class="note">최후변론을 선택하세요.</span>';
   } else if (st.pending && st.pending.type === 'objection') {
     h = '<div class="bar-head"><span class="label">⏸ 개입 순간</span><span class="sub">질문의 문제를 지적하는 절차입니다. 이의가 받아들여져도 사건 사실이 곧바로 바뀌지는 않습니다. 근거 없는 이의는 재판장의 신뢰를 잃습니다.</span></div><div class="row"><button class="btn danger" data-action="object">이의 있습니다 — ' + esc(st.pending.ground) + '</button><button class="btn" data-action="pass">넘어간다</button></div>';
   } else if (st.pending && st.pending.type === 'rebuttal') {
-    h = '<div class="bar-head"><span class="label">⏸ 재반대신문 기회</span><span class="sub">검사가 확인된 한계를 다시 좁혔습니다. 준비한 자료로 되받을 수 있습니다.</span></div><div class="row"><button class="btn danger" data-action="rebut">' + esc(st.pending.title) + '</button><button class="btn" data-action="skipRebut">넘어간다</button></div>';
+    h = '<div class="bar-head"><span class="label">⏸ 재반대신문 기회</span><span class="sub">검사가 확인된 한계를 다시 좁혔습니다. 준비한 자료로 되받을 수 있습니다.</span></div><div class="row"><button class="btn danger" data-action="rebut">' + esc(st.pending.title) + (st.pending.filingNeeded ? ' · 증거 신청 필요' : '') + '</button><button class="btn" data-action="skipRebut">넘어간다</button></div>';
   } else if (st.cursor.part === 'cross') {
-    const ap = a.approaches.map(x => '<button class="btn approach" data-action="approach" data-id="' + esc(x.id) + '"' + (x.available ? '' : ' disabled') + '><b>' + esc(x.title) + '</b><small>' + esc(x.reason || x.hint) + '</small><span class="chips">' + (x.cards.length ? x.cards.map(c => '<span class="chip">' + esc(cardTitle(c)) + '</span>').join('') : x.requires.length ? '<span class="chip miss">자료 필요</span>' : '') + '</span></button>').join('');
+    const ap = a.approaches.map(x => '<button class="btn approach" data-action="approach" data-id="' + esc(x.id) + '"' + (x.available ? '' : ' disabled') + '><b>' + esc(x.title) + '</b><small>' + esc(x.reason || x.hint) + '</small>' + (x.filingNeeded ? '<span class="chip miss">증거 신청 필요</span>' : '') + '<span class="chips">' + (x.cards.length ? x.cards.map(c => '<span class="chip">' + esc(cardTitle(c)) + '</span>').join('') : x.requires.length ? '<span class="chip miss">자료 필요</span>' : '') + '</span></button>').join('');
     const pr = a.presses.map(x => '<button class="btn press' + (x.kind === 'overreach' ? ' over' : '') + '" data-action="press" data-id="' + esc(x.id) + '"' + (x.available ? '' : ' disabled') + '><em>' + (x.kind === 'overreach' ? '끝까지 몰아붙인다' : '결론을 요구한다') + '</em><span>“' + esc(x.question) + '”</span></button>').join('');
     h = '<div class="bar-head"><span class="label">반대신문 · ' + esc(t.witness.name) + '</span></div><div class="approach-grid">' + ap + '</div><div class="press-row">' + pr + '<button class="btn quiet" data-action="endCross">이상입니다</button></div>';
   } else if (a.verdict) {
     h = '<div class="bar-head"><span class="label calm">변론 종결</span><span class="sub">선고 단계로 진행하면 이번 심리에 자료를 더 제출할 수 없습니다.</span></div><div class="row"><button class="btn primary" data-action="verdict">판결 선고</button></div>';
   } else if (a.continue) {
-    const part = st.cursor.part, label = part === 'intro' ? '증인 입정' : part === 'redirect' ? '검사 재주신문' : '검사 주신문';
+    const part = st.cursor.part, label = part === 'request' ? '구형 → 최후변론' : part === 'last_statement' ? '최후진술 → 선고 기일' : part === 'intro' ? '증인 입정' : part === 'redirect' ? '검사 재주신문' : '검사 주신문';
     h = '<div class="bar-head"><span class="label calm">' + label + '</span><span class="sub">흐름을 지켜보십시오. 결정할 순간에 멈춥니다.</span></div><div class="row"><button class="btn primary" data-action="continue">계속 ▸</button></div>';
   }
   $('#bar').innerHTML = err + h;
@@ -253,7 +294,7 @@ function render(action) {
   });
   seen = records.length;
   updateSpeech();
-  const phaseChanged = ['start', 'finishPrep', 'open', 'verdict', 'reset'].includes(action);
+  const phaseChanged = ['start', 'finishPrep', 'open', 'evidenceOpinions', 'closingArgument', 'verdict', 'reset'].includes(action);
   if (phaseChanged) { const el = $('#verdictTitle') || $('#phaseTitle'); if (el) el.focus({ preventScroll: true }); window.scrollTo({ top: 0 }); }
   else if (action) { const primary = $('#bar .btn.primary, #bar .btn.danger, #bar .approach:not(:disabled)'); if (primary) primary.focus({ preventScroll: true }); }
 }
@@ -268,7 +309,15 @@ function updateSpeech() {
 document.addEventListener('click', e => {
   const b = e.target.closest('button[data-action]'); if (!b || b.disabled) return;
   const act = b.dataset.action, id = b.dataset.id;
-  if (act === 'memo') openMemo();
+  if (act === 'filing') openFiling(id);
+  else if (act === 'fileEvidence') {
+    const status = b.dataset.status, card = session.projection().trial.cards.find(c => c.id === id);
+    if (card.filingStatus !== status) trial('fileEvidence', { id, status });
+    closeReader();
+  }
+  else if (act === 'evidenceOpinions') trial('evidenceOpinions', { opinions: draft.opinions });
+  else if (act === 'closingArgument') trial('closingArgument', { id });
+  else if (act === 'memo') openMemo();
   else if (act === 'closeReader') closeReader();
   else if (act === 'exhibit') openExhibit(id);
   else if (act === 'panel') { mobilePanel = id; renderTabs(session.projection()); $('#panelTabs [data-id="' + id + '"]').focus({ preventScroll: true }); }
@@ -291,6 +340,7 @@ document.addEventListener('click', e => {
   else if (act === 'reset') run('reset');
 });
 document.addEventListener('change', e => {
+  if (e.target.name.startsWith('opinion:')) draft.opinions[e.target.name.slice(8)] = e.target.value;
   if (e.target.name === 'prosecutor') draft.prosecutorId = e.target.value;
   if (e.target.name === 'focus') draft.focusId = e.target.value;
   if (e.target.name === 'stance') draft.stanceId = e.target.value;
@@ -313,7 +363,7 @@ function openReader(title, body, button) {
   const dialog = $('#reader');
   dialogReturn = document.activeElement;
   dialog.innerHTML = '<h1 id="readerTitle" tabindex="-1">' + esc(title) + '</h1>' + body +
-    '<button class="btn primary" data-action="closeReader">' + esc(button) + '</button>';
+    (button ? '<button class="btn primary" data-action="closeReader">' + esc(button) + '</button>' : '');
   dialog.showModal();
   $('#readerTitle').focus();
 }
@@ -328,7 +378,7 @@ function openExhibit(id) {
   const x = session.projection().trial.exhibits.find(x => x.id === id);
   if (!x) return;
   openReader(x.title, '<p class="note">검찰 증거 · 데모에 수록된 발췌문</p><p class="document-body">' +
-    esc(x.revealed ? x.content : '아직 열람하지 않은 자료입니다. 관련 조사를 마치면 내용을 읽을 수 있습니다.') + '</p>', '닫기');
+    esc(x.content) + '</p>', '닫기');
 }
 function closeReader() { $('#reader').close(); }
 $('#reader').addEventListener('close', () => {

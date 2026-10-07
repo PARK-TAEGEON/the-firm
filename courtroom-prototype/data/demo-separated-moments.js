@@ -30,24 +30,25 @@ const common = {
   ],
   prep: { budget: 4, unitLabel: '반나절', deadlineLabel: '제1회 공판까지 D-2' },
   investigations: [
-    { id: 'INV_SIG_STATEMENT', title: '최초 진술 대조', cost: 1, blurb: '목격자가 사건 직후 경찰에서 한 진술을 법정 진술과 맞춰 본다.', grants: ['CARD_SIG_STATEMENT'], reveals: ['PX_SIG_STATEMENT'] },
-    { id: 'INV_SIG_SEQUENCE', title: '연속 영상 열람', cost: 1, blurb: '검찰이 정지 사진으로 낸 작업장 영상을 앞뒤로 이어서 본다.', grants: ['CARD_SIG_SEQUENCE'], reveals: ['PX_SIG_VIDEO'] },
-    { id: 'INV_SIG_MEDICAL', title: '진료자료 확인', cost: 1, blurb: '진단서 뒤의 진료기록이 무엇을 말하고 무엇을 말하지 않는지 본다.', grants: ['CARD_SIG_MEDICAL'], reveals: ['PX_SIG_MEDICAL'] },
+    { id: 'INV_SIG_STATEMENT', title: '최초 진술 대조', cost: 1, blurb: '목격자가 사건 직후 경찰에서 한 진술을 법정 진술과 맞춰 본다.', grants: ['CARD_SIG_STATEMENT'] },
+    { id: 'INV_SIG_SEQUENCE', title: '연속 영상 열람', cost: 1, blurb: '검찰이 정지 사진으로 낸 작업장 영상을 앞뒤로 이어서 본다.', grants: ['CARD_SIG_SEQUENCE'] },
+    { id: 'INV_SIG_MEDICAL', title: '진료자료 확인', cost: 1, blurb: '진단서 뒤의 진료기록이 무엇을 말하고 무엇을 말하지 않는지 본다.', grants: ['CARD_SIG_MEDICAL'] },
     { id: 'INV_SIG_LAYOUT', title: '가림막 뒤 현장 동선 확인', cost: 1, blurb: '피해자가 넘어진 가림막 뒤 공간을 직접 살핀다.', grants: ['CARD_SIG_LAYOUT'] },
     { id: 'INV_SIG_CLIENT', title: '의뢰인 재면담', cost: 1, blurb: '처음 진술에서 빠진 것이 없는지 다시 묻는다.', grants: ['CARD_SIG_CONTACT'] },
     // 합의 상담. 준비 예산을 함께 쓰기 위해 조사 목록에 두지만, 화면에는 합의 제안 창에서만 열린다(services/demo-session.js).
     { id: 'INV_SIG_SETTLE', title: '합의 제안 검토 · 의뢰인 상담', cost: 1, blurb: '피해자 측 합의 제안을 의뢰인에게 설명하고 결정을 듣는다.', grants: [] }
   ],
   cards: [
-    { id: 'CARD_SIG_STATEMENT', title: '목격자 최초 진술', text: '“피고인이 팔을 뻗는 걸 봤다. 손이 닿는 순간은 피고인 등에 가려 정확히 못 봤다. 곧 가림막 뒤에서 넘어지는 소리가 났다.”', issue: ACT },
-    { id: 'CARD_SIG_SEQUENCE', title: '연속 영상', text: '피해자가 한 걸음 뒤로 밀렸다가 자세를 회복하고 가림막 뒤로 걸어간다. 접촉 순간은 기둥에 가려 보이지 않는다. 가림막 뒤 낙상은 화면 밖이다. 두 장면 사이 약 40초.', issue: CAUSE },
-    { id: 'CARD_SIG_MEDICAL', title: '진료기록', text: '오른쪽 손목 타박상. 넘어지며 손을 짚을 때 흔한 손상이라는 기재. 누가 어떤 동작으로 다치게 했는지 판단한 감정은 없다.', issue: CAUSE },
-    { id: 'CARD_SIG_LAYOUT', title: '가림막 뒤 현장 동선', text: '낙상 지점 바로 앞에 바퀴 달린 운반대와 밀린 바퀴 자국이 있다. 검찰 사진에는 이 구역이 없다. 이것만으로 원인을 확정하지는 않는다.', issue: CAUSE, rebuttal: true },
-    { id: 'CARD_SIG_CONTACT', title: '의뢰인 재면담', text: '의뢰인이 어깨를 한 번 민 사실을 인정했다. 상해의 원인까지 인정하지는 않는다.', issue: ACT }
+    { id: 'CARD_SIG_STATEMENT', filing: 'none', title: '목격자 최초 진술', text: '“피고인이 팔을 뻗는 걸 봤다. 손이 닿는 순간은 피고인 등에 가려 정확히 못 봤다. 곧 가림막 뒤에서 넘어지는 소리가 났다.”', issue: ACT },
+    { id: 'CARD_SIG_SEQUENCE', filing: 'required', title: '연속 영상', text: '피해자가 한 걸음 뒤로 밀렸다가 자세를 회복하고 가림막 뒤로 걸어간다. 접촉 순간은 기둥에 가려 보이지 않는다. 가림막 뒤 낙상은 화면 밖이다. 두 장면 사이 약 40초.', issue: CAUSE },
+    { id: 'CARD_SIG_MEDICAL', filing: 'required', title: '진료기록', text: '오른쪽 손목 타박상. 넘어지며 손을 짚을 때 흔한 손상이라는 기재. 누가 어떤 동작으로 다치게 했는지 판단한 감정은 없다.', issue: CAUSE },
+    { id: 'CARD_SIG_LAYOUT', filing: 'required', title: '가림막 뒤 현장 동선', text: '낙상 지점 바로 앞에 바퀴 달린 운반대와 밀린 바퀴 자국이 있다. 검찰 사진에는 이 구역이 없다. 이것만으로 원인을 확정하지는 않는다.', issue: CAUSE, rebuttal: true },
+    { id: 'CARD_SIG_CONTACT', filing: 'none', title: '의뢰인 재면담', text: '의뢰인이 어깨를 한 번 민 사실을 인정했다. 상해의 원인까지 인정하지는 않는다.', issue: ACT }
   ],
   prosecutionExhibits: [
-    { id: 'PX_SIG_STATEMENT', title: '목격자 진술조서', content: '“팔을 뻗는 걸 봤고, 가림막 뒤에서 넘어지는 소리가 났다.” 손이 닿는 순간은 가려졌다는 기재가 있다.' },
-    { id: 'PX_SIG_VIDEO', title: '작업장 영상(정지 사진 2매)', content: '검찰은 피해자가 뒤로 밀리는 장면과 가림막 쪽으로 가는 장면을 정지 사진으로 냈다. 연속본에는 그 사이 약 40초가 있다.' },
+    { id: 'PX_SIG_STATEMENT', title: '목격자 진술조서(한지수)', witnessId: OBS, consentIssue: CAUSE, consentMemo: '조서: 팔을 뻗은 뒤 넘어지는 소리', content: '“팔을 뻗는 걸 봤고, 가림막 뒤에서 넘어지는 소리가 났다.” 손이 닿는 순간은 가려졌다는 기재가 있다.' },
+    { id: 'PX_SIG_VIDEO', title: '현장 사진(정지 사진 2매)', content: '검찰은 피해자가 뒤로 밀리는 장면과 가림막 쪽으로 가는 장면을 정지 사진으로 냈다. 연속본에는 그 사이 약 40초가 있다.' },
+    { id: 'PX_SIG_REPORT', title: '수사보고서(서동국)', witnessId: INV, consentIssue: CAUSE, consentMemo: '수사보고서: 밀침 → 낙상 → 상해로 정리', content: '서동국 경위가 사건 경위를 정리했다. 밀침, 낙상, 손목 상해의 순서로 기록되어 있다. 별도의 원인 감정은 없다.' },
     { id: 'PX_SIG_MEDICAL', title: '상해진단서', content: '오른쪽 손목 타박상, 2주 치료 소견. 원인 감정 기재 없음.' }
   ],
   issues: [
@@ -85,7 +86,7 @@ const common = {
     noRedirect: [['PROSECUTOR', '재주신문 없습니다.']],
     rebutPass: [['DEFENSE', '재반대신문 없습니다.']],
     witnessDone: [['JUDGE', '증인은 돌아가도 좋습니다.']],
-    verdictLead: [['JUDGE', '변론을 종결합니다. 판결을 선고하겠습니다.']]
+    verdictLead: [['JUDGE', '지금부터 판결을 선고하겠습니다.']]
   },
   // 복기 “놓친 준비”: 해당 카드 없이 상해 연결이 의심에 이르지 못했을 때만 표시(엔진 review 규칙).
   missedPrep: [
@@ -220,7 +221,7 @@ const veteran = Object.assign({}, common, {
   prosecutorProfile: 'veteran',
   roles: {
     judge: { id: 'JUDGE', name: '재판장', initial: '재' },
-    prosecutor: { id: 'PROSECUTOR', name: '베테랑 검사', initial: '검', styleLabel: '형사 20년' },
+    prosecutor: { id: 'PROSECUTOR', name: '노련한 공판검사', initial: '검', styleLabel: '공판 전담 10년차' },
     defense: { id: 'DEFENSE', name: '변호인', initial: '변' }
   },
   witnesses: [
@@ -269,7 +270,32 @@ const veteran = Object.assign({}, common, {
 });
 
 // ---------- 데모 사건 파일(시작 화면·합의·결과 문구) ----------
+// DEMO procedure metadata; persistent case/card/witness IDs stay intact.
+veteran.witnesses.forEach(w => w.redirect.forEach(r => {
+  if (r.rebuttal) r.preparedAgainst = [r.rebuttal.card];
+}));
+const investigationScenes = {
+  INV_SIG_STATEMENT: ['한지수가 처음 남긴 진술을 다시 읽었습니다.', '팔의 움직임과 실제 접촉을 구분한 대목에 표시를 했습니다.'],
+  INV_SIG_SEQUENCE: ['정지 사진 앞뒤의 영상을 끊지 않고 확인했습니다.', '피해자가 자세를 회복한 뒤 가림막으로 걸어가는 장면을 따로 정리했습니다.'],
+  INV_SIG_MEDICAL: ['진단서와 그 뒤의 진료기록을 나란히 펼쳤습니다.', '상처에 관한 기재와 원인에 관한 판단을 구분해 적었습니다.'],
+  INV_SIG_LAYOUT: ['작업실의 가림막 뒤로 돌아가 낙상 지점을 살폈습니다.', '검찰 사진 밖에 있는 운반대와 바퀴 자국을 현장 사진으로 남겼습니다.'],
+  INV_SIG_CLIENT: ['정민호 씨를 다시 만나 접촉 순간을 천천히 물었습니다.', '한동안 말을 멈추던 정민호 씨가 처음과 다른 이야기를 꺼냈습니다.']
+};
+common.investigations.forEach(v => { v.resultLines = investigationScenes[v.id] || []; });
+const procedure = {
+  closingChoices: [
+    { id: 'FINAL_SIG_ACQUIT', title: '무죄 주장', text: '밀침 자체가 합리적 의심 없이 입증되지 않았으므로 무죄를 선고해 주십시오.', basis: 'act' },
+    { id: 'FINAL_SIG_CAUSE', title: '상해 연결 부정 + 예비적으로 선처 호소', text: '밀침과 상해의 연결은 입증되지 않았습니다. 예비적으로 피고인의 사정을 살펴 선처해 주십시오.', basis: 'cause' },
+    { id: 'FINAL_SIG_MERCY', title: '선처 호소만', text: '피고인의 사정과 피해 회복 노력을 살펴 선처해 주십시오.', basis: 'sentence' }
+  ],
+  finalStatements: {
+    S_SIG_CONTACT: { agreed: '어깨를 민 행동은 잘못했습니다. 합의한 약속을 지키고 다시는 이런 일이 없도록 하겠습니다.', none: '어깨를 민 것은 잘못했습니다. 아직 피해 회복에 이르지 못한 점이 마음에 걸립니다.' },
+    S_SIG_DENY: { agreed: '몸에 손을 댄 적은 없다는 말씀은 같습니다. 다툼에 대해서는 사과했고 합의한 약속을 지키겠습니다.', none: '몸에 손을 댄 적은 없다는 제 말씀을 살펴 주십시오. 다툼이 여기까지 온 것이 괴롭습니다.' },
+    S_SIG_RESERVE: { agreed: '그날 경위는 기록으로 살펴 주십시오. 합의한 약속을 지키며 일을 이어 가고 싶습니다.', none: '그날 무슨 일이 있었는지 기록을 살펴 주십시오. 다시 차분히 일할 수 있기를 바랍니다.' }
+  }
+};
 const demoCase = {
+  procedure,
   presentation: {
     title: '작업실 정산 다툼 상해 사건',
     client: { name: '정민호', age: 38, detail: '프리랜서 영상 편집자 · 작업실 공동 운영자' },
@@ -280,7 +306,7 @@ const demoCase = {
     },
     prosecutors: {
       novice: { name: '윤가람', role: '신참 검사', initial: '윤' },
-      veteran: { name: '최형석', role: '베테랑 검사', initial: '최' }
+      veteran: { name: '최형석', role: '노련한 공판검사', initial: '최' }
     },
     stakes: {
       convicted: '정민호 씨는 다음 달 방송 외주 계약 갱신을 앞두고, 계약서의 “형사처벌 이력 시 해지” 조항이 걱정입니다.',
@@ -306,7 +332,7 @@ const demoCase = {
     },
     memo: {
       background: ['혐의는 상해입니다. 정민호 씨가 오태윤 씨를 밀어 손목을 다치게 했다는 사건입니다.', '두 사람은 함께 운영하는 작업실에서 정산 문제로 말다툼을 했습니다.', '그 뒤 오태윤 씨가 넘어져 오른쪽 손목을 다쳤습니다.'],
-      people: ['정민호(38세): 프리랜서 영상 편집자. 다음 달 방송 외주 계약 갱신 예정이며 계약서에 “형사처벌 이력 시 해지” 조항이 있습니다.', '오태윤(41세): 피해자이자 작업실 공동 운영자. 정산 다툼 상대이며 손목 부상으로 3주째 편집 작업을 못 하고 있습니다.', '한지수(34세): 같은 작업실을 쓰는 디자이너이자 목격자.', '서동국 경위: 관할 경찰서 형사팀 소속 담당 수사관.', '검사: 신참 윤가람 또는 베테랑 최형석. 재판은 재판장이 진행합니다.'],
+      people: ['정민호(38세): 프리랜서 영상 편집자. 다음 달 방송 외주 계약 갱신 예정이며 계약서에 “형사처벌 이력 시 해지” 조항이 있습니다.', '오태윤(41세): 피해자이자 작업실 공동 운영자. 정산 다툼 상대이며 손목 부상으로 3주째 편집 작업을 못 하고 있습니다.', '한지수(34세): 같은 작업실을 쓰는 디자이너이자 목격자.', '서동국 경위: 관할 경찰서 형사팀 소속 담당 수사관.', '검사: 신참 윤가람 또는 노련한 공판검사 최형석. 재판은 재판장이 진행합니다.'],
       prosecution: '한지수 씨의 목격 진술과 진단서를 근거로 정민호 씨의 밀침이 오태윤 씨의 상해로 이어졌다고 주장합니다.',
       client: '말다툼은 했지만 몸을 건드린 적은 없습니다.',
       tasks: ['당신은 정민호 씨의 변호인입니다. 반나절 4번의 시간을 나누어 자료를 조사하세요.', '준비한 자료로 검사 측 증인에게 질문하고, 직접 본 사실과 판단을 구분하세요.', '합의 제안을 검토하고 정민호 씨에게 조언하세요. 수락 여부는 정민호 씨가 결정합니다.'],
@@ -326,9 +352,9 @@ const demoCase = {
   charge: { offense: 'injury', actIssue: ACT, causationIssue: CAUSE },
   prosecutors: [
     { id: 'novice', label: '신참 검사', sub: '임용 1년차' },
-    { id: 'veteran', label: '베테랑 검사', sub: '형사 20년' }
+    { id: 'veteran', label: '노련한 공판검사', sub: '공판 전담 10년차' }
   ],
-  prosecutorNote: '베테랑 = 어려움 모드, 첫 판은 신참 권장. 같은 사건이지만 검사가 질문에 대응하는 방식이 달라집니다.',
+  prosecutorNote: '노련한 공판검사 = 어려움 모드, 첫 판은 신참 권장. 같은 사건이지만 검사가 질문에 대응하는 방식이 달라집니다.',
   variants: { novice, veteran },
   bandLabels: { proven: '입증됨', shaken: '다툼 있음', doubt: '의심' },
 

@@ -1,3 +1,32 @@
+# DEMO-001 공판 절차 보강 Review Packet (2026-10-07)
+
+목적: 의견·신청·최종 절차를 기록 기반으로 추가하고 기존 결과 종류/검사 차이를 유지.
+권한: 이번 사용자 요청, experiment lane. 기존 engine/trial.js·services/trial.js 수정 금지 유지.
+
+변경 파일:
+- data/demo-ko-pack.js: 절차 조문/효과/구형/기일/문구, unverified.
+- data/demo-separated-moments.js: 4증거, filing 분류, 결과 묘사, preparedAgainst, 최후변론/진술, 검사 직급.
+- services/demo-trial.js 신규: frozen v0.10 command service를 기반으로 한 데모 전용 상태 소유자. 의견/신청/소환/효과 차단/마감/최종 절차, 실패 원자성.
+- services/demo-session.js: 데모 서비스 연결, 합의 사실을 실제 기록에서 최후진술에 전달. 기존 이름 projection 미커밋 변경 유지.
+- services/demo-outcome.js: 절차/최후변론 복기, 차단 재반대 효과 구분, 같은 기록 중복 표시 방지. 판결 분류/양형 규칙 변경 없음.
+- demo.html: 새 데모 서비스 스크립트 로드, 이전 미커밋 변경 유지.
+- ui/trial-demo-app.js, ui/trial-demo.css: 단계·조사 장면·신청 상태/변경·증거 의견·최종 절차·복기.
+- tests/demo.test.js: 기존 경로에 의견/신청/최종 단계 추가, 7절차 불변성 테스트. 이전 표시 테스트 미커밋 변경 유지.
+- tests/demo-browser.test.js, demo-art-browser.test.js: 새 흐름 경유·스냅샷.
+- tests/demo-procedure-browser.test.js 신규: 0명/1명 소환과 최종 절차/복기/모바일.
+- demo/REPORT.md, RULES.md §14, REVIEW_PACKET.md, test-results.log.
+
+불변: 무작위 없음, 같은 입력 같은 기록. 효과는 기록으로 남고 복기. 발언은 판정 입력 아님. 실패한 의견/신청/잘못된 단계 명령은 원자적.
+새 규칙: RULES §14, 시점 경계와 신청 철회 시 대비 이력 보존까지 명시.
+검증: node --test tests/demo.test.js 29 / node tests/demo-browser.test.js 1795 / node tests/demo-procedure-browser.test.js 46 / node tests/demo-art-browser.test.js 24 / npm test 247 / node tests/browser-trial.test.js 217.
+합계 2358 tests/checks, 0 failures, 모든 exit 0. 실행 환경 test-results.log. git diff --check 및 diff 검토 완료.
+금지 engine/trial.js/services/trial.js/trial.html 무변경. 원본 에셋 수정 없음.
+Fixture/injected: 카드/질문/고정 구형/6개 최후진술, 법률 팩 unverified. 법적 증거능력·실제 양형 엔진은 아님.
+미구현/TBD: 사람 플레이테스트·독립 리뷰·단일 HTML 묶기. 새 절차 전체 조합 전수탐색은 주장하지 않음.
+범위 밖 변경·다음 단계 없음. 커밋/stage/push 없음.
+
+---
+
 # DEMO-001 장소 사진·기본 초상 Review Packet (2026-10-07)
 
 목적: 기존 사진/실루엣 연결, 정상/실패 대체 표시 검증. 표시만 변경.

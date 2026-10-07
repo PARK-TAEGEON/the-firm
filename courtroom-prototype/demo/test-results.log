@@ -1,28 +1,38 @@
-DEMO-001 장소 사진·기본 초상 — 2026-10-07
+DEMO-001 공판 절차 보강 — 2026-10-07
 CWD courtroom-prototype/
+Node v24.19.0, bundled Chromium
 NODE_PATH=C:/Users/Admin/AppData/Local/Temp/claude/C--Users-Admin-orca-workspaces-The-Firm-task-demo-001/7c2a23b6-efca-4556-94ef-6e49e1e64e7d/scratchpad/node_modules
-PW_CHANNEL=none-bundled; Node v24.19.0; bundled Chromium
+PW_CHANNEL=none-bundled
+Demo browsers: 1440/390 file://. v0.10 browser: existing HTTP setup.
 
 node --test tests/demo.test.js
 
-exit 0
+exit code 0
 
 node tests/demo-browser.test.js
 
-exit 0
+exit code 0
+
+node tests/demo-procedure-browser.test.js
+
+exit code 0
 
 node tests/demo-art-browser.test.js
 
-exit 0
+exit code 0
 
 npm test
 
-exit 0
+exit code 0
 
 node tests/browser-trial.test.js
 
-exit 0
+exit code 0
 
-TOTAL 2157 tests/checks, 0 failures, all exit 0
-First HTTP demo run failed: serve.js returns application/octet-stream for SVG. Final demo runs use file:// at both widths. Existing v0.10 HTTP tests unchanged.
-Asset SHA-256: 3/3 unchanged. Forbidden files unchanged. git diff --check exit 0. Screenshots tests/artifacts/art-{desktop,mobile}-{consultation,court}.png. No commit/stage/push.
+TOTAL: 2358 tests/checks, failures 0, all exit codes 0
+Additional focused procedure rerun: 7/7 pass (excluded from total; latest full 29 also passes).
+New: conditional summons and admitted content/+1; document credibility-only effects; atomic invalid opinions/filings/phase commands; unfiled effect/point/neutralization suppression and time; early preparation versus late credibility; automatic withheld at closure; final speeches do not adjudicate; six client lines; deterministic records.
+Initial test updates: old objection fixture lacked opinion confirmation; added new phase. Rebuttal time test changed fixed total to prior recorded usage + timeCost because credibility warning shortens cross time.
+Forbidden engine/trial.js, services/trial.js, trial.html unchanged. Original asset files unchanged. git diff --check exit 0.
+Screenshots: tests/artifacts/procedure-{desktop,mobile}-{investigation,evidence,request,closing,statement,sentencing-date}.png plus procedure-{1440,390}-{no-witness,one-witness}-result.png.
+No commit/stage/push.

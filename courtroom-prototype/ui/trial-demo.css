@@ -163,3 +163,5 @@ summary:focus-visible, button:focus-visible { outline: 2px solid var(--brass-2);
 @media (max-width:900px) {
   .scene-portrait { width:56px; height:66px; flex-basis:56px; }
 }
+
+.evidence-opinion {border:1px solid var(--line-2);border-radius:8px;padding:14px;margin:12px 0;min-width:0}.evidence-opinion label{display:inline-block;padding:10px}.final-choice{display:block;width:100%;text-align:left;margin:12px 0}.filing-options{display:flex;gap:8px;flex-wrap:wrap}

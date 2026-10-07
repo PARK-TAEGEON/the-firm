@@ -1,11 +1,11 @@
 (function (root) {
 'use strict';
 // DEMO-001 session service. 사건·검사 선택, 재판 전 합의, 공판 위임, 결과 판정을 묶는다.
-// 공판 상태는 기존 v0.10 services/trial.js가 소유한다(수정하지 않음). 이 서비스는 그 앞뒤의 기록만 소유한다.
+// 공판 상태는 데모 전용 services/demo-trial.js가 소유한다. v0.10 engine/service는 수정하지 않는다.
 // 명령은 원자적이다: 실패한 명령은 세션 기록과 공판 상태를 바꾸지 않는다. 무작위 없음.
 const isNode = typeof module !== 'undefined' && module.exports;
 const T = isNode ? require('../engine/trial.js') : root.FirmTrial;
-const TS = isNode ? require('./trial.js') : root.FirmTrialService;
+const TS = isNode ? require('./demo-trial.js') : root.FirmDemoTrialService;
 const O = isNode ? require('./demo-outcome.js') : root.FirmDemoOutcome;
 
 function createDemoSession({ cases, daily, pack }) {
@@ -14,6 +14,8 @@ function createDemoSession({ cases, daily, pack }) {
   let state, trial = null, sessionNo = 0;
   const find = (list, id) => list.find(x => x.id === id);
   const current = s => s.caseId ? find(caseList, s.caseId) : null;
+  // Names and circumstances belong to the read model, never the trial definition.
+  const displayedProsecutor = (c, p) => ({ ...p, label: c.presentation.prosecutors[p.id].name + ' · ' + p.label });
 
   function push(s, rec) {
     const r = Object.assign({ id: 'demo:s' + s.session + ':r' + (++s.serial), seq: s.records.length + 1 }, rec);
@@ -33,7 +35,7 @@ function createDemoSession({ cases, daily, pack }) {
       const def = c.variants[prosecutorId]; if (!def) throw new Error('검사를 고르십시오.');
       s.phase = 'play'; s.caseId = caseId; s.prosecutorId = prosecutorId;
       push(s, { kind: 'case_selected', caseId, caseVersion: c.version, packId: ko.id, packVersion: ko.version, prosecutorId });
-      return TS.createTrialService(def);
+      return TS.createTrialService(def, c.procedure, ko);
     },
     consult(s, { adviceId }, t) {
       const c = current(s); if (s.phase !== 'play' || !c.settlement) throw new Error('합의 제안이 없습니다.');
@@ -61,7 +63,8 @@ function createDemoSession({ cases, daily, pack }) {
       if (action === 'reset') throw new Error('처음부터 다시 하려면 사건 선택으로 돌아가십시오.');
       const c = current(s);
       if (action === 'investigate' && c.settlement && payload && payload.id === c.settlement.consultInvestigation) throw new Error('합의 상담은 합의 제안 창에서 진행합니다.');
-      const res = t.command(action, payload);
+      const args = action === 'closingArgument' ? { ...payload, settled: s.records.some(r => r.kind === 'settlement_agreed') } : payload;
+      const res = t.command(action, args);
       if (!res.ok) throw new Error(res.error);
       return t;
     }
@@ -83,7 +86,7 @@ function createDemoSession({ cases, daily, pack }) {
     const s = state, c = current(s);
     const view = {
       state: { phase: s.phase, session: s.session, caseId: s.caseId, prosecutorId: s.prosecutorId },
-      files: caseList.map(x => ({ id: x.id, kind: 'signature', title: x.presentation.title, charge: x.variants[Object.keys(x.variants)[0]].charge, file: x.file, prosecutors: x.prosecutors, prosecutorNote: x.prosecutorNote }))
+      files: caseList.map(x => ({ id: x.id, kind: 'signature', title: x.presentation.title, charge: x.variants[Object.keys(x.variants)[0]].charge, file: x.file, prosecutors: x.prosecutors.map(p => displayedProsecutor(x, p)), prosecutorNote: x.prosecutorNote }))
         .concat(dailyList),
       pack: { id: ko.id, version: ko.version, label: ko.label, disclaimer: ko.sentencing.disclaimer },
       records: s.records,
@@ -94,7 +97,7 @@ function createDemoSession({ cases, daily, pack }) {
     if (st) tv.investigations = tv.investigations.filter(v => v.id !== st.consultInvestigation);
     view.trial = tv;
     view.presentation = c.presentation;
-    view.prosecutor = find(c.prosecutors, s.prosecutorId);
+    view.prosecutor = displayedProsecutor(c, find(c.prosecutors, s.prosecutorId));
     view.hint = c.file.hint;
     if (st) {
       const consult = s.records.find(r => r.kind === 'settlement_consult') || null;
@@ -118,6 +121,11 @@ function createDemoSession({ cases, daily, pack }) {
       }
       return display;
     });
+    // These projected roles/witnesses label existing IDs; raw records remain intact.
+    Object.assign(tv.definition.client, c.presentation.client);
+    Object.assign(tv.definition.roles.prosecutor, c.presentation.prosecutors[s.prosecutorId]);
+    tv.definition.witnesses.forEach(w => Object.assign(w, c.presentation.witnesses[w.id]));
+    if (tv.witness) Object.assign(tv.witness, c.presentation.witnesses[tv.witness.id]);
     return T.copy(view);
   }
 

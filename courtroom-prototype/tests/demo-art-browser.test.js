@@ -41,6 +41,8 @@ const { pathToFileURL } = require('node:url');
       await page.click('label:has(input[value=F_SIG_ACT])');
       await page.click('label:has(input[value=S_SIG_RESERVE])');
       await page.click('[data-action=open]');
+      for (const [id,value] of Object.entries({PX_SIG_STATEMENT:'disagree',PX_SIG_REPORT:'disagree',PX_SIG_VIDEO:'agree',PX_SIG_MEDICAL:'agree'})) await page.locator('input[name="opinion:'+id+'"][value='+value+']').check();
+      await page.click('[data-action=evidenceOpinions]');
       await page.waitForFunction(() => !document.querySelector('.face img'));
       check(await page.locator('.face').allTextContents().then(xs=>xs.join('')==='윤한변'), 'court load failure retains initials');
       await page.evaluate(() => { window.FirmDemoPortraits.default = 'assets/portraits/default.svg'; });

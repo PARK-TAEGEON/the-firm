@@ -19,18 +19,24 @@ const tr = (s, action, payload) => ok(s, 'trial', { action, payload });
 function unchanged(s, action, payload) { const before = s.projection(); const r = s.command(action, payload); assert.equal(r.ok, false, action + ' should fail'); assert.deepEqual(s.projection(), before); return r.error; }
 
 // Plays a whole demo through the session service. plan: { prep, advice, focus, stance, object: [stepId], rebut, obs: [...], inv: [...] }
-function play(prosecutorId, plan) {
-  const s = session();
+function play(prosecutorId, plan, caseData = C) {
+  const s = createDemoSession({ cases: [caseData], daily: DAILY, pack: PACK });
   ok(s, 'start', { caseId: C.id, prosecutorId });
   (plan.prep || []).forEach(id => tr(s, 'investigate', { id }));
+  for (const card of s.projection().trial.cards) if (card.filing === 'required' && !card.rebuttal && plan.autoFile !== false) tr(s, 'fileEvidence', { id: card.id, status: 'filed' });
+  if (plan.earlyLayout) tr(s, 'fileEvidence', { id: 'CARD_SIG_LAYOUT', status: 'filed' });
   if (plan.advice) ok(s, 'consult', { adviceId: plan.advice });
   tr(s, 'finishPrep');
   tr(s, 'open', { focusId: plan.focus || 'F_SIG_BALANCED', stanceId: plan.stance || 'S_SIG_RESERVE' });
+  tr(s, 'evidenceOpinions', { opinions: plan.opinions || Object.fromEntries(C.variants[prosecutorId].prosecutionExhibits.map(x => [x.id, x.witnessId ? 'disagree' : 'agree'])) });
+  if (!plan.earlyLayout && plan.autoFile !== false && s.projection().trial.cards.some(c => c.rebuttal)) tr(s, 'fileEvidence', { id: 'CARD_SIG_LAYOUT', status: 'filed' });
+  if (plan.refileLayout) { tr(s,'fileEvidence',{id:'CARD_SIG_LAYOUT',status:'withheld'}); tr(s,'fileEvidence',{id:'CARD_SIG_LAYOUT',status:'filed'}); }
   const queues = { [OBS]: [...(plan.obs || [])], [INV]: [...(plan.inv || [])] };
   let v = s.projection(), guard = 0;
   while (v.trial.state.phase === 'trial' && guard++ < 300) {
     const t = v.trial, st = t.state;
     if (st.pending) { v = st.pending.type === 'objection' ? tr(s, 'objection', { object: (plan.object || []).includes(st.pending.stepId) }) : tr(s, 'rebut', { use: plan.rebut !== false }); continue; }
+    if (t.actions.closing) { v = tr(s, 'closingArgument', { id: plan.final || 'FINAL_SIG_CAUSE' }); continue; }
     if (t.actions.verdict) { v = tr(s, 'verdict'); break; }
     if (st.cursor.part === 'cross') { const q = queues[t.witness.id].shift(); v = !q ? tr(s, 'endCross') : tr(s, q.startsWith('P_') ? 'press' : 'approach', { id: q }); continue; }
     v = tr(s, 'continue');
@@ -85,6 +91,7 @@ test('rule 3: a sustained veteran objection costs the player one question of tim
   const at = prosecutorId => {
     const s = session(); ok(s, 'start', { caseId: C.id, prosecutorId });
     tr(s, 'finishPrep'); tr(s, 'open', { focusId: 'F_SIG_CAUSE', stanceId: 'S_SIG_CONTACT' });
+    tr(s, 'evidenceOpinions', { opinions: { PX_SIG_STATEMENT:'disagree', PX_SIG_REPORT:'disagree', PX_SIG_VIDEO:'agree', PX_SIG_MEDICAL:'agree' } });
     let v = s.projection();
     while (!(v.trial.state.cursor.part === 'cross' && v.trial.witness.id === INV)) v = v.trial.state.pending ? tr(s, 'objection', { object: false }) : v.trial.state.cursor.part === 'cross' ? tr(s, 'endCross') : tr(s, 'continue');
     const before = v.trial.witness.timeLeft;
@@ -353,4 +360,129 @@ test('presentation: Korean object particles handle both final-consonant and vowe
   assert.equal(text.objectParticle('준비 자료'), '준비 자료를');
   assert.equal(text.format('준비한 현장 동선을(를) 제시하지 않았다.'), '준비한 현장 동선을 제시하지 않았다.');
   assert.equal(text.format('준비 자료을(를) 제시'), '준비 자료를 제시');
+});
+
+test('presentation: personal circumstances and names never change raw records or five outcome types', () => {
+  const changed = JSON.parse(JSON.stringify(C));
+  changed.presentation.client.name = '표시 대체';
+  changed.presentation.victim.name = '피해자 표시 대체';
+  changed.presentation.victim.situation = '사정 대체';
+  changed.presentation.stakes = { convicted: '표시 A', cleared: '표시 B' };
+  for (const p of Object.values(changed.presentation.prosecutors)) p.name = '검사 표시 대체';
+  for (const w of Object.values(changed.presentation.witnesses)) w.name = '증인 표시 대체';
+  for (const [name, args] of Object.entries(PATHS)) {
+    const baseline = play(...args), relabeled = play(...args, changed);
+    assert.deepEqual(relabeled.v.records, baseline.v.records, name + ' session records');
+    assert.deepEqual(relabeled.v.trial.records, baseline.v.trial.records, name + ' trial records');
+    assert.deepEqual(relabeled.o, baseline.o, name + ' complete outcome');
+    assert.equal(relabeled.v.trial.definition.roles.prosecutor.name, '검사 표시 대체');
+    assert.deepEqual(relabeled.v.trial.definition.witnesses.map(w => w.id), [OBS, INV]);
+  }
+});
+
+test('procedure: opinions summon only disputed statement witnesses and record consent effects', () => {
+  for (const pid of ['novice','veteran']) for (const a of ['agree','disagree']) for (const b of ['agree','disagree']) {
+    const opinions = { PX_SIG_STATEMENT:a, PX_SIG_REPORT:b, PX_SIG_VIDEO:'agree', PX_SIG_MEDICAL:'agree' };
+    const {v}=play(pid,{ opinions });
+    assert.deepEqual(v.trial.records.filter(r=>r.kind==='witness_call').map(r=>r.witnessId), [a==='disagree'?OBS:null,b==='disagree'?INV:null].filter(Boolean));
+    assert.equal(v.trial.records.filter(r=>r.kind==='evidence_opinion').flatMap(r=>r.effects).reduce((n,[,delta])=>n+delta,0), Number(a==='agree')+Number(b==='agree'));
+    assert.equal(v.trial.records.filter(r=>r.kind==='sentencing_request').length,1);
+    for(const r of v.trial.records.filter(r=>r.kind==='evidence_opinion'&&r.opinion==='agree')) assert.equal(r.admittedContent,C.variants[pid].prosecutionExhibits.find(x=>x.id===r.refId).content);
+  }
+});
+test('procedure: document disputes lose credibility only; invalid/repeated opinions are atomic', () => {
+  const s=session();ok(s,'start',{caseId:C.id,prosecutorId:'novice'});tr(s,'finishPrep');tr(s,'open',{focusId:'F_SIG_CAUSE',stanceId:'S_SIG_CONTACT'});
+  unchanged(s,'trial',{action:'evidenceOpinions',payload:{opinions:{}}});
+  unchanged(s,'trial',{action:'closingArgument',payload:{id:'FINAL_SIG_CAUSE'}});
+  unchanged(s,'trial',{action:'verdict'});
+  const before=s.projection().trial.projection;
+  tr(s,'evidenceOpinions',{opinions:{PX_SIG_STATEMENT:'disagree',PX_SIG_REPORT:'disagree',PX_SIG_VIDEO:'disagree',PX_SIG_MEDICAL:'disagree'}});
+  const after=s.projection().trial.projection;
+  assert.equal(after.credibility,before.credibility-2);
+  assert.deepEqual(after.issues.map(x=>x.strength),before.issues.map(x=>x.strength));
+  unchanged(s,'trial',{action:'evidenceOpinions',payload:{opinions:{}}});
+});
+test('procedure: unfiled question spends time without effects, points or neutralization', () => {
+  const {v}=play('novice',{...PATHS.novice_acquittal[1],autoFile:false});
+  const r=v.trial.records.find(r=>r.kind==='approach'&&r.refId==='A_SIG_OBS_SEQUENCE');
+  assert.equal(r.blockedReason,'unfiled');assert.deepEqual(r.effects,[]);assert.deepEqual(r.points,[]);assert.deepEqual(r.neutralizes,[]);
+  assert.equal(v.trial.projection.witnesses.find(w=>w.id===OBS).used,3);
+  assert.ok(v.outcome.blocked.some(x=>x.recordId===r.id));
+});
+test('procedure: veteran prepares for early layout; late filing costs credibility; novice does not prepare', () => {
+  const plan=PATHS.veteran_dismissal[1];
+  const early=play('veteran',{...plan,earlyLayout:true}),late=play('veteran',plan),novice=play('novice',{...plan,earlyLayout:true});
+  assert.ok(play('veteran',{...plan,earlyLayout:true,refileLayout:true}).v.trial.records.some(r=>r.blockedReason==='prepared'));
+  assert.equal(play('novice',plan).v.trial.records.find(r=>r.kind==='evidence_filing'&&r.timing==='late').credibility,-1);
+  assert.equal(early.o.key,'injury');assert.equal(late.o.key,'dismissal');
+  assert.ok(early.v.trial.records.some(r=>r.blockedReason==='prepared'&&r.effects.length===0));
+  assert.ok(!novice.v.trial.records.some(r=>r.blockedReason==='prepared'));
+  assert.equal(late.v.trial.records.find(r=>r.kind==='evidence_filing'&&r.cardId==='CARD_SIG_LAYOUT'&&r.status==='filed').credibility,-1);
+  assert.equal(early.v.trial.records.find(r=>r.kind==='evidence_filing'&&r.cardId==='CARD_SIG_LAYOUT'&&r.status==='filed').credibility,0);
+});
+test('procedure: deferred filing finalizes at closure; closed changes and unknown filing fail atomically', () => {
+  const {s,v}=play('novice',{prep:['INV_SIG_SEQUENCE'],autoFile:false});
+  assert.ok(v.trial.records.some(r=>r.kind==='evidence_filing'&&r.automatic&&r.status==='withheld'));
+  unchanged(s,'trial',{action:'fileEvidence',payload:{id:'CARD_SIG_SEQUENCE',status:'filed'}});
+  const n=session();ok(n,'start',{caseId:C.id,prosecutorId:'novice'});tr(n,'investigate',{id:'INV_SIG_SEQUENCE'});
+  unchanged(n,'trial',{action:'fileEvidence',payload:{id:'BAD',status:'filed'}});
+  unchanged(n,'trial',{action:'fileEvidence',payload:{id:'CARD_SIG_SEQUENCE',status:'BAD'}});
+  tr(n,'fileEvidence',{id:'CARD_SIG_SEQUENCE',status:'withheld'});tr(n,'fileEvidence',{id:'CARD_SIG_SEQUENCE',status:'filed'});
+  assert.deepEqual(n.projection().trial.records.filter(r=>r.kind==='evidence_filing').map(r=>r.status),['deferred','withheld','filed']);
+});
+test('procedure: final speeches never affect adjudication, six client statements and deterministic records', () => {
+  for(const choice of C.procedure.closingChoices) {
+    const a=play('veteran',{...PATHS.veteran_dismissal[1],final:choice.id});
+    const b=play('veteran',{...PATHS.veteran_dismissal[1],final:choice.id});
+    assert.deepEqual(a.v.trial.records,b.v.trial.records);
+    const without=a.v.trial.records.filter(r=>!['closing_argument','last_statement'].includes(r.kind));
+    assert.deepEqual(T.adjudicate(C.variants.veteran,T.project(C.variants.veteran,without)),T.adjudicate(C.variants.veteran,a.v.trial.projection));
+    assert.equal(a.o.key,'dismissal');assert.ok(a.o.closingReview.includes(choice.title));
+  }
+  const lines=new Set();
+  for(const stance of C.variants.novice.opening.stance) for(const advice of [undefined,'ADV_SIG_REVISE']){
+    const {v}=play('novice',{stance:stance.id,advice});
+    const rec=v.trial.records.find(r=>r.kind==='last_statement');lines.add(rec.lines[0].text);
+    assert.deepEqual(rec.effects,[]);
+  }
+  assert.equal(lines.size,6);
+  for(const key of ['evidenceConsent','filing','request','finalOpinion','impeachment'])assert.equal(PACK.procedure[key].verified,'unverified');
+});
+
+test('procedure: unfiled rebuttal consumes recorded time; early preparation cannot be undone by withdrawal', () => {
+  const plan=PATHS.veteran_dismissal[1];
+  const {v}=play('veteran',{...plan,autoFile:false});
+  // A separate run preserves filed medical/video while leaving layout unfiled.
+  const s=session();ok(s,'start',{caseId:C.id,prosecutorId:'veteran'});
+  for(const id of plan.prep)tr(s,'investigate',{id});
+  for(const id of ['CARD_SIG_SEQUENCE','CARD_SIG_MEDICAL'])tr(s,'fileEvidence',{id,status:'filed'});
+  tr(s,'finishPrep');tr(s,'open',{focusId:plan.focus,stanceId:plan.stance});
+  tr(s,'evidenceOpinions',{opinions:{PX_SIG_STATEMENT:'disagree',PX_SIG_REPORT:'disagree',PX_SIG_VIDEO:'agree',PX_SIG_MEDICAL:'agree'}});
+  let q=[...plan.inv],guard=0;
+  while(guard++<100){
+    const t=s.projection().trial;
+    if(t.state.pending?.type==='rebuttal'){tr(s,'rebut',{use:true});break;}
+    if(t.state.pending){tr(s,'objection',{object:true});continue;}
+    if(t.actions.endCross){const id=t.witness.id===INV?q.shift():null;tr(s,id?(id.startsWith('P_')?'press':'approach'):'endCross',id?{id}:{});continue;}
+    tr(s,'continue');
+  }
+  const t=s.projection().trial,r=t.records.findLast(r=>r.kind==='rebuttal');
+  assert.equal(r.blockedReason,'unfiled');assert.equal(r.timeCost,1);assert.deepEqual(r.effects,[]);
+  assert.equal(t.projection.witnesses.find(w=>w.id===INV).used,T.project(C.variants.veteran,t.records).witnesses.find(w=>w.id===INV).used+1);
+  assert.ok(v.trial.records.some(r=>r.kind==='evidence_filing'&&r.automatic));
+});
+
+test('record access: four prosecution exhibits are initially readable, investigations grant only preparation cards', () => {
+  for (const pid of ['novice','veteran']) {
+    const s=session();const v=ok(s,'start',{caseId:C.id,prosecutorId:pid});
+    assert.equal(v.trial.exhibits.length,4);
+    assert.ok(v.trial.exhibits.every(x=>x.revealed && x.content));
+    assert.deepEqual(v.trial.projection.revealed,v.trial.exhibits.map(x=>x.id));
+    assert.ok(C.variants[pid].investigations.every(x=>!Object.hasOwn(x,'reveals')));
+    const after=tr(s,'investigate',{id:'INV_SIG_MEDICAL'});
+    assert.deepEqual(after.trial.exhibits,v.trial.exhibits);
+    assert.ok(after.trial.cards.some(c=>c.id==='CARD_SIG_MEDICAL'));
+  }
+  assert.equal(PACK.procedure.recordAccess.article,'형사소송법 제266조의3');
+  assert.equal(PACK.procedure.recordAccess.verified,'unverified');
 });
