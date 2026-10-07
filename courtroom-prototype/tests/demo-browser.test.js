@@ -1,5 +1,5 @@
 'use strict';
-// DEMO-001 — browser completion runs at 1440 and 390 width (localhost + file://): no horizontal overflow, no numeric odds, outcome + review shown.
+// DEMO-001 — browser completion runs at 1440 and 390 width (file://; SVG assets require image/svg+xml on HTTP hosts): no horizontal overflow, no numeric odds, outcome + review shown.
 const { chromium } = require('playwright');
 const assert = require('node:assert/strict');
 const fs = require('node:fs'), path = require('node:path'), { pathToFileURL } = require('node:url');
@@ -46,7 +46,7 @@ async function run() {
           Object.defineProperty(window, 'FirmDemoSession', { value: api, configurable: true });
         } });
       });
-      await page.goto(vpName === 'mobile' ? fileUrl : httpUrl);
+      await page.goto(fileUrl);
       const noOverflow = async label => check(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${tag}: no horizontal overflow at ${label}`);
       const noNumbers = async label => { const t = await page.textContent('#app'); check(!/\d+\s*%|승률|점수|확률/.test(t), `${tag}: no numeric odds at ${label}`); };
 
@@ -67,24 +67,25 @@ async function run() {
       if (pName === 'novice_acquittal') await page.screenshot({ animations: 'disabled',path:path.join(out, 'ui1-after-' + vpName + '-select.png'), fullPage:true});
       await page.click('[data-action=start]');
 
-      check((await page.textContent('#consultation')).includes('사무실 응접실'), 'location fallback label');
+      check((await page.textContent('#consultation')).includes('사무실 회의실'), 'location fallback label');
       check((await page.textContent('#consultation')).includes('정민호'), 'named client in consultation');
       check((await page.textContent('#caseTitle')).includes('작업실 정산 다툼 상해 사건 · 상대 ' + prosecutorName + ' 검사'), 'header omits repeated charge and prosecutor role');
-      check(await page.locator('.scene-photo, .scene-portrait img').count() === 0, 'empty art manifests use solid/initial fallback');
+      await page.waitForFunction(() => [...document.querySelectorAll('#consultation img')].every(i => i.complete && i.naturalWidth > 0));
+      check(await page.locator('.scene-photo, .scene-portrait img').count() === 2, 'location photo and default portrait loaded');
       check(await page.locator('.scene-portrait').textContent() === '정', 'surname initial fallback');
       check(await page.evaluate(() => {
         const dialog = document.querySelector('#consultation').getBoundingClientRect();
         const header = document.querySelector('.scene-layout header').getBoundingClientRect();
         const dock = document.querySelector('.scene-dock').getBoundingClientRect();
-        return header.top - dialog.top <= 30 && dock.top - header.bottom <= 16 && dialog.bottom - dock.bottom <= 30;
-      }), 'no-photo consultation has no empty stage above dialogue');
+        return header.top - dialog.top <= 30 && dock.top >= header.bottom && dialog.bottom - dock.bottom <= 30;
+      }), 'photo consultation docks dialogue at bottom');
       check(await page.evaluate(() => document.activeElement.dataset.scene === 'next'), 'continue button initially focused');
       const startRecord = await page.evaluate(() => window.demoSnapshot());
       await page.keyboard.press('Escape'); await page.mouse.click(1, 1);
       check(await page.isVisible('#consultation'), 'consultation cannot dismiss by Escape or backdrop');
       check(await page.locator('[data-scene=finish]').count() === 0, 'case file gated until dialogue completed');
       await noOverflow('consultation');
-      if (pName === 'novice_acquittal') await page.screenshot({ animations: 'disabled', path: path.join(out, 'ui1-after-' + vpName + '-consultation' + '.png') });
+      if (pName === 'novice_acquittal') await page.screenshot({ animations: 'disabled', path: path.join(out, 'art-' + vpName + '-consultation' + '.png') });
       if (pName === 'novice_acquittal') {
         const seenLines = [await page.textContent('.scene-speech')];
         for (let i = 0; i < 7; i++) {
@@ -199,13 +200,15 @@ async function run() {
         if (await page.$('[data-action=rebut]')) { await page.click(plan.rebut === false ? '[data-action=skipRebut]' : '[data-action=rebut]'); continue; }
         if (await page.$('[data-action=endCross]')) {
           sawCross++;
+          await page.waitForFunction(() => [...document.querySelectorAll('.face img')].length === 3 && [...document.querySelectorAll('.face img')].every(i => i.complete && i.naturalWidth > 0));
+          check(await page.locator('.face img').count() === 3, 'three court silhouettes load');
           const witnessLabel = await page.textContent('#bar .bar-head .label');
           const witnessName = witnessLabel.includes('서동국') ? '서동국' : '한지수';
           check((await page.textContent('.bench')).includes(witnessName) && (await page.textContent('.bench')).includes(prosecutorName), 'named witness and prosecutor on court');
           check(await page.locator('[data-side=W] .face').textContent() === witnessName[0], 'witness surname portrait');
           check(await page.locator('[data-side=PROSECUTOR] .face').textContent() === prosecutorName[0], 'prosecutor surname portrait');
           if (sawCross === 1) {
-            if (pName === 'novice_acquittal') await page.screenshot({ animations: 'disabled',path:path.join(out, 'ui1-after-' + vpName + '-cross.png'), fullPage:true});
+            if (pName === 'novice_acquittal') await page.screenshot({ animations: 'disabled',path:path.join(out, 'art-' + vpName + '-court.png'), fullPage:true});
             await panel('filePanel'); await noOverflow('cross materials');
             const usable = await page.locator('.card.usable').count();
             if (pName === 'novice_acquittal') check(usable === 2, 'currently available cards highlighted');
@@ -268,7 +271,7 @@ async function run() {
       await page.click('[data-action=start]');
       check(await page.isVisible('#consultation'), 'new game shows consultation again');
       check((await page.textContent('.scene-controls')).includes('1 / 8'), 'new consultation resets line');
-      check(await page.locator('.scene-portrait img').count() === 0, 'reserved pool does not assign portraits');
+      check(await page.locator('.scene-portrait img').getAttribute('src') === 'assets/portraits/default.svg', 'reserved pool does not override default portrait');
       if (pName === 'novice_acquittal') {
         await page.evaluate(() => {
           const image = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
@@ -278,7 +281,7 @@ async function run() {
         // The next speaker has no mapping: explicit ID lookup must not spill over.
         await page.keyboard.press('Enter');
         check(await page.locator('.scene-photo').count() === 1, 'optional location image used');
-        check(await page.locator('.scene-portrait img').count() === 0, 'unmapped speaker retains initial');
+        check(await page.locator('.scene-portrait img').getAttribute('src') === 'assets/portraits/default.svg', 'unmapped speaker uses default silhouette');
         await page.keyboard.press('Enter');
         check(await page.locator('.scene-portrait img').count() === 1, 'portrait selected by person ID');
         check(await page.locator('.scene-shade').evaluate(el => getComputedStyle(el).backgroundColor.includes('0.58')), 'location photo dark overlay');

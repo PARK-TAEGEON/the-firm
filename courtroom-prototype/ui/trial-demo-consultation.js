@@ -6,7 +6,7 @@ const esc = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<'
 let scene, index = 0, all = false;
 
 function portrait(person) {
-  const url = root.FirmDemoPortraits.byId[person.id];
+  const url = root.FirmDemoPortraits.byId[person.id] || root.FirmDemoPortraits.default;
   return '<span class="scene-portrait" aria-hidden="true"><span>' + esc(person.initial) + '</span>' +
     (url ? '<img src="' + esc(url) + '" alt="">' : '') + '</span>';
 }

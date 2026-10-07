@@ -127,12 +127,16 @@ function renderStage(view, newRecords) {
   const wid = t.witness ? t.witness.id : t.definition.witnesses[t.definition.witnesses.length - 1].id;
   const wdef = t.definition.witnesses.find(w => w.id === wid);
   const inVerdict = st.phase === 'verdict';
-  const who = (side, face, name, sub, extra) => '<div class="who ' + extra + (speaker === side || (side === 'W' && isWitness(t, speaker)) ? ' speaking' : '') + '" data-side="' + side + '"><div class="face" aria-hidden="true">' + esc(face) + '</div><div class="plate">' + esc(name) + '<span>' + esc(sub) + '</span></div></div>';
+  const portrait = (id, initial) => {
+    const url = window.FirmDemoPortraits.byId[id] || window.FirmDemoPortraits.default;
+    return '<span>' + esc(initial) + '</span>' + (url ? '<img src="' + esc(url) + '" alt="">' : '');
+  };
+  const who = (side, face, name, sub, extra, id) => '<div class="who ' + extra + (speaker === side || (side === 'W' && isWitness(t, speaker)) ? ' speaking' : '') + '" data-side="' + side + '"><div class="face" aria-hidden="true">' + portrait(id, face) + '</div><div class="plate">' + esc(name) + '<span>' + esc(sub) + '</span></div></div>';
   const r = t.definition.roles;
   const bench = '<div class="judge-line">' + (speaker === 'JUDGE' ? '▼ 재판장' : '재판장석') + '</div><div class="bench">' +
-    who('PROSECUTOR', r.prosecutor.initial, r.prosecutor.name, r.prosecutor.role, '') +
-    who('W', wdef.initial, wdef.name, wdef.role, 'witness' + (st.cursor && ['intro', 'closed'].includes(st.cursor.part) ? ' absent' : '')) +
-    who('DEFENSE', r.defense.initial, r.defense.name, '피고인 측', '') + '</div>';
+    who('PROSECUTOR', r.prosecutor.initial, r.prosecutor.name, r.prosecutor.role, '', r.prosecutor.id) +
+    who('W', wdef.initial, wdef.name, wdef.role, 'witness' + (st.cursor && ['intro', 'closed'].includes(st.cursor.part) ? ' absent' : ''), wdef.id) +
+    who('DEFENSE', r.defense.initial, r.defense.name, '피고인 측', '', r.defense.id) + '</div>';
   const dlg = '<div class="dialogue">' + shown.map((l, i) => '<div class="say ' + (isWitness(t, l.speaker) ? 'W' : esc(l.speaker)) + '" style="animation-delay:' + (i * 0.35) + 's"><div class="spk">' + esc(nm[l.speaker] || l.speaker) + '</div><div class="txt">' + esc(l.text) + '</div></div>').join('') + '</div>';
   const history = [...linesOf(view.records), ...linesOf(all)];
   const tr = disclosure('history', '이전 기록 · 공판 조서 (' + history.length + ')', '<ol>' + history.map(l => '<li><b>' + esc(nm[l.speaker] || l.speaker) + '</b>' + esc(l.text) + '</li>').join('') + '</ol>', 'transcript');
@@ -243,6 +247,10 @@ function render(action) {
   renderTop(view); renderFile(view, freshCards); renderMemo(view, freshIds); renderStage(view, newRecords); renderBar(view);
   document.querySelectorAll('details[data-disclosure]').forEach(d => { d.open = !!expanded.get(d.dataset.disclosure); });
   renderTabs(view);
+  document.querySelectorAll('.face img').forEach(img => {
+    img.addEventListener('error', () => img.remove(), { once: true });
+    if (img.complete && !img.naturalWidth) img.remove();
+  });
   seen = records.length;
   updateSpeech();
   const phaseChanged = ['start', 'finishPrep', 'open', 'verdict', 'reset'].includes(action);

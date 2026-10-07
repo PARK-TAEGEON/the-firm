@@ -1,3 +1,26 @@
+# DEMO-001 장소 사진·기본 초상 Review Packet (2026-10-07)
+
+목적: 기존 사진/실루엣 연결, 정상/실패 대체 표시 검증. 표시만 변경.
+변경 파일:
+- data/demo-locations.js: 회의실 라벨/상대 사진 URL.
+- data/demo-portraits.js: default URL.
+- ui/trial-demo-consultation.js: byId 없으면 default.
+- ui/trial-demo-app.js: 법정 ID별 초상과 로드 실패 initial.
+- ui/trial-demo.css: 원형 cover, 상담 초상 크기.
+- tests/demo-browser.test.js: 실제 에셋/스냅샷, file:// 검증.
+- tests/demo-art-browser.test.js: 이미지 실패/없음/복구/byId/테두리/원형/크기/넘침 24 checks.
+- demo/REPORT.md, RULES.md §13, REVIEW_PACKET.md, test-results.log.
+
+커밋 후보에 assets/ 전체(사진·실루엣·CREDITS)를 포함해야 한다. 현재 미추적 에셋 SHA-256 작업 전후 동일, 수정/커밋/stage 없음.
+새 invariant: byId → default, 실패 → initial; optional art는 판정/기록에 영향 없음.
+명령/결과: node --test tests/demo.test.js 22, node tests/demo-browser.test.js 1647, node tests/demo-art-browser.test.js 24, npm test 247, node tests/browser-trial.test.js 217. 합계 2157 tests/checks / 0 failures / 모든 exit 0.
+git diff --check·diff 검토 완료. engine/trial.js/services/trial.js/trial.html/demo-outcome 무변경.
+Fixture: byId 테스트 GIF/사진. 실제 사용자 에셋은 원본 유지.
+제한: serve.js의 SVG MIME 미지원으로 데모는 file:// 검증. HTTP 호스트는 image/svg+xml 설정 필요. 서버 수정은 범위 밖이라 미실시.
+단일 HTML 묶기는 리뷰어 담당, 사람 플레이테스트·독립 리뷰 미실시. 추가 게임 규칙·범위 밖 변경·다음 단계 작업 없음.
+
+---
+
 # DEMO-001 UI 다듬기 1차 Review Packet (2026-10-07)
 
 목적: 상담 진행을 명시하고 준비/반대신문 화면 정보를 줄인다. 표시만 변경.

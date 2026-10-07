@@ -1,3 +1,51 @@
+# DEMO-001 장소 사진·기본 초상 — 자체 점검 (2026-10-07)
+
+UI 다듬기 1차 위 표시 변경. 판정·기록·수치·기존 결과 기대값 불변. 커밋·stage·push 없음.
+
+## 완료 기준
+
+- office_lounge: “사무실 응접실” → “사무실 회의실”, image는 assets/locations/office_lounge.jpg.
+- 초상: byId 우선 → 없으면 assets/portraits/default.svg → 선택한 이미지 로드 실패 시 기존 성/역할 initial. pool은 읽지 않는다.
+- 상담: 초상 데스크톱 96×112, 모바일 56×66. 대사 크기와 계속 버튼 위치 유지.
+- 법정: 검사·증인·변호인 ID로 초상을 조회한다. 원형 안에 object-fit:cover, overflow:hidden. 파랑/주황/금색 테두리 유지.
+- 사진: 기존 .58 오버레이와 고정 높이·하단 대화창 유지. 사진 경로 없음/로드 실패는 라벨·그라데이션·내용 높이 대체 화면.
+- 모든 경로는 demo.html 기준 상대경로. assets 3개 SHA-256을 작업 전후 비교하여 byte-identical 확인. 기존 에셋 수정 없음.
+- 390px 가로 넘침 없음. 사진 위 장소/제목, 대화창 글자 대비를 실제 스크린샷으로 확인.
+
+## 스크린샷
+
+| 화면 | 데스크톱 | 모바일 |
+| --- | --- | --- |
+| 첫 상담 | [사진+초상](../tests/artifacts/art-desktop-consultation.png) | [사진+초상](../tests/artifacts/art-mobile-consultation.png) |
+| 법정 | [원형 초상 3명](../tests/artifacts/art-desktop-court.png) | [원형 초상 3명](../tests/artifacts/art-mobile-court.png) |
+
+기존 tests/artifacts/ ignore 정책 유지. 스크린샷은 로컬에 보존, 강제 stage 없음.
+
+## 검증
+
+| 명령 | tests/checks | failures | exit |
+| --- | ---: | ---: | ---: |
+| node --test tests/demo.test.js | 22 | 0 | 0 |
+| node tests/demo-browser.test.js | 1647 | 0 | 0 |
+| node tests/demo-art-browser.test.js | 24 | 0 | 0 |
+| npm test | 247 | 0 | 0 |
+| node tests/browser-trial.test.js | 217 | 0 | 0 |
+| 합계 | 2157 | 0 | 0 |
+
+데모 브라우저 14회 완주(1440/390 file://). 별도 art 테스트는 실제 없는 파일 URL로 이미지 실패를 유발하고 정상 에셋으로 복구, byId 우선/원형/테두리/초상 크기/오버레이/축소 대체/넘침을 검사한다.
+기존 결과 5종과 이름 변경 시 raw 기록/판정 동일 검증을 그대로 유지했다. git diff --check 통과. engine/trial.js·services/trial.js·trial.html·demo-outcome 무변경.
+
+## 환경 제한·인계
+
+첫 HTTP 실행은 SVG 로드 실패: 기존 serve.js가 SVG를 application/octet-stream으로 전송한다. 허용 범위 밖 서버는 수정하지 않았다. 이번 에셋 포함 데모 테스트는 실제 파일 직접 열기 방식으로 실행했다. HTTP 배포 시 SVG에 image/svg+xml을 보내는 정적 서버가 필요하다. v0.10 HTTP 회귀는 기존 방식 그대로 통과.
+단일 HTML 묶기는 요청대로 리뷰어 작업이며 이번에 생성하지 않았다.
+**사람이 커밋할 대상에 assets/ 폴더 전체(office_lounge.jpg, default.svg, CREDITS.md)를 포함한다.** 에셋은 현재 untracked이며 수정·stage하지 않았다.
+규칙은 RULES.md §13의 표시 규칙만. 실제 인물 자동 배정/사진 생성/판정 입력 추가 없음. byId 테스트의 GIF/사진 매핑만 fixture.
+사람 플레이테스트·독립 리뷰 미실시. 판단할 질문: 사진 밝기와 실루엣 크기가 대사를 읽는 데 적절한가?
+범위 밖 수정·다음 단계 작업 없음.
+
+---
+
 # DEMO-001 UI 다듬기 1차 — 자체 점검 (2026-10-07)
 
 화면 표시만 수정. 판정·원본 기록·수치·기존 결과 기대값 불변. 커밋·stage·push 없음.

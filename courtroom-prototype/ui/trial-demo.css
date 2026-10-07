@@ -155,3 +155,11 @@ summary:focus-visible, button:focus-visible { outline: 2px solid var(--brass-2);
 .app.cross-exam .chip { font-size:12px; }
 .app.cross-exam .press { font-size:15px; }
 .app.cross-exam .press em { font-size:12px; }
+
+/* Optional portraits: retain initial underneath as the load-error fallback. */
+.face { position:relative; overflow:hidden; }
+.face img { position:absolute; width:100%; height:100%; object-fit:cover; }
+.scene-portrait { width:96px; height:112px; flex-basis:96px; }
+@media (max-width:900px) {
+  .scene-portrait { width:56px; height:66px; flex-basis:56px; }
+}
