@@ -36,7 +36,7 @@ const { pathToFileURL } = require('node:url');
       await page.waitForFunction(() => !document.querySelector('.scene-portrait img'));
       check(await page.locator('.scene-portrait').textContent() === '정', 'client surname on load failure');
       check(!(await page.locator('#consultation').evaluate(e=>e.classList.contains('has-photo'))), 'unset photo stays compact');
-      await page.click('[data-scene=all]'); await page.click('[data-scene=finish]');
+      await page.click('[data-scene=all]'); await page.click('[data-scene=finish]'); await page.click('[data-action=closeReader]');
       await page.click('[data-action=finishPrep]');
       await page.click('label:has(input[value=F_SIG_ACT])');
       await page.click('label:has(input[value=S_SIG_RESERVE])');

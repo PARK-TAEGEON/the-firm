@@ -3,7 +3,7 @@
 /* start screen: one column, no side panels */
 .app.select .grid { grid-template-columns: minmax(0, 1fr); }
 .app.select .file, .app.select .memo { display: none; }
-.files { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; margin-bottom: 26px; }
+.files { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; margin-bottom: 26px; }
 .files .daily-list { display: grid; gap: 12px; align-content: start; }
 .file-card { text-align: left; background: var(--panel); border: 1px solid var(--line-2); border-radius: var(--radius); padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .file-card .kicker { font-size: 12px; letter-spacing: .1em; color: var(--brass); }
@@ -165,3 +165,14 @@ summary:focus-visible, button:focus-visible { outline: 2px solid var(--brass-2);
 }
 
 .evidence-opinion {border:1px solid var(--line-2);border-radius:8px;padding:14px;margin:12px 0;min-width:0}.evidence-opinion label{display:inline-block;padding:10px}.final-choice{display:block;width:100%;text-align:left;margin:12px 0}.filing-options{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Display-only fictional profiles. */
+.prosecutor-choice { min-width:0; display:grid; gap:6px; align-content:start; } .prosecutor-choice .choice { display:block; } .prosecutor-choice .choice > span { height:auto; } .prosecutor-choice > button { justify-self:start; }
+.profile-heading { display:flex; gap:18px; align-items:center; min-width:0; }
+.profile-heading > div { min-width:0; } .profile-heading p { margin:6px 0; }
+.profile-portrait { width:80px; height:96px; object-fit:cover; flex:none; }
+.profile-stars { display:flex; color:#68717d; font-size:24px; }
+.profile-star { position:relative; } .profile-star i { position:absolute; top:0; left:0; overflow:hidden; font-style:normal; color:var(--brass); }
+.profile-timeline { padding-left:24px; border-left:1px solid var(--line-2); }
+.profile-timeline p { margin-top:4px; } button.face { cursor:pointer; padding:0; }
+@media(max-width:600px) { .profile-heading { gap:12px; } .profile-portrait { width:56px; height:66px; } }

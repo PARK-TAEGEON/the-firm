@@ -10,7 +10,7 @@ const {createServer}=require('../serve');
    const page=await browser.newPage({viewport:{width,height:900}});page.setDefaultTimeout(4000);
    const url=transport==='http'?'http://127.0.0.1:'+server.address().port+'/demo.html':pathToFileURL(path.resolve(__dirname,'../demo.html')).href;
    for(const mode of ['filed','withheld','deferred','escape','outside']){
-    await page.goto(url);await page.click('[data-action=start]');await page.click('[data-scene=all]');await page.click('[data-scene=finish]');
+    await page.goto(url);await page.click('[data-action=start]');await page.click('[data-scene=all]');await page.click('[data-scene=finish]'); await page.click('[data-action=closeReader]');
     await page.click('[data-action=investigate][data-id=INV_SIG_SEQUENCE]');
     check(await page.locator('#reader [data-action=fileEvidence]').count()===3,'three result choices');
     check(await page.locator('#reader [data-action=closeReader]').count()===0,'no separate close button');

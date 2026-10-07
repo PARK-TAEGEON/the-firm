@@ -51,21 +51,18 @@ async function run() {
       const noOverflow = async label => check(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${tag}: no horizontal overflow at ${label}`);
       const noNumbers = async label => { const t = await page.textContent('#app'); check(!/\d+\s*%|승률|점수|확률/.test(t), `${tag}: no numeric odds at ${label}`); };
 
-      // start screen: signature + daily files, prosecutor choice
+      // Start screen: one criminal case and prosecutor choice; GEN daily data is not loaded.
       check(await page.isVisible('text=사건 파일'), 'start screen');
-      check((await page.$$('.file-card.daily')).length === 2, 'two daily summaries');
+      check(await page.locator('.file-card.signature').count() === 1, 'one criminal case');
+      check(await page.locator('.file-card.daily, .daily-open, .daily-list').count() === 0, 'daily cases absent');
+      check(await page.evaluate(() => !window.FirmDemoDailyCases && !document.querySelector('script[src="data/demo-daily-cases.js"]')), 'daily data not loaded');
+      check(await page.locator('[data-action=start]').textContent() === '사건 시작', 'concise start label');
       check(await page.isChecked('input[value=novice]') && !(await page.isDisabled('[data-action=start]')), 'novice selected by default');
-      await page.click('.file-card.daily >> nth=0');
-      check((await page.textContent('.daily-open')).includes('전망'), 'daily summary shows forecast in words');
-      await noOverflow('daily');
-      check((await page.textContent('.file-card.daily >> nth=0')).includes('닫기'), 'daily toggle label');
-      await page.click('.file-card.daily >> nth=0');
-      check(!(await page.$('.daily-open')), 'same daily button closes summary');
       check((await page.textContent('#stage')).includes('노련한 공판검사 = 어려움 모드, 첫 판은 신참 권장'), 'difficulty guidance');
       check((await page.textContent(`label:has(input[value=${plan.prosecutor}])`)).includes(prosecutorName), 'named prosecutor choice');
       await page.click(`label:has(input[value=${plan.prosecutor}])`);
       await noOverflow('start');
-      if (pName === 'novice_acquittal') await page.screenshot({ animations: 'disabled',path:path.join(out, 'ui1-after-' + vpName + '-select.png'), fullPage:true});
+      if (pName === 'novice_acquittal') await page.screenshot({ animations: 'disabled',path:path.join(out, 'firstflow-' + transport + '-' + vpName + '-start.png'), fullPage:true});
       await page.click('[data-action=start]');
 
       check((await page.textContent('#consultation')).includes('사무실 회의실'), 'location fallback label');
@@ -107,10 +104,20 @@ async function run() {
       check(await page.locator('.scene-tasks li').count() === 2, 'two final tasks');
       await noOverflow('consultation final');
       await page.click('[data-scene=finish]');
-      check(await page.evaluate(() => document.activeElement.id === 'phaseTitle'), 'consultation closes to phase title focus');
-      check(!(await page.$('dialog[open]')), 'consultation enters case file');
+      await page.waitForSelector('#reader[open]');
+      check(!(await page.isVisible('#consultation')) && await page.locator('#readerTitle').textContent() === '사건 메모', 'consultation opens automatic memo');
+      check(await page.locator('[data-action=closeReader]').textContent() === '준비 시작', 'first memo starts preparation');
+      check(await page.evaluate(() => document.activeElement.id === 'readerTitle'), 'automatic memo focused');
+      await noOverflow('automatic memo');
+      if (pName === 'novice_acquittal') await page.screenshot({animations:'disabled',path:path.join(out,'firstflow-'+transport+'-'+vpName+'-memo.png'),fullPage:true});
+      if (pName === 'veteran_dismissal') await page.keyboard.press('Escape');
+      else if (pName === 'veteran_injury') await page.mouse.click(1, 1);
+      else await page.click('[data-action=closeReader]');
+      await page.waitForFunction(() => document.activeElement.id === 'phaseTitle');
+      check(!(await page.$('dialog[open]')) && await page.locator('#phaseTitle').textContent() === '공판 준비', 'memo dismissal enters preparation with focus');
       check(await page.evaluate(() => window.demoSnapshot()) === startRecord, 'consultation does not mutate records');
       await page.click('[data-action=memo]');
+      check(await page.locator('[data-action=closeReader]').textContent() === '사건 메모 닫기', 'reopened memo close label');
       check((await page.textContent('#reader')).includes('정민호 · 38세'), 'named reference memo retained');
       check((await page.textContent('#reader')).includes('무죄만이 좋은 결과는 아닙니다.'), 'memo reference content retained');
       await page.keyboard.press('Escape');
@@ -285,14 +292,14 @@ async function run() {
       await page.locator('[data-disclosure=review] > summary').click();
       await page.locator('[data-disclosure=outcome-reasons] > summary').click();
       const review = await page.textContent('.review');
-      check(['당신이 뚫은 것', '상대가 막은 것', '역효과', '놓친 준비', '통과시킨 이의'].every(x => review.includes(x)), `${tag}: review sections`);
+      check(JSON.stringify(await page.locator('.review h3').allTextContents()) === JSON.stringify(['유효 신문·이의', '검사 측 보완', '실수', '놓친 이의', '놓친 준비']), `${tag}: exact review labels and order`);
       check((await page.textContent('.next')).length > 20, `${tag}: next-try line`);
       const sentence = await page.$('.sentence');
       check(!!sentence === plan.sentence, `${tag}: sentence shown only on conviction`);
       if (plan.sentence) check((await sentence.textContent()).includes('실험용 단순화 — 실제 양형기준 아님'), `${tag}: sentencing disclaimer`);
       if (pName === 'veteran_injury') check((await page.textContent('.why')).includes('다툼 있음'), `${tag}: shaken-band conviction explained`);
       check((await page.textContent('.pronouncement')).includes('주문.'), 'judge reads order');
-      check((await page.textContent('.outcome .kicker')).includes('선고 · 상대:'), 'prosecutor is opponent');
+      check((await page.textContent('.outcome .kicker')) === '선고', 'verdict kicker only announces sentencing');
       if (pName === 'novice_acquittal' || pName === 'veteran_dismissal') check((await page.textContent('.miss')).includes('놓친 준비 없음'), 'successful outcome has no irrelevant missed preparation');
       if (pName === 'veteran_passed') check((await page.textContent('.passed')).includes('목격자에게 보지 않은 낙상'), 'passed objection explains injury outcome');
       if (pName === 'novice_reinterview') check(!review.includes('다시 만났다면') && review.includes('의뢰인의 밀침 인정과 다른'), 'reinterview is acknowledged');
@@ -305,6 +312,7 @@ async function run() {
       await noOverflow('outcome'); await noNumbers('outcome');
       await page.screenshot({ animations: 'disabled', path: path.join(out, `demo-${vpName}-${pName}.png`), fullPage: true });
 
+      if (pName === 'novice_acquittal') await page.screenshot({animations:'disabled',path:path.join(out,'firstflow-'+transport+'-'+vpName+'-review.png'),fullPage:true});
       await page.click('[data-action=reset]');
       check(await page.isVisible('text=사건 파일'), 'reset returns to case files');
       check(await page.isChecked('input[value=novice]'), 'new selection defaults to novice');
@@ -327,7 +335,7 @@ async function run() {
         check(await page.locator('.scene-portrait img').count() === 1, 'portrait selected by person ID');
         check(await page.locator('.scene-shade').evaluate(el => getComputedStyle(el).backgroundColor.includes('0.58')), 'location photo dark overlay');
       }
-      await page.click('[data-scene=all]'); await page.click('[data-scene=finish]');
+      await page.click('[data-scene=all]'); await page.click('[data-scene=finish]'); await page.click('[data-action=closeReader]');
       await page.click('[data-action=investigate][data-id=' + plan.prep[0] + ']');
       await page.keyboard.press('Escape');
       check(await page.locator('details[open]').count() === 0, 'new game resets all disclosure states');

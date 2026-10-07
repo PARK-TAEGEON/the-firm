@@ -7,7 +7,7 @@ const { chromium }=require('playwright'), assert=require('node:assert/strict'), 
    const page=await b.newPage({viewport:{width,height:900}});page.setDefaultTimeout(4000);
    const errors=[];page.on('pageerror',e=>errors.push(e.message));
    await page.goto(pathToFileURL(path.resolve(__dirname,'../demo.html')).href);
-   await page.click('[data-action=start]');await page.click('[data-scene=all]');await page.click('[data-scene=finish]');
+   await page.click('[data-action=start]');await page.click('[data-scene=all]');await page.click('[data-scene=finish]'); await page.click('[data-action=closeReader]');
    await page.click('[data-action=finishPrep]');await page.click('label:has(input[value=F_SIG_CAUSE])');await page.click('label:has(input[value=S_SIG_CONTACT])');await page.click('[data-action=open]');
    check(await page.locator('.evidence-opinion').count()===4,'four exhibits');
    check(!(await page.textContent('#stage')).includes('열람하지 않은 증거입니다'),'no unread warning');

@@ -1,9 +1,8 @@
-DEMO-001 절차 라운드 정리 — 2026-10-07
+DEMO-001 인물 프로필 + 선고 — 2026-10-07
 CWD courtroom-prototype/
 Node v24.19.0; bundled Chromium
 NODE_PATH=C:/Users/Admin/AppData/Local/Temp/claude/C--Users-Admin-orca-workspaces-The-Firm-task-demo-001/7c2a23b6-efca-4556-94ef-6e49e1e64e7d/scratchpad/node_modules
 PW_CHANNEL=none-bundled
-Demo: HTTP + file://, both 1440 and 390 widths, 28 completion paths.
 
 node --test tests/demo.test.js
 ℹ tests 30
@@ -13,11 +12,26 @@ node --test tests/demo.test.js
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 73718.057
+ℹ duration_ms 69923.6511
+exit 0
+
+node --test tests/demo-profiles.test.js
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 100.1062
 exit 0
 
 node tests/demo-browser.test.js
-Demo browser: 3828 checks, 0 failures, exit 0
+Demo browser: 3912 checks, 0 failures, exit 0
+exit 0
+
+node tests/demo-profiles-browser.test.js
+Demo profiles browser: 188 checks, 0 failures, exit 0
 exit 0
 
 node tests/demo-cleanup-browser.test.js
@@ -40,17 +54,14 @@ npm test
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 1064.4686
+ℹ duration_ms 826.6719
 exit 0
 
 node tests/browser-trial.test.js
 Trial browser: 217 checks, 0 failures, exit 0
 exit 0
 
-TOTAL: 4514 tests/checks, failures 0, all exit codes 0
-Initial exhibit content always available; investigations grant preparation cards only. Article/verified remain in pack, no pre-verdict metadata UI.
-Three investigation choices close immediately; Escape/outside preserve deferred. Queued close event does not steal subsequent keyboard focus.
-HTTP SVG Content-Type image/svg+xml confirmed. Original outcome expectations unchanged.
-Initial card keyboard check failed once; guarded asynchronous close focus restoration, added same-tick focus regression, final full browser rerun passed.
-Screenshots tests/artifacts/cleanup-{http,file}-*.png. git diff --check exit 0. Forbidden engine/service/trial.html/assets untouched. No agent commit/stage/push.
-Raw run logs already tracked by an external commit during this turn; retained without deleting.
+Total 4789 tests/checks; failures 0; all final exits 0.
+Existing outcome expectations and forbidden files unchanged.
+Profile screenshots: tests/artifacts/profile-{1440,390}-{novice,veteran,JUDGE}.png
+git diff --check passed. No commit/stage/push.

@@ -3,7 +3,7 @@
 // Local presentation state only. No service commands or trial records.
 const dialog = document.querySelector('#consultation');
 const esc = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-let scene, index = 0, all = false;
+let scene, index = 0, all = false, onFinish = null;
 
 function portrait(person) {
   const url = root.FirmDemoPortraits.byId[person.id] || root.FirmDemoPortraits.default;
@@ -46,9 +46,13 @@ dialog.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.target.closest('button')) { e.preventDefault(); next(); }
 });
 dialog.addEventListener('cancel', e => e.preventDefault());
-dialog.addEventListener('close', () => document.querySelector('#phaseTitle').focus({ preventScroll: true }));
-root.FirmDemoConsultation = { open(data) {
-  scene = data; index = 0; all = false; render(false); dialog.showModal();
+dialog.addEventListener('close', () => {
+  const finish = onFinish; onFinish = null;
+  if (finish) finish();
+  else document.querySelector('#phaseTitle').focus({ preventScroll: true });
+});
+root.FirmDemoConsultation = { open(data, finish) {
+  onFinish = finish; scene = data; index = 0; all = false; render(false); dialog.showModal();
   dialog.querySelector('[data-scene=next]').focus();
 } };
 })(window);

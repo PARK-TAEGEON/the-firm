@@ -1,16 +1,21 @@
 (function () {
 'use strict';
 // DEMO-001 UI. Presentation only: every state change goes through session.command. No scores, no verdict logic here.
-const session = window.FirmDemoSession.createDemoSession({ cases: [window.FirmDemoCase], daily: window.FirmDemoDailyCases, pack: window.FirmDemoKoPack });
+const session = window.FirmDemoSession.createDemoSession({ cases: [window.FirmDemoCase], daily: [], pack: window.FirmDemoKoPack });
+let profileStorage;
+try { profileStorage = window.localStorage; } catch (_) { /* Optional persistence. */ }
+const profileHistory = window.FirmDemoProfileHistory.createHistory(profileStorage);
+const profile = id => window.FirmDemoProfiles.find(p => p.id === id);
+const judgeName = () => '재판장 ' + profile('JUDGE').name;
 const $ = s => document.querySelector(s);
 const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 let expanded = new Map(), mobilePanel = 'courtPanel', dialogReturn = null;
 const disclosure = (key, title, body, cls = '') => '<details class="' + cls + '" data-disclosure="' + esc(key) + '"><summary>' + esc(title) + '</summary>' + body + '</details>';
 let seen = 0, lastError = '';
-let draft = { caseId: null, prosecutorId: 'novice', dailyId: null, focusId: null, stanceId: null, consultOpen: false, opinions: {} };
+let draft = { caseId: null, prosecutorId: 'novice', focusId: null, stanceId: null, consultOpen: false, opinions: {} };
 
 function names(t, presentation) {
-  const r = t.definition.roles, m = { JUDGE: r.judge.name, PROSECUTOR: r.prosecutor.name + ' · ' + r.prosecutor.role, DEFENSE: r.defense.name, CLIENT: presentation.client.name, VICTIM: presentation.victim.name + ' · 피해자' };
+  const r = t.definition.roles, m = { JUDGE: judgeName(), PROSECUTOR: r.prosecutor.name + ' · ' + r.prosecutor.role, DEFENSE: r.defense.name, CLIENT: presentation.client.name, VICTIM: presentation.victim.name + ' · 피해자' };
   t.definition.witnesses.forEach(w => { m[w.id] = w.name + ' · ' + w.role; });
   return m;
 }
@@ -20,12 +25,15 @@ function run(action, payload) {
   const before = session.projection().trial ? session.projection().trial.records.length : 0;
   const res = session.command(action, payload);
   lastError = res.ok ? '' : res.error;
+  if (res.ok && action === 'trial' && payload.action === 'verdict' && res.view.outcome) {
+    profileHistory.record(res.view.state.session, [res.view.state.prosecutorId, 'JUDGE'], res.view.outcome.key);
+  }
   if (res.ok && action === 'reset') draft.prosecutorId = 'novice';
-  if (res.ok && (action === 'reset' || action === 'start')) { expanded.clear(); mobilePanel = 'courtPanel'; seen = 0; draft = Object.assign(draft, { focusId: null, stanceId: null, consultOpen: false, opinions: {}, dailyId: null }); }
+  if (res.ok && (action === 'reset' || action === 'start')) { expanded.clear(); mobilePanel = 'courtPanel'; seen = 0; draft = Object.assign(draft, { focusId: null, stanceId: null, consultOpen: false, opinions: {} }); }
   else seen = res.ok ? before : seen;
   render(res.ok ? (action === 'trial' ? payload.action : action) : null);
   if (res.ok && action === 'trial' && payload.action === 'investigate') openInvestigation(payload.payload.id);
-  if (res.ok && action === 'start') window.FirmDemoConsultation.open(res.view.presentation.consultation);
+  if (res.ok && action === 'start') window.FirmDemoConsultation.open(res.view.presentation.consultation, () => openMemo(true));
 }
 const trial = (action, payload) => run('trial', { action, payload });
 
@@ -77,7 +85,7 @@ function renderFile(view, freshCards) {
     '<section><h2 class="section">내 준비 자료</h2>' + cards + '</section>' +
     '<section><h2 class="section">검찰 증거목록</h2>' + ex + '</section>' +
     '<section><h2 class="section">' + esc(view.presentation.client.name) + ' · ' + view.presentation.client.age + '세</h2>' + client + '</section>' + settle +
-    '<section><h2 class="section">상대</h2><p class="opp"><b>' + esc(view.prosecutor.label) + '</b><br>' + esc(view.prosecutor.sub) + '</p></section>';
+    '<section><h2 class="section">상대</h2><p class="opp"><button class="btn quiet" data-action="profile" data-id="' + esc(view.state.prosecutorId) + '">' + esc(view.prosecutor.label) + '</button><br>' + esc(view.prosecutor.sub) + '</p></section>';
 }
 
 // ---------- right: judge memo ----------
@@ -96,16 +104,13 @@ function renderMemo(view, freshIds) {
 
 // ---------- center ----------
 function renderSelect(view) {
-  const sig = view.files.filter(f => f.kind === 'signature'), daily = view.files.filter(f => f.kind === 'daily');
+  const sig = view.files.filter(f => f.kind === 'signature');
   if (!draft.caseId && sig.length) draft.caseId = sig[0].id;
   const c = sig.find(x => x.id === draft.caseId);
-  const open = daily.find(x => x.id === draft.dailyId);
   const sigCards = sig.map(f => '<div class="file-card signature"><span class="kicker">' + esc(f.file.kicker) + ' · ' + esc(f.charge) + '</span><b>' + esc(f.title) + '</b><p>' + esc(f.file.summary) + '</p></div>').join('');
-  const dailyCards = daily.map(f => '<button class="file-card daily" data-action="daily" data-id="' + esc(f.id) + '" aria-expanded="' + (draft.dailyId === f.id) + '"><span class="kicker">일상 사건 · ' + esc(f.area) + '</span><b>' + esc(f.title) + '</b><p>' + (draft.dailyId === f.id ? '닫기' : '요약 보기') + '</p></button>').join('');
-  const dailyOpen = open ? '<div class="daily-open" role="region" aria-label="일상 사건 요약"><h3>' + esc(open.title) + '</h3><p>' + esc(open.summary) + '</p><p>전망 <span class="forecast">' + esc(open.forecast) + '</span> — ' + esc(open.forecastWhy) + '</p><p class="note">일상 사건은 담당자가 자동으로 처리합니다. 이 데모에서는 요약만 보여 줍니다.</p><button class="btn quiet" data-action="daily" data-id="">닫기</button></div>' : '';
-  const pros = c.prosecutors.map(x => '<label class="choice"><input type="radio" name="prosecutor" value="' + esc(x.id) + '"' + (draft.prosecutorId === x.id ? ' checked' : '') + '><span>' + esc(x.label) + '<small>' + esc(x.sub) + '</small></span></label>').join('');
-  $('#stage').innerHTML = '<div class="desk"><h1 id="phaseTitle" tabindex="-1">사건 파일</h1><p class="lead">이번 주 책상 위의 사건입니다. 대표 사건은 직접 변론합니다.</p>' +
-    '<div class="files">' + sigCards + '<div class="daily-list">' + dailyCards + '</div></div>' + dailyOpen +
+  const pros = c.prosecutors.map(x => '<div class="prosecutor-choice"><label class="choice"><input type="radio" name="prosecutor" value="' + esc(x.id) + '"' + (draft.prosecutorId === x.id ? ' checked' : '') + '><span>' + esc(x.label) + '<small>' + esc(x.sub) + '</small></span></label><button class="btn quiet" data-action="profile" data-id="' + esc(x.id) + '" aria-label="' + esc(profile(x.id).name) + ' 프로필">프로필</button></div>').join('');
+  $('#stage').innerHTML = '<div class="desk"><h1 id="phaseTitle" tabindex="-1">사건 파일</h1><p class="lead">맡을 형사 사건과 상대 검사를 확인하세요.</p>' +
+    '<div class="files">' + sigCards + '</div>' +
     '<fieldset class="choice-group" style="border:0;padding:0;margin:0 0 8px"><legend><h3>상대 검사</h3></legend><div class="choices" style="grid-template-columns:repeat(2,1fr)">' + pros + '</div></fieldset>' +
     '<p class="note">' + esc(c.prosecutorNote) + '</p></div>';
 }
@@ -133,9 +138,9 @@ function renderStage(view, newRecords) {
     const url = window.FirmDemoPortraits.byId[id] || window.FirmDemoPortraits.default;
     return '<span>' + esc(initial) + '</span>' + (url ? '<img src="' + esc(url) + '" alt="">' : '');
   };
-  const who = (side, face, name, sub, extra, id) => '<div class="who ' + extra + (speaker === side || (side === 'W' && isWitness(t, speaker)) ? ' speaking' : '') + '" data-side="' + side + '"><div class="face" aria-hidden="true">' + portrait(id, face) + '</div><div class="plate">' + esc(name) + '<span>' + esc(sub) + '</span></div></div>';
+  const who = (side, face, name, sub, extra, id) => '<div class="who ' + extra + (speaker === side || (side === 'W' && isWitness(t, speaker)) ? ' speaking' : '') + '" data-side="' + side + '">' + (side === 'PROSECUTOR' ? '<button class="face" data-action="profile" data-id="' + esc(view.state.prosecutorId) + '" aria-label="' + esc(name) + ' 프로필">' : '<div class="face" aria-hidden="true">') + portrait(id, face) + (side === 'PROSECUTOR' ? '</button>' : '</div>') + '<div class="plate">' + esc(name) + '<span>' + esc(sub) + '</span></div></div>';
   const r = t.definition.roles;
-  const bench = '<div class="judge-line">' + (speaker === 'JUDGE' ? '▼ 재판장' : '재판장석') + '</div><div class="bench">' +
+  const bench = '<div class="judge-line">' + '<button class="btn quiet" data-action="profile" data-id="JUDGE">' + (speaker === 'JUDGE' ? '▼ ' : '') + '재판장석 · ' + esc(judgeName()) + '</button>' + '</div><div class="bench">' +
     who('PROSECUTOR', r.prosecutor.initial, r.prosecutor.name, r.prosecutor.role, '', r.prosecutor.id) +
     who('W', wdef.initial, wdef.name, wdef.role, 'witness' + (st.cursor && ['intro', 'closed'].includes(st.cursor.part) ? ' absent' : ''), wdef.id) +
     who('DEFENSE', r.defense.initial, r.defense.name, '피고인 측', '', r.defense.id) + '</div>';
@@ -152,17 +157,17 @@ function renderOutcome(view) {
   const basis = o.judgment.article || (o.offense && o.offense.article) || '';
   const sentence = o.sentence ? '<div class="sentence"><span class="tag">' + esc(o.sentence.disclaimer) + ' · ' + esc(o.sentence.premise) + '</span><div><b>' + esc(o.sentence.label) + '</b> — ' + esc(o.sentence.text) + '</div><p>' + esc(o.sentence.reason) + '</p></div>' : '';
   const why = o.shaken.length ? '<div class="why"><h3>“다툼 있음”인데 왜 유죄인가</h3>' + o.shaken.map(x => '<p>' + esc(x) + '</p>').join('') + '</div>' : '';
-  return '<div class="outcome"><div class="kicker">선고 · 상대: ' + esc(view.prosecutor.label) + '</div>' +
+  return '<div class="outcome"><div class="kicker">선고</div>' +
     '<h1 class="' + (clear ? 'clear' : 'convict') + '" id="verdictTitle" tabindex="-1">' + esc(o.judgment.label) + '</h1>' +
     (o.offense && o.convicted ? '<div class="sub">' + esc(o.offense.label) + (o.sentence ? ' · ' + esc(o.sentence.text) : '') + '</div>' : '') +
     '<p class="client-stakes">' + esc(view.presentation.stakes[clear ? 'cleared' : 'convicted']) + '</p><ol class="outcome-core"><li class="pronouncement">' + esc(o.pronouncement) + '</li><li>' + esc(o.convicted && o.passed.length ? o.passed[0].text : o.reviewText) + '</li><li>' + esc(o.next) + '</li></ol>' +
     disclosure('outcome-reasons', '판결 근거와 양형', '<p>' + esc(o.text) + '</p>' + (basis ? '<p class="basis">' + esc(basis) + ' · ' + esc(view.pack.label) + ' · 조문 표기는 법률 검수 전</p>' : '') +
     '<ul class="findings">' + o.issues.map(i => '<li><b>' + esc(i.title) + '</b><span class="' + i.band + '">' + esc(i.bandLabel) + ' — ' + esc(i.memo) + '</span></li>').join('') + '</ul>' +
     sentence + why + (o.closingReview ? '<p class="closing-review"><b>최후변론</b> ' + esc(o.closingReview) + '</p>' : '')) + '</div>' +
-    disclosure('review', '세부 복기', '<div class="review four" aria-label="복기"><section class="good"><h3>당신이 뚫은 것</h3>' + list(o.broke.slice(0, 5), '뚜렷하게 뚫은 곳이 없었습니다.') + '</section>' +
-    '<section class="opp"><h3>상대가 막은 것</h3>' + list(o.blocked, '검사가 막거나 다시 세운 것은 없었습니다.') + '</section>' +
-    '<section class="opp passed"><h3>통과시킨 이의</h3>' + list(o.passed, '통과시킨 유효 이의 없음.') + '</section>' +
-    '<section class="bad"><h3>역효과</h3>' + list(o.backfired, '역효과 없음.') + '</section>' +
+    disclosure('review', '세부 복기', '<div class="review four" aria-label="복기"><section class="good"><h3>유효 신문·이의</h3>' + list(o.broke.slice(0, 5), '유효 신문·이의가 없습니다.') + '</section>' +
+    '<section class="opp"><h3>검사 측 보완</h3>' + list(o.blocked, '검사 측 보완은 없었습니다.') + '</section>' +
+    '<section class="bad"><h3>실수</h3>' + list(o.backfired, '실수 없음.') + '</section>' +
+    '<section class="opp passed"><h3>놓친 이의</h3>' + list(o.passed, '놓친 이의 없음.') + '</section>' +
     '<section class="miss"><h3>놓친 준비</h3>' + list(o.missed, '놓친 준비 없음.') + '</section></div>' +
     disclosure('procedure-review', '증거 의견·신청 및 절차 기록', list(o.procedureReview, '절차 기록 없음')) + '<p class="next"><b>다음에 시도해 볼 것</b>' + esc(o.next) + '</p>');
 }
@@ -246,7 +251,7 @@ function renderBar(view) {
   let h = '';
   if (view.state.phase === 'select') {
     const ready = draft.caseId && draft.prosecutorId;
-    h = '<div class="bar-head"><span class="label calm">사건 선택</span><span class="sub">' + (ready ? '준비가 됐습니다.' : '상대 검사를 고르십시오.') + '</span></div><div class="row"><button class="btn primary" data-action="start"' + (ready ? '' : ' disabled') + '>' + esc(view.files[0].title) + ' 시작</button></div>';
+    h = '<div class="bar-head"><span class="label calm">사건 선택</span><span class="sub">' + (ready ? '준비가 됐습니다.' : '상대 검사를 고르십시오.') + '</span></div><div class="row"><button class="btn primary" data-action="start"' + (ready ? '' : ' disabled') + '>' + '사건 시작</button></div>';
     $('#bar').innerHTML = err + h; return;
   }
   const t = view.trial, st = t.state, a = t.actions, cardTitle = id => (t.cards.find(c => c.id === id) || { title: id }).title;
@@ -317,11 +322,11 @@ document.addEventListener('click', e => {
   }
   else if (act === 'evidenceOpinions') trial('evidenceOpinions', { opinions: draft.opinions });
   else if (act === 'closingArgument') trial('closingArgument', { id });
+  else if (act === 'profile') openProfile(id);
   else if (act === 'memo') openMemo();
   else if (act === 'closeReader') closeReader();
   else if (act === 'exhibit') openExhibit(id);
   else if (act === 'panel') { mobilePanel = id; renderTabs(session.projection()); $('#panelTabs [data-id="' + id + '"]').focus({ preventScroll: true }); }
-  else if (act === 'daily') { draft.dailyId = draft.dailyId === id ? null : id || null; render(null); }
   else if (act === 'start') run('start', { caseId: draft.caseId, prosecutorId: draft.prosecutorId });
   else if (act === 'openConsult') { draft.consultOpen = true; render(null); }
   else if (act === 'consult') run('consult', { adviceId: id });
@@ -367,12 +372,23 @@ function openReader(title, body, button) {
   dialog.showModal();
   $('#readerTitle').focus();
 }
-function openMemo() {
+function openProfile(id) {
+  const p = profile(id); if (!p) return;
+  const counts = profileHistory.get(id), total = Object.values(counts).reduce((a,b) => a+b,0);
+  const labels = {acquittal:'무죄',dismissal:'공소기각',assault:'폭행 유죄',injury:'상해 유죄'};
+  const stars = Array.from({length:5},(_,i) => '<span class="profile-star"><span>★</span><i style="width:' + Math.min(1,Math.max(0,p.reputation-i))*100 + '%">★</i></span>').join('');
+  openReader(p.name + ' 프로필', '<div class="profile-heading"><img class="profile-portrait" src="' + esc(p.portrait) + '" alt="기본 실루엣"><div><b>' + esc(p.name) + '</b><p>' + esc(p.role) + ' · ' + esc(p.org) + '</p><p>' + esc(p.years) + '</p><div class="profile-stars" role="img" aria-label="명성 별 ' + p.reputation + '개 중 5">' + stars + '</div></div></div>' +
+    '<h2>이력</h2><ol class="profile-timeline">' + p.history.map(h=>'<li><b>' + esc(h.when) + '</b><p>' + esc(h.text) + '</p></li>').join('') + '</ol><h2>법정 스타일</h2><ul>' + p.style.map(t=>'<li>'+esc(t)+'</li>').join('') + '</ul><h2>변호인과의 기록</h2><p class="profile-history">' + (total ? total + '전 · ' + Object.entries(counts).map(([k,n])=>labels[k]+' '+n+'회').join(' · ') : '처음 만나는 상대') + '</p><p class="note">명성은 업계 평판이며 재판 결과를 정하지 않습니다.</p>', '프로필 닫기');
+  $('#reader .profile-portrait').addEventListener('error', e => { const fallback = document.createElement('span'); fallback.className='profile-portrait'; fallback.textContent=p.name[0]; e.target.replaceWith(fallback); }, {once:true});
+}
+function openMemo(initial = false) {
+  if (initial) $('#phaseTitle').focus({ preventScroll: true });
   const view = session.projection(), p = view.presentation, m = p.memo;
   const lines = xs => '<ul>' + xs.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>';
   openReader('사건 메모', '<p class="kicker">' + esc(p.title) + '</p><p><b>' + esc(p.client.name) + ' · ' + p.client.age + '세</b>의 변호를 맡았습니다.</p>' +
     lines(m.background) + '<h2>사건 관계인</h2>' + lines(m.people) + '<dl><dt>검찰 주장</dt><dd>' + esc(m.prosecution) + '</dd><dt>' + esc(p.client.name) + ' 씨의 주장</dt><dd>' + esc(m.client) + '</dd></dl>' +
-    '<h2>당신이 할 일</h2>' + lines(m.tasks) + '<p class="memo-closing">' + esc(m.closing) + '</p>', '사건 메모 닫기');
+    '<h2>당신이 할 일</h2>' + lines(m.tasks) + '<p class="memo-closing">' + esc(m.closing) + '</p>', initial ? '준비 시작' : '사건 메모 닫기');
+  if (initial) dialogReturn = $('#phaseTitle');
 }
 function openExhibit(id) {
   const x = session.projection().trial.exhibits.find(x => x.id === id);

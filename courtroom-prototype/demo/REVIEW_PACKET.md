@@ -1,3 +1,71 @@
+# DEMO-001 인물 프로필 + 선고 Review Packet (2026-10-07)
+
+목적: 표시 전용 프로필과 판결 후 대결 기록을 제공하고 선고 표기를 단순화한다. 앞선 첫 흐름 정리의 미커밋 변경은 보존했다.
+
+이번 변경 파일:
+- data/demo-profiles.js 신규: 가상 3인 이력/명성/스타일/초상, UI만 읽는 authored 데이터.
+- services/demo-profile-history.js 신규: 판결 이후 결과 집계, 중복 방지, 메모리+오류 내성 localStorage, 복사 읽기. 판정/공판 서비스 의존 없음.
+- demo.html: 위 두 스크립트 로드.
+- ui/trial-demo-app.js: 프로필 진입 4곳·reader 내용·별·문혜진 화자 표시·선고 제목·판결 성공 후 집계.
+- ui/trial-demo.css: 검사 선택 카드 버튼 배치, 프로필/별/타임라인/모바일.
+- tests/demo-profiles.test.js, tests/demo-profiles-browser.test.js 신규: 저장 실패·복원·중복·반쪽 별·키보드/포커스·2판 집계·공판 불변.
+- tests/demo-browser.test.js: 선고 문자열 기대만 수정, 결과 경로 기대 불변.
+- demo/RULES.md, REPORT.md, REVIEW_PACKET.md, test-results.log: 규칙·검증·인계.
+
+불변: 프로필은 판정/NPC 입력이 아니다. UI 열람 전후 공판 전체 projection 동일. 판결 성공마다 현재 접속 round당 1회만 집계. 저장 실패에도 진행 가능. engine/trial.js/services/trial.js/trial.html과 기존 기록 ID 무변경.
+
+| 명령 | tests/checks | failures | exit |
+| --- | ---: | ---: | ---: |
+| node --test tests/demo.test.js | 30 | 0 | 0 |
+| node --test tests/demo-profiles.test.js | 3 | 0 | 0 |
+| node tests/demo-browser.test.js | 3912 | 0 | 0 |
+| node tests/demo-profiles-browser.test.js | 188 | 0 | 0 |
+| node tests/demo-cleanup-browser.test.js | 122 | 0 | 0 |
+| node tests/demo-procedure-browser.test.js | 46 | 0 | 0 |
+| node tests/demo-art-browser.test.js | 24 | 0 | 0 |
+| npm test | 247 | 0 | 0 |
+| node tests/browser-trial.test.js | 217 | 0 | 0 |
+| 합계 | 4789 | 0 | 0 |
+
+합계 4789 tests/checks, 실패 0, 모든 최종 exit 0. git diff --check 및 최종 diff 검토 완료. HTTP/file 기존 회귀 및 프로필 1440/390 캡처는 REPORT 참조.
+Fixture/injected: 가상 authored 프로필, 기존 데모 법률 팩 unverified 그대로. 판정/법률/NPC 규칙 추가 없음.
+미구현/TBD: 요청 범위 없음. 여러 탭 동기화·실제 인물 데이터·관계/NPC 반응은 구현하지 않았다. 설계 판단 때문에 보류한 작업 없음. 범위 밖 작업·다음 단계 없음. 커밋/stage/push 없음.
+
+---
+
+# DEMO-001 첫 흐름 정리 Review Packet (2026-10-07)
+
+목적: 형사 사건 하나로 시작 화면을 정리하고 상담→자동 메모→준비 흐름 및 복기 용어를 맞춘다.
+
+변경 파일/요약:
+- demo.html: daily 데이터 스크립트 제거(파일 보존).
+- ui/trial-demo-app.js: daily:[], 일상 카드/요약/이벤트 제거, 사건 시작 버튼, 자동/수동 메모 문구·포커스, 복기 5칸 이름·순서·빈 문구.
+- ui/trial-demo-consultation.js: 상담 종료 시 UI 완료 콜백으로 자동 메모 연결.
+- ui/trial-demo.css: 대표 사건 카드 단일 열.
+- tests/demo-browser.test.js: 일상 UI 없음, 시작 문구, 자동 메모 3종 닫기·포커스·재열기·기록 불변, 복기 정확한 제목/순서, HTTP/file 데스크톱·모바일 스크린샷.
+- tests/demo-{art,cleanup,procedure}-browser.test.js: 상담 후 자동 메모를 닫고 기존 검사 진행.
+- demo/RULES.md, REPORT.md, REVIEW_PACKET.md, test-results.log: 표시 규칙·검증 결과와 인계.
+
+불변: UI 전환은 기록을 만들지 않는다. 판정 입력·수치·경로 결과는 그대로. 기존 실패 명령 원자성·결정성 회귀 유지. forbidden engine/trial.js/services/trial.js/trial.html 무변경.
+
+| 명령 | tests/checks | failures | exit |
+| --- | ---: | ---: | ---: |
+| node --test tests/demo.test.js | 30 | 0 | 0 |
+| node tests/demo-browser.test.js | 3912 | 0 | 0 |
+| node tests/demo-cleanup-browser.test.js | 122 | 0 | 0 |
+| node tests/demo-procedure-browser.test.js | 46 | 0 | 0 |
+| node tests/demo-art-browser.test.js | 24 | 0 | 0 |
+| npm test | 247 | 0 | 0 |
+| node tests/browser-trial.test.js | 217 | 0 | 0 |
+| 합계 | 4598 | 0 | 0 |
+
+모든 최종 실행 exit 0. 총 4598 tests/checks, failures 0. 상세 환경·명령은 test-results.log, 화면 근거는 REPORT 참조. git diff 검토 및 diff --check 완료.
+Fixture/injected: 기존 authored 사건/대사, 법률 팩 unverified 유지. 새 판정 규칙 없음.
+미구현/TBD: 이번 요청 없음. 사람 플레이테스트와 독립 리뷰, 배포용 단일 HTML은 별도. 설계 판단 때문에 보류한 변경 없음. 범위 밖 수정·다음 단계 착수 없음.
+커밋/stage/push 없음.
+
+---
+
 # DEMO-001 절차 라운드 정리 Review Packet (2026-10-07)
 
 목적: 화면의 법률/메타 안내를 정리하고 검찰 증거 초기 열람, 즉시 선택 닫기, HTTP SVG 지원.
