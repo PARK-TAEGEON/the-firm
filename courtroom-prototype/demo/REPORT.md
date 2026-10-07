@@ -1,3 +1,57 @@
+# DEMO-001 UI 묶음 2 — 자체 점검 (2026-10-07)
+
+화면·문구만 변경. 판정·공판 기록·수치·경로 결과 기대값은 그대로다. 커밋/stage/push 없음.
+
+## 요청별 전/후 및 완료 근거
+
+| 항목 | 전 → 후 / 확인 |
+| --- | --- |
+| 검사 선택 안내 | 어려움 모드·첫 판 권장 문구 → 삭제. prosecutorNote는 빈 문자열, 화면 안내 요소 제거. 신참 기본 선택 유지 |
+| 준비부터 재판부 접근 | 공판 좌석만 → 상단 사건 메모 옆 재판부 버튼, 왼쪽 재판부·상대의 문혜진(단독 판사) 이름 버튼 추가 |
+| 전 단계 접근 | 준비·모두진술·증거 의견·공판·판결에서 상단 버튼 확인. 모바일 자료 탭의 이름 버튼도 열기/닫기/원위치 포커스 통과 |
+| 무죄·공소기각 사정 | 계약 해지 걱정 설명 → “정민호 씨는 방송 외주 계약을 그대로 이어 갈 수 있게 되었습니다.” |
+| 무증인 판 메모 | notes 없는 쟁점은 아직 심리 전 → 증거 의견 확정 이후 및 판결에서는 기존 projection 판세 표시 |
+| 동의 기록 | 원래 존재하던 조서·수사보고서 notes를 근거 펼침에서 확인. 증거 의견 직후·무증인 판결 후 모두 확인 |
+| 판결 핵심 | 주문/이유/다음 시도 3줄 → 주문/이유 2줄. 다음 시도는 아래 상자 하나만 유지 |
+| 제목 포커스 | 프로그램 포커스에도 테두리 → :focus:not(:focus-visible) outline:none. 키보드로 열면 :focus-visible 테두리 유지 |
+| 실행 로그 | untracked run 로그 → root .gitignore에 courtroom-prototype/demo/run-*.log 추가. test-results.log는 계속 추적 |
+
+무증인 표시 원인은 엔진이 아니라 UI의 notes.length 조건이었다. 실제 판세·동의 기록은 이미 존재하므로 서비스나 엔진은 수정하지 않았다. RULES §18 참조. 새 판정·수치 규칙 없음.
+
+## 검증
+
+| 명령 | tests/checks | failures | exit |
+| --- | ---: | ---: | ---: |
+| node --test tests/demo.test.js | 30 | 0 | 0 |
+| node --test tests/demo-profiles.test.js | 3 | 0 | 0 |
+| node tests/demo-browser.test.js | 3940 | 0 | 0 |
+| node tests/demo-profiles-browser.test.js | 212 | 0 | 0 |
+| node tests/demo-cleanup-browser.test.js | 122 | 0 | 0 |
+| node tests/demo-procedure-browser.test.js | 154 | 0 | 0 |
+| node tests/demo-art-browser.test.js | 24 | 0 | 0 |
+| npm test | 247 | 0 | 0 |
+| node tests/browser-trial.test.js | 217 | 0 | 0 |
+| 합계 | 4949 | 0 | 0 |
+
+HTTP/file:// × 1440/390에서 기존 7경로씩 총 28회 완주. 신참 무죄/공소기각/폭행/상해, 노련한 검사 공소기각·상해 기대값 불변. v0.10 trial.html 회귀 통과.
+추가 브라우저 검증: 안내문 부재, 두 핵심 줄·다음 시도 1회, 무죄/공소기각 새 문구, 준비의 상단/자료 프로필 접근·포커스 복원, 모든 단계 상단 재판부, 무증인 실제 판세·동의 근거 2개, 마우스/키보드 포커스 스타일 양쪽, 390 넘침 없음.
+
+## 스크린샷
+
+| 화면 | 데스크톱 | 모바일 |
+| --- | --- | --- |
+| 준비 재판부 버튼 | [1440](../tests/artifacts/ui2-1440-prep.png) | [390](../tests/artifacts/ui2-390-prep.png) |
+| 문혜진 프로필 | [1440](../tests/artifacts/ui2-1440-judge-profile.png) | [390](../tests/artifacts/ui2-390-judge-profile.png) |
+| 무증인 판결 | [1440](../tests/artifacts/ui2-1440-no-witness-verdict.png) | [390](../tests/artifacts/ui2-390-no-witness-verdict.png) |
+| 무증인 재판장 메모 | [1440](../tests/artifacts/ui2-1440-no-witness-memo.png) | [390](../tests/artifacts/ui2-390-no-witness-memo.png) |
+
+## 완료 점검·한계
+
+요청 7항목과 자동 회귀 모두 충족. engine/trial.js/services/trial.js/trial.html 및 데모 판정·공판 서비스 무변경. 기록 ID/효과 변경 없음. .gitignore는 사용자 7번이 명시적으로 허용한 root 변경이다. assets/의 기존 배포 포함 요구 유지. 별도 다음 단계 작업 없음.
+사람 플레이테스트·독립 리뷰·단일 HTML 배포 묶기는 별도. 이번 요청의 미구현/TBD 없음. 사람이 판단할 질문: 준비 화면에서 재판부 프로필 진입 위치가 충분히 눈에 띄는가?
+
+---
+
 # DEMO-001 인물 프로필 창 + 선고 표기 — 자체 점검 (2026-10-07)
 
 앞선 첫 흐름 정리의 미커밋 변경을 유지하고 표시 전용 프로필을 추가했다. 판정·NPC 행동·공판 기록·수치·경로 결과는 그대로다. 커밋/stage/push 없음.

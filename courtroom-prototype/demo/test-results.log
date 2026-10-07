@@ -1,4 +1,4 @@
-DEMO-001 인물 프로필 + 선고 — 2026-10-07
+DEMO-001 UI 묶음 2 — 2026-10-07
 CWD courtroom-prototype/
 Node v24.19.0; bundled Chromium
 NODE_PATH=C:/Users/Admin/AppData/Local/Temp/claude/C--Users-Admin-orca-workspaces-The-Firm-task-demo-001/7c2a23b6-efca-4556-94ef-6e49e1e64e7d/scratchpad/node_modules
@@ -12,7 +12,7 @@ node --test tests/demo.test.js
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 69923.6511
+ℹ duration_ms 69426.7663
 exit 0
 
 node --test tests/demo-profiles.test.js
@@ -23,15 +23,15 @@ node --test tests/demo-profiles.test.js
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 100.1062
+ℹ duration_ms 112.4422
 exit 0
 
 node tests/demo-browser.test.js
-Demo browser: 3912 checks, 0 failures, exit 0
+Demo browser: 3940 checks, 0 failures, exit 0
 exit 0
 
 node tests/demo-profiles-browser.test.js
-Demo profiles browser: 188 checks, 0 failures, exit 0
+Demo profiles browser: 212 checks, 0 failures, exit 0
 exit 0
 
 node tests/demo-cleanup-browser.test.js
@@ -39,7 +39,7 @@ Demo cleanup browser: 122 checks, 0 failures, exit 0
 exit 0
 
 node tests/demo-procedure-browser.test.js
-Demo procedure browser: 46 checks, 0 failures, exit 0
+Demo procedure browser: 154 checks, 0 failures, exit 0
 exit 0
 
 node tests/demo-art-browser.test.js
@@ -54,14 +54,14 @@ npm test
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 826.6719
+ℹ duration_ms 798.3037
 exit 0
 
 node tests/browser-trial.test.js
 Trial browser: 217 checks, 0 failures, exit 0
 exit 0
 
-Total 4789 tests/checks; failures 0; all final exits 0.
-Existing outcome expectations and forbidden files unchanged.
-Profile screenshots: tests/artifacts/profile-{1440,390}-{novice,veteran,JUDGE}.png
-git diff --check passed. No commit/stage/push.
+Total 4949 tests/checks; failures 0; all final exits 0.
+Existing outcome expectations, records, scores and forbidden files unchanged.
+Screenshots: tests/artifacts/ui2-{1440,390}-{prep,judge-profile,no-witness-verdict,no-witness-memo}.png
+git diff --check passed; run-*.log ignored. No commit/stage/push.

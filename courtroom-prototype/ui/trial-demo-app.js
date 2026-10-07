@@ -49,7 +49,7 @@ function renderTop(view) {
     return;
   }
   const t = view.trial, d = t.definition, ts = t.state, p = t.projection;
-  $('#caseTitle').innerHTML = '<b>' + esc(view.presentation.title) + '</b> · 상대 ' + esc(d.roles.prosecutor.name) + ' 검사' + ' <button class="btn quiet memo-open" data-action="memo">사건 메모</button>';
+  $('#caseTitle').innerHTML = '<b>' + esc(view.presentation.title) + '</b> · 상대 ' + esc(d.roles.prosecutor.name) + ' 검사' + ' <button class="btn quiet memo-open" data-action="memo">사건 메모</button> <button class="btn quiet" data-action="profile" data-id="JUDGE">재판부</button>';
   const w = ts.cursor ? ts.cursor.w : -1;
   const steps = [['prep', '준비'], ['opening', '모두진술'], ['evidence', '증거 의견'], ...d.witnesses.filter(x => !t.records.some(r => r.kind === 'evidence_opinions') || t.summoned.includes(x.id)).map(x => ['w' + d.witnesses.findIndex(w => w.id === x.id), x.name]), ['final', '최종 변론'], ['verdict', '판결']];
   const nowKey = ts.phase === 'trial' ? (ts.cursor.part === 'evidence' ? 'evidence' : ['request', 'closing', 'last_statement', 'sentencing_date'].includes(ts.cursor.part) ? 'final' : 'w' + w) : ts.phase;
@@ -85,7 +85,7 @@ function renderFile(view, freshCards) {
     '<section><h2 class="section">내 준비 자료</h2>' + cards + '</section>' +
     '<section><h2 class="section">검찰 증거목록</h2>' + ex + '</section>' +
     '<section><h2 class="section">' + esc(view.presentation.client.name) + ' · ' + view.presentation.client.age + '세</h2>' + client + '</section>' + settle +
-    '<section><h2 class="section">상대</h2><p class="opp"><button class="btn quiet" data-action="profile" data-id="' + esc(view.state.prosecutorId) + '">' + esc(view.prosecutor.label) + '</button><br>' + esc(view.prosecutor.sub) + '</p></section>';
+    '<section><h2 class="section">재판부·상대</h2><p class="opp"><button class="btn quiet" data-action="profile" data-id="JUDGE">' + esc(judgeName()) + ' (단독 판사)</button></p><p class="opp"><button class="btn quiet" data-action="profile" data-id="' + esc(view.state.prosecutorId) + '">' + esc(view.prosecutor.label) + '</button><br>' + esc(view.prosecutor.sub) + '</p></section>';
 }
 
 // ---------- right: judge memo ----------
@@ -95,7 +95,7 @@ function renderMemo(view, freshIds) {
   const started = st.phase === 'trial' || st.phase === 'verdict';
   const issues = p.issues.map(i => {
     const notes = i.notes.map(n => '<li class="' + esc(n.tone) + (freshIds.has(n.recordId) ? ' fresh' : '') + '">' + esc(n.text) + '</li>').join('');
-    const lean = started && i.notes.length ? '<p class="lean ' + i.band + '">' + esc(i.memo) + '</p>' : '<p class="lean pending">아직 심리 전</p>';
+    const lean = started && (i.notes.length || st.phase === 'verdict' || t.records.some(r => r.kind === 'evidence_opinions')) ? '<p class="lean ' + i.band + '">' + esc(i.memo) + '</p>' : '<p class="lean pending">아직 심리 전</p>';
     return '<div class="issue"><h3>' + esc(i.title) + '</h3>' + lean + (notes ? disclosure('memo:' + i.id, '근거 기록', '<ul class="notes">' + notes + '</ul>') : '') + '</div>';
   }).join('');
   $('#memoPanel').innerHTML = '<div class="notebook" role="note" aria-label="재판장 메모"><h2>재판장 메모</h2><span class="who-writes">어깨너머로 보이는 수첩</span>' + issues + '</div>' +
@@ -112,7 +112,7 @@ function renderSelect(view) {
   $('#stage').innerHTML = '<div class="desk"><h1 id="phaseTitle" tabindex="-1">사건 파일</h1><p class="lead">맡을 형사 사건과 상대 검사를 확인하세요.</p>' +
     '<div class="files">' + sigCards + '</div>' +
     '<fieldset class="choice-group" style="border:0;padding:0;margin:0 0 8px"><legend><h3>상대 검사</h3></legend><div class="choices" style="grid-template-columns:repeat(2,1fr)">' + pros + '</div></fieldset>' +
-    '<p class="note">' + esc(c.prosecutorNote) + '</p></div>';
+    '</div>';
 }
 
 function linesOf(records) { return records.flatMap(r => r.lines || []); }
@@ -160,7 +160,7 @@ function renderOutcome(view) {
   return '<div class="outcome"><div class="kicker">선고</div>' +
     '<h1 class="' + (clear ? 'clear' : 'convict') + '" id="verdictTitle" tabindex="-1">' + esc(o.judgment.label) + '</h1>' +
     (o.offense && o.convicted ? '<div class="sub">' + esc(o.offense.label) + (o.sentence ? ' · ' + esc(o.sentence.text) : '') + '</div>' : '') +
-    '<p class="client-stakes">' + esc(view.presentation.stakes[clear ? 'cleared' : 'convicted']) + '</p><ol class="outcome-core"><li class="pronouncement">' + esc(o.pronouncement) + '</li><li>' + esc(o.convicted && o.passed.length ? o.passed[0].text : o.reviewText) + '</li><li>' + esc(o.next) + '</li></ol>' +
+    '<p class="client-stakes">' + esc(view.presentation.stakes[clear ? 'cleared' : 'convicted']) + '</p><ol class="outcome-core"><li class="pronouncement">' + esc(o.pronouncement) + '</li><li>' + esc(o.convicted && o.passed.length ? o.passed[0].text : o.reviewText) + '</li></ol>' +
     disclosure('outcome-reasons', '판결 근거와 양형', '<p>' + esc(o.text) + '</p>' + (basis ? '<p class="basis">' + esc(basis) + ' · ' + esc(view.pack.label) + ' · 조문 표기는 법률 검수 전</p>' : '') +
     '<ul class="findings">' + o.issues.map(i => '<li><b>' + esc(i.title) + '</b><span class="' + i.band + '">' + esc(i.bandLabel) + ' — ' + esc(i.memo) + '</span></li>').join('') + '</ul>' +
     sentence + why + (o.closingReview ? '<p class="closing-review"><b>최후변론</b> ' + esc(o.closingReview) + '</p>' : '')) + '</div>' +

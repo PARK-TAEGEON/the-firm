@@ -310,7 +310,7 @@ const demoCase = {
     },
     stakes: {
       convicted: '정민호 씨는 다음 달 방송 외주 계약 갱신을 앞두고, 계약서의 “형사처벌 이력 시 해지” 조항이 걱정입니다.',
-      cleared: '정민호 씨는 이번 사건의 형사처벌 이력으로 계약이 끊길 걱정을 덜고, 방송 외주 계약을 유지합니다.'
+      cleared: '정민호 씨는 방송 외주 계약을 그대로 이어 갈 수 있게 되었습니다.'
     },
     consultation: {
       location: 'office_lounge',
@@ -354,7 +354,7 @@ const demoCase = {
     { id: 'novice', label: '신참 검사', sub: '임용 1년차' },
     { id: 'veteran', label: '노련한 공판검사', sub: '공판 전담 10년차' }
   ],
-  prosecutorNote: '노련한 공판검사 = 어려움 모드, 첫 판은 신참 권장. 같은 사건이지만 검사가 질문에 대응하는 방식이 달라집니다.',
+  prosecutorNote: '',
   variants: { novice, veteran },
   bandLabels: { proven: '입증됨', shaken: '다툼 있음', doubt: '의심' },
 

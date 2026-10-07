@@ -1,3 +1,38 @@
+# DEMO-001 UI 묶음 2 Review Packet (2026-10-07)
+
+목적: 준비 단계 재판부 접근, 판결/메모 표시와 포커스 스타일 정리.
+
+변경 파일:
+- ../.gitignore: 요청 7번에 따라 demo/run-*.log 제외(기존 파일 삭제 없음).
+- data/demo-separated-moments.js: prosecutorNote 비움, 무죄/공소기각 표시 문구 변경.
+- ui/trial-demo-app.js: 상단/왼쪽 재판부 버튼, 안내 삭제, 증거 의견 확정 후 실제 판세 표시, 핵심 2줄.
+- ui/trial-demo.css: 대화창 제목 :focus:not(:focus-visible) 테두리 숨김.
+- tests/demo-browser.test.js: 안내/문구/핵심 2줄/중복 없음. 결과 기대값 유지.
+- tests/demo-procedure-browser.test.js: 준비~판결 프로필 접근/복귀, 무증인 판세·근거, 포커스·모바일·스크린샷.
+- tests/demo-profiles-browser.test.js: 검사 버튼 selector를 id로 특정, 키보드 focus-visible 유지 검사.
+- demo/RULES.md, REPORT.md, REVIEW_PACKET.md, test-results.log: 규칙/검증/인계.
+
+불변: 기존 공판 기록과 실제 판세를 표시하며 새 판정 효과를 생성하지 않는다. profile/history 서비스도 변경 없음. 실패 명령 원자성·결정성 회귀와 기존 결과 기대값 유지.
+
+| 명령 | tests/checks | failures | exit |
+| --- | ---: | ---: | ---: |
+| node --test tests/demo.test.js | 30 | 0 | 0 |
+| node --test tests/demo-profiles.test.js | 3 | 0 | 0 |
+| node tests/demo-browser.test.js | 3940 | 0 | 0 |
+| node tests/demo-profiles-browser.test.js | 212 | 0 | 0 |
+| node tests/demo-cleanup-browser.test.js | 122 | 0 | 0 |
+| node tests/demo-procedure-browser.test.js | 154 | 0 | 0 |
+| node tests/demo-art-browser.test.js | 24 | 0 | 0 |
+| npm test | 247 | 0 | 0 |
+| node tests/browser-trial.test.js | 217 | 0 | 0 |
+| 합계 | 4949 | 0 | 0 |
+
+합계 4949 tests/checks / failures 0 / 모든 최종 exit 0. git diff --check 및 diff 검토 완료. git check-ignore로 run 로그 제외 확인. 금지 파일·판정 서비스 diff 없음.
+Fixture/injected: 기존 authored 사건/프로필·unverified 법률 팩 그대로. 새 수치/규칙 없음(RULES §18 표시 규칙만).
+미구현/TBD: 이번 요청 없음. 별도 사람 플레이테스트/독립 리뷰/배포 묶기 제외. 설계 판단으로 보류한 변경 없음. 명시 요청 외 범위 변경·다음 단계 착수 없음. 커밋/stage/push 없음.
+
+---
+
 # DEMO-001 인물 프로필 + 선고 Review Packet (2026-10-07)
 
 목적: 표시 전용 프로필과 판결 후 대결 기록을 제공하고 선고 표기를 단순화한다. 앞선 첫 흐름 정리의 미커밋 변경은 보존했다.

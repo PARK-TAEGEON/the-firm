@@ -58,7 +58,7 @@ async function run() {
       check(await page.evaluate(() => !window.FirmDemoDailyCases && !document.querySelector('script[src="data/demo-daily-cases.js"]')), 'daily data not loaded');
       check(await page.locator('[data-action=start]').textContent() === '사건 시작', 'concise start label');
       check(await page.isChecked('input[value=novice]') && !(await page.isDisabled('[data-action=start]')), 'novice selected by default');
-      check((await page.textContent('#stage')).includes('노련한 공판검사 = 어려움 모드, 첫 판은 신참 권장'), 'difficulty guidance');
+      check(!/어려움 모드|첫 판은 신참 권장|검사가 질문에 대응하는 방식/.test(await page.textContent('#stage')), 'difficulty guidance removed');
       check((await page.textContent(`label:has(input[value=${plan.prosecutor}])`)).includes(prosecutorName), 'named prosecutor choice');
       await page.click(`label:has(input[value=${plan.prosecutor}])`);
       await noOverflow('start');
@@ -286,13 +286,14 @@ async function run() {
       check((await page.textContent('#verdictTitle')).includes(plan.expect), `${tag}: outcome ${plan.expect}`);
       check(await page.evaluate(() => document.activeElement && document.activeElement.id === 'verdictTitle'), 'focus moves to outcome');
       await page.screenshot({ animations: 'disabled', path: path.join(out, 'demo-compact-' + vpName + '-' + pName + '.png'), fullPage: true });
-      check((await page.locator('.outcome-core > li').count()) === 3, 'three core result lines');
+      check((await page.locator('.outcome-core > li').count()) === 2, 'two core result lines');
       check(!(await page.isVisible('.review')), 'review details start collapsed');
       check(await page.getAttribute('.transcript', 'open') !== null, 'history expansion survives progress');
       await page.locator('[data-disclosure=review] > summary').click();
       await page.locator('[data-disclosure=outcome-reasons] > summary').click();
       const review = await page.textContent('.review');
       check(JSON.stringify(await page.locator('.review h3').allTextContents()) === JSON.stringify(['유효 신문·이의', '검사 측 보완', '실수', '놓친 이의', '놓친 준비']), `${tag}: exact review labels and order`);
+      check((await page.textContent('#stage')).split('다음에 시도해 볼 것').length === 2 && !(await page.textContent('.outcome-core')).includes(await page.textContent('.next b')), 'next suggestion only once');
       check((await page.textContent('.next')).length > 20, `${tag}: next-try line`);
       const sentence = await page.$('.sentence');
       check(!!sentence === plan.sentence, `${tag}: sentence shown only on conviction`);
@@ -304,7 +305,7 @@ async function run() {
       if (pName === 'veteran_passed') check((await page.textContent('.passed')).includes('목격자에게 보지 않은 낙상'), 'passed objection explains injury outcome');
       if (pName === 'novice_reinterview') check(!review.includes('다시 만났다면') && review.includes('의뢰인의 밀침 인정과 다른'), 'reinterview is acknowledged');
       if (pName === 'veteran_unused') check((await page.textContent('.miss')).includes('동선을 제시하지'), 'natural card particle');
-      check((await page.textContent('.client-stakes')).includes(plan.sentence ? '조항이 걱정' : '계약을 유지'), 'outcome client stakes');
+      check((await page.textContent('.client-stakes')).includes(plan.sentence ? '조항이 걱정' : '방송 외주 계약을 그대로 이어 갈 수 있게 되었습니다.'), 'outcome client stakes');
       const history = await page.textContent('.transcript');
       check(['한지수', '서동국', prosecutorName].every(n => history.includes(n)), 'both witnesses and prosecutor named in transcript');
       check(history.includes('검사 측 증인, 증인석으로 나와 주십시오.') && history.includes('주문.'), 'corrected transcript');

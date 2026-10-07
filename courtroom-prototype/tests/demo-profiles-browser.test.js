@@ -10,6 +10,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),path
  const open=async(selector,id,rating,close)=>{
    const before=await page.evaluate(()=>window.profileSnapshot());
    const button=page.locator(selector);await button.focus();await page.keyboard.press('Enter');await page.waitForSelector('#reader[open]');
+   check(await page.locator('#readerTitle').evaluate(el=>el.matches(':focus-visible') && getComputedStyle(el).outlineStyle!=='none'),'keyboard focus remains visible');
    check(await page.locator('.profile-stars').getAttribute('aria-label')==='명성 별 '+rating+'개 중 5','accessible rating');
    check(await page.locator('.profile-star').count()===5,'five star positions');
    check(await page.locator('.profile-star i[style="width:50%" ]').count()===(rating%1?1:0),'half star fill');
@@ -24,7 +25,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),path
  for(let round=1;round<=2;round++){
  await page.click('[data-action=start]');await page.click('[data-scene=all]');await page.click('[data-scene=finish]');await page.click('[data-action=closeReader]');
  if(width===390)await page.click('[data-action=panel][data-id=filePanel]');
- await page.click('#filePanel [data-action=profile]');check((await page.textContent('.profile-history')).includes(round===1?'처음 만나는 상대':'1전'),'history before next verdict');await page.keyboard.press('Escape');
+ await page.click('#filePanel [data-action=profile][data-id=novice]');check((await page.textContent('.profile-history')).includes(round===1?'처음 만나는 상대':'1전'),'history before next verdict');await page.keyboard.press('Escape');
  if(width===390)await page.click('[data-action=panel][data-id=courtPanel]');
  await page.click('[data-action=finishPrep]');await page.click('label:has(input[value=F_SIG_CAUSE])');await page.click('label:has(input[value=S_SIG_CONTACT])');await page.click('[data-action=open]');
  for(const id of ['PX_SIG_STATEMENT','PX_SIG_REPORT','PX_SIG_VIDEO','PX_SIG_MEDICAL'])await page.check('input[name="opinion:'+id+'"][value='+(id==='PX_SIG_REPORT'?'disagree':'agree')+']');
@@ -38,7 +39,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),path
  check(await page.locator('.outcome .kicker').textContent()==='선고','only sentencing label');
  check((await page.textContent('.transcript')).includes('재판장 문혜진'),'judge name in transcript');
  if(width===390)await page.click('[data-action=panel][data-id=filePanel]');
- await page.click('#filePanel [data-action=profile]');check((await page.textContent('.profile-history')).includes(round+'전'),'one count per completed round');await page.keyboard.press('Escape');
+ await page.click('#filePanel [data-action=profile][data-id=novice]');check((await page.textContent('.profile-history')).includes(round+'전'),'one count per completed round');await page.keyboard.press('Escape');
  if(!blocked){const stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('firm.demo.profile-history.v1')));check(Object.values(stored.JUDGE).reduce((a,b)=>a+b,0)===round,'judge accumulates same results');}
  if(width===390)await page.click('[data-action=panel][data-id=courtPanel]');
  await page.click('[data-action=reset]');

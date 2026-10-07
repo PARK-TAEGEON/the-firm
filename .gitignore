@@ -1,3 +1,5 @@
 *.zip
 .godot/
 *.tmp
+
+courtroom-prototype/demo/run-*.log

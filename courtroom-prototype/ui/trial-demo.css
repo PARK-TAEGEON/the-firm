@@ -176,3 +176,5 @@ summary:focus-visible, button:focus-visible { outline: 2px solid var(--brass-2);
 .profile-timeline { padding-left:24px; border-left:1px solid var(--line-2); }
 .profile-timeline p { margin-top:4px; } button.face { cursor:pointer; padding:0; }
 @media(max-width:600px) { .profile-heading { gap:12px; } .profile-portrait { width:56px; height:66px; } }
+
+#readerTitle:focus:not(:focus-visible), #consultationTitle:focus:not(:focus-visible) { outline:none; }
