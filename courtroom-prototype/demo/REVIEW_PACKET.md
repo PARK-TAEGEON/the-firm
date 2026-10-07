@@ -1,3 +1,79 @@
+# DEMO-001 UI 다듬기 1차 Review Packet (2026-10-07)
+
+목적: 상담 진행을 명시하고 준비/반대신문 화면 정보를 줄인다. 표시만 변경.
+
+이번 수정 파일:
+- ui/trial-demo-consultation.js: 계속 버튼, 초기/진행 포커스, 마지막 버튼 교체.
+- ui/trial-demo-app.js: 신참 기본값, 제목/안내, 합의 disclosure/배치, 준비 단계 메모/탭 숨김, 범례, 반대신문 표시.
+- ui/trial-demo.css: 준비 2열/메모 숨김, 합의/버튼 스타일, 내용 높이 반대신문과 글자 크기.
+- tests/demo-browser.test.js: 새 표시 동작·포커스·접힘/펼침·메모 단계·신참/상단 검증, 단계별 스크린샷.
+- demo/REPORT.md, RULES.md §12, test-results.log, REVIEW_PACKET.md.
+기존 미커밋 인물/상담 도입 데이터·서비스·단위테스트 변경은 유지. 이번에는 변경하지 않았다. 사용자 assets/ 미수정.
+
+불변: 판정·원본 기록·수치·기존 결과 기대값. 금지 engine/trial.js/services/trial.js 및 trial.html 무변경.
+실행: node --test tests/demo.test.js 22, node tests/demo-browser.test.js 1595, npm test 247, node tests/browser-trial.test.js 217.
+합계 2081 tests/checks, failures 0, 모든 exit 0. git diff --check 및 diff 자체 검토 완료.
+스크린샷: tests/artifacts/ui1-before-*, ui1-after-* (기존 ignore 대상). REPORT에 단계별 전/후 링크.
+Fixture/injected: 기존 authored 상담·증거·결과와 이미지 fixture 유지. 새로운 게임 규칙 없음.
+미구현/TBD: 사람 플레이테스트·독립 리뷰. 설계 판단으로 건드리지 않은 부분: 판정/기록/수치 전부.
+범위 외 수정·다음 단계 작업 없음. 커밋·stage·push 없음.
+
+---
+
+# DEMO-001 몰입 라운드 후속 Review Packet (2026-10-07)
+
+목적: 인물·생활 사정을 표시하고 무사진 상담 창의 빈 공간을 제거한다. 판정/기록/수치 불변.
+
+이번 후속 변경 파일:
+- data/demo-separated-moments.js: presentation 인물/사정/8줄 상담/메모/결과 부연.
+- services/demo-session.js: 조회 projection에만 인물 이름/역할/initial 적용.
+- ui/trial-demo-app.js: 화자·법정·합의·결과·메모 이름/사정 표시.
+- ui/trial-demo-consultation.js, ui/trial-demo.css: 사진 유무/실패에 따른 compact 창과 gradient.
+- tests/demo.test.js: 표시 데이터 변경 시 10경로 raw 기록/전체 outcome 동일.
+- tests/demo-browser.test.js: 법정/조서 이름, surname, 상담/합의/결과 사정, 창 위·아래 여백 검증.
+- demo/REPORT.md, RULES.md §11, test-results.log, REVIEW_PACKET.md: 검증/규칙/인계.
+
+기존 미커밋 상담 도입 파일(data/demo-locations.js, data/demo-portraits.js, demo.html 포함)은 유지한다.
+제외: ui/trial-demo-art.js, ui/art/consult-scene.svg 미사용·미수정·미stage.
+
+불변 조건: 이름/사정/초상은 판정에 영향 없음. persistent ID와 원본 기록 보존. 기존 결과 5종 및 베테랑 무죄 불가 유지.
+검증 명령: node --test tests/demo.test.js (22), node tests/demo-browser.test.js (1460), npm test (247), node tests/browser-trial.test.js (217).
+합계 1946 tests/checks / failures 0 / exit 0. 환경과 개별 결과는 test-results.log. git diff 검토·금지 파일 무변경 확인.
+
+Fixture/injected: authored 인물·사정·상담, 이미지 검증용 GIF. 실제 사진/초상·pool 자동 배정·계약 simulation은 없음/TBD.
+설계 판단을 위해 건드리지 않은 것: 판정·수치·기록·게임 규칙 전부. 추가 stage 없음, 범위 외 수정 없음.
+사람 플레이테스트·독립 리뷰·커밋·병합은 미실시. 커밋은 사람이 한다.
+
+---
+
+# DEMO-001 B — 첫 상담 장면 Review Packet (2026-10-07)
+
+목적: 시작 브리핑을 장소 배경+하단 대화창 상담으로 교체. 판정/기록 변경 없는 표시 작업.
+
+## 이번 변경·커밋 후보 파일 (커밋은 사람이 수행)
+
+- data/demo-locations.js (신규): office_lounge, 사무실 응접실, image 선택.
+- data/demo-portraits.js (신규): 빈 byId/pool; ID별 URL 구조, pool 예약만.
+- data/demo-separated-moments.js: presentation.consultation 데이터(7대사·2할 일·화자 ID).
+- demo.html: 상담 dialog 및 위 매니페스트/상담 UI 스크립트 로드.
+- ui/trial-demo-consultation.js (신규): 로컬 진행 상태·대체 이미지·전체 보기·접근성. service 호출 없음.
+- ui/trial-demo-app.js: start 시 상담 열기; 사건 메모는 참고용만 유지.
+- ui/trial-demo.css: 장소/오버레이/초상/하단 대화창과 모바일 스타일.
+- tests/demo-browser.test.js: 상담·이미지 매핑·pool 미사용·키보드·기록 불변 회귀.
+- demo/RULES.md §10, REPORT.md, REVIEW_PACKET.md, test-results.log: 규칙·검증·인계.
+
+**커밋 제외:** 기존 untracked ui/trial-demo-art.js, ui/art/consult-scene.svg. 미사용·미수정·미stage. 이 목록에 포함하지 않는다.
+
+## 불변 조건·테스트
+
+상담은 기존 raw 공판/세션 기록과 판정에 영향 없음. initial 부인 유지. 이미지가 없어도 진행 가능. 그림은 인물 ID만으로 선택하며 pool은 읽지 않는다. 상담 종료는 마지막 버튼으로만, 종료 포커스는 #phaseTitle. 기존 증거/메모 팝업은 별개 동작 유지.
+
+node --test tests/demo.test.js 21/0/0, node tests/demo-browser.test.js 1218/0/0, npm test 247/0/0, node tests/browser-trial.test.js 217/0/0 (tests/checks / failures / exit). 합계 1703/0/0. 환경은 test-results.log. 금지 파일·trial.html·demo 판정 서비스 무변경. git diff --check와 diff 자체 검토 완료.
+
+상담 대사는 authored fixture. 실제 사진·태그 기반 자동 배정·추가 게임 규칙은 없음. 사람 플레이테스트·독립 리뷰·커밋·병합은 미실시. 요청 범위 외 수정과 다음 VS 작업 없음.
+
+---
+
 # DEMO-001 첫인상 개선 Review Packet — 2026-10-07
 
 목적: 명확한 사건·인물 소개, 1회 브리핑, 점진 공개, 모바일 패널 전환. 자체 점검이며 독립 Reviewer PASS를 대신하지 않는다.

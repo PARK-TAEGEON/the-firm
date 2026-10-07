@@ -99,3 +99,59 @@ summary:focus-visible, button:focus-visible { outline: 2px solid var(--brass-2);
 
 .document-link { background: transparent; border: 0; border-bottom: 1px dashed var(--line-2); }
 .document-link:hover { background: var(--panel); }
+
+/* First consultation: optional location art, bottom dialogue. */
+#consultation { width: min(1100px, calc(100% - 24px)); height: min(740px, calc(100dvh - 24px)); max-height: calc(100dvh - 24px); max-width: calc(100% - 24px); padding: 0; border: 1px solid #596267; border-radius: 12px; background: #263438; color: var(--text); overflow: auto; }
+#consultation::backdrop { background: rgba(0,0,0,.88); }
+.scene-photo, .scene-shade { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.scene-photo { object-fit: cover; }
+.scene-shade { background: rgba(0,0,0,.58); }
+.scene-layout { position: relative; min-height: 100%; display: flex; flex-direction: column; padding: 24px; gap: 24px; }
+.scene-location { color: #e4d6b7; font-size: 14px; }
+#consultation h1 { font-family: var(--serif); margin: 8px 0; font-size: 28px; }
+.scene-dock { margin-top: auto; background: #111820f5; border: 1px solid #596267; border-radius: 10px; padding: 18px; }
+.scene-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; color: var(--muted); }
+.scene-speech { display: flex; width: 100%; gap: 16px; text-align: left; color: var(--text); background: transparent; border: 0; padding: 4px; font: inherit; cursor: pointer; }
+.scene-speech:disabled { opacity: 1; cursor: default; }
+.scene-portrait { width: 64px; height: 76px; flex: 0 0 64px; position: relative; display: grid; place-items: center; border: 1px solid #66747b; border-radius: 6px; background: #2a3943; color: #eee3c9; font-size: 30px; overflow: hidden; }
+.scene-portrait img { position: absolute; width: 100%; height: 100%; object-fit: cover; }
+.scene-utterance { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.scene-utterance b { color: var(--brass-2); }
+.scene-utterance small { color: var(--muted); font-size: 12px; }
+.scene-utterance > span { font-family: var(--serif); font-size: 19px; line-height: 1.7; }
+.scene-hint { font-size: 12px; color: var(--muted); margin: 16px 0 0; text-align: right; }
+.scene-tasks { margin-top: 20px; border-top: 1px solid var(--line-2); padding-top: 12px; }
+.scene-tasks h2 { font-size: 14px; color: var(--brass-2); }
+.scene-tasks ul { padding-left: 20px; font-size: 14px; }
+.scene-transcript { list-style: none; padding: 0; margin: 0; }
+.scene-transcript li { display: flex; gap: 16px; margin: 20px 0; }
+@media (max-width: 900px) {
+  .scene-layout { padding: 14px; }
+  .scene-dock { padding: 12px; }
+  .scene-portrait { width: 42px; height: 54px; flex-basis: 42px; font-size: 24px; }
+  .scene-speech, .scene-transcript li { gap: 10px; }
+  .scene-utterance > span { font-size: 16px; overflow-wrap: anywhere; }
+}
+
+/* With no location photo, keep the first consultation close to its content. */
+#consultation:not(.has-photo){height:fit-content;background:linear-gradient(180deg,#29383d,#19252b)}
+#consultation:not(.has-photo) .scene-shade{display:none}
+#consultation:not(.has-photo) .scene-layout{min-height:0;gap:12px}
+#consultation:not(.has-photo) .scene-dock{margin-top:0}
+
+/* UI polish 1: stage-specific disclosure and compact question area. */
+.scene-speech { cursor: default; }
+.scene-next { display:flex; justify-content:flex-end; margin-top:16px; }
+.app.preparing #memoPanel { display:none; }
+.app.preparing .grid { grid-template-columns:280px minmax(0,1fr); }
+.settle { margin-top:20px; }
+.settle > summary { font-size:15px; font-weight:700; }
+.settle-body { margin-top:12px; }
+[data-disclosure="memo-legend"] { margin-top:14px; font-size:13px; color:var(--muted); }
+.app.cross-exam .stage { flex:0 0 auto; min-height:0; padding-bottom:12px; }
+.app.cross-exam .bar { position:static; }
+.app.cross-exam .approach b { font-size:16px; }
+.app.cross-exam .approach small { font-size:13px; }
+.app.cross-exam .chip { font-size:12px; }
+.app.cross-exam .press { font-size:15px; }
+.app.cross-exam .press em { font-size:12px; }

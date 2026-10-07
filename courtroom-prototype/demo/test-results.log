@@ -1,13 +1,28 @@
-DEMO-001 first-impression and progressive-disclosure verification — 2026-10-07
-Working directory: courtroom-prototype
+DEMO-001 UI 다듬기 1차 — 2026-10-07
+CWD: courtroom-prototype/
+Node v24.19.0; headless bundled Chromium
 NODE_PATH=C:/Users/Admin/AppData/Local/Temp/claude/C--Users-Admin-orca-workspaces-The-Firm-task-demo-001/7c2a23b6-efca-4556-94ef-6e49e1e64e7d/scratchpad/node_modules
 PW_CHANNEL=none-bundled
-node --test tests/demo.test.js: 21 tests, 21 pass, 0 fail, exit 0
-node tests/demo-browser.test.js: 1002 checks, 0 failures, exit 0
-npm test: 247 tests, 247 pass, 0 fail, exit 0
-node tests/browser-trial.test.js: 217 checks, 0 failures, exit 0
-Unique suite total: 1487 tests/checks, 0 failures; all exit 0
-Browser: 1440x900 HTTP / 390x844 file://, seven demo paths each; no overflow or page errors.
-git diff --check: pass. Protected files and trial.html unchanged.
-UI checks: briefing, disclosures, dialog keyboard/Escape/backdrop/focus, sealed exhibits, mobile panels, persistence/reset, raw-record snapshots.
-Intermediate command failure: browser test invoked from repository root using tests/demo-browser.test.js; corrected path and reran successfully.
+
+node --test tests/demo.test.js
+
+exit 0
+
+node tests/demo-browser.test.js
+
+exit 0
+
+npm test
+
+exit 0
+
+node tests/browser-trial.test.js
+
+exit 0
+
+TOTAL: 2081 tests/checks, failures 0, all exit 0
+Prior outcome expectations unchanged. Continue focus/click/Enter, memo stage visibility, settlement disclosure, legend, novice default, header, 390/1440 overflow passed.
+Initial browser run failed on cross-stage overlap; fixed flex basis and reran entire browser suite successfully.
+Before screenshot script radio click timeout fixed via label click; no source/state corruption.
+Screenshots: tests/artifacts/ui1-before-*, ui1-after-*.
+Forbidden files unchanged; git diff --check exit 0. No commit/stage/push.

@@ -1,3 +1,164 @@
+# DEMO-001 UI 다듬기 1차 — 자체 점검 (2026-10-07)
+
+화면 표시만 수정. 판정·원본 기록·수치·기존 결과 기대값 불변. 커밋·stage·push 없음.
+
+## 요청별 전/후 · 모두 충족
+
+| 위치 | 전 | 후 |
+| --- | --- | --- |
+| 첫 상담 | 대화창 클릭/Enter 안내문 | 포커스된 계속 ▸ 버튼. 마지막 줄에는 할 일·사건 파일 열기 |
+| 사건 선택 | 검사 미선택으로 시작 불가 | 신참 기본 선택, 사건 선택으로 돌아올 때도 신참 |
+| 상단 | 사건명 + 별도 죄명 + 검사 역할 | 사건명 · 상대 윤가람/최형석 검사 |
+| 공판 준비 안내 | 긴 안내와 힌트 | 마감 · 반나절 4번. 조사할 자료를 고르세요. |
+| 준비 배치 | 합의 전문 → 조사 | 조사 → 합의 접힘(제목·금액·상태), 펼침 상태 진행 중 유지 |
+| 준비 메모 | 메모 패널/탭 항상 표시 | 준비 중 숨김·가운데 확장, 모두진술부터 복원 |
+| 메모 범례 | 설명 상시 표시 | 읽는 법 ⓘ 펼침 |
+| 미열람 증거 | 내용 미열람 · 조사 후 열람 가능 | 미열람. 팝업 설명 유지 |
+| 모두진술 | 첫 변론 소제목·긴 안내 | 소제목 삭제. 인정할 것과 다툴 것을 고르세요. 공개한 입장은 되돌릴 수 없습니다. |
+| 반대신문 바 | 역할·남은 시간·긴 설명 | 반대신문 · 증인 이름. 시간은 상단 게이지 |
+| 반대신문 선택지 | 작은 글씨·440px 이상 중앙 영역·하단 고정 | 제목16/설명13/칩12/추궁15px, 중앙은 내용 높이, 선택지는 바로 다음 흐름 |
+
+## 스크린샷
+
+실제 파일은 tests/artifacts/에 남겼다(저장소의 기존 ignore 대상, 강제 stage하지 않음). 전은 1440×900/390×900, 후는 기존 브라우저 테스트의 1440×900/390×844. 비교는 화면 배치와 표시 변화 기준이다.
+| 단계 | 데스크톱 전 → 후 | 모바일 전 → 후 |
+| --- | --- | --- |
+| 사건 선택 | [전](../tests/artifacts/ui1-before-desktop-select.png) → [후](../tests/artifacts/ui1-after-desktop-select.png) | [전](../tests/artifacts/ui1-before-mobile-select.png) → [후](../tests/artifacts/ui1-after-mobile-select.png) |
+| 첫 상담 | [전](../tests/artifacts/ui1-before-desktop-consultation.png) → [후](../tests/artifacts/ui1-after-desktop-consultation.png) | [전](../tests/artifacts/ui1-before-mobile-consultation.png) → [후](../tests/artifacts/ui1-after-mobile-consultation.png) |
+| 공판 준비 | [전](../tests/artifacts/ui1-before-desktop-prep.png) → [후](../tests/artifacts/ui1-after-desktop-prep.png) | [전](../tests/artifacts/ui1-before-mobile-prep.png) → [후](../tests/artifacts/ui1-after-mobile-prep.png) |
+| 모두진술 | [전](../tests/artifacts/ui1-before-desktop-opening.png) → [후](../tests/artifacts/ui1-after-desktop-opening.png) | [전](../tests/artifacts/ui1-before-mobile-opening.png) → [후](../tests/artifacts/ui1-after-mobile-opening.png) |
+| 반대신문 | [전](../tests/artifacts/ui1-before-desktop-cross.png) → [후](../tests/artifacts/ui1-after-desktop-cross.png) | [전](../tests/artifacts/ui1-before-mobile-cross.png) → [후](../tests/artifacts/ui1-after-mobile-cross.png) |
+
+합의 펼침: [데스크톱](../tests/artifacts/ui1-after-desktop-settlement.png), [모바일](../tests/artifacts/ui1-after-mobile-settlement.png).
+판결은 기존 demo-compact-{desktop,mobile}-*.png / demo-{desktop,mobile}-*.png로 계속 저장한다.
+수정 후 스크린샷은 애니메이션을 끝낸 상태로 캡처한다. 준비·상담·반대신문 시각 점검 완료.
+
+## 검증
+
+| 실행 명령 | tests/checks | failures | exit |
+| --- | ---: | ---: | ---: |
+| node --test tests/demo.test.js | 22 | 0 | 0 |
+| node tests/demo-browser.test.js | 1595 | 0 | 0 |
+| npm test | 247 | 0 | 0 |
+| node tests/browser-trial.test.js | 217 | 0 | 0 |
+| 합계 | 2081 | 0 | 0 |
+
+추가/변경 검증: 상담 계속 버튼 포커스와 클릭/Enter 완주, 마지막 버튼 교체, 신참 기본값/초기화, 상단 제목, 준비 메모 패널/탭 숨김과 모두진술 복원, 합의 접힘/펼침, 범례 펼침, 1440/390 가로 넘침. 기존 결과 5종 기대값 및 원본 기록 불변 테스트 그대로 통과.
+중간 실행에서 flex:0의 높이 축소로 조서와 선택지가 겹친 것을 발견해 flex:0 0 auto로 수정했다. 최종 브라우저 전체 재실행 통과.
+변경 전 캡처 스크립트는 가려진 radio 직접 클릭으로 한 번 timeout; label 클릭으로 바꿔 캡처 완료. 서비스 상태/데이터 파일 오염 없음.
+git diff --check 통과. 금지 engine/trial.js·services/trial.js, trial.html, demo-outcome 무변경. 기존 미커밋 파일과 사용자 assets/는 보존했다.
+
+## 규칙·한계
+
+RULES.md §12: 표시 규칙만. 새 판정 규칙 없음. 첫 상담/자료/결과는 기존 authored fixture, 사진/초상 및 pool 상태를 바꾸지 않음.
+사람 플레이테스트와 독립 리뷰는 미실시. 판단할 질문: 조사와 합의 순서가 자연스러운가? 반대신문 선택지 크기와 간격이 읽기 편한가?
+범위 밖 변경·다음 단계 작업 없음.
+
+---
+
+# DEMO-001 몰입 라운드 후속 — 자체 점검 (2026-10-07)
+
+Codex · Lane: experiment. 커밋·stage·병합·push 없음. 아래 이전 보고서는 변경 이력이다.
+
+## 완료 기준과 근거
+
+- 인물: 정민호(38), 오태윤(41), 한지수(34), 서동국 경위, 윤가람/최형석을 presentation 데이터에 추가. 법정·공판 조서 화자, 검사 선택, 합의 대화, 사건 메모에 이름과 역할을 표시한다. 법정 얼굴은 한/서/윤/최.
+- 사정: 공동 작업실 운영·정산 다툼, 방송 외주 갱신과 “형사처벌 이력 시 해지”, 오태윤의 3주째 작업 불가를 메모/상담/합의에 반영했다.
+- 첫 상담: 8줄(정민호 5·변호인 3). 최초 접촉 부인과 재면담 반전 유지. 할 일 2줄·Enter/클릭·전체 보기·종료 포커스 유지.
+- 결과: 유죄는 계약 조항 걱정, 무죄/공소기각은 계약 유지 한 줄 추가. outcome 데이터는 변경하지 않는다.
+- 무사진: 은은한 세로 그라데이션, 장소·제목 바로 아래 대화창, 내용에 맞는 창 높이. 1440/390에서 위/아래 빈 공간과 가로 넘침 검사. 사진 fixture에서는 기존 배경·어두운 오버레이 유지.
+- 판정·기록·수치: 원본 variants/settlement 데이터가 작업 전 snapshot과 동일. 표시명을 바꾼 10개 대표 경로의 세션 기록·공판 기록·전체 outcome deepEqual. 기존 결과 5종 기대값 그대로. 베테랑 무죄 불가도 기존 전수 탐색으로 유지.
+- 금지 파일: engine/trial.js, services/trial.js, trial.html, services/demo-outcome.js 무변경. 제외 아트 2개 미사용·미수정·미stage.
+
+## 대사 전/후
+
+상담 순서 기준. 동일한 대사도 반전 보존 확인을 위해 기재한다.
+
+| 새 순서 | 전 | 후 |
+| --- | --- | --- |
+| 1 | 변호사님, 작업실에서 정산 문제로 말다툼을 했어요. 그런데 제가 사람을 다치게 했다며 재판을 받게 됐습니다. | 저는 프리랜서 영상 편집자입니다. 오태윤 씨와 작업실을 같이 운영하는데, 정산 문제로 말다툼을 했어요. |
+| 2 | 우선 앉으세요. 서두르지 않으셔도 됩니다. 그날 어떤 일이 있었는지 말씀해 주세요. | 우선 앉으세요. 서두르지 않으셔도 됩니다. 그날 어떤 일이 있었는지 말씀해 주세요. |
+| 3 | 말이 좀 심하게 오가긴 했습니다. 그래도 몸은 건드리지 않았어요. | 말이 좀 심하게 오가긴 했습니다. 그래도 몸은 건드리지 않았어요. |
+| 4 | 그 사람이 넘어져 손목을 다쳤다고 하더라고요. 검찰에서는 제가 밀어서 그렇게 됐다는 거예요. | 태윤 씨가 넘어져 손목을 다쳤다고 하더라고요. 검찰에서는 제가 밀어서 그렇게 됐다며 상해로 기소했습니다. |
+| 5 | 검찰은 목격자 진술과 진단서를 냈습니다. 민호 씨 말씀도 듣고, 그 자료가 어디까지 확인해 주는지 살펴보겠습니다. | 같은 작업실을 쓰는 한지수 씨의 진술과 진단서가 나와 있네요. 민호 씨 말씀도 듣고, 자료가 어디까지 확인해 주는지 살펴보겠습니다. |
+| 6 | (신규) | 다음 달에 방송 외주 계약을 갱신해야 해요. 계약서에 “형사처벌 이력 시 해지”라고 적혀 있어서, 일을 계속할 수 있을지 걱정입니다. |
+| 7 | 합의 이야기도 들었습니다. 돈을 드리면 재판까지 끝나는 건가요? | 합의 이야기도 들었습니다. 돈을 드리면 재판까지 끝나는 건가요? |
+| 8 | 합의해도 재판은 계속될 수 있어요. 조건을 함께 읽고 어떤 의미인지 설명드리겠습니다. 결정은 그다음에 하시죠. | 합의해도 재판은 계속될 수 있어요. 합의 조건과 걱정하시는 계약 조항을 함께 살펴보겠습니다. 설명을 들으신 뒤 결정하시죠. |
+
+| 표시 위치 | 전 | 후 |
+| --- | --- | --- |
+| 법정/조서 화자 | 목격자 / 담당 수사관 | 한지수 · 목격자 · 공동 작업자 / 서동국 · 담당 수사관 · 경위 |
+| 검사 선택/화자 | 신참 검사 / 베테랑 검사 | 윤가람 · 신참 검사 / 최형석 · 베테랑 검사 |
+| 합의 피해자 화자 | 피해자 측 | 오태윤 · 피해자 |
+| 합의 사정 | 없음 | 오태윤 씨는 손목 부상으로 3주째 편집 작업을 못 하고 있습니다. |
+| 유죄 결과 부연 | 없음 | 정민호 씨는 다음 달 방송 외주 계약 갱신을 앞두고, 계약서의 “형사처벌 이력 시 해지” 조항이 걱정입니다. |
+| 무죄·공소기각 부연 | 없음 | 정민호 씨는 이번 사건의 형사처벌 이력으로 계약이 끊길 걱정을 덜고, 방송 외주 계약을 유지합니다. |
+
+## 검증
+
+실행 위치 courtroom-prototype/. NODE_PATH/PW_CHANNEL은 test-results.log에 기록.
+
+| 명령 | tests/checks | failures | exit |
+| --- | ---: | ---: | ---: |
+| node --test tests/demo.test.js | 22 | 0 | 0 |
+| node tests/demo-browser.test.js | 1460 | 0 | 0 |
+| npm test | 247 | 0 | 0 |
+| node tests/browser-trial.test.js | 217 | 0 | 0 |
+| 합계 | 1946 | 0 | 0 |
+
+브라우저는 1440 HTTP / 390 file://, 14회 완주. 이름/성 initial/상담 사정/합의/계약 결과/팝업/펼침/포커스/이미지 fixture/가로 넘침 검증.
+첫 실행의 스크린샷에서 상담 창 하단 여백을 발견하여 height:fit-content로 수정했고 위·아래 간격 회귀를 추가해 재실행했다.
+
+## 새 규칙·한계
+
+RULES.md §11의 표시 규칙만 추가. 인물과 계약은 authored 서사이며 계약 해지/갱신 simulation은 없다. 이름은 원본 기록에 저장하지 않고 기존 ID를 화면에서 해석한다.
+실제 사진·초상은 없고 이미지 테스트는 작은 GIF fixture다. pool 자동 배정은 미구현. 판정·법률 규칙·수치는 추가하지 않았다.
+사람 플레이테스트/독립 리뷰/병합은 미실시. 사람이 판단할 질문: 상담 말투가 자연스러운가? 계약 사정이 부담을 이해하는 데 도움이 되는가?
+다음 단계 작업과 범위 외 변경 없음.
+
+---
+
+# DEMO-001 B — 첫 상담 장면 자체 점검 (2026-10-07)
+
+Codex · Lane: experiment · 커밋·stage·병합·push 없음. 아래는 이전 변경 이력이다.
+
+## 이번 요청과 완료 기준
+
+| 항목 | 결과 |
+| --- | --- |
+| 시작 장면 | 사건 메모 자동 표시 대신 사무실 응접실 첫 상담. scene.location = office_lounge |
+| 장소 매니페스트 | data/demo-locations.js에 key/label 및 선택 image 구조. 현재 사진 없이 단색·장소 라벨. 이미지 fixture에서 오버레이 확인 |
+| 대화창 | 화면 하단. 정민호 4줄·변호인 3줄, 클릭/Enter 한 줄 진행·전체 보기. 처음에는 몸을 건드리지 않았다고 말해 재면담 반전 유지 |
+| 마지막 행동 | 할 일 두 줄·사건 파일 열기. 마지막 대사 또는 전체 보기 전에는 종료 버튼 없음 |
+| 초상 | data/demo-portraits.js의 빈 byId/pool. 인물 ID별 URL만 조회; 기본 정/변 initial. pool 자동 배정 미구현 |
+| 참고 자료 | 상단 사건 메모 재열기 유지. 정민호 이름·38세·사건 사정과 안내 유지 |
+| 접근성 | 상담 Esc/바깥 클릭 차단, Enter 진행, 완료 후 #phaseTitle 포커스. 390px 가로 넘침 없음 |
+| 판정·기록 | 상담 전후 raw 기록·outcome snapshot 동일. engine/trial.js·services/trial.js·trial.html 및 demo 판정 서비스 무변경 |
+| 제외 아트 | 기존 untracked ui/trial-demo-art.js와 ui/art/consult-scene.svg는 읽거나 로드·수정·stage하지 않음. 커밋 대상 제외 |
+
+## 검증
+
+실행 위치 courtroom-prototype/. 기존 임시 Playwright 설치와 bundled Chromium 사용(NODE_PATH/PW_CHANNEL은 test-results.log).
+
+| 명령 | tests/checks | failures | exit |
+| --- | ---: | ---: | ---: |
+| node --test tests/demo.test.js | 21 | 0 | 0 |
+| node tests/demo-browser.test.js | 1218 | 0 | 0 |
+| npm test | 247 | 0 | 0 |
+| node tests/browser-trial.test.js | 217 | 0 | 0 |
+| 합계 | 1703 | 0 | 0 |
+
+브라우저: 1440×900 HTTP 및 390×844 file:// 각 7경로 완주. 상담 7줄 클릭/Enter, 전체 보기, 마지막 할 일, Esc/바깥 클릭 차단, 포커스 복귀, 매 판 초기화, 그림 없는 대체 표시, 인물 ID 초상 매칭/비매칭, 장소 이미지 오버레이, pool 미사용, UI 조작 전후 기록 불변과 기존 점진 공개 회귀를 확인했다. 데스크톱/모바일 첫 상담 스크린샷을 직접 검토했다.
+기존 계약의 5종 결과·검사별 경로·결정성·전수 탐색·회귀·폭별 완주는 유지한다. 사람의 첫 완주·재미는 PLAYTEST-001에서 확인해야 한다.
+
+## 범위와 한계
+
+변경 목록은 demo/REVIEW_PACKET.md, 새 표시 규칙은 RULES §10. 실제 사진·초상은 추가하지 않았다. pool 자동 배정·법률 규칙·새 공판 기능은 구현하지 않는다. 상담 7줄과 메모는 고정 authored 안내다. 사건 메모의 초기 진술은 이후 재면담 기록을 대체하지 않는다.
+
+사람이 확인할 질문: 상담 말투가 자연스러운가? 7줄의 길이가 적당한가? 마지막 두 줄만 읽고 조사·합의로 이동할 수 있는가?
+
+---
+
 # DEMO-001 첫인상·점진 공개 자체 점검 (2026-10-07)
 
 Codex · Lane: experiment · 커밋·병합·push 없음. 이전 P1 수정은 아래 이력에 보존한다.

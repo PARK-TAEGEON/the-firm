@@ -32,6 +32,7 @@ async function run() {
   try {
     for (const [vpName, vp] of Object.entries(VIEWPORTS)) for (const [pName, plan] of Object.entries(PLANS)) {
       const tag = vpName + '/' + pName;
+      const prosecutorName = plan.prosecutor === 'novice' ? '윤가람' : '최형석';
       const page = await browser.newPage({ viewport: vp }); page.setDefaultTimeout(4000);
       const errors = []; page.on('pageerror', e => errors.push(e.message)); page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
       await page.addInitScript(() => {
@@ -52,7 +53,7 @@ async function run() {
       // start screen: signature + daily files, prosecutor choice
       check(await page.isVisible('text=사건 파일'), 'start screen');
       check((await page.$$('.file-card.daily')).length === 2, 'two daily summaries');
-      check(await page.isDisabled('[data-action=start]'), 'start blocked until prosecutor chosen');
+      check(await page.isChecked('input[value=novice]') && !(await page.isDisabled('[data-action=start]')), 'novice selected by default');
       await page.click('.file-card.daily >> nth=0');
       check((await page.textContent('.daily-open')).includes('전망'), 'daily summary shows forecast in words');
       await noOverflow('daily');
@@ -60,19 +61,57 @@ async function run() {
       await page.click('.file-card.daily >> nth=0');
       check(!(await page.$('.daily-open')), 'same daily button closes summary');
       check((await page.textContent('#stage')).includes('베테랑 = 어려움 모드, 첫 판은 신참 권장'), 'difficulty guidance');
+      check((await page.textContent(`label:has(input[value=${plan.prosecutor}])`)).includes(prosecutorName), 'named prosecutor choice');
       await page.click(`label:has(input[value=${plan.prosecutor}])`);
       await noOverflow('start');
+      if (pName === 'novice_acquittal') await page.screenshot({ animations: 'disabled',path:path.join(out, 'ui1-after-' + vpName + '-select.png'), fullPage:true});
       await page.click('[data-action=start]');
 
-      check((await page.textContent('#reader')).includes('정민호 · 38세'), 'named client in memo');
-      check((await page.textContent('#reader')).includes('무죄만이 좋은 결과는 아닙니다.'), 'memo sets result expectations');
-      check((await page.textContent('#caseTitle')).includes('작업실 정산 다툼 상해 사건'), 'descriptive display title');
-      await noOverflow('briefing');
-      if (pName === 'novice_acquittal') await page.screenshot({ path: path.join(out, 'demo-briefing-' + vpName + '.png') });
+      check((await page.textContent('#consultation')).includes('사무실 응접실'), 'location fallback label');
+      check((await page.textContent('#consultation')).includes('정민호'), 'named client in consultation');
+      check((await page.textContent('#caseTitle')).includes('작업실 정산 다툼 상해 사건 · 상대 ' + prosecutorName + ' 검사'), 'header omits repeated charge and prosecutor role');
+      check(await page.locator('.scene-photo, .scene-portrait img').count() === 0, 'empty art manifests use solid/initial fallback');
+      check(await page.locator('.scene-portrait').textContent() === '정', 'surname initial fallback');
+      check(await page.evaluate(() => {
+        const dialog = document.querySelector('#consultation').getBoundingClientRect();
+        const header = document.querySelector('.scene-layout header').getBoundingClientRect();
+        const dock = document.querySelector('.scene-dock').getBoundingClientRect();
+        return header.top - dialog.top <= 30 && dock.top - header.bottom <= 16 && dialog.bottom - dock.bottom <= 30;
+      }), 'no-photo consultation has no empty stage above dialogue');
+      check(await page.evaluate(() => document.activeElement.dataset.scene === 'next'), 'continue button initially focused');
       const startRecord = await page.evaluate(() => window.demoSnapshot());
-      await page.click('#reader [data-action=closeReader]');
-      check(!(await page.$('dialog[open]')), 'briefing enters case file');
-      await page.click('[data-action=memo]'); await page.keyboard.press('Escape');
+      await page.keyboard.press('Escape'); await page.mouse.click(1, 1);
+      check(await page.isVisible('#consultation'), 'consultation cannot dismiss by Escape or backdrop');
+      check(await page.locator('[data-scene=finish]').count() === 0, 'case file gated until dialogue completed');
+      await noOverflow('consultation');
+      if (pName === 'novice_acquittal') await page.screenshot({ animations: 'disabled', path: path.join(out, 'ui1-after-' + vpName + '-consultation' + '.png') });
+      if (pName === 'novice_acquittal') {
+        const seenLines = [await page.textContent('.scene-speech')];
+        for (let i = 0; i < 7; i++) {
+          if (i % 2) await page.click('[data-scene=next]'); else await page.keyboard.press('Enter');
+          seenLines.push(await page.textContent('.scene-speech'));
+          await noOverflow('consultation line ' + (i + 2));
+        }
+        check(seenLines.join(' ').includes('오태윤') && seenLines.join(' ').includes('계약'), 'consultation names co-operator and contract stakes');
+        check(await page.locator('[data-scene=next]').count() === 0, 'last line replaces continue with final tasks');
+        check(new Set(seenLines).size === 8, 'click/Enter advances exactly eight lines');
+        check(seenLines.some(l => l.includes('몸은 건드리지 않았어요')), 'initial denial preserves reinterview reveal');
+      } else {
+        await page.click('[data-scene=all]');
+        check(await page.locator('.scene-transcript li').count() === 8, 'full dialogue disclosure');
+        check((await page.textContent('.scene-transcript')).includes('오태윤') && (await page.textContent('.scene-transcript')).includes('계약'), 'full consultation includes personal circumstances');
+        check((await page.textContent('.scene-transcript')).includes('몸은 건드리지 않았어요'), 'full view preserves initial denial');
+      }
+      check(await page.locator('.scene-tasks li').count() === 2, 'two final tasks');
+      await noOverflow('consultation final');
+      await page.click('[data-scene=finish]');
+      check(await page.evaluate(() => document.activeElement.id === 'phaseTitle'), 'consultation closes to phase title focus');
+      check(!(await page.$('dialog[open]')), 'consultation enters case file');
+      check(await page.evaluate(() => window.demoSnapshot()) === startRecord, 'consultation does not mutate records');
+      await page.click('[data-action=memo]');
+      check((await page.textContent('#reader')).includes('정민호 · 38세'), 'named reference memo retained');
+      check((await page.textContent('#reader')).includes('무죄만이 좋은 결과는 아닙니다.'), 'memo reference content retained');
+      await page.keyboard.press('Escape');
       check(await page.evaluate(() => document.activeElement.dataset.action === 'memo'), 'memo restores focus');
       check(await page.evaluate(() => window.demoSnapshot()) === startRecord, 'memo does not mutate records');
       const panel = async id => { if (vpName === 'mobile') await page.click('[data-action=panel][data-id=' + id + ']'); };
@@ -86,6 +125,14 @@ async function run() {
 
       // prep + settlement
       check(await page.isVisible('text=공판 준비'), 'prep');
+      check(!(await page.isVisible('#memoPanel')) && await page.locator('[data-action=panel][data-id=memoPanel]').count() === 0, 'prep hides memo panel and tab');
+      check(!(await page.isVisible('.settle-body')), 'settlement starts collapsed');
+      if (pName === 'novice_acquittal') await page.screenshot({ animations: 'disabled',path:path.join(out, 'ui1-after-' + vpName + '-prep.png'), fullPage:true});
+      await page.locator('.settle > summary').click();
+      check(await page.isVisible('.settle-body'), 'settlement expands');
+      await noOverflow('expanded settlement');
+      if (pName === 'novice_acquittal') await page.screenshot({ animations: 'disabled',path:path.join(out, 'ui1-after-' + vpName + '-settlement.png'), fullPage:true});
+      check((await page.textContent('.settle')).includes('오태윤') && (await page.textContent('.victim-situation')).includes('3주째'), 'victim settlement circumstances');
       check((await page.$$('[data-action=investigate]')).length === 5, 'five investigations (settlement consult is separate)');
       for (const id of plan.prep) await page.click(`[data-action=investigate][data-id=${id}]`);
       await panel('filePanel');
@@ -119,6 +166,17 @@ async function run() {
       }
       await noOverflow('prep');
       await page.click('[data-action=finishPrep]');
+      if (vpName === 'mobile') {
+        check(await page.locator('[data-action=panel][data-id=memoPanel]').count() === 1, 'opening restores memo tab');
+        await panel('memoPanel');
+      }
+      check(await page.isVisible('#memoPanel'), 'opening restores memo panel');
+      check(!(await page.isVisible('.memo-foot')), 'memo legend starts collapsed');
+      await page.locator('[data-disclosure=memo-legend] > summary').click();
+      check(await page.isVisible('.memo-foot'), 'memo legend expands');
+      await page.locator('[data-disclosure=memo-legend] > summary').click();
+      if (vpName === 'mobile') await panel('courtPanel');
+      if (pName === 'novice_acquittal') await page.screenshot({ animations: 'disabled',path:path.join(out, 'ui1-after-' + vpName + '-opening.png'), fullPage:true});
 
       check(await page.getAttribute('[data-disclosure="' + cardKey + '"]', 'open') !== null, 'card expansion survives progress');
       check(!(await page.$('dialog[open]')), 'briefing is not repeated on progress');
@@ -141,7 +199,13 @@ async function run() {
         if (await page.$('[data-action=rebut]')) { await page.click(plan.rebut === false ? '[data-action=skipRebut]' : '[data-action=rebut]'); continue; }
         if (await page.$('[data-action=endCross]')) {
           sawCross++;
+          const witnessLabel = await page.textContent('#bar .bar-head .label');
+          const witnessName = witnessLabel.includes('서동국') ? '서동국' : '한지수';
+          check((await page.textContent('.bench')).includes(witnessName) && (await page.textContent('.bench')).includes(prosecutorName), 'named witness and prosecutor on court');
+          check(await page.locator('[data-side=W] .face').textContent() === witnessName[0], 'witness surname portrait');
+          check(await page.locator('[data-side=PROSECUTOR] .face').textContent() === prosecutorName[0], 'prosecutor surname portrait');
           if (sawCross === 1) {
+            if (pName === 'novice_acquittal') await page.screenshot({ animations: 'disabled',path:path.join(out, 'ui1-after-' + vpName + '-cross.png'), fullPage:true});
             await panel('filePanel'); await noOverflow('cross materials');
             const usable = await page.locator('.card.usable').count();
             if (pName === 'novice_acquittal') check(usable === 2, 'currently available cards highlighted');
@@ -155,7 +219,7 @@ async function run() {
           }
           await noOverflow('cross'); await noNumbers('cross');
           const label = await page.textContent('#bar .bar-head .label');
-          const q = queues[label.includes('수사관') ? '담당 수사관' : '목격자'];
+          const q = queues[label.includes('서동국') ? '담당 수사관' : '목격자'];
           const step = q.shift();
           if (!step) { await page.click('[data-action=endCross]'); continue; }
           const [kind, id] = step.split(':');
@@ -170,7 +234,7 @@ async function run() {
       await page.waitForSelector('#verdictTitle');
       check((await page.textContent('#verdictTitle')).includes(plan.expect), `${tag}: outcome ${plan.expect}`);
       check(await page.evaluate(() => document.activeElement && document.activeElement.id === 'verdictTitle'), 'focus moves to outcome');
-      await page.screenshot({ path: path.join(out, 'demo-compact-' + vpName + '-' + pName + '.png'), fullPage: true });
+      await page.screenshot({ animations: 'disabled', path: path.join(out, 'demo-compact-' + vpName + '-' + pName + '.png'), fullPage: true });
       check((await page.locator('.outcome-core > li').count()) === 3, 'three core result lines');
       check(!(await page.isVisible('.review')), 'review details start collapsed');
       check(await page.getAttribute('.transcript', 'open') !== null, 'history expansion survives progress');
@@ -189,17 +253,37 @@ async function run() {
       if (pName === 'veteran_passed') check((await page.textContent('.passed')).includes('목격자에게 보지 않은 낙상'), 'passed objection explains injury outcome');
       if (pName === 'novice_reinterview') check(!review.includes('다시 만났다면') && review.includes('의뢰인의 밀침 인정과 다른'), 'reinterview is acknowledged');
       if (pName === 'veteran_unused') check((await page.textContent('.miss')).includes('동선을 제시하지'), 'natural card particle');
+      check((await page.textContent('.client-stakes')).includes(plan.sentence ? '조항이 걱정' : '계약을 유지'), 'outcome client stakes');
       const history = await page.textContent('.transcript');
+      check(['한지수', '서동국', prosecutorName].every(n => history.includes(n)), 'both witnesses and prosecutor named in transcript');
       check(history.includes('검사 측 증인, 증인석으로 나와 주십시오.') && history.includes('주문.'), 'corrected transcript');
       check(!/개회사|현장 조사관|의견 유도|을\(를\)/.test(await page.textContent('#app')), 'old terminology absent');
       await noOverflow('outcome'); await noNumbers('outcome');
-      await page.screenshot({ path: path.join(out, `demo-${vpName}-${pName}.png`), fullPage: true });
+      await page.screenshot({ animations: 'disabled', path: path.join(out, `demo-${vpName}-${pName}.png`), fullPage: true });
 
       await page.click('[data-action=reset]');
       check(await page.isVisible('text=사건 파일'), 'reset returns to case files');
+      check(await page.isChecked('input[value=novice]'), 'new selection defaults to novice');
+      await page.evaluate(() => { window.FirmDemoPortraits.pool.push({ image: 'unused-pool-image.png', tags: ['client'] }); });
       await page.click('[data-action=start]');
-      check(await page.isVisible('#reader'), 'new game shows briefing again');
-      await page.click('#reader [data-action=closeReader]');
+      check(await page.isVisible('#consultation'), 'new game shows consultation again');
+      check((await page.textContent('.scene-controls')).includes('1 / 8'), 'new consultation resets line');
+      check(await page.locator('.scene-portrait img').count() === 0, 'reserved pool does not assign portraits');
+      if (pName === 'novice_acquittal') {
+        await page.evaluate(() => {
+          const image = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+          window.FirmDemoLocations[0].image = image;
+          window.FirmDemoPortraits.byId.CLIENT_SIG_CONTACT = image;
+        });
+        // The next speaker has no mapping: explicit ID lookup must not spill over.
+        await page.keyboard.press('Enter');
+        check(await page.locator('.scene-photo').count() === 1, 'optional location image used');
+        check(await page.locator('.scene-portrait img').count() === 0, 'unmapped speaker retains initial');
+        await page.keyboard.press('Enter');
+        check(await page.locator('.scene-portrait img').count() === 1, 'portrait selected by person ID');
+        check(await page.locator('.scene-shade').evaluate(el => getComputedStyle(el).backgroundColor.includes('0.58')), 'location photo dark overlay');
+      }
+      await page.click('[data-scene=all]'); await page.click('[data-scene=finish]');
       await page.click('[data-action=investigate][data-id=' + plan.prep[0] + ']');
       check(await page.locator('details[open]').count() === 0, 'new game resets all disclosure states');
       if (vpName === 'mobile') check(await page.isVisible('#courtPanel') && !(await page.isVisible('#filePanel')), 'new game resets mobile tab');
