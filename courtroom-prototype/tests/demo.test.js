@@ -293,3 +293,64 @@ test('DEC-032: demo services hold no Korean rule values, names or article number
     assert.doesNotMatch(src, /SIG_|SEPARATED/, f + ' references a case id');
   }
 });
+
+
+test('review: acquittal and dismissal omit unrelated missed preparation', () => {
+  for (const name of ['novice_acquittal', 'novice_dismissal', 'veteran_dismissal']) assert.deepEqual(run(name).o.missed, [], name);
+  assert.deepEqual(run('novice_assault').o.missed, [], 'causation preparation is not an assault verdict basis');
+  assert.ok(run('novice_injury_suspended').o.missed.length > 0, 'relevant missing preparation still shown');
+});
+
+test('review: passed valid objections cite the actual record, not invalid or sustained objections', () => {
+  const [pid, plan] = PATHS.veteran_dismissal;
+  const passed = play(pid, { ...plan, object: [VALID[1]] });
+  assert.equal(passed.o.key, 'injury');
+  assert.equal(passed.o.passed.length, 1);
+  const rec = passed.v.trial.records.find(r => r.id === passed.o.passed[0].recordId);
+  assert.equal(rec.refId, VALID[0]); assert.equal(rec.ruling, 'pass');
+  assert.match(passed.o.passed[0].text, /밀침과 상해/);
+  assert.deepEqual(run('veteran_dismissal').o.passed, []);
+  assert.equal(run('veteran_injury_suspended').o.passed.length, 2);
+});
+
+test('review: reinterviewed denial is a known contradiction, not missed preparation', () => {
+  for (const pid of ['novice', 'veteran']) {
+    const unknown = play(pid, { stance: 'S_SIG_DENY' });
+    const known = play(pid, { prep: ['INV_SIG_CLIENT'], stance: 'S_SIG_DENY' });
+    assert.ok(unknown.o.missed.some(x => /다시 만났다면/.test(x.text)));
+    assert.ok(!known.o.missed.some(x => /다시 만났다면/.test(x.text)));
+    assert.ok(known.o.backfired.some(x => /의뢰인의 밀침 인정과 다른/.test(x.text)));
+    assert.deepEqual(known.o.issues, unknown.o.issues, 'wording fix does not alter adjudication');
+  }
+});
+
+test('review: one layout reminder prefers the concrete redirect record; held but unused is distinct', () => {
+  const absent = run('veteran_surface_fine');
+  const layout = absent.o.missed.filter(x => /가림막 뒤/.test(x.text));
+  assert.equal(layout.length, 1); assert.ok(layout[0].recordId);
+  const unused = play('veteran', { ...PATHS.veteran_dismissal[1], rebut: false });
+  assert.equal(unused.o.missed.length, 1);
+  assert.match(unused.o.missed[0].text, /준비한/);
+  assert.equal(run('veteran_dismissal').o.missed.length, 0);
+});
+
+test('presentation: orders come from the pack and display records never rewrite raw records', () => {
+  for (const name of Object.keys(PATHS)) {
+    const { s, v, o } = run(name);
+    assert.match(o.pronouncement, /^주문\./);
+    const raw = JSON.stringify(v.trial.records);
+    const call = v.trial.displayRecords.find(r => r.kind === 'witness_call');
+    assert.equal(call.lines[0].text, PACK.presentation.witnessCall);
+    assert.equal(v.trial.displayRecords.at(-1).lines.at(-1).text, o.pronouncement);
+    assert.notEqual(v.trial.records.at(-1).lines.at(-1).text, o.pronouncement);
+    assert.equal(JSON.stringify(s.projection().trial.records), raw);
+  }
+});
+
+test('presentation: Korean object particles handle both final-consonant and vowel card titles', () => {
+  const text = require('../ui/trial-demo-text');
+  assert.equal(text.objectParticle('현장 동선'), '현장 동선을');
+  assert.equal(text.objectParticle('준비 자료'), '준비 자료를');
+  assert.equal(text.format('준비한 현장 동선을(를) 제시하지 않았다.'), '준비한 현장 동선을 제시하지 않았다.');
+  assert.equal(text.format('준비 자료을(를) 제시'), '준비 자료를 제시');
+});

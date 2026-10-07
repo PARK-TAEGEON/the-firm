@@ -60,3 +60,42 @@
   .outcome h1 { font-size: 40px; }
   .review.four { grid-template-columns: 1fr; }
 }
+
+/* DEMO first impression: disclosure is local UI state, not trial state. */
+summary { cursor: pointer; }
+summary:focus-visible, button:focus-visible { outline: 2px solid var(--brass-2); outline-offset: 3px; }
+.card summary { font-weight: 700; }
+.card.usable { border: 2px solid var(--brass); }
+.card.usable summary::after { content: ' · 지금 사용 가능'; color: var(--brass-2); font-size: 11px; }
+.document-link { width: 100%; display: block; text-align: left; color: inherit; font: inherit; cursor: pointer; }
+.exhibit-summary { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--muted); }
+.issue details { font-size: 13px; margin-top: 8px; }
+.stage > details, .outcome > details { border-top: 1px solid var(--line-2); margin-top: 16px; padding-top: 12px; }
+.outcome > details { text-align: left; }
+.outcome-core { max-width: 620px; margin: 18px auto; padding-left: 24px; text-align: left; }
+.outcome-core li { padding: 5px 0; }
+.memo-open { font-size: 12px; padding: 4px 8px; }
+.panel-tabs { display: none; }
+#reader { box-sizing: border-box; width: min(680px, calc(100% - 32px)); max-height: calc(100dvh - 32px); overflow-y: auto; background: var(--panel); color: var(--text); border: 1px solid var(--brass); border-radius: 12px; padding: 24px; line-height: 1.65; }
+#reader::backdrop { background: rgba(0,0,0,.78); }
+#reader h1 { font-family: var(--serif); font-size: 26px; margin: 0 0 8px; }
+#reader h2 { font-size: 16px; }
+#reader ul { padding-left: 20px; }
+#reader li + li { margin-top: 6px; }
+#reader dt { color: var(--brass-2); font-weight: 700; }
+#reader dd { margin: 0 0 12px; }
+#reader .memo-closing { border-top: 1px solid var(--line-2); padding-top: 14px; }
+.document-body { white-space: pre-wrap; font-family: var(--serif); font-size: 18px; }
+@media (max-width: 900px) {
+  .panel-tabs:not([hidden]) { display: flex; gap: 6px; padding: 8px 16px; background: var(--bg); }
+  .panel-tabs button { flex: 1; border: 1px solid var(--line-2); border-radius: 6px; padding: 10px; color: var(--text); background: var(--panel); cursor: pointer; }
+  .panel-tabs button[aria-pressed=true] { border-color: var(--brass); color: var(--brass-2); }
+  .app:not(.select)[data-mobile-panel=filePanel] #courtPanel, .app:not(.select)[data-mobile-panel=filePanel] #memoPanel,
+  .app:not(.select)[data-mobile-panel=courtPanel] #filePanel, .app:not(.select)[data-mobile-panel=courtPanel] #memoPanel,
+  .app:not(.select)[data-mobile-panel=memoPanel] #filePanel, .app:not(.select)[data-mobile-panel=memoPanel] #courtPanel { display: none; }
+  .grid > * { min-width: 0; width: 100%; box-sizing: border-box; }
+  .findings li { flex-wrap: wrap; }
+}
+
+.document-link { background: transparent; border: 0; border-bottom: 1px dashed var(--line-2); }
+.document-link:hover { background: var(--panel); }

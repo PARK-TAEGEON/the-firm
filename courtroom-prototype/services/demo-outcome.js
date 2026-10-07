@@ -55,7 +55,7 @@ function decide(caseDef, pack, trialDef, trialRecords, sessionRecords) {
   let sentence = null;
   if (convicted) {
     const row = pack.sentencing.table.find(x => x.offense === offenseId && x.victimWill === !!will);
-    sentence = row ? { kind: row.sentence, label: pack.sentencing.labels[row.sentence], text: row.text, reason: row.reason, disclaimer: pack.sentencing.disclaimer, premise: pack.sentencing.premise }
+    sentence = row ? { kind: row.sentence, label: pack.sentencing.labels[row.sentence], pronouncement: row.pronouncement, text: row.text, reason: row.reason, disclaimer: pack.sentencing.disclaimer, premise: pack.sentencing.premise }
                    : { kind: null, label: pack.sentencing.unassessed, text: pack.sentencing.unassessed, reason: '', disclaimer: pack.sentencing.disclaimer, premise: pack.sentencing.premise };
   }
 
@@ -74,8 +74,36 @@ function decide(caseDef, pack, trialDef, trialRecords, sessionRecords) {
 
   // 복기: 당신이 뚫은 것 / 상대가 막은 것 / 역효과 / 놓친 준비. 모두 실제 기록에서만 인용한다.
   const rv = T.review(trialDef, trialRecords);
+  const directOf = r => r && r.kind === 'direct'
+    ? trialDef.witnesses.find(w => w.id === r.witnessId).direct.find(x => x.id === r.refId) : null;
+  const backfired = rv.backfired.map(m => {
+    const step = directOf(trialRecords.find(r => r.id === m.recordId));
+    return step && p.cards.includes(step.missedUnlessCard) && step.knownMemo ? { ...m, text: step.knownMemo } : m;
+  });
   const blocked = trialRecords.filter(r => (r.kind === 'redirect' && sum(r) > 0) || (r.kind === 'approach' && r.tone === 'prosecution'))
     .map(r => ({ recordId: r.id, text: r.memo }));
+  const passed = trialRecords.filter(r => r.kind === 'objection' && r.ruling === 'pass' && sum(r) > 0)
+    .flatMap(r => {
+      const step = trialDef.witnesses.find(w => w.id === r.witnessId).direct.find(x => x.id === r.refId);
+      return step.proper && step.pass.missed ? [{ recordId: r.id, text: step.pass.missed }] : [];
+    });
+  // Only verdict-basis issues; prefer a concrete record to a generic reminder
+  // for the same preparation card even when their authored wording differs.
+  const basisIds = new Set(basis.map(i => i.id));
+  const missedKeys = new Set();
+  const missed = rv.missed.filter(m => {
+    const rec = trialRecords.find(r => r.id === m.recordId);
+    const step = directOf(rec);
+    if (step && p.cards.includes(step.missedUnlessCard)) return false;
+    const w = rec && trialDef.witnesses.find(w => w.id === rec.witnessId);
+    const reminder = !rec && trialDef.missedPrep.find(x => x.text === m.text);
+    const redirect = w && w.redirect.find(x => x.id === rec.refId);
+    const card = reminder ? reminder.card : redirect && redirect.rebuttal && redirect.rebuttal.card;
+    const issueId = reminder ? reminder.issue : w && w.issue;
+    const key = card || m.text;
+    if (!basisIds.has(issueId) || missedKeys.has(key)) return false;
+    missedKeys.add(key); return true;
+  });
   const ctx = { key, cards: p.cards, focusId: p.focusId,
     bands: Object.fromEntries(p.issues.map(i => [i.id, i.band])),
     recoveredIssues: recovered.map(r => trialDef.witnesses.find(w => w.id === r.witnessId).issue),
@@ -87,13 +115,14 @@ function decide(caseDef, pack, trialDef, trialRecords, sessionRecords) {
     judgment: { label: judgment.label, article: judgment.article || null },
     offense: offense ? { id: offenseId, label: offense.label, article: offense.article } : null,
     sentence,
+    pronouncement: sentence ? sentence.pronouncement : judgment.pronouncement,
     headline: text.headline + (sentence ? ' — ' + sentence.text : ''),
     text: fill(text.text, vars),
     reviewText,
     issues: [act, cause].map(i => ({ id: i.id, title: i.title, band: i.band, bandLabel: caseDef.bandLabels[i.band], memo: i.memo })),
     shaken,
     broke: rv.effective.map(x => ({ recordId: x.recordId, text: x.text })),
-    blocked, backfired: rv.backfired, missed: rv.missed,
+    blocked, passed, backfired, missed,
     next,
     engineVerdict: verdict.outcome
   };

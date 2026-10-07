@@ -9,6 +9,8 @@ const koPack = {
   version: 'demo-0.1.0',
   label: '한국을 닮은 가상의 법 세계',
 
+  presentation: { opening: '모두진술', openingLegacy: '개회사', witnessCall: '검사 측 증인, 증인석으로 나와 주십시오.' },
+
   // 죄명. victimWillBar = 피해자가 처벌을 원하지 않으면 공소를 제기할 수 없는 죄(반의사불벌).
   offenses: {
     injury: { label: '상해', article: '형법 제257조 제1항', victimWillBar: false,
@@ -24,8 +26,8 @@ const koPack = {
   lesserIncluded: { injury: 'assault', verified: 'unverified' },
 
   judgments: {
-    acquittal: { label: '무죄', article: '형사소송법 제325조', verified: 'unverified' },
-    dismissal: { label: '공소기각', article: '형사소송법 제327조 제6호', verified: 'checked-2026-09-30' },
+    acquittal: { label: '무죄', pronouncement: '주문. 피고인은 무죄.', article: '형사소송법 제325조', verified: 'unverified' },
+    dismissal: { label: '공소기각', pronouncement: '주문. 이 사건 공소를 기각한다.', article: '형사소송법 제327조 제6호', verified: 'checked-2026-09-30' },
     conviction: { label: '유죄' }
   },
 
@@ -46,9 +48,9 @@ const koPack = {
     premise: '초범 전제',
     verified: 'unverified',
     table: [
-      { offense: 'injury', victimWill: true, sentence: 'fine', text: '벌금 300만 원', reason: '처벌불원서가 제출되어 피해 회복과 피해자 의사를 고려했다.' },
-      { offense: 'injury', victimWill: false, sentence: 'suspended', text: '징역 6개월, 집행유예 1년', reason: '초범이지만 피해 회복이 확인되지 않았다.' },
-      { offense: 'assault', victimWill: false, sentence: 'fine', text: '벌금 100만 원', reason: '초범이고 상해와의 연결은 인정되지 않았다.' }
+      { offense: 'injury', victimWill: true, sentence: 'fine', text: '벌금 300만 원', pronouncement: '주문. 피고인을 벌금 300만 원에 처한다.', reason: '처벌불원서가 제출되어 피해 회복과 피해자 의사를 고려했다.' },
+      { offense: 'injury', victimWill: false, sentence: 'suspended', text: '징역 6월에 집행유예 1년', pronouncement: '주문. 피고인을 징역 6월에 처한다. 다만, 이 판결 확정일부터 1년간 위 형의 집행을 유예한다.', reason: '초범이지만 피해 회복이 확인되지 않았다.' },
+      { offense: 'assault', victimWill: false, sentence: 'fine', text: '벌금 100만 원', pronouncement: '주문. 피고인을 벌금 100만 원에 처한다.', reason: '초범이고 상해와의 연결은 인정되지 않았다.' }
     ],
     labels: { fine: '벌금', suspended: '징역 집행유예' },
     unassessed: '양형 미산정'

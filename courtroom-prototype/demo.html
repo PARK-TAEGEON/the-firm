@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0e1116"><title>THE FIRM — 데모: 두 장면 사이</title>
+  <meta name="theme-color" content="#0e1116"><title>THE FIRM — 데모: 작업실 정산 다툼 상해 사건</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="ui/trial.css">
   <link rel="stylesheet" href="ui/trial-demo.css">
@@ -15,15 +15,17 @@
       <ol class="steps" id="steps" aria-label="진행 단계"></ol>
       <div class="gauges" id="gauges"></div>
     </header>
+    <nav id="panelTabs" class="panel-tabs" aria-label="화면 패널"></nav>
     <main class="grid">
       <aside class="file" id="filePanel" aria-label="내 사건 파일"></aside>
-      <section class="center" aria-label="법정">
+      <section id="courtPanel" class="center" aria-label="법정">
         <div class="stage" id="stage" aria-live="polite"></div>
         <div class="bar" id="bar"></div>
       </section>
       <aside class="memo" id="memoPanel" aria-label="재판장 메모"></aside>
     </main>
   </div>
+  <dialog id="reader" aria-labelledby="readerTitle"></dialog>
   <script src="data/demo-ko-pack.js"></script>
   <script src="data/demo-separated-moments.js"></script>
   <script src="data/demo-daily-cases.js"></script>
@@ -31,6 +33,7 @@
   <script src="services/trial.js"></script>
   <script src="services/demo-outcome.js"></script>
   <script src="services/demo-session.js"></script>
+  <script src="ui/trial-demo-text.js"></script>
   <script src="ui/trial-demo-app.js"></script>
 </body>
 </html>

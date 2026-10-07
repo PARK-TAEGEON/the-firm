@@ -7,7 +7,7 @@
 //
 // 고정된 숨은 진실(판정 입력으로 읽지 않는다): 피고인은 어깨를 한 번 밀었다. 피해자는 자세를 회복했고,
 // 가림막 뒤에서 바퀴 달린 운반대에 걸려 넘어져 손목을 다쳤다. 목격자는 팔 움직임과 밀리는 모습을 봤지만
-// 손이 닿는 순간과 낙상 순간은 보지 못했다. 조사관은 진단서와 사진을 성실히 취합했을 뿐 원인을 감정하지 않았다.
+// 손이 닿는 순간과 낙상 순간은 보지 못했다. 수사관은 진단서와 사진을 성실히 취합했을 뿐 원인을 감정하지 않았다.
 
 const ACT = 'ISSUE_SIG_ACT', CAUSE = 'ISSUE_SIG_CAUSE';
 const OBS = 'W_SIG_OBSERVER', INV = 'W_SIG_INVESTIGATOR';
@@ -97,19 +97,20 @@ const common = {
 
 // ---------- 증인 공통 조각 ----------
 const obsIntro = { type: 'lines', id: 'D_SIG_OBS_1', lines: [['PROSECUTOR', '증인은 사건 당시 어디에 있었습니까?'], [OBS, '같은 작업장에서 피고인 자리와 대여섯 걸음 떨어진 책상에 있었습니다.']] };
-// 개회사 입장에 따른 주신문. 엔진 v0.10의 when.stance 단계를 그대로 쓴다.
+// 모두진술 입장에 따른 주신문. 엔진 v0.10의 when.stance 단계를 그대로 쓴다.
 const obsDeny = { type: 'lines', id: 'D_SIG_OBS_DENY', when: { stance: 'S_SIG_DENY' },
-  lines: [['PROSECUTOR', '변호인은 개회사에서 피고인이 피해자 몸에 손을 댄 적이 없다고 했습니다. 증인, 피해자가 뒤로 밀리는 걸 봤지요?'], [OBS, '네. 피고인이 팔을 뻗었고 피해자가 뒤로 밀렸습니다.']],
-  effects: [[ACT, 1]], credibility: -1, memo: '변호인 개회사와 배치되는 목격 진술', tone: 'prosecution', conflict: true,
-  missed: '의뢰인을 다시 만났다면 접촉 사실을 개회사 전에 알았을 것이다.' };
+  lines: [['PROSECUTOR', '변호인은 모두진술에서 피고인이 피해자 몸에 손을 댄 적이 없다고 했습니다. 증인, 피해자가 뒤로 밀리는 걸 봤지요?'], [OBS, '네. 피고인이 팔을 뻗었고 피해자가 뒤로 밀렸습니다.']],
+  effects: [[ACT, 1]], credibility: -1, memo: '변호인 모두진술과 배치되는 목격 진술', tone: 'prosecution', conflict: true,
+  missedUnlessCard: 'CARD_SIG_CONTACT', knownMemo: '의뢰인의 밀침 인정과 다른 모두진술 — 목격 진술과도 배치됨',
+  missed: '의뢰인을 다시 만났다면 접촉 사실을 모두진술 전에 알았을 것이다.' };
 const obsAdmit = { type: 'lines', id: 'D_SIG_OBS_ADMIT', when: { stance: 'S_SIG_CONTACT' },
   lines: [['PROSECUTOR', '변호인도 피고인이 어깨를 민 사실은 인정했습니다. 증인이 본 것도 그 장면이지요?'], [OBS, '네, 그 장면입니다.']],
-  effects: [[ACT, 3]], memo: '변호인 측이 밀침 인정 — 접촉 사실은 다툼 없음', tone: 'prosecution' };
+  effects: [[ACT, 3]], memo: '변호인 측이 밀침 인정 — 접촉 사실은 양측 인정', tone: 'prosecution' };
 const obsValid = { type: 'objection', id: 'OBJ_SIG_OBSERVER_VALID', proper: true, ground: '유도신문',
   question: ['PROSECUTOR', '그 팔 움직임이 피해자를 넘어뜨린 동작이었지요?'],
   sustained: { lines: [['DEFENSE', '이의 있습니다. 증인이 보지 않은 결론을 넣은 유도신문입니다.'], ['JUDGE', '인용합니다. 본 것을 물으십시오.'], ['PROSECUTOR', '…무슨 움직임을 보았습니까?'], [OBS, '피고인이 팔을 뻗는 걸 봤습니다.']],
     effects: [[CAUSE, 0]], memo: '유도신문 이의 인용 — 목격자는 본 동작만 진술', tone: 'defense' },
-  pass: { lines: [[OBS, '네. 그 동작 뒤에 넘어지는 소리가 났으니까요.']], effects: [[CAUSE, 1]], memo: '목격자: 밀어서 넘어뜨렸다고 연결', tone: 'prosecution' } };
+  pass: { lines: [[OBS, '네. 그 동작 뒤에 넘어지는 소리가 났으니까요.']], effects: [[CAUSE, 1]], missed: '목격자에게 보지 않은 낙상까지 연결하는 질문을 통과시켰습니다. 그 답변이 밀침과 상해의 연결을 뒷받침하는 기록으로 남았습니다.', memo: '목격자: 밀어서 넘어뜨렸다고 연결', tone: 'prosecution' } };
 const obsInvalid = { type: 'objection', id: 'OBJ_SIG_OBSERVER_INVALID', proper: false, ground: '유도신문',
   question: ['PROSECUTOR', '현장에서 무엇을 보았는지 순서대로 말씀해 주십시오.'],
   sustained: null,
@@ -119,8 +120,8 @@ const obsInvalid = { type: 'objection', id: 'OBJ_SIG_OBSERVER_INVALID', proper: 
 const obsContact = { id: 'A_SIG_OBS_CONTACT', title: '의뢰인의 인정과 맞춰 본다', hint: '의뢰인 재면담', requiresAny: ['CARD_SIG_CONTACT'], points: [],
   byStance: { S_SIG_RESERVE: 0, S_SIG_CONTACT: 0, S_SIG_DENY: 0 },
   lines: [['DEFENSE', '의뢰인은 어깨를 한 번 민 사실을 인정했습니다. 증인이 본 팔 움직임에 관한 설명은 그대로입니까?'], [OBS, '네. 제가 본 움직임에 관한 설명은 그대로입니다.']],
-  memo: '밀침 사실은 다툼 없음 — 관찰 범위와 원인은 별개', tone: 'neutral',
-  stanceConflict: { stance: 'S_SIG_DENY', lines: [['PROSECUTOR', '변호인은 개회사에서 접촉 자체를 부인했습니다.'], ['JUDGE', '입장이 달라졌음을 기록하겠습니다.']], credibility: -1, memo: '접촉 전면 부인 뒤 밀침 인정 — 개회사와 모순', tone: 'prosecution' } };
+  memo: '밀침 사실은 양측 인정 — 관찰 범위와 원인은 별개', tone: 'neutral',
+  stanceConflict: { stance: 'S_SIG_DENY', lines: [['PROSECUTOR', '변호인은 모두진술에서 접촉 자체를 부인했습니다.'], ['JUDGE', '입장이 달라졌음을 기록하겠습니다.']], credibility: -1, memo: '접촉 전면 부인 뒤 밀침 인정 — 모두진술과 모순', tone: 'prosecution' } };
 const obsPresses = (limitedSuccess) => [
   { id: 'P_SIG_OBS_LIMITED', kind: 'limited', title: '한정 결론을 요구한다', question: '증인이 직접 본 것은 팔을 뻗는 동작과 피해자가 밀리는 모습까지이고, 손이 닿는 순간은 보지 못했지요?', minPoints: 2,
     success: { lines: [[OBS, limitedSuccess]], delta: -1, memo: '목격자: 손이 닿는 순간은 직접 보지 못함', tone: 'defense' },
@@ -131,17 +132,17 @@ const obsPresses = (limitedSuccess) => [
 
 const invIntro = { type: 'lines', id: 'D_SIG_INV_1', lines: [['PROSECUTOR', '증인은 이 사건에서 무엇을 했습니까?'], [INV, '현장 사진을 찍고, 피해자의 진단서와 목격 진술을 취합했습니다.']] };
 const invInjury = { type: 'lines', id: 'D_SIG_INV_2', lines: [['PROSECUTOR', '피해자의 상처는 무엇이었습니까?'], [INV, '오른쪽 손목 타박상입니다. 사건 당일 진단서가 발급됐습니다.']], memo: '사건 당일 손목 타박상 진단', tone: 'prosecution' };
-const invValid = { type: 'objection', id: 'OBJ_SIG_INVESTIGATOR_VALID', proper: true, ground: '의견 유도',
+const invValid = { type: 'objection', id: 'OBJ_SIG_INVESTIGATOR_VALID', proper: true, ground: '의견을 묻는 신문',
   question: ['PROSECUTOR', '타박상이 있으니 그 밀침 때문에 다친 것이지요?'],
   sustained: { lines: [['DEFENSE', '이의 있습니다. 자료 취합 담당자에게 결론을 유도하고 있습니다.'], ['JUDGE', '인용합니다. 확인한 자료를 물으십시오.'], ['PROSECUTOR', '…진단서에 어떤 손상이 기재돼 있습니까?'], [INV, '손목 타박상입니다.']],
-    effects: [[CAUSE, 0]], memo: '이의 인용 — 조사관은 자료 내용만 진술', tone: 'defense' },
-  pass: { lines: [[INV, '네. 밀친 뒤 넘어져 다친 것으로 정리했습니다.']], effects: [[CAUSE, 1]], memo: '조사관: 밀침 → 낙상 → 상해로 정리', tone: 'prosecution' } };
+    effects: [[CAUSE, 0]], memo: '이의 인용 — 수사관은 자료 내용만 진술', tone: 'defense' },
+  pass: { lines: [[INV, '네. 밀친 뒤 넘어져 다친 것으로 정리했습니다.']], effects: [[CAUSE, 1]], missed: '자료 취합 담당자에게 원인에 관한 의견을 묻는 질문을 통과시켰습니다. 밀침 때문에 상해가 생겼다는 답변이 기록에 남았습니다.', memo: '수사관: 밀침 → 낙상 → 상해로 정리', tone: 'prosecution' } };
 const invInvalid = { type: 'objection', id: 'OBJ_SIG_INVESTIGATOR_INVALID', proper: false, ground: '유도신문',
   question: ['PROSECUTOR', '취합한 자료가 무엇인지 말씀해 주십시오.'],
   sustained: null,
   overruled: { lines: [['DEFENSE', '이의 있습니다. 유도신문입니다.'], ['JUDGE', '기각합니다. 본인이 취합한 자료를 묻는 질문입니다.'], [INV, '진단서, 현장 사진, 목격 진술입니다.']],
     effects: [], credibility: -1, memo: '이의 기각 — 정당한 질문', tone: 'prosecution' },
-  pass: { lines: [[INV, '진단서, 현장 사진, 목격 진술입니다.']], memo: '조사관: 진단서·사진·목격 진술 취합', tone: 'neutral' } };
+  pass: { lines: [[INV, '진단서, 현장 사진, 목격 진술입니다.']], memo: '수사관: 진단서·사진·목격 진술 취합', tone: 'neutral' } };
 const invMedical = (answer) => ({ id: 'A_SIG_CAUSE_MEDICAL', title: '진료기록의 범위', hint: '진료기록', requiresAny: ['CARD_SIG_MEDICAL'], delta: -1, points: ['POINT_SIG_MEDICAL'],
   lines: [['DEFENSE', '진료기록은 상처를 기록한 것이지, 누가 어떤 동작으로 다치게 했는지 판단한 감정은 아니지요?'], [INV, answer]],
   memo: '진료기록: 상처는 확인 — 원인 감정은 아님', tone: 'defense' });
@@ -150,10 +151,10 @@ const invSequence = (answer) => ({ id: 'A_SIG_CAUSE_SEQUENCE', title: '두 장�
   memo: '영상: 피해자 자세 회복 — 낙상은 화면 밖', tone: 'defense' });
 const invPresses = [
   { id: 'P_SIG_CAUSE_LIMITED', kind: 'limited', title: '한정 결론을 요구한다', question: '진료기록과 영상만으로는 밀침부터 낙상까지의 경위를 확인할 수 없지요?', minPoints: 2,
-    success: { lines: [[INV, '네. 상처는 확인되지만, 그 사이 경위를 직접 보여주는 자료는 아닙니다.']], delta: -1, memo: '조사관: 밀침과 낙상 사이 경위는 미확인', tone: 'defense' },
-    fail: { lines: [[INV, '진단서와 사진, 목격 진술을 함께 보면 경위는 정리됩니다. 어느 자료를 말씀하시는지 짚어 주십시오.']], delta: 1, memo: '조사관: 자료를 함께 보면 경위 정리됨', tone: 'prosecution' } },
+    success: { lines: [[INV, '네. 상처는 확인되지만, 그 사이 경위를 직접 보여주는 자료는 아닙니다.']], delta: -1, memo: '수사관: 밀침과 낙상 사이 경위는 미확인', tone: 'defense' },
+    fail: { lines: [[INV, '진단서와 사진, 목격 진술을 함께 보면 경위는 정리됩니다. 어느 자료를 말씀하시는지 짚어 주십시오.']], delta: 1, memo: '수사관: 자료를 함께 보면 경위 정리됨', tone: 'prosecution' } },
   { id: 'P_SIG_CAUSE_OVER', kind: 'overreach', title: '과한 결론을 요구한다', question: '그러니까 손목 상처는 피고인과 아무 관계가 없다는 말이지요?',
-    fail: { lines: [[INV, '그런 뜻이 아닙니다. 상처가 있었다는 사실은 그대로입니다.'], ['JUDGE', '변호인, 증언을 왜곡하지 마십시오.']], delta: 2, credibility: -1, memo: '변호인 과욕 — 조사관이 상처를 재확인', tone: 'prosecution' } }
+    fail: { lines: [[INV, '그런 뜻이 아닙니다. 상처가 있었다는 사실은 그대로입니다.'], ['JUDGE', '변호인, 증언을 왜곡하지 마십시오.']], delta: 2, credibility: -1, memo: '변호인 과욕 — 수사관이 상처를 재확인', tone: 'prosecution' } }
 ];
 const layoutRebuttal = { card: 'CARD_SIG_LAYOUT', title: '가림막 뒤 현장 동선 제시', delta: -1,
   lines: [['DEFENSE', '재반대신문입니다. 가림막 뒤 낙상 지점 바로 앞에 바퀴 달린 운반대와 밀린 바퀴 자국이 있었습니다. 이 경로를 검토했습니까?'], [INV, '…당시 취합한 진단서와 사진만으로는 그 경로까지 검토하지 못했습니다. 다른 낙상 경로도 살펴야 합니다.'], ['PROSECUTOR', '운반대가 있었다는 것만으로 원인이 확정되지는 않습니다.'], ['DEFENSE', '그렇습니다. 원인을 단정하려는 것이 아니라, 앞의 밀침만으로 설명할 수 있는지 묻는 것입니다.']],
@@ -192,14 +193,14 @@ const novice = Object.assign({}, common, {
           lines: [['PROSECUTOR', '그래도 피고인이 팔을 뻗는 건 보셨지요?'], [OBS, '네, 봤습니다.']],
           memo: '검사 재주신문 — 이미 나온 진술 반복', tone: 'neutral' }
       ] },
-    { id: INV, name: '현장 조사관', role: '자료 취합 담당', initial: '조', issue: CAUSE,
+    { id: INV, name: '담당 수사관', role: '자료 취합 담당', initial: '조', issue: CAUSE,
       direct: [invIntro, invInjury, invValid, invInvalid],
       approaches: [
         invMedical('네. 상처의 진료기록입니다. 원인을 감정한 자료는 아닙니다.'),
         invSequence('네. 다시 선 뒤의 경위는 영상으로 확인할 수 없습니다.'),
         { id: 'A_SIG_CAUSE_OPINION', title: '원인 판단을 묻는다', hint: '자료 없이 가능', requiresAny: [], delta: 0, points: ['POINT_SIG_ROLE'],
           lines: [['DEFENSE', '증인, 피해자가 다시 선 뒤에 넘어졌다면 그 낙상이 밀침 때문인지 단정할 수 있습니까?'], [INV, '저는 자료를 취합했을 뿐, 원인을 판단한 사람은 아닙니다. 진단서와 사진으로 정리했습니다.']],
-          memo: '조사관: 원인 판단은 자기 역할 밖', tone: 'neutral' }
+          memo: '수사관: 원인 판단은 자기 역할 밖', tone: 'neutral' }
       ],
       presses: invPresses,
       redirect: [
@@ -245,9 +246,9 @@ const veteran = Object.assign({}, common, {
           lines: [['PROSECUTOR', '낙상 원인에 관한 판단은 빼고, 직접 본 것만 순서대로 말씀해 주십시오.'], [OBS, '피고인이 팔을 뻗었고, 피해자가 바로 뒤로 밀렸습니다. 닿는 순간은 가려졌지만 밀리는 모습은 이어서 봤습니다.']],
           memo: '검사 재주신문 — 본 것과 판단을 나눠 밀침 진술을 다시 세움', tone: 'prosecution' }
       ] },
-    { id: INV, name: '현장 조사관', role: '자료 취합 담당', initial: '조', issue: CAUSE,
+    { id: INV, name: '담당 수사관', role: '자료 취합 담당', initial: '조', issue: CAUSE,
       direct: [invIntro, invInjury,
-        { type: 'lines', id: 'D_SIG_INV_VIDEO', lines: [['PROSECUTOR', '영상에 보이는 것과 보이지 않는 것을 나눠 주십시오.'], [INV, '피해자가 뒤로 밀린 뒤 다시 서는 모습까지 보입니다. 가림막 뒤는 화면 밖입니다.']], memo: '조사관: 영상의 범위를 먼저 밝힘', tone: 'neutral' },
+        { type: 'lines', id: 'D_SIG_INV_VIDEO', lines: [['PROSECUTOR', '영상에 보이는 것과 보이지 않는 것을 나눠 주십시오.'], [INV, '피해자가 뒤로 밀린 뒤 다시 서는 모습까지 보입니다. 가림막 뒤는 화면 밖입니다.']], memo: '수사관: 영상의 범위를 먼저 밝힘', tone: 'neutral' },
         invValid, invInvalid],
       approaches: [
         invMedical('네. 진료기록은 상처를 기록한 것입니다. 원인은 현장 자료와 함께 봐야 합니다.'),
@@ -259,7 +260,7 @@ const veteran = Object.assign({}, common, {
       presses: invPresses,
       redirect: [
         { id: 'RH_SIG_CAUSE', when: { anyDefenseGain: true }, delta: 1,
-          lines: [['PROSECUTOR', '상처의 존재, 영상에 보이는 회복, 화면 밖 낙상을 구분해 주십시오. 회복했다는 사실만으로 밀침의 영향을 배제할 수 있습니까?'], [INV, '상처와 자세 회복은 확인됩니다. 회복했다는 사실만으로 뒤의 낙상에서 밀침의 영향을 배제할 수는 없습니다.']],
+          lines: [['PROSECUTOR', '영상에서 피해자가 다시 선 것은 확인됩니다. 그렇다고 앞선 밀침이 이후 낙상에 영향을 주지 않았다고 단정할 수 있습니까?'], [INV, '아닙니다. 피해자가 다시 선 모습만으로는 이후 낙상에 밀침의 영향이 없었다고 단정할 수 없습니다.']],
           memo: '검사 재주신문 — “회복만으로 밀침 영향 배제 불가”', tone: 'prosecution',
           rebuttal: layoutRebuttal,
           missed: '가림막 뒤 현장 동선을 조사했다면 검사의 수습에 별도 자료로 답할 수 있었다.' }
@@ -269,6 +270,17 @@ const veteran = Object.assign({}, common, {
 
 // ---------- 데모 사건 파일(시작 화면·합의·결과 문구) ----------
 const demoCase = {
+  presentation: {
+    title: '작업실 정산 다툼 상해 사건',
+    client: { name: '정민호', age: 38 },
+    memo: {
+      background: ['혐의는 상해입니다. 정민호 씨가 상대를 밀어 손목을 다치게 했다는 사건입니다.', '공동 작업장에서 정산 문제로 말다툼이 있었습니다.', '그 뒤 상대가 넘어져 오른쪽 손목을 다쳤습니다.'],
+      prosecution: '목격 진술과 진단서에 따르면 정민호 씨의 밀침이 상해로 이어졌습니다.',
+      client: '말다툼은 했지만 몸을 건드린 적은 없습니다.',
+      tasks: ['당신은 정민호 씨의 변호인입니다. 반나절 4번의 시간을 나누어 자료를 조사하세요.', '준비한 자료로 검사 측 증인에게 질문하고, 직접 본 사실과 판단을 구분하세요.', '합의 제안을 검토하고 정민호 씨에게 조언하세요. 수락 여부는 정민호 씨가 결정합니다.'],
+      closing: '무죄만이 좋은 결과는 아닙니다. 준비와 신문에 따라 결과가 달라집니다.'
+    }
+  },
   id: common.id,
   version: common.version,
   packId: 'ko',
@@ -284,7 +296,7 @@ const demoCase = {
     { id: 'novice', label: '신참 검사', sub: '임용 1년차' },
     { id: 'veteran', label: '베테랑 검사', sub: '형사 20년' }
   ],
-  prosecutorNote: '같은 사건입니다. 검사가 질문에 대응하는 방식이 달라집니다.',
+  prosecutorNote: '베테랑 = 어려움 모드, 첫 판은 신참 권장. 같은 사건이지만 검사가 질문에 대응하는 방식이 달라집니다.',
   variants: { novice, veteran },
   bandLabels: { proven: '입증됨', shaken: '다툼 있음', doubt: '의심' },
 
@@ -322,7 +334,7 @@ const demoCase = {
   },
   // “다툼 있음”에서 유죄가 나왔을 때의 설명. {issue}는 쟁점 이름.
   shakenNote: '재판장 메모의 “{issue}” 판세는 “다툼 있음”이었습니다. 그러나 형사재판에서 그 사실을 인정하지 않으려면 합리적 의심이 남아야 합니다. 의문을 제기한 것만으로는 그 기준에 닿지 않았습니다.',
-  shakenRecovered: '흔들린 부분은 재주신문 기록에서 다시 섰습니다({memo}).',
+  shakenRecovered: '검사는 재주신문에서 이 부분을 보충했습니다: {memo}.',
   // “다음에 시도해 볼 것”: 위에서부터 처음 맞는 한 줄. 조건은 기록에서만 읽는다(검사 버전 이름을 읽지 않는다).
   nextTry: [
     { when: { outcome: 'acquittal' }, text: '같은 사건을 다른 검사 버전으로 해 보세요. 준비된 증인은 같은 자료에 다르게 답합니다.' },
@@ -332,7 +344,7 @@ const demoCase = {
     { when: { outcome: 'injury', recovered: CAUSE, lacksCard: 'CARD_SIG_LAYOUT' }, text: '검사가 재주신문으로 다시 세운 부분은 같은 자료로는 무너지지 않습니다. 검찰이 사진에 담지 않은 가림막 뒤를 조사해 보세요.' },
     { when: { outcome: 'injury', shaken: ACT }, text: '밀침에 대한 목격은 흔들려도 무너지지 않았습니다. 밀침은 인정하고 상해와의 연결을 다투는 길도 검토해 보세요.' },
     { when: { outcome: 'injury', lacksCard: 'CARD_SIG_SEQUENCE' }, text: '연속 영상에서 두 장면 사이를 확인하고, 진료기록이 무엇을 말하지 않는지 살펴보세요.' },
-    { when: { outcome: 'injury', focusNot: 'F_SIG_CAUSE' }, text: '개회사에서 상해와의 연결에 신문 시간을 더 배정해 보세요.' },
+    { when: { outcome: 'injury', focusNot: 'F_SIG_CAUSE' }, text: '모두진술에서 상해와의 연결에 신문 시간을 더 배정해 보세요.' },
     { when: { outcome: 'injury' }, text: '검사의 질문에 정확히 이의를 제기하고, 확보한 자료로 증인이 인정할 수 있는 범위를 물어보세요.' }
   ]
 };

@@ -74,7 +74,7 @@ function createDemoSession({ cases, daily, pack }) {
     const draft = T.copy(state);
     // 공판 서비스는 자체 원자성을 가진다. 합의 상담처럼 세션 검증 뒤 공판 명령을 부르는 경우, 공판 명령이 마지막 실패 지점이다.
     let nextTrial;
-    try { nextTrial = h(draft, payload || {}, trial); } catch (e) { return { ok: false, error: e.message, view: projection() }; }
+    try { nextTrial = h(draft, payload || {}, trial); } catch (e) { return { ok: false, error: e.message.replaceAll(ko.presentation.openingLegacy, ko.presentation.opening), view: projection() }; }
     state = draft; trial = nextTrial;
     return { ok: true, view: projection() };
   }
@@ -83,7 +83,7 @@ function createDemoSession({ cases, daily, pack }) {
     const s = state, c = current(s);
     const view = {
       state: { phase: s.phase, session: s.session, caseId: s.caseId, prosecutorId: s.prosecutorId },
-      files: caseList.map(x => ({ id: x.id, kind: 'signature', title: x.title, charge: x.variants[Object.keys(x.variants)[0]].charge, file: x.file, prosecutors: x.prosecutors, prosecutorNote: x.prosecutorNote }))
+      files: caseList.map(x => ({ id: x.id, kind: 'signature', title: x.presentation.title, charge: x.variants[Object.keys(x.variants)[0]].charge, file: x.file, prosecutors: x.prosecutors, prosecutorNote: x.prosecutorNote }))
         .concat(dailyList),
       pack: { id: ko.id, version: ko.version, label: ko.label, disclaimer: ko.sentencing.disclaimer },
       records: s.records,
@@ -93,6 +93,7 @@ function createDemoSession({ cases, daily, pack }) {
     const tv = trial.projection(), st = c.settlement;
     if (st) tv.investigations = tv.investigations.filter(v => v.id !== st.consultInvestigation);
     view.trial = tv;
+    view.presentation = c.presentation;
     view.prosecutor = find(c.prosecutors, s.prosecutorId);
     view.hint = c.file.hint;
     if (st) {
@@ -108,6 +109,15 @@ function createDemoSession({ cases, daily, pack }) {
       };
     }
     if (tv.state.phase === 'verdict') view.outcome = O.decide(c, ko, c.variants[s.prosecutorId], tv.records, s.records);
+    // Presentation copy only: retain original append-only records for replay.
+    tv.displayRecords = tv.records.map(r => {
+      const display = T.copy(r);
+      if (r.kind === 'witness_call') display.lines[0].text = ko.presentation.witnessCall;
+      if (r.kind === 'verdict' && view.outcome.pronouncement) {
+        display.lines = [...display.lines.slice(0, -1), { speaker: 'JUDGE', text: view.outcome.pronouncement }];
+      }
+      return display;
+    });
     return T.copy(view);
   }
 
