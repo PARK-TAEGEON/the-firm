@@ -1,0 +1,8 @@
+2026-10-08
+NEW node: 13 tests, 0 failures, exit 0 (includes 250 deterministic paths)
+NEW browser: 108 checks, 0 failures, exit 0
+EXISTING node: 247 tests, 0 failures, exit 0
+EXISTING browser: first 8 suites / 591 checks pass; full-flow fails focus restoration, exit 1; reproduced standalone
+EXISTING trial browser: resource 404 page error, exit 1
+EXISTING budget: 14 checks pass; flow-budget fails same focus assertion, exit 1
+Existing tracked code unchanged. Full details: REPORT.md
