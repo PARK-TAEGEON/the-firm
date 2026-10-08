@@ -1,0 +1,36 @@
+THE FIRM documentation-only verification — 2026-10-08 (Asia/Seoul)
+Baseline: 30dc3b25fa7cef6a600a689cd0b1a1cac49cd1d8
+Game source, case data, and test source: unchanged.
+Working directory for runtime checks: courtroom-prototype/
+Browser dependency: bundled Playwright via NODE_PATH; existing Edge launch configuration.
+
+npm test
+247 tests / 247 pass / 0 fail / exit 0
+
+npm run test:browser
+First 8 suites: 87 + 47 + 35 + 52 + 37 + 58 + 67 + 208 = 591 checks / 0 failures.
+browser-full-flow.test.js: FAIL "Record sheet returns focus to rebuilt opener".
+Run stopped at that assertion; complete check count unavailable; exit 1.
+browser-trial.test.js was not reached by this command.
+
+npm run test:budget
+UI budget: 14 checks / 0 failures.
+Full-flow browser: 187 checks / 0 failures.
+Full-flow UI budget: 61 checks / 0 failures.
+Exit 0. This does not supersede the full-flow failure in the other runs.
+
+node tests/browser-full-flow.test.js
+Standalone recheck: FAIL "Record sheet returns focus to rebuilt opener" / exit 1.
+
+node tests/browser-trial.test.js
+FAIL "desktop/acquit: no page errors"; resource HTTP 404 / exit 1.
+
+Godot regressions: NOT RUN; executable unavailable on PATH.
+Human playtest: NOT RUN; previous review is attributed as supplied evidence.
+No runtime/test fixes: documentation-only scope.
+
+Documentation verification
+55 relative links / pinned GitHub Git-object references checked locally / 0 failures.
+4 Markdown files: UTF-8 without replacement characters.
+git diff --check: exit 0.
+Only the 5 documentation/review-log paths listed in REVIEW_PACKET.md are committed.
