@@ -1,5 +1,10 @@
 # THE FIRM — Courtroom prototype design
 
+## 2026-10-08 authorized demo experiment
+
+Contract: .agent/tasks/ARGUMENT-NARROWING-001.md. On task/demo-001 baseline 288e1e72, optional `demo.html?argumentRevision=1` adds an append-only causal-denial → proof-sufficiency argument revision immediately before closing. The player selects actual recorded bases; adverse facts/counters, the prosecutor response and final speech retain record references. No new evidentiary effect, credibility refund or verdict bonus. Default demo, core trial engine, case data and existing test expectations remain unchanged. Case-authored rules and limitations live in courtroom-prototype/experiments/argument-narrowing/{RULES,REPORT}.md. Human playtest and merge remain pending.
+
+
 Status: v0.65 implementation baseline, authorized web experiment. Applies only to `courtroom-prototype/`. Read with the active `.agent/tasks/COURTROOM-CORE-065.md`. The repository's Accepted Godot documents retain authority over litigation-skeleton. This file does not introduce a next VS.
 
 ## Stable intent
