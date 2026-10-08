@@ -1,0 +1,8 @@
+2026-10-08 Asia/Seoul — documentation-only review follow-up
+courtroom-prototype: npm test — 247 tests, 247 pass, 0 fail, exit 0
+Documentation validation: 6 Markdown files UTF-8 valid; 41 local links and 4 fixed Git object references resolve; 0 failures; exit 0
+Initial link-check command had a root-path handling error; corrected checker rerun passed (counts above)
+git diff --check: pass, exit 0
+Scope: 6 Markdown files + this review log only; no runtime code/data/tests modified
+Browser/UI and Godot: not run for documentation-only change; no all-platform PASS claim
+Human playtest / full legal review: not performed

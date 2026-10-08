@@ -83,6 +83,8 @@
 
 ## Recent Decisions
 
+- **2026-10-08 후속:** [사건 중심 판단·법률 안내·준비 시간·수임/실비 v0.1](DESIGN-NOTES-2026-10-08_CASE_FIRST_AND_FEES.md). [PR #9 날짜 기반 slice 계획](https://github.com/PARK-TAEGEON/the-firm/pull/9)의 단계 0을 보강한다. 단일 사건의 인위적 조사 행동력은 보류하고 실제 행동·상대 대응·회복에서 재미를 검증한다. 비용 협의와 가격 민감도는 최소 구현 후보이며 수치 미정. 기존 데모/코어루프의 구현 상태나 Accepted DEC 전체를 바꾸지 않는다.
+
 - **2026-09-30 [DEC-031](../DEC-LITIGATION-031_NUMERIC_ADJUDICATION_AND_PROPOSED_DEC_RESOLUTION.md):** 판정은 내부 수치·겉은 언어(같은 출처 비중첩, 능력 비가산, 기록 설명 가능, 법정 RNG 금지). DEC-012 부분 대체. Proposed였던 014~017·022·027~029 전부 처리(Proposed DEC 없음). DEC는 불변 조건만 구속, 층 분리는 참고.
 
 - **2026-09-30 [DEC-032](../DEC-LITIGATION-032_LEGAL_SYSTEM_PACK.md):** 한국 법 근간, “한국을 닮은 가상의 법 세계” 표현, 엔진은 법체계 중립 + 한국 규칙은 `ko` 팩 데이터(새 코드부터), 두 번째 팩은 필요할 때.
