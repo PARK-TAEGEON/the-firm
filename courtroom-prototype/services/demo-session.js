@@ -8,7 +8,7 @@ const T = isNode ? require('../engine/trial.js') : root.FirmTrial;
 const TS = isNode ? require('./demo-trial.js') : root.FirmDemoTrialService;
 const O = isNode ? require('./demo-outcome.js') : root.FirmDemoOutcome;
 
-function createDemoSession({ cases, daily, pack }) {
+function createDemoSession({ cases, daily, pack, argumentRevision = false }) {
   const caseList = T.copy(cases), dailyList = T.copy(daily || []), ko = T.copy(pack);
   caseList.forEach(c => { if (c.packId !== ko.id) throw new Error('DemoCase: pack mismatch ' + c.id); Object.values(c.variants).forEach(v => T.validate(v)); });
   let state, trial = null, sessionNo = 0;
@@ -35,7 +35,7 @@ function createDemoSession({ cases, daily, pack }) {
       const def = c.variants[prosecutorId]; if (!def) throw new Error('검사를 고르십시오.');
       s.phase = 'play'; s.caseId = caseId; s.prosecutorId = prosecutorId;
       push(s, { kind: 'case_selected', caseId, caseVersion: c.version, packId: ko.id, packVersion: ko.version, prosecutorId });
-      return TS.createTrialService(def, c.procedure, ko);
+      return TS.createTrialService(def, c.procedure, ko, { argumentRevision, recordSession: s.session });
     },
     consult(s, { adviceId }, t) {
       const c = current(s); if (s.phase !== 'play' || !c.settlement) throw new Error('합의 제안이 없습니다.');

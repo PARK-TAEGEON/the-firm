@@ -1,7 +1,8 @@
 (function () {
 'use strict';
 // DEMO-001 UI. Presentation only: every state change goes through session.command. No scores, no verdict logic here.
-const session = window.FirmDemoSession.createDemoSession({ cases: [window.FirmDemoCase], daily: [], pack: window.FirmDemoKoPack });
+const session = window.FirmDemoSession.createDemoSession({ cases: [window.FirmDemoCase], daily: [], pack: window.FirmDemoKoPack,
+  argumentRevision: new URLSearchParams(location.search).get('argumentRevision') === '1' });
 let profileStorage;
 try { profileStorage = window.localStorage; } catch (_) { /* Optional persistence. */ }
 const profileHistory = window.FirmDemoProfileHistory.createHistory(profileStorage);
@@ -291,6 +292,7 @@ function render(action) {
   const freshIds = new Set(newRecords.map(r => r.id));
   const freshCards = newRecords.filter(r => r.kind === 'investigation').flatMap(r => r.cards);
   renderTop(view); renderFile(view, freshCards); renderMemo(view, freshIds); renderStage(view, newRecords); renderBar(view);
+  if (view.trial?.argumentRevision) window.FirmNarrowingUI.render(view.trial, $('#stage'), trial);
   document.querySelectorAll('details[data-disclosure]').forEach(d => { d.open = !!expanded.get(d.dataset.disclosure); });
   renderTabs(view);
   document.querySelectorAll('.face img').forEach(img => {

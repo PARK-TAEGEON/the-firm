@@ -1,4 +1,24 @@
-Courtroom v0.10.0 Adversarial Trial — latest verification 2026-09-27 KST
+ARGUMENT-NARROWING-001 — latest verification 2026-10-08 KST
+Base task/demo-001 @ 288e1e7276a56887f42f7b5f02146c74b583d50d. Default-off experiment; no merge.
+Node v24.19.0 / Windows / Playwright with installed Edge.
+npm test: 247 tests, 0 failures, exit 0.
+node --test tests/demo.test.js tests/demo-profiles.test.js: 33 tests, 0 failures, exit 0.
+node --test experiments/argument-narrowing/service.test.js: 12 tests, 0 failures, exit 0.
+node experiments/argument-narrowing/browser.test.js: 104 checks, 0 failures, exit 0; 8 UI completions, HTTP/file x 1440/390 x novice/veteran.
+node tests/demo-browser.test.js: 3940 checks, 0 failures, exit 0.
+demo-profiles/procedure/cleanup/art browser suites: 212/154/122/24 checks, 0 failures, each exit 0.
+The four suites above initially could not launch missing Chromium headless-shell. External runtime adapter selected installed Edge only; no assertions modified.
+npm run test:browser: first eight suites 591 checks passed; browser-full-flow failed "Record sheet returns focus to rebuilt opener", exit 1.
+npm run test:budget: examination budget 14 checks passed; ui-flow-budget failed the same focus assertion, exit 1.
+node tests/browser-trial.test.js (separate run): "desktop/acquit: no page errors ... 404 (Not Found)", exit 1.
+Unmodified detached baseline 288e1e72 reproduces all three failing command results (two failure types), exit 1 each.
+Completed passing suites: 5453 checks/tests. Partial failed-suite checks and repeated baseline comparisons excluded. GLOBAL ALL-GREEN GATE NOT MET.
+Frozen engine/, services/trial.js, services/demo-outcome.js, data/, original tests, index.html and trial.html unchanged.
+Diff reviewed; no hidden verdict reward, no expectation relaxation. Human playtest and independent review pending.
+Rules, reproducible paths, contract checklist, limitations and three human questions: experiments/argument-narrowing/REPORT.md and RULES.md.
+
+--- Historical verification below ---
+Courtroom v0.10.0 Adversarial Trial — verification 2026-09-27 KST
 Base 37d5b69 (v0.9.1). Active contract COURTROOM-CORE-100.
 
 npm test: 247 tests, 247 pass, 0 fail, exit 0.

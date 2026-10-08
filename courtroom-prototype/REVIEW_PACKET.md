@@ -1,5 +1,17 @@
 # Courtroom v0.10.0 — Adversarial Trial experiment — Review packet
 
+## 2026-10-08 — ARGUMENT-NARROWING-001 (draft review)
+
+Purpose: optional causal-denial → proof-sufficiency revision connected to real demo records, prosecutor response and selected closing. Base/PR target task/demo-001 @ 288e1e72; branch task/argument-narrowing-001; no merge.
+
+Changed: demo.html loads the isolated module; services/demo-session.js passes default-off flag/session identity; services/demo-trial.js delegates claim/revision/closing commands and read projection; ui/trial-demo-app.js routes the flag and renders the module. New experiments/argument-narrowing/{data,service,ui,paths,service.test,browser.test}.js plus RULES.md/REPORT.md. Documentation: root DESIGN.md, new task contract, this review packet, test-results.log.
+
+Invariants: original record prefix unchanged, failed commands atomic, record-only projection, no unrecorded/duplicate/foreign/prior-session basis, one revision at closing, no score/credibility/time effects, original adverse records retained, selected bases and prosecutor response referenced by closing, reset isolated. New case-authored mappings/dialgoue remain fixtures; no legal reasoning or prosecutor AI claimed. See [full report](experiments/argument-narrowing/REPORT.md) and [rules](experiments/argument-narrowing/RULES.md).
+
+Validation: 247 core + 33 demo + 12 new service tests; 104 new browser checks (8 UI completions); 3,940 demo browser; additional demo browser 212+154+122+24; original first 8 browser suites 591; examination budget 14. All these completed suites exit 0 (5,453 checks/tests). Original full-flow/budget focus assertion and trial 404 assertion fail identically in untouched baseline. Expectations unchanged; global all-green gate not met. Commands, runtime adapter, criteria assessment and ≤3 human questions are in REPORT.md. git diff reviewed; core/data/outcome/tests frozen. No independent review or human playtest; no next-stage work.
+
+---
+
 Date: 2026-09-27 KST. Base: HEAD 37d5b69 (v0.9.1 polish, courtroom-core-v0.9 lineage). Contract: ../.agent/tasks/COURTROOM-CORE-100.md. Scope: isolated experiment beside the existing courtroom. Implementation and automated checks complete; independent Reviewer PASS and human playtest not yet obtained.
 
 ## 작업 목적

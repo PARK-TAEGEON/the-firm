@@ -4,11 +4,13 @@
 // Reuses the unchanged record projection/adjudication engine; demo-only commands live here.
 // Commands are atomic: a failed command leaves state (including ID serial) untouched.
 const T = typeof module !== 'undefined' && module.exports ? require('../engine/trial.js') : root.FirmTrial;
+const N = typeof module !== 'undefined' && module.exports ? require('../experiments/argument-narrowing/service.js') : root.FirmNarrowing;
 
-function createTrialService(definition, procedure, pack) {
+function createTrialService(definition, procedure, pack, { argumentRevision = false, recordSession = 1 } = {}) {
   const d = T.copy(definition); T.validate(d);
   const rules = T.copy(pack.procedure), flow = T.copy(procedure);
-  let state, session = 0;
+  if (argumentRevision && (!Number.isSafeInteger(recordSession) || recordSession < 1)) throw new Error('Invalid experiment record session');
+  let state, session = argumentRevision ? recordSession - 1 : 0;
   const W = idx => d.witnesses[idx];
   const find = (list, id) => list.find(x => x.id === id);
 
@@ -119,6 +121,14 @@ function createTrialService(definition, procedure, pack) {
   }
 
   const handlers = {
+    commitCauseClaim(s) {
+      if (!argumentRevision) throw new Error('논증 수정 실험이 꺼져 있습니다.');
+      N.claim(s, push);
+    },
+    narrowArgument(s, payload) {
+      if (!argumentRevision) throw new Error('논증 수정 실험이 꺼져 있습니다.');
+      N.revise(s, payload, push);
+    },
     fileEvidence(s, { id, status }) {
       if (!filingOpen(s)) throw new Error('증거 신청 변경이 마감되었습니다.');
       const card = find(d.cards, id);
@@ -149,8 +159,12 @@ function createTrialService(definition, procedure, pack) {
     },
     closingArgument(s, { id, settled }) {
       if (s.phase !== 'trial' || s.cursor.part !== 'closing') throw new Error('최후변론 단계가 아닙니다.');
-      const choice = find(flow.closingChoices, id); if (!choice) throw new Error('최후변론을 선택하십시오.');
-      push(s, { kind: 'closing_argument', refId: id, basis: choice.basis, title: choice.title, lines: [{ speaker: 'DEFENSE', text: choice.text }] });
+      const choice = (argumentRevision && N.closing(s.records, id)) || find(flow.closingChoices, id);
+      if (!choice) throw new Error('최후변론을 선택하십시오.');
+      push(s, { kind: 'closing_argument', refId: id, basis: choice.basis, title: choice.title,
+        ...(choice.revisionId ? { revisionId: choice.revisionId, basisIds: choice.basisIds, responseId: choice.responseId } : {}),
+        ...(choice.claimId ? { claimId: choice.claimId } : {}),
+        lines: [{ speaker: 'DEFENSE', text: choice.text }] });
       const statement = flow.finalStatements[proj(s).stanceId][settled ? 'agreed' : 'none'];
       push(s, { kind: 'last_statement', settled: !!settled, lines: [{ speaker: 'CLIENT', text: statement }] });
       s.cursor.part = 'last_statement';
@@ -298,6 +312,7 @@ function createTrialService(definition, procedure, pack) {
       witness: w ? { id: w.id, name: w.name, role: w.role, initial: w.initial, timeLeft: wp.time == null ? null : Math.max(0, wp.time - wp.used), time: wp.time } : null,
       actions,
       records: s.records,
+      ...(argumentRevision ? { argumentRevision: N.project(s.records) } : {}),
       verdict,
       review: s.phase === 'verdict' ? T.review(d, s.records) : null
     });
