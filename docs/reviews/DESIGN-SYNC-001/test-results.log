@@ -1,28 +1,28 @@
-DESIGN-SYNC-001 ordinary-case scope reset documentation audit
+DESIGN-SYNC-001 capability and participation documentation audit
 Date: 2026-10-11
-Remote baseline: ef0be1c03d3ca039e1bfb6c5bf2dc8445242cb5b
-Environment: new-document audit snapshot with exact CURRENT baseline only; not a full game checkout
-Initial local git status: clean
-Command: python /mnt/data/verify_firm_scope_reset.py; git diff --cached --check
+Remote baseline: 049926065f9d3a24a7767b14fd2e407d057ba32e
+Environment: independent documentation snapshot, not a full game checkout.
+Baseline board reconstructed from the mounted v0.5 patch; SHA matched fetched remote v0.4.
+Initial Git status: clean after baseline board import.
+Command: python /mnt/data/verify_firm_capabilities.py; git diff --cached --check
 
-PASS Fetched CURRENT baseline matches GitHub blob
-PASS Exactly six documentation files in audit snapshot
-PASS All documents valid UTF-8 without replacement characters
-PASS CURRENT runtime baseline preserved byte-for-byte
-PASS Current resume entry points at new scope question
-PASS New decisions and explicit INT-01 withdrawal present
-PASS Existing core and data-preservation boundaries present
-PASS Proposed experience and deferred expansion distinguishable
-PASS Previous design is preserved through immutable history link
-PASS Balanced collapsible sections
-PASS Introduced relative links resolve in six-file manifest
+PASS Reconstructed baseline matches fetched GitHub blob
+PASS Exactly five allowed documentation paths staged
+PASS Existing case scope section preserved byte for byte
+PASS Prior decision identifiers retained
+PASS Photo exchange remains withdrawn
+PASS Accepted hybrid direction and fixed capability demo recorded
+PASS Basic support and record-only outcome safeguards retained
+PASS Uncommitted v0.5 and deferred specifics clearly distinguished
+PASS All five files are nonempty UTF-8 without replacement characters
+PASS Collapsible detail sections remain balanced
 PASS Markdown tables have consistent column counts
-PASS Markdown render includes tables and two details
+PASS Relative links resolve to changed or connector-verified files
 PASS Staged git whitespace check
 
-Checks: 14; failures: 0; exit: 0
-Introduced relative links checked: 8
-Earlier local audit: two checker errors (unchanged CURRENT links included; expected five tables instead of four). Checker corrected; document content unchanged.
-Runtime/browser/Godot regression, human playtest and legal verification: not run.
-No gameplay change or full regression PASS claim. Previous audit logs remain in the immutable baseline commit.
-Remote compare/blob checks and non-force branch update are performed separately.
+Checks: 13; failures: 0; exit: 0
+Raw GitHub container download failed (DNS); not counted as validation.
+Game/browser/Godot regression, human playtest and legal audit: not run.
+No runtime invariant/API/fixture or accepted DEC changed; no full regression PASS claim.
+Remote diff, blob and branch verification will be checked separately before/after publication.
+Previous logs are retained at the immutable remote baseline.

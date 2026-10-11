@@ -1,24 +1,24 @@
-# DESIGN-SYNC-001 · 일반 직접 사건 기준 재설정 인계
+# DESIGN-SYNC-001 · 역량·참여 방식 인계
 
-2026-10-11 · 문서 전용 · 기준 ef0be1c03d3ca039e1bfb6c5bf2dc8445242cb5b
-상태: 사용자 범위 변경의 반영. 독립 리뷰·게임성 검증 완료가 아니다.
+2026-10-11 · 문서 전용 · 기준 049926065f9d3a24a7767b14fd2e407d057ba32e
+상태: 사용자 결정 기록. 독립 리뷰·게임성 검증 완료가 아니다.
 
-## 변경과 경계
+## 변경
 
-현황판 v0.4는 정민호 사건의 일반 직접 담당 역할, 기존 구성 기준선, 기본 경험 초안, 대표 사건을 통한 확장 순서를 담는다. INT-01과 사진 이동/후속 A/B 공방은 철회 상태로 보존하고 더 이상 다음 구현 대상으로 안내하지 않는다. 기존 사진·영상·현장 동선과 숨은 사건 진실은 그대로다.
+현황판 v0.6은 주인공도 역량 보유, 캐릭터의 기본 업무와 플레이어 판단의 보완, 단순 사건의 핵심 기능 검증, 상세 성장 보류를 담는다. 기존 사건 §1은 그대로다. v0.5는 첨부 초안에만 있었으므로 원격 v0.4에 최신 결정만 반영하고 미승인 상세 정책은 합의로 승격하지 않는다.
 
-변경 파일은 계약의 6개다: TRIAL-DESIGN, CURRENT 상단 2줄, Task Contract, REPORT, 이 문서, test-results.log. 과거의 긴 현황판·계약·검토 내용은 고정 커밋 링크로 보존하고 현행 문서를 짧게 바꿨다. 삭제되는 실험 논의를 구현 완료나 재미 검증 완료로 표시하지 않는다.
+변경은 TRIAL-DESIGN, Task Contract, REPORT, 이 문서, test-results.log의 5개다. CURRENT의 BASE-OPEN-01 재개 링크는 유지하고 해당 질문의 세부 다음 작업을 현황판에서 좁혔다. DEC-017/031의 기존 역량·기록 원칙과 표시 제한을 바꾸지 않는다. 코드·사건·기존 테스트·Accepted DEC·아트·다른 PR·main은 무변경이다. 새 runtime invariant/API/fixture/성장 공식은 없다.
 
-기존 엔진의 prepared 차단·특정 질문/points 의존성은 미해결로 남긴다. 수임료·외부 비용 시스템이나 기본 보드를 새로 설계하지 않는다. 대표 사건 소재·구체 조작·실행 정책·법률 적용·양형은 미정이다. runtime invariant/API/fixture 변경 없음.
+## 검증과 한계
 
-## 실제 검증 범위
+컨테이너의 raw GitHub 직접 다운로드는 DNS 실패로 중단했다. 이를 조회/검증 성공으로 세지 않는다. 연결 도구로 파일·PR을 읽고, 자동 마운트된 v0.5 초안에 패치를 역적용해 로컬 v0.4를 복원했다. 해당 Git blob SHA가 실제 원격 값 6a5c8674eac3f50d6b80ade69ee6de621c0b078b와 일치함을 확인했다. 로컬 Git 초기 상태는 이 현황판만 기준으로 한 clean 문서 사본이며 전체 게임 checkout이 아니다. 사용자 PC의 변경에는 접근하지 않았다.
 
-로컬 검사 사본에는 정확한 CURRENT 기준 파일과 새 문서들이 있다. CURRENT 원문은 connector blob SHA 35099ec347d1b40884806a76b252ee4a7342f921과 일치시킨 뒤 상단 2줄만 변경했다. 나머지 기존 문서는 전체 clone으로 검증했다고 주장하지 않는다. 새 문서의 범위·구조·상대 링크와 고정 이력 링크, CURRENT 본문 보존, git diff --cached --check를 검사한다. 실제 결과와 명령은 test-results.log에 기록한다. 원격 compare 및 6개 blob SHA는 브랜치 갱신 전에 별도로 확인한다.
+실행: python /mnt/data/verify_firm_capabilities.py, git diff --cached --check. 검사 범위·실제 합계는 [test-results.log](test-results.log)에 기록한다. 5개 파일의 UTF-8·링크·표·범위, 기존 사건 내용과 결정 ID의 보존, 미승인 성장/표시 경계를 검사한다. 이후 원격 compare와 blob을 대조하고 기존 head가 같을 때만 non-force 반영한다.
 
-게임 엔진/브라우저/Godot 회귀·사람 플레이테스트·법률 검수는 미실행이다. 코드 변경 없는 문서 계약이며 과거 테스트 수를 이번 결과로 재사용하지 않는다. 사용자 PC와 미커밋 작업은 접근하지 않았다. 런타임 코드·사건·Accepted DEC·기존 테스트·다른 PR은 변경하지 않는다.
+미실행: 게임 엔진/브라우저/Godot 회귀, 사람 플레이테스트, 법률 검수. 문서 검사가 전체 회귀·재미 PASS를 뜻하지 않으며 이전 검사 수를 재사용하지 않는다.
 
 ## 인계
 
-기존 Draft PR #11에 후속 커밋을 추가하고 자동 병합하지 않는다. CHANGELOG는 실제 병합 때 담당자가 갱신한다. 다음 작업은 현황판 BASE-OPEN-01이며 새 사진 대사나 추가 증인을 집필하는 일이 아니다.
+기존 Draft PR #11에 한 후속 커밋을 추가하되 병합하지 않는다. CHANGELOG는 실제 병합 때 기록한다. 다음은 고정 역량 캐릭터의 기본 계획을 어떻게 보여주고 수정하게 할지 검토하는 일이며, 코딩/상세 스탯 설계의 자동 착수 승인은 아니다.
 
-이전 검토 이력: [v0.3 REVIEW_PACKET](https://github.com/PARK-TAEGEON/the-firm/blob/ef0be1c03d3ca039e1bfb6c5bf2dc8445242cb5b/docs/reviews/DESIGN-SYNC-001/REVIEW_PACKET.md), [이전 로그](https://github.com/PARK-TAEGEON/the-firm/blob/ef0be1c03d3ca039e1bfb6c5bf2dc8445242cb5b/docs/reviews/DESIGN-SYNC-001/test-results.log).
+[이전 인계](https://github.com/PARK-TAEGEON/the-firm/blob/049926065f9d3a24a7767b14fd2e407d057ba32e/docs/reviews/DESIGN-SYNC-001/REVIEW_PACKET.md)와 [이전 로그](https://github.com/PARK-TAEGEON/the-firm/blob/049926065f9d3a24a7767b14fd2e407d057ba32e/docs/reviews/DESIGN-SYNC-001/test-results.log)를 이력으로 보존한다.
