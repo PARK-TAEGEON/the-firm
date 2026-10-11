@@ -1,3 +1,33 @@
+DESIGN-SYNC-001 investigator classification documentation audit
+Date: 2026-10-11
+Remote baseline: 614922249ecca9c9e96ce0f31ba17c517a8f87f2
+Read-only demo source: 288e1e7276a56887f42f7b5f02146c74b583d50d
+Environment: five-document local Git snapshot, not a full game checkout
+Initial git status was clean; all five baseline blobs matched connector SHA values.
+Command: python /mnt/data/verify_firm_intervention.py
+
+PASS Five retrieved baseline blobs match their GitHub SHA
+PASS Exactly five allowlisted documentation paths changed
+PASS No runtime, CURRENT, CHANGELOG or other files modified
+PASS Nonempty valid UTF-8 without replacement characters
+PASS Original details A/B/C and feedback definitions retained
+PASS Original decision IDs preserved; only FLOW-02 added
+PASS Five collapsible detail sections remain balanced
+PASS Investigator classification has ten scene rows
+PASS Analysis-only and old-engine limitations explicitly retained
+PASS Relative document links resolve to known fetched/manifest paths
+PASS New source links reference the two actually read demo files
+PASS Markdown tables have consistent column counts
+PASS Markdown renders details and classification tables
+PASS Contract and review history preserved before appended follow-up
+PASS Staged whitespace check
+
+Checks: 15; failures: 0; exit: 0
+Earlier pass in this session: 1 documentation check failed because the prepared identifier was not written explicitly; the label was added before this rerun.
+No gameplay/browser/Godot/human playtest/legal verification performed. No runtime/auto-objection policy implemented.
+Remote commit/diff/blob verification is performed separately before moving the branch ref.
+
+--- Earlier audit history, not rerun ---
 DESIGN-SYNC-001 final documentation handoff audit
 Date: 2026-10-11
 Scope: four final handoff documents + six-path remote manifest; not a game checkout

@@ -32,3 +32,9 @@ Baseline: main 30dc3b25fa7cef6a600a689cd0b1a1cac49cd1d8
 문서 초안의 구조·링크·원문 보존 검사에 이어 최종 인계 문서의 allowlist·UTF-8·Markdown·상대 링크·diff whitespace를 점검한다. 연결 도구의 blob SHA로 현황판과 CURRENT가 검증한 내용과 일치하는지 확인하고, 원격 커밋의 변경 목록을 다시 확인한다. 로컬 검증 사본은 전체 게임 clone이 아니며 사용자 PC의 미커밋 작업을 건드리지 않는다.
 
 REPORT와 REVIEW_PACKET에 충족 여부·검증·미실행·TBD를 남긴다. 실행 코드·게임 invariant 변경이 없으므로 게임 엔진/브라우저/Godot 회귀와 사람 테스트는 미실행으로 명시한다. 이번 문서 검사로 전체 회귀 PASS를 주장하지 않는다. 사용자 요청에 따라 원격 별도 브랜치에 한 커밋과 Draft PR을 만들되 병합은 하지 않는다. 병합 시 담당자가 CHANGELOG에 실제 병합일·작업·위치·작성자·미결정을 남긴다.
+
+## 후속 범위 · 수사관 신문 분류 (2026-10-11)
+
+사용자의 “추천대로 해보자”에 따라 같은 현황판을 갱신한다. 기준은 PR #11 head `6149222`, 추가 Read only는 통합 DEMO `288e1e7`의 `data/demo-separated-moments.js` 수사관 조각/두 검사 변형과 `services/demo-trial.js` 진행·신문·차단·재반대다. 기존 Owns 중 현황판, 본 계약, REPORT, REVIEW_PACKET, test-results.log 5개만 변경한다. CURRENT·CHANGELOG와 게임 코드는 유지한다.
+
+완료 기준: 실제 데이터에 분류표가 연결됨, 준비 완료와 미승인 대안이 구분됨, 개입 0회도 허용하되 재미로 단정하지 않음, 조기 제출 차단/근거 points를 미해결 구현 경계로 표시함. 새 법정 사건·새 정답 정책·실행 코드·새 판정은 만들지 않는다. 같은 Draft PR에 한 후속 커밋으로 제출하며 병합하지 않는다. 이전 검증은 이력으로 보존하고 이번 문서 검사 결과는 별도로 기록한다.
