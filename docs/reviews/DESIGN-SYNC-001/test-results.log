@@ -1,3 +1,29 @@
+DESIGN-SYNC-001 INT-01 evidence-use scope documentation audit
+Date: 2026-10-11
+Remote baseline: cc5d48ff07406502cf06a7b4e5a606ed800dfcb6
+Environment: five-document local Git snapshot; not a full game checkout
+Initial local snapshot git status: clean; baseline contents matched fetched blob SHAs
+Commands: python /mnt/data/firm_scope_review/verify.py; git diff --cached --check
+
+PASS Five baseline contents match fetched GitHub blob SHAs
+PASS Exactly five allowlisted existing document paths changed
+PASS No empty or malformed UTF-8 document text
+PASS Earlier case, law-panel and interaction details A/B/C unchanged
+PASS Prior investigator analysis retained without editing
+PASS Existing decision/question IDs retained with only FLOW-03 added
+PASS Partial-agreement hypotheses remain unchanged
+PASS Five detail sections and summary tags remain balanced
+PASS New fixture, preparation and verification boundaries stated
+PASS Markdown table column counts remain consistent
+PASS No unverified new document or external links introduced
+PASS Previous contract, report and review preserved as prefixes
+PASS Staged diff whitespace check
+
+Checks: 13; failures: 0; exit: 0
+No gameplay/browser/Godot/human-playtest/legal verification performed. No runtime changes.
+Remote blob fingerprints and five-path commit diff are checked separately before branch update.
+
+--- Earlier audits, not rerun ---
 DESIGN-SYNC-001 investigator classification documentation audit
 Date: 2026-10-11
 Remote baseline: 614922249ecca9c9e96ce0f31ba17c517a8f87f2
