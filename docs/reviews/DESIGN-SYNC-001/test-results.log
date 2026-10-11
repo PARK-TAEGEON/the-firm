@@ -1,0 +1,28 @@
+DESIGN-SYNC-001 capability and participation documentation audit
+Date: 2026-10-11
+Remote baseline: 049926065f9d3a24a7767b14fd2e407d057ba32e
+Environment: independent documentation snapshot, not a full game checkout.
+Baseline board reconstructed from the mounted v0.5 patch; SHA matched fetched remote v0.4.
+Initial Git status: clean after baseline board import.
+Command: python /mnt/data/verify_firm_capabilities.py; git diff --cached --check
+
+PASS Reconstructed baseline matches fetched GitHub blob
+PASS Exactly five allowed documentation paths staged
+PASS Existing case scope section preserved byte for byte
+PASS Prior decision identifiers retained
+PASS Photo exchange remains withdrawn
+PASS Accepted hybrid direction and fixed capability demo recorded
+PASS Basic support and record-only outcome safeguards retained
+PASS Uncommitted v0.5 and deferred specifics clearly distinguished
+PASS All five files are nonempty UTF-8 without replacement characters
+PASS Collapsible detail sections remain balanced
+PASS Markdown tables have consistent column counts
+PASS Relative links resolve to changed or connector-verified files
+PASS Staged git whitespace check
+
+Checks: 13; failures: 0; exit: 0
+Raw GitHub container download failed (DNS); not counted as validation.
+Game/browser/Godot regression, human playtest and legal audit: not run.
+No runtime invariant/API/fixture or accepted DEC changed; no full regression PASS claim.
+Remote diff, blob and branch verification will be checked separately before/after publication.
+Previous logs are retained at the immutable remote baseline.
