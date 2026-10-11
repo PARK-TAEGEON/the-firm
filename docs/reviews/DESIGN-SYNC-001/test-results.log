@@ -1,76 +1,28 @@
-DESIGN-SYNC-001 INT-01 evidence-use scope documentation audit
+DESIGN-SYNC-001 ordinary-case scope reset documentation audit
 Date: 2026-10-11
-Remote baseline: cc5d48ff07406502cf06a7b4e5a606ed800dfcb6
-Environment: five-document local Git snapshot; not a full game checkout
-Initial local snapshot git status: clean; baseline contents matched fetched blob SHAs
-Commands: python /mnt/data/firm_scope_review/verify.py; git diff --cached --check
+Remote baseline: ef0be1c03d3ca039e1bfb6c5bf2dc8445242cb5b
+Environment: new-document audit snapshot with exact CURRENT baseline only; not a full game checkout
+Initial local git status: clean
+Command: python /mnt/data/verify_firm_scope_reset.py; git diff --cached --check
 
-PASS Five baseline contents match fetched GitHub blob SHAs
-PASS Exactly five allowlisted existing document paths changed
-PASS No empty or malformed UTF-8 document text
-PASS Earlier case, law-panel and interaction details A/B/C unchanged
-PASS Prior investigator analysis retained without editing
-PASS Existing decision/question IDs retained with only FLOW-03 added
-PASS Partial-agreement hypotheses remain unchanged
-PASS Five detail sections and summary tags remain balanced
-PASS New fixture, preparation and verification boundaries stated
-PASS Markdown table column counts remain consistent
-PASS No unverified new document or external links introduced
-PASS Previous contract, report and review preserved as prefixes
-PASS Staged diff whitespace check
-
-Checks: 13; failures: 0; exit: 0
-No gameplay/browser/Godot/human-playtest/legal verification performed. No runtime changes.
-Remote blob fingerprints and five-path commit diff are checked separately before branch update.
-
---- Earlier audits, not rerun ---
-DESIGN-SYNC-001 investigator classification documentation audit
-Date: 2026-10-11
-Remote baseline: 614922249ecca9c9e96ce0f31ba17c517a8f87f2
-Read-only demo source: 288e1e7276a56887f42f7b5f02146c74b583d50d
-Environment: five-document local Git snapshot, not a full game checkout
-Initial git status was clean; all five baseline blobs matched connector SHA values.
-Command: python /mnt/data/verify_firm_intervention.py
-
-PASS Five retrieved baseline blobs match their GitHub SHA
-PASS Exactly five allowlisted documentation paths changed
-PASS No runtime, CURRENT, CHANGELOG or other files modified
-PASS Nonempty valid UTF-8 without replacement characters
-PASS Original details A/B/C and feedback definitions retained
-PASS Original decision IDs preserved; only FLOW-02 added
-PASS Five collapsible detail sections remain balanced
-PASS Investigator classification has ten scene rows
-PASS Analysis-only and old-engine limitations explicitly retained
-PASS Relative document links resolve to known fetched/manifest paths
-PASS New source links reference the two actually read demo files
+PASS Fetched CURRENT baseline matches GitHub blob
+PASS Exactly six documentation files in audit snapshot
+PASS All documents valid UTF-8 without replacement characters
+PASS CURRENT runtime baseline preserved byte-for-byte
+PASS Current resume entry points at new scope question
+PASS New decisions and explicit INT-01 withdrawal present
+PASS Existing core and data-preservation boundaries present
+PASS Proposed experience and deferred expansion distinguishable
+PASS Previous design is preserved through immutable history link
+PASS Balanced collapsible sections
+PASS Introduced relative links resolve in six-file manifest
 PASS Markdown tables have consistent column counts
-PASS Markdown renders details and classification tables
-PASS Contract and review history preserved before appended follow-up
-PASS Staged whitespace check
+PASS Markdown render includes tables and two details
+PASS Staged git whitespace check
 
-Checks: 15; failures: 0; exit: 0
-Earlier pass in this session: 1 documentation check failed because the prepared identifier was not written explicitly; the label was added before this rerun.
-No gameplay/browser/Godot/human playtest/legal verification performed. No runtime/auto-objection policy implemented.
-Remote commit/diff/blob verification is performed separately before moving the branch ref.
-
---- Earlier audit history, not rerun ---
-DESIGN-SYNC-001 final documentation handoff audit
-Date: 2026-10-11
-Scope: four final handoff documents + six-path remote manifest; not a game checkout
-Commands: python /mnt/data/verify_firm_sync_final.py; git diff --cached --check
-
-PASS Six-file documentation-only manifest
-PASS Four final handoff documents present
-PASS UTF-8 contents have no replacement characters
-PASS Contract Owns lists all six paths
-PASS Experiment self-report is present
-PASS New handoff relative links refer to manifest files
-PASS Final Markdown tables have consistent widths
-PASS Staged final handoff whitespace check
-
-Checks: 8; failures: 0; exit: 0
-Earlier draft audit: 14 documentation checks passed; this is a separate final supplement.
-Connector verified retained board blob: 7f22ab311968ba9a9287df81f747bb13d3771f7a
-Connector verified corrected CURRENT blob: 35099ec347d1b40884806a76b252ee4a7342f921
-Runtime/browser/Godot regression, human playtest and legal audit: not run.
-No full-game regression PASS claim. Commit/PR scope is verified separately after creation.
+Checks: 14; failures: 0; exit: 0
+Introduced relative links checked: 8
+Earlier local audit: two checker errors (unchanged CURRENT links included; expected five tables instead of four). Checker corrected; document content unchanged.
+Runtime/browser/Godot regression, human playtest and legal verification: not run.
+No gameplay change or full regression PASS claim. Previous audit logs remain in the immutable baseline commit.
+Remote compare/blob checks and non-force branch update are performed separately.
