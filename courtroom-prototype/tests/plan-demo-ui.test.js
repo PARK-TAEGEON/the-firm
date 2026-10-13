@@ -54,7 +54,7 @@ test('page: toggle only the layout response and compare against default', () => 
   ui.click('flip');
   assert.match(ui.node.innerHTML,/계획 검토/);
   ui.click('edit'); ui.changeLayout(false); ui.click('save-edit');
-  assert.match(ui.node.innerHTML,/별도 신문 계획에서 제외/);
+  assert.match(ui.node.innerHTML,/이번 계획에서 제외/);
   ui.click('approve'); ui.click('show-record');
   assert.match(ui.node.innerHTML,/연속 영상 · 신문 수행/);
   assert.match(ui.node.innerHTML,/진료기록 · 신문 수행/);
