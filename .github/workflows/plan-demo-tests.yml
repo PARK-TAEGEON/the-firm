@@ -1,0 +1,29 @@
+name: PLAN-DEMO-001
+on:
+  pull_request:
+    branches:
+      - task/demo-001
+    paths:
+      - 'courtroom-prototype/plan-demo.html'
+      - 'courtroom-prototype/ui/plan-demo-*.js'
+      - 'courtroom-prototype/ui/plan-demo-*.css'
+      - 'courtroom-prototype/services/plan-demo.js'
+      - 'courtroom-prototype/tests/plan-demo*.test.js'
+      - '.github/workflows/plan-demo-tests.yml'
+  workflow_dispatch:
+jobs:
+  node-regression:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Plan demo and existing DEMO-001 regression
+        working-directory: courtroom-prototype
+        run: node --test tests/demo.test.js tests/plan-demo.test.js tests/plan-demo-ui.test.js
+      - name: Existing core unit tests
+        working-directory: courtroom-prototype
+        run: npm test
