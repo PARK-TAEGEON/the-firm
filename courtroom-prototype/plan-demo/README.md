@@ -6,12 +6,12 @@
 
 저장소에서 task/plan-demo-001 브랜치를 체크아웃하거나 별도 worktree로 연다.
 
-\`\`\`sh
+```sh
 git fetch origin task/plan-demo-001
 git worktree add ../the-firm-plan-demo origin/task/plan-demo-001
 cd ../the-firm-plan-demo/courtroom-prototype
 npm start
-\`\`\`
+```
 
 브라우저: http://127.0.0.1:4173/plan-demo.html
 
@@ -31,6 +31,6 @@ npm start
 
 **실험 경계:** 재판 준비 자료 네 개는 자동 확보하는 고정 전제다. 의뢰인 합의·수임·일정은 이번 수직 슬라이스에서 조작하지 않는다. 원래 DEMO-001의 신문 시간/증거 신청 및 임시 양형 규칙은 여전히 존재한다. 다른 사건으로 확장된 자동화 시스템이나 공통 생성기는 아니다.
 
-테스트: \`node --test tests/plan-demo.test.js\`. 원본 서비스 회귀: \`node --test tests/demo.test.js tests/plan-demo.test.js\`.
+테스트: `node --test tests/plan-demo.test.js`. 원본 서비스 회귀: `node --test tests/demo.test.js tests/plan-demo.test.js`.
 
 기술·게임성 검증 상태: [REPORT](REPORT.md), [RULES](RULES.md).
