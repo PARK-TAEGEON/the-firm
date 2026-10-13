@@ -3,7 +3,7 @@
 // A compact presentation for the existing case-backed engine and approved plan.
 // All hearings are executed by FirmPlanDemo.play; this file only renders its record.
 const root = document.getElementById('app');
-let page = 'plan', editing = false, useLayout = true, beforeEdit = true;
+let page = 'intro', editing = false, useLayout = true, beforeEdit = true;
 let report = null, error = '';
 const esc = x => String(x == null ? '' : x).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const txt = x => esc(x);
@@ -14,13 +14,22 @@ const find = (kind, id) => records().find(r => r.kind === kind && (!id || r.refI
 const fromSpeaker = (r, speaker) => r ? (r.lines || []).find(x => x.speaker === speaker)?.text : null;
 const witnessAnswer = r => r ? (r.lines || []).find(x => x.speaker === 'W_SIG_INVESTIGATOR')?.text || r.memo || '' : '';
 const titleBar = () => '<header class="mast"><div><div class="brand">THE <span>FIRM</span></div><div class="meta">변론 계획 · 자동 법정 실행 실험</div></div><div class="meta">정민호 / 상해 사건<br>실험용 별도 화면</div></header>'
-  + '<ol class="steps">'+[['plan','계획 검토'],['court','법정 진행'],['record','기록 확인']].map(([id,name],i)=>
+  + '<ol class="steps">'+[['intro','첫 상담'],['plan','계획 검토'],['court','법정 진행'],['record','기록 확인']].map(([id,name],i)=>
     '<li class="'+(page===id?'active':(['plan','court','record'].indexOf(page)>i?'past':''))+'"'+(page===id?' aria-current="step"':'')+'>'+(i+1)+'. '+name+'</li>').join('')+'</ol>';
 const button = (text,action,style='')=>'<button type="button" class="btn '+style+'" data-action="'+action+'">'+text+'</button>';
-const header = (kicker,title,sub,tag) => '<div class="headline"><div><div class="eyebrow">'+esc(kicker)+'</div><h1>'+esc(title)+'</h1><div class="sub">'+esc(sub)+'</div></div>'+(tag?'<span class="pill">'+esc(tag)+'</span>':'')+'</div>';
+const header = (kicker,title,sub,tag) => '<div class="headline"><div><div class="eyebrow">'+esc(kicker)+'</div><h1 id="page-title" tabindex="-1">'+esc(title)+'</h1><div class="sub">'+esc(sub)+'</div></div>'+(tag?'<span class="pill">'+esc(tag)+'</span>':'')+'</div>';
+function intro() {
+ return header('CASE INTAKE / 00', '첫 상담 · 정민호',
+   '기존 사건의 첫 상담 대화를 확인합니다.', '상담')
+   + '<section class="panel intro-preview"><div class="eyebrow">CLIENT INTERVIEW</div>'
+   + '<h2>의뢰인 첫 상담</h2>'
+   + '<p>사건의 출발점을 확인한 다음, 담당 변호사가 준비한 변론 계획으로 이동합니다.</p>'
+   + '<div class="controls">'+button('첫 상담 열기','replay-intro','primary')+'</div></section>';
+}
 function plan() {
  const proposed = useLayout ? '수사관의 현장 조사 범위를 확인하는 대응 준비' : '이번 계획에서 제외';
- return header('PREPARATION / 01','상해 인과관계 · 변론 계획','내부 계획. 법원이나 검찰에 그대로 공개되지 않습니다.', '초안 검토')
+ return header('PREPARATION / 01','상해 인과관계 · 변론 계획','재면담·자료 검토 완료 · 내부 변론 계획(외부 비공개)', '초안 검토')
+ + '<div class="plan-toolbar">'+button('첫 상담 다시 보기','replay-intro','small')+'</div>'
  + '<div class="columns">'
  + '<section class="panel"><div class="panel-head"><h2><span class="icon">§</span> 법률 검토</h2><span class="tag">읽기</span></div>'
  + '<div class="claim">검찰은 밀침 때문에 피해자가 넘어져 손목을 다쳤다고 주장합니다.</div>'
@@ -102,18 +111,37 @@ function record() {
 }
 function render() {
  root.innerHTML = '<main class="shell">'+titleBar()+(error?'<div role="alert" class="error">'+txt(error)+'</div>':'')
-  +(page==='plan'?plan():page==='court'?court():record())
+  +(page==='intro'?intro():page==='plan'?plan():page==='court'?court():record())
   +'<footer class="footer">PLAN-DEMO-001 · 기존 DEMO-001 사건과 공판 엔진 기반 실험. 원본 사건·판정 로직 미수정.</footer></main>';
+}
+function openIntroScene() {
+ const consultation = window.FirmDemoCase.presentation.consultation;
+ const scene = {
+   ...consultation,
+   // Keep the authored eight dialogue lines unchanged; only update old
+   // "half-day prep / settlement" instructions for this narrower test.
+   tasks: [
+     '첫 상담 뒤 의뢰인 재면담과 기존 영상·진료·현장 자료를 검토합니다.',
+     '담당 변호사가 작성한 변론 계획을 확인하고 필요한 부분만 수정합니다.'
+   ]
+ };
+ window.FirmDemoConsultation.open(scene, () => {
+   page = 'plan';
+   error = '';
+   render();
+   document.getElementById('page-title')?.focus({preventScroll:true});
+ });
 }
 root.addEventListener('click', e => {
  const act = e.target.closest('button[data-action]')?.dataset.action;
  if (!act) return;
+ if (act === 'replay-intro') { openIntroScene(); return; }
  error = '';
  try {
    if(act==='edit'){beforeEdit=useLayout;editing=true;}
    if(act==='cancel-edit'){useLayout=beforeEdit;editing=false;}
    if(act==='save-edit'){editing=false;}
-   if(act==='approve'){report=window.FirmPlanDemo.play({useLayout});page='court';}
+   if(act==='approve' && page==='plan'){report=window.FirmPlanDemo.play({useLayout});page='court';}
    if(act==='show-record'){page='record';}
    if(act==='flip'){useLayout=!report.plan.useLayout;editing=false;report=null;page='plan';}
    if(act==='restart'){useLayout=report.plan.useLayout;editing=false;report=null;page='plan';}
@@ -125,4 +153,5 @@ root.addEventListener('change',e=>{
  if(e.target?.id==='layout-toggle'){useLayout=!!e.target.checked;render();}
 });
 render();
+openIntroScene();
 })();

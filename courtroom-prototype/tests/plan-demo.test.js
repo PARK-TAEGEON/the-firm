@@ -61,10 +61,12 @@ test('case data remains unchanged; no hidden truth or plan toggle becomes a judg
 
 test('page loads the existing case/engine and the new controller without modifying demo.html', () => {
   const html=fs.readFileSync(path.join(__dirname,'../plan-demo.html'),'utf8');
-  for(const asset of ['data/demo-separated-moments.js','engine/trial.js',
-    'services/demo-session.js','services/plan-demo.js','ui/plan-demo-app.js']) {
+  for(const asset of ['data/demo-locations.js','data/demo-portraits.js','data/demo-separated-moments.js','engine/trial.js',
+    'services/demo-session.js','services/plan-demo.js','ui/trial-demo-consultation.js','ui/plan-demo-app.js']) {
     assert.ok(html.includes('src="'+asset+'"'),asset);
   }
   assert.ok(html.indexOf('services/demo-session.js')<html.indexOf('services/plan-demo.js'));
-  assert.ok(html.indexOf('services/plan-demo.js')<html.indexOf('ui/plan-demo-app.js'));
+  assert.ok(html.indexOf('services/plan-demo.js')<html.indexOf('ui/trial-demo-consultation.js'));
+  assert.ok(html.indexOf('ui/trial-demo-consultation.js')<html.indexOf('ui/plan-demo-app.js'));
+  assert.match(html, /<dialog id="consultation"/);
 });

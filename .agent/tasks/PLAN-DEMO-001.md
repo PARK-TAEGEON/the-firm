@@ -15,18 +15,25 @@ AGENTS.md, root DESIGN.md, .agent/tasks/DEMO-001.md, courtroom-prototype/demo/RU
 - courtroom-prototype/plan-demo.html
 - courtroom-prototype/ui/plan-demo.css
 - courtroom-prototype/ui/plan-demo-app.js
+- courtroom-prototype/tests/plan-demo-ui.test.js
 - courtroom-prototype/services/plan-demo.js
 - courtroom-prototype/tests/plan-demo.test.js
 - courtroom-prototype/plan-demo/README.md
 - courtroom-prototype/plan-demo/RULES.md
 - courtroom-prototype/plan-demo/REPORT.md
+- courtroom-prototype/plan-demo/REVIEW_PACKET.md
+- courtroom-prototype/plan-demo/test-results.log
 - .github/workflows/plan-demo-tests.yml
 - this contract
 
 ## Forbidden
 Existing engine, DEMO-001 data, DEMO-001 services/UI/tests, accepted DEC, main, user worktrees, PR #11 modifications. No automatic merge or new hidden legal rules.
 
+## Follow-up scope · 2026-10-13
+User-approved next slice: reuse the existing eight-line DEMO-001 first-consultation dialog before the plan board. No new authored case conversation, witnesses, trial logic or sentencing rules. Update only plan-demo.html, ui/plan-demo-app.js, ui/plan-demo.css and own smoke tests/docs. Read-only: ui/trial-demo-consultation.js, data/demo-locations.js, data/demo-portraits.js, existing consultation data and art. Last-scene "tasks" text may be adapted in the new view only because the old half-day and settlement instructions are outside this scoped flow; original data remains byte-identical. Keep the edited plan when revisiting the scene.
+
 ## Acceptance
+0. The existing first-consultation modal opens before plan review; its authored dialog text is unchanged, its old task prompts are view-only adapted, and completing/replaying the scene does not mutate court records or plan selections.
 1. Same baseline known evidence, two cases differ only in whether on-plan field-layout re-cross-examination is used. Both preserve core video/medical examination.
 2. Approving plan executes actual case service without manual repeated cross-examination clicks; approved plan stays internal to defense. Raw courtroom record and summarized view are distinct.
 3. Court record foregrounds *신문 수행* and actual witness statements. Prosecutor rebuttal and separate experimental judgment visible. Absent/planned-but-not-executed not mislabeled successful.
