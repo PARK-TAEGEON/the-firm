@@ -15,7 +15,7 @@ const fromSpeaker = (r, speaker) => r ? (r.lines || []).find(x => x.speaker === 
 const witnessAnswer = r => r ? (r.lines || []).find(x => x.speaker === 'W_SIG_INVESTIGATOR')?.text || r.memo || '' : '';
 const titleBar = () => '<header class="mast"><div><div class="brand">THE <span>FIRM</span></div><div class="meta">변론 계획 · 자동 법정 실행 실험</div></div><div class="meta">정민호 / 상해 사건<br>실험용 별도 화면</div></header>'
   + '<ol class="steps">'+[['intro','첫 상담'],['plan','계획 검토'],['court','법정 진행'],['record','기록 확인']].map(([id,name],i)=>
-    '<li class="'+(page===id?'active':(['plan','court','record'].indexOf(page)>i?'past':''))+'"'+(page===id?' aria-current="step"':'')+'>'+(i+1)+'. '+name+'</li>').join('')+'</ol>';
+    '<li class="'+(page===id?'active':(['intro','plan','court','record'].indexOf(page)>i?'past':''))+'"'+(page===id?' aria-current="step"':'')+'>'+(i+1)+'. '+name+'</li>').join('')+'</ol>';
 const button = (text,action,style='')=>'<button type="button" class="btn '+style+'" data-action="'+action+'">'+text+'</button>';
 const header = (kicker,title,sub,tag) => '<div class="headline"><div><div class="eyebrow">'+esc(kicker)+'</div><h1 id="page-title" tabindex="-1">'+esc(title)+'</h1><div class="sub">'+esc(sub)+'</div></div>'+(tag?'<span class="pill">'+esc(tag)+'</span>':'')+'</div>';
 function intro() {

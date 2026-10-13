@@ -60,6 +60,8 @@ function boot() {
 test('page: approve default plan, inspect actual hearing, review record', () => {
   const ui = boot();
   ui.finishIntro();
+  assert.match(ui.node.innerHTML, /<li class="past">1\. 첫 상담<\/li>/);
+  assert.match(ui.node.innerHTML, /<li class="active" aria-current="step">2\. 계획 검토<\/li>/);
   assert.match(ui.node.innerHTML,/법률 검토/);
   assert.match(ui.node.innerHTML,/변론 계획/);
   ui.click('approve');
