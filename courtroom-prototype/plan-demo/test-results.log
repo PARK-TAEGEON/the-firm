@@ -1,0 +1,13 @@
+PLAN-DEMO-001: authored first consultation → plan → automated court → record
+Source commit: 7eaa786064c9045be5ba59876716ccf781f05417
+Date: 2026-10-13
+CI: https://github.com/PARK-TAEGEON/the-firm/actions/runs/38350532686
+Command (courtroom-prototype): node --test tests/demo.test.js tests/plan-demo.test.js tests/plan-demo-ui.test.js
+Result: tests 39, pass 39, fail 0, exit 0
+Command (courtroom-prototype): npm test
+Result: tests 247, pass 247, fail 0, exit 0
+Related Godot Tests: https://github.com/PARK-TAEGEON/the-firm/actions/runs/38350532585
+Result: success
+Verification scope: Node session/service and DOM-event VM tests, static HTML/asset references, existing Godot regression.
+Not executed: real Chrome/Edge visual rendering, 390/1440 responsiveness, screen reader/manual keyboard walk-through, human gameplay review, law audit.
+Remaining debt: original DEMO-001 prepared/filing timing rule and simplified verdict. The original authored consultation dialogue is reused without data changes.

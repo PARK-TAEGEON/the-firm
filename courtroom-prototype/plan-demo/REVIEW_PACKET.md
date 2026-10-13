@@ -20,7 +20,7 @@ Changed files: plan-demo.html, ui/plan-demo-app.js, ui/plan-demo.css, tests/plan
 
 Expected CI: `node --test tests/demo.test.js tests/plan-demo.test.js tests/plan-demo-ui.test.js` followed by `npm test`; existing Godot workflow separately triggered. Dialogue test checks authored text visibility, step-by-step progression, full-transcript path, finishing, replay, plan edit persistence. Original case/engine deterministic tests continue.
 
-Status at first commit: CI not yet run for this new change. Final count and results recorded in `test-results.log` and REPORT after GitHub Actions completes. Local browser rendering at desktop/mobile and a human playtest are **not yet claimed**.
+Verified source commit `7eaa786` on 2026-10-13. [PLAN-DEMO-001 CI #38350532686](https://github.com/PARK-TAEGEON/the-firm/actions/runs/38350532686) **PASS**: original DEMO + plan service + consultation UI smoke **39/39**, original Node core **247/247**, failures 0. Related [Godot CI #38350532585](https://github.com/PARK-TAEGEON/the-firm/actions/runs/38350532585) PASS. Logs summarized in `test-results.log`. Actual browser rendering at 1440/390 and human playtest **not yet executed**; Node VM UI smoke is not a real browser visual test.
 
 ## Unresolved / limitations
 
