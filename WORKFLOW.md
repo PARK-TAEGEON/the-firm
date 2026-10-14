@@ -81,7 +81,7 @@ git status
 
 ## 5. Review Packet
 
-Implementer는 작업 후 `litigation-skeleton/REVIEW_PACKET.md`를 갱신한다.
+Implementer는 작업 후 **해당 작업 계약이 소유하는 경로**의 `REVIEW_PACKET.md`를 갱신한다. 예전 Godot VS에서는 `litigation-skeleton/REVIEW_PACKET.md`를 사용했다.
 
 반드시 기록:
 
@@ -143,18 +143,14 @@ Task가 PASS 되면 현재 REVIEW_PACKET을 다음 위치에 보관한다.
 
 ---
 
-## Current Vertical Slice Roadmap
+## Vertical Slice의 과거 기준선 (현재 작업 지도 아님)
 
-VS-001 — Case Review — COMPLETE
-VS-002 — Task Execution + Issue/Theory — COMPLETE
-VS-003 — Investigation
-VS-004 — Legal Research + Strategy
-VS-005 — Submission + CourtRecord
-VS-006 — Adjudication
-VS-007 — Judgment
-VS-008 — Save/Load + Integrated Slice
+- Godot VS-001~VS-006은 각 시점의 한정된 조사·분석·제출·사실인정 **실험 기준**이다. 현재 Court System v1.0 전체가 구현되었다는 뜻은 아니다.
+- 과거 VS-007 Judgment, VS-008 Save/Load + Integrated Slice 표기는 **옛 순차 로드맵의 미착수 후보**다. 이를 현재 실행 순서로 자동 승격하지 않는다.
+- **현재 업무·분야별 진행 상태와 다음 게이트:** [ROADMAP.md (Markmap)](ROADMAP.md).
+- **검증된 main 기준과 실험/설계 경계:** [docs/CURRENT.md](docs/CURRENT.md).
 
----
+완성 여부·검수 결과·시행 순서를 분야별 현황판에서 확인하고, 낡은 로드맵을 새 작업 계약으로 오해하지 않는다.
 
 ## Branch / Worktree Policy
 
@@ -190,14 +186,26 @@ Never start VS-N+1 from a stale main or from an older task branch.
 
 ---
 
-## Weekly Rhythm and Tooling (2026-09-28)
+## 현황판 운영 원칙 (2026-10-14 개정)
 
-- 월: 이번 주 작업 계약서 확정, `ROADMAP.md` 갱신, Orca에서 에이전트 착수
-- 화~수: 구현. 사람은 diff 검토만
-- 목: 통합, 교차 리뷰(Claude ↔ Codex)
-- 금: 외부 플레이테스트, `docs/CURRENT.md`와 `ROADMAP.md` 갱신, 다음 주 결정
+9월 28일에 작성한 요일별 업무 일정과 `ROADMAP.md`의 과거 주간 체크리스트 운영 방침은 폐기한다. **계약/검수/브랜치 정책은 그대로 유지**하되, 실제 상태는 다음 두 문서에서 관리한다.
 
-`ROADMAP.md`는 markmap으로 보는 진행 지도다. 체크 표시와 날짜만 갱신하고 설명은 작업 계약서에 둔다.
+- [ROADMAP.md](ROADMAP.md): **Markmap용 분야별 진행 현황판**. 재판, UI, 사건 생성, World, Organization/HR, Business, QA, 출시 등.
+- [docs/CURRENT.md](docs/CURRENT.md): 핵심 목표, 기준 버전, 진행 상태의 확인 범위, 열린 PR/미확인 항목.
+- [docs/CHANGELOG.md](docs/CHANGELOG.md): 종료된 결정과 구현·검증 이력. 이전 실험·보고서를 지우지 않는다.
 
-실험 lane 작업은 위 1~8단계 중 독립 Review(6)를 생략할 수 있다. 상세는 `AGENTS.md`의 Work Lanes 절.
+### 상태 구분
 
+- **main 확인**: GitHub 기본 브랜치에 실제 반영된 구현 또는 Accepted 결정.
+- **별도 브랜치/PR**: 실험과 문서가 있지만 main 미병합. 구현 범위와 테스트 출처를 함께 적는다.
+- **사용자 진행 보고**: 로컬/외부 AI 작업 진행이 확인됐지만 해당 GitHub 기준선의 diff·테스트는 아직 미확인.
+- **설계/Proposed**: 앞으로 구현할 규칙 또는 제안값. 코드 완료·밸런스 통과로 표시하지 않는다.
+- **보류/미정**: 실제 재개 조건 또는 선행 검수 게이트를 적는다.
+
+현황 갱신 시 **증거 링크(작업 계약, 소스 ref, 리뷰, 테스트 결과)**를 붙인다. 마감일만 지나도 완료 처리하지 않고, 자동 회귀 통과와 인간 플레이테스트를 분리한다. 다른 모델의 미푸시 로컬 변경은 GitHub 상태에 포함되지 않는다.
+
+### 변경/검수 경계
+
+- `AGENTS.md`의 experiment/production lane, reviewer·merge 권한이 이 문서의 요약보다 우선한다.
+- 같은 production VS의 순차 작업에는 위의 *Task Transition Rule*을 적용한다. 여러 독립 experiment/docs 작업은 각자의 브랜치와 계약을 사용한다.
+- 구현 범위나 Accepted DEC를 현황판 갱신만으로 수정하지 않는다. 새로운 설계는 Proposed로 남겨 사람이 채택 여부를 판단한다.
