@@ -4,7 +4,7 @@
 작성일: 2026-10-14  
 상태: **Future Design / 사용자 승인 방향, 상세 규칙 Proposed**  
 구현 상태: **미구현 · UI/코드 작업 아님**  
-관련 문서: [게임 헌법](../../00_GAME_CONSTITUTION.md), [SYSTEM MAP](../../01_SYSTEM_MAP.md), [ARCHITECTURE RULES](../../02_ARCHITECTURE_RULES.md), [DEC-026 업무 배정·조정](../../DEC-LITIGATION-026_TASK_ASSIGNMENT_WORKLOAD_AND_TEAM_COORDINATION.md), [사업 설계 초안](../../SYS-004_BUSINESS.md), [디자인 메모](../DESIGN-NOTES-2026-09.md), [인간관계 후속안](WORLD-RELATIONSHIPS-001.md).
+관련 문서: [게임 헌법](../../00_GAME_CONSTITUTION.md), [SYSTEM MAP](../../01_SYSTEM_MAP.md), [ARCHITECTURE RULES](../../02_ARCHITECTURE_RULES.md), [DEC-026 업무 배정·조정](../../DEC-LITIGATION-026_TASK_ASSIGNMENT_WORKLOAD_AND_TEAM_COORDINATION.md), [사업 설계 초안](https://github.com/PARK-TAEGEON/the-firm/blob/task/sys-004/SYS-004_BUSINESS.md), [디자인 메모](../DESIGN-NOTES-2026-09.md), [인간관계 후속안](WORLD-RELATIONSHIPS-001.md).
 
 > 목적: 인테리어 시뮬레이터 없이 로펌의 인원·서열·팀·성장을 시각화한다. 공간은 Organization/Business가 결정한 상태를 보여주고, 직원에 대한 의미 있는 관리 명령으로 연결된다.
 
@@ -82,12 +82,12 @@
 
 ## 6. 최소 데이터 계약 후보 (확정 스키마 아님)
 
-- \`OfficeSite\`: site ID, 임대/소유 계약 ref, 공간 타입/표현 단계, 유효 시기, 배경 key.
-- \`OfficeZone\`: zone ID, site/층 ref, 팀/권장 직급, 공간/좌석 목록.
-- \`SeatAssignment\`: seat ID, person ID, effective_from/to, 요청 주체와 변경 이력; 한 시점 중복 점유 방지.
-- \`OrganizationPosition\`: person ID, 조직 ID, 고용 지위·직급·유효기간·계약 refs.
-- \`ResponsibilityAssignment\`: 사건/팀의 Lead·Reviewer 등 업무 책임과 위임 범위 참조.
-- \`OfficeViewProjection\`: 허용된 사람·구역·배치·상태를 읽기 전용으로 UI에 제공.
+- `OfficeSite`: site ID, 임대/소유 계약 ref, 공간 타입/표현 단계, 유효 시기, 배경 key.
+- `OfficeZone`: zone ID, site/층 ref, 팀/권장 직급, 공간/좌석 목록.
+- `SeatAssignment`: seat ID, person ID, effective_from/to, 요청 주체와 변경 이력; 한 시점 중복 점유 방지.
+- `OrganizationPosition`: person ID, 조직 ID, 고용 지위·직급·유효기간·계약 refs.
+- `ResponsibilityAssignment`: 사건/팀의 Lead·Reviewer 등 업무 책임과 위임 범위 참조.
+- `OfficeViewProjection`: 허용된 사람·구역·배치·상태를 읽기 전용으로 UI에 제공.
 
 외부 인물의 사무실 전체를 자세히 시뮬레이션할 필요는 없다. 다른 로펌은 주요 정보/이력 중심의 축약 표현을 우선한다.
 
