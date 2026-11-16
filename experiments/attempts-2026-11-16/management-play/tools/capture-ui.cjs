@@ -1,0 +1,44 @@
+'use strict';
+// Reproducible screenshots of real UI. Uses the same offline build as regressions.
+const fs=require('node:fs'),path=require('node:path');
+const {pathToFileURL}=require('node:url');
+let playwright;
+try{playwright=require('playwright')}catch(e){playwright=require(path.join(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES,'playwright'))}
+const root=path.resolve(__dirname,'..'),out=path.resolve(process.env.FIRM_CAPTURE_DIR||path.join(root,'docs/ui-after'));
+(async()=>{
+ fs.mkdirSync(out,{recursive:true});
+ const browser=await playwright.chromium.launch({headless:true,executablePath:process.env.FIRM_CHROMIUM});
+ const context=await browser.newContext({viewport:{width:1366,height:768},reducedMotion:'reduce'});
+ await context.route(/^https?:/,r=>r.abort());
+ const page=await context.newPage(),errors=[];
+ page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(pathToFileURL(path.join(root,'dist/THE_FIRM_Management_Play_v0.4.html')).href);
+ await page.evaluate(()=>document.fonts.ready);
+ const shot=async name=>{const dialog=await page.locator('#modal-root [role="dialog"]').count();await page.screenshot({path:path.join(out,name+'.png'),fullPage:!dialog})};
+ const close=async()=>{const b=page.locator('#modal-root [data-action="close"]').first();if(await b.count())await b.click()};
+ const nav=async id=>{await close();await page.locator('.nav-item[data-id="'+id+'"]').click()};
+ await shot('office');
+ await nav('cases');
+ await page.locator('[data-action="file"][data-id="jung"]').click();
+ await shot('cases');
+ await nav('home');
+ await page.locator('[data-action="intake"]').first().click();
+ await shot('intake');
+ await nav('people');await shot('people');
+ await page.locator('[data-action="assign"][data-id="jung-organize"]').first().click();
+ await page.locator('#modal-root [data-action="choose-person"][data-id="kim"]').click();
+ await shot('assignment');
+ await close();await page.locator('[data-action="mode"][data-id="operations"]').first().click();await shot('schedule');
+ await page.locator('[data-action="mode"][data-id="brief"]').click();await nav('home');
+ await page.setViewportSize({width:390,height:844});await shot('mobile-office');
+ await nav('people');
+ await page.locator('[data-action="assign"][data-id="jung-organize"]').first().click();
+ await shot('mobile-assignment');
+ await close();await page.setViewportSize({width:1440,height:900});await nav('home');
+ await page.locator('[data-action="appearance"]').first().click();await shot('appearance');
+ await close();
+ const metrics=await page.evaluate(()=>({viewport:innerWidth,body:document.body.scrollWidth,html:document.documentElement.scrollWidth}));
+ fs.writeFileSync(path.join(out,'capture.json'),JSON.stringify({viewport:{width:1366,height:768},mobile:{width:390,height:844},errors,metrics},null,2));
+ await browser.close();if(errors.length)throw Error(errors.join('\n'));
+ console.log(JSON.stringify({out,images:fs.readdirSync(out).filter(f=>f.endsWith('.png')).length,errors:errors.length}));
+})().catch(e=>{console.error(e);process.exit(1)});

@@ -1,0 +1,13 @@
+{
+  "baseline": "d6fa4a303691f60eedf79b829780f443f915e245",
+  "stage": "G1 design packet; game runtime unchanged",
+  "required": {"checks":286,"failures":0,"exitCode":0},
+  "commands": [
+    {"command":"npm test","checks":247,"failures":0,"exitCode":0,"log":"core.log"},
+    {"command":"node --test tests/demo.test.js tests/plan-demo.test.js tests/plan-demo-ui.test.js","checks":39,"failures":0,"exitCode":0,"log":"plan-demo.log"},
+    {"command":"npm run test:browser","completedChecksReported":591,"totalChecks":null,"failures":1,"exitCode":1,"failure":"Record sheet returns focus to rebuilt opener","sameAsBaseline":true,"log":"browser.log"},
+    {"command":"npm run test:trial","nodeChecks":19,"browserChecksTotal":null,"failures":1,"exitCode":1,"failure":"desktop/acquit console 404 (baseline traced /favicon.ico)","sameAsBaseline":true,"log":"trial.log"},
+    {"command":"npm run test:budget","completedChecksReported":14,"totalChecks":null,"failures":1,"exitCode":1,"failure":"Record sheet returns focus to rebuilt opener","sameAsUnchangedBaselineRepeat":true,"log":"budget.log"}
+  ],
+  "notes":["Original baseline budget passed 262; unchanged baseline repeat failed the same focus assertion as post. Both logs retained.","No expectations weakened. Optional aborted check totals are unknown, not reported as complete passes.","Do not sum optional commands as unique coverage."]
+}

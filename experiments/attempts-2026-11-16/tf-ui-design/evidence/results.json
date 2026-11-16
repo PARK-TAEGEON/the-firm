@@ -1,0 +1,2175 @@
+{
+  "baseline": "d6fa4a303691f60eedf79b829780f443f915e245",
+  "version": "1.0.0",
+  "generatedAt": "2026-10-13T06:10:52.460Z",
+  "checks": [
+    {
+      "label": "상담 원문 8개 byte-level JSON 동일",
+      "pass": true
+    },
+    {
+      "label": "included 기록 수 동일",
+      "pass": true
+    },
+    {
+      "label": "included 원본 기록 순서·ID·발언 동일",
+      "pass": true
+    },
+    {
+      "label": "included 판정 표시 동일",
+      "pass": true
+    },
+    {
+      "label": "included 내부 점수 미노출",
+      "pass": true
+    },
+    {
+      "label": "excluded 기록 수 동일",
+      "pass": true
+    },
+    {
+      "label": "excluded 원본 기록 순서·ID·발언 동일",
+      "pass": true
+    },
+    {
+      "label": "excluded 판정 표시 동일",
+      "pass": true
+    },
+    {
+      "label": "excluded 내부 점수 미노출",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/plans/VS-003.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/prompts/design-closure-vs.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/prompts/implementer-vs.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/prompts/planner-vs.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/prompts/reviewer-vs.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/reviews/DEMO-001.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/reviews/VS-002.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/reviews/VS-003.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/reviews/VS-004-DESIGN-CLOSURE.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/reviews/VS-004.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/reviews/VS-005.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/reviews/VS-006.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/scripts/README.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/scripts/REVIEW_PACKET.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/scripts/fixtures/vs006-legacy-implementer.json",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/scripts/git-scope-self-test.ps1",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/scripts/legacy-blocker.ps1",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/scripts/resume-vs.ps1",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/scripts/role-artifacts-self-test.ps1",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/scripts/role-artifacts.ps1",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/scripts/self-test.ps1",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/scripts/start-vs.ps1",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/scripts/test-results.log",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/scripts/test-vs.ps1",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/tasks/COURTROOM-CORE-002.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/tasks/COURTROOM-CORE-003.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/tasks/COURTROOM-CORE-005.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/tasks/COURTROOM-CORE-006.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/tasks/COURTROOM-CORE-065.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/tasks/COURTROOM-CORE-070.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/tasks/COURTROOM-CORE-071.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/tasks/COURTROOM-CORE-080.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/tasks/COURTROOM-CORE-081.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/tasks/COURTROOM-CORE-090.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/tasks/COURTROOM-CORE-091.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/tasks/COURTROOM-CORE-100.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/tasks/DEMO-001.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/tasks/GEN-001.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/tasks/PLAN-DEMO-001.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/tasks/PLAYTEST-001.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/tasks/SETTING-001.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/tasks/VS-003.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/tasks/VS-004.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/tasks/VS-005.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/tasks/VS-006.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/tasks/WORLD-001.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .agent/tasks/WORLD-002.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .gitattributes",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .github/workflows/godot-tests.yml",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .github/workflows/issue-trigger-smoke.yml",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .github/workflows/plan-demo-tests.yml",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .github/workflows/self-hosted-smoke.yml",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 .gitignore",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 00_GAME_CONSTITUTION.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 01_SYSTEM_MAP.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 02_ARCHITECTURE_RULES.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 AGENTS.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 CLAUDE.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-001.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-002.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-003.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-004.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-005.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-006_OPPONENT_MODEL.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-007_JUDGE_ACCEPTANCE.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-008_FINAL_ADJUDICATION.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-009_PROCEDURAL_FLOW.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-010_APPEAL_AND_COURT_LEVELS.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-011_MINIMUM_FACT_RECOGNITION_MODEL.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-012_RECOGNITION_CRITERION_AND_EVIDENCE_SUFFICIENCY.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-013_JUDGE_INTERPRETATION_AND_JUDICIAL_PROFILE.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-014_CRITERION_CHOICE_POINT_AUTHORING_AND_VALIDATION.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-015_JUDGE_GENERATION_CAREER_AND_LIFECYCLE.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-016_LEGAL_PROFESSIONAL_PROFILE_RELATIONSHIP_AND_INTERACTION.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-017_LAWYER_CAPABILITY_AND_PRACTICE_PROFILE.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-018_LAWYER_TASK_AND_WORKPRODUCT_RESOLUTION.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-019_CASE_FILE_AND_MATTER_KNOWLEDGE_MODEL.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-020_EVIDENCE_REVIEW.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-021_INVESTIGATION_AND_EVIDENCE_ACQUISITION.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-022_WITNESS_INTERVIEW_AND_STATEMENT_MODEL.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-023_LEGAL_RESEARCH_AND_ISSUE_ANALYSIS.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-024_CASE_THEORY_AND_EVIDENCE_SYNTHESIS.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-025_DRAFTING_PLEADING_AND_FILING.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-026_TASK_ASSIGNMENT_WORKLOAD_AND_TEAM_COORDINATION.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-027_CLIENT_INTERACTION_AND_ADVICE.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-028_SETTLEMENT_AND_NEGOTIATION.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-029_WITNESS_PREPARATION_AND_COURT_EXAMINATION.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-030_VS006_BOUNDED_COURT_FACT_FINDING.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-031_NUMERIC_ADJUDICATION_AND_PROPOSED_DEC_RESOLUTION.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DEC-LITIGATION-032_LEGAL_SYSTEM_PACK.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 DESIGN.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 REVIEW_REQUEST.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 ROADMAP.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 SYS-001_LITIGATION.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-001_LITIGATION_WALKTHROUGH.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-002_LITIGATION_WALKTHROUGH.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-003_LITIGATION_WORK_PRODUCT.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-004_GENERATION_TRACE.json",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-004_LITIGATION_GENERATION.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-005_OPPONENT_BEHAVIOR.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-005_OPPONENT_TRACE.json",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-006_JUDGE_ACCEPTANCE.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-006_JUDGE_TRACE.json",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-007_FINAL_ADJUDICATION.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-008_MULTI_HEARING_CASE.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-009_APPEAL_AND_REMAND.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-010_MINIMUM_FACT_RECOGNITION.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-011_RECOGNITION_CRITERION_AND_EVIDENCE_SUFFICIENCY.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-012_JUDGE_INTERPRETATION_AND_JUDICIAL_PROFILE.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-013_CRITERION_CHOICE_POINT_AUTHORING_AND_VALIDATION.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-014_JUDGE_GENERATION_CAREER_AND_LIFECYCLE.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-015_LEGAL_PROFESSIONAL_PROFILE_RELATIONSHIP_AND_INTERACTION.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-016_LAWYER_CAPABILITY_AND_PRACTICE_PROFILE.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-017_LAWYER_TASK_AND_WORKPRODUCT_RESOLUTION.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-018_CASE_FILE_AND_MATTER_KNOWLEDGE_MODEL.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-019_EVIDENCE_REVIEW.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-020_INVESTIGATION_AND_EVIDENCE_ACQUISITION.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-021_WITNESS_INTERVIEW_AND_STATEMENT_MODEL.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-022_LEGAL_RESEARCH_AND_ISSUE_ANALYSIS.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-023_CASE_THEORY_AND_EVIDENCE_SYNTHESIS.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-024_DRAFTING_PLEADING_AND_FILING.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-025_TASK_ASSIGNMENT_WORKLOAD_AND_TEAM_COORDINATION.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-026_CLIENT_INTERACTION_AND_ADVICE.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-027_SETTLEMENT_AND_NEGOTIATION.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-028_WITNESS_PREPARATION_AND_COURT_EXAMINATION.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 TEST-029_VS006_BOUNDED_COURT_FACT_FINDING.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 WORKFLOW.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/.gitignore",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/EXPERIMENT_RULES.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/README.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/REVIEW_PACKET.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/UI_TEXT_AUDIT.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/assets/CREDITS.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/assets/locations/office_lounge.jpg",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/assets/portraits/default.svg",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/data/case.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/data/demo-daily-cases.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/data/demo-ko-pack.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/data/demo-locations.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/data/demo-portraits.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/data/demo-profiles.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/data/demo-separated-moments.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/data/trial-case.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/demo.html",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/demo/REPORT.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/demo/REVIEW_PACKET.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/demo/RULES.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/demo/test-results.log",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/engine/adjudication.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/engine/closing.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/engine/core.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/engine/opening.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/engine/procedure.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/engine/trial.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/REPORT.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/balance.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/content/CATALOG.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/content/DEMO-DESIGN.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/content/REPORT.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/content/REVIEW_PACKET.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/content/RULES.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/content/SIGNATURE.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/content/archetypes.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/content/check-balance.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/content/content.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/content/copy.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/content/hearing-copy.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/content/index.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/content/test-results.log",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/content/twists.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/core/archetype.criminal.example.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/core/archetype.example.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/core/contested.criminal.example.output.json",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/core/contested.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/core/format.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/core/generate.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/core/playthrough.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/core/rng.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/core/tests/contested.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/core/tests/core-revision.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/core/tests/criminal-template.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/core/tests/generate.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/core/twist.example.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/generator/core/validate.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/index.html",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/package.json",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/plan-demo.html",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/plan-demo/README.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/plan-demo/REPORT.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/plan-demo/REVIEW_PACKET.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/plan-demo/RULES.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/plan-demo/test-results.log",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/reference/original.html",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/serve.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/services/courtroom.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/services/demo-outcome.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/services/demo-profile-history.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/services/demo-session.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/services/demo-trial.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/services/plan-demo.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/services/trial.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/test-results.log",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/adjudication.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/alternate-verdict-fixture.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/browser-adjudication.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/browser-closing-profile.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/browser-closing.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/browser-commitment-scope.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/browser-flow.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/browser-full-flow.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/browser-opening.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/browser-tactics.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/browser-trial.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/browser.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/case-v065.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/closing-profile-fixture.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/closing-profile.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/closing.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/core.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/demo-art-browser.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/demo-browser.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/demo-cleanup-browser.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/demo-procedure-browser.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/demo-profiles-browser.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/demo-profiles.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/demo.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/flow.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/inference.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/opening.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/plan-demo-ui.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/plan-demo.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/procedure.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/settle-procedure.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/strategy.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/tactics.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/trial.test.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/ui-budget-baseline.json",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/ui-budget.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/ui-flow-baseline.json",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/tests/ui-flow-budget.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/trial.html",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/ui/app.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/ui/courtroom.css",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/ui/fonts/Pretendard-LICENSE.txt",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/ui/fonts/PretendardVariable.woff2",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/ui/fonts/README.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/ui/original.css",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/ui/plan-demo-app.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/ui/plan-demo.css",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/ui/trial-app.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/ui/trial-demo-app.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/ui/trial-demo-consultation.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/ui/trial-demo-text.js",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/ui/trial-demo.css",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 courtroom-prototype/ui/trial.css",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 docs/AUDIT-2026-09.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 docs/CHANGELOG.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 docs/CURRENT.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 docs/DESIGN-NOTES-2026-09.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 docs/DESIGN.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 docs/IMPLEMENT.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 docs/REVIEW.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 docs/playtest/DEMO-TEXT.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 docs/playtest/PLAYTEST-KIT.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 docs/reference/KO-COURT-STATS-2025.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 docs/reference/KO-LAWYERS-FIRMS-2026.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/.gitignore",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/FEATURE_CONTRACT.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/README.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/REVIEW_PACKET.md",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/data/litigation_state.gd",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/fixtures/test008.json",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/fixtures/test009.json",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/project.godot",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/services/litigation_service.gd",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/test-results.log",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/tests/run_regressions.gd",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/content/locale_ko.json",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/content/slice_case.json",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/data/slice_state.gd",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/presentation/slice_localizer.gd",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/presentation/slice_presenter.gd",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/services/adjudication_service.gd",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/services/content_loader.gd",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/services/investigation_service.gd",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/services/legal_research_service.gd",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/services/slice_service.gd",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/services/submission_service.gd",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/services/work_service.gd",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/test-results.log",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/tests/run_slice_regressions.gd",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/tests/run_vs002_regressions.gd",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/tests/run_vs003_regressions.gd",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/tests/run_vs004_regressions.gd",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/tests/run_vs005_regressions.gd",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/tests/run_vs006_regressions.gd",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/ui/main.gd",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/ui/main.tscn",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/vs002-test-results.log",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/vs003-test-results.log",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/vs004-test-results.log",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/vs005-test-results.log",
+      "pass": true
+    },
+    {
+      "label": "보호 해시 litigation-skeleton/vertical_slice/vs006-test-results.log",
+      "pass": true
+    },
+    {
+      "label": "A contrast ink/paper",
+      "pass": true,
+      "detail": "13.42"
+    },
+    {
+      "label": "A contrast ink/surface",
+      "pass": true,
+      "detail": "15.16"
+    },
+    {
+      "label": "A contrast muted/paper",
+      "pass": true,
+      "detail": "5.28"
+    },
+    {
+      "label": "A contrast muted/surface",
+      "pass": true,
+      "detail": "5.96"
+    },
+    {
+      "label": "A contrast accent/surface",
+      "pass": true,
+      "detail": "8.48"
+    },
+    {
+      "label": "A primary contrast",
+      "pass": true,
+      "detail": "8.62"
+    },
+    {
+      "label": "B contrast ink/paper",
+      "pass": true,
+      "detail": "15.15"
+    },
+    {
+      "label": "B contrast ink/surface",
+      "pass": true,
+      "detail": "12.94"
+    },
+    {
+      "label": "B contrast muted/paper",
+      "pass": true,
+      "detail": "9.14"
+    },
+    {
+      "label": "B contrast muted/surface",
+      "pass": true,
+      "detail": "7.81"
+    },
+    {
+      "label": "B contrast accent/surface",
+      "pass": true,
+      "detail": "9.04"
+    },
+    {
+      "label": "B primary contrast",
+      "pass": true,
+      "detail": "10.01"
+    },
+    {
+      "label": "C contrast ink/paper",
+      "pass": true,
+      "detail": "12.45"
+    },
+    {
+      "label": "C contrast ink/surface",
+      "pass": true,
+      "detail": "13.49"
+    },
+    {
+      "label": "C contrast muted/paper",
+      "pass": true,
+      "detail": "5.61"
+    },
+    {
+      "label": "C contrast muted/surface",
+      "pass": true,
+      "detail": "6.07"
+    },
+    {
+      "label": "C contrast accent/surface",
+      "pass": true,
+      "detail": "10.41"
+    },
+    {
+      "label": "C primary contrast",
+      "pass": true,
+      "detail": "10.41"
+    },
+    {
+      "label": "A/consultation/1440 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "A/consultation/1440 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "A/consultation/1440 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "A/consultation/1440 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "A/plan/1440 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "A/plan/1440 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "A/plan/1440 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "A/plan/1440 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "A/court/1440 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "A/court/1440 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "A/court/1440 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "A/court/1440 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "A/record/1440 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "A/record/1440 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "A/record/1440 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "A/record/1440 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "A/consultation/1280 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "A/consultation/1280 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "A/consultation/1280 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "A/consultation/1280 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "A/plan/1280 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "A/plan/1280 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "A/plan/1280 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "A/plan/1280 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "A/court/1280 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "A/court/1280 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "A/court/1280 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "A/court/1280 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "A/record/1280 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "A/record/1280 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "A/record/1280 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "A/record/1280 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "A/consultation/390 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "A/consultation/390 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "A/consultation/390 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "A/plan/390 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "A/plan/390 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "A/plan/390 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "A/court/390 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "A/court/390 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "A/court/390 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "A/record/390 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "A/record/390 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "A/record/390 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "A 편집 저장 버튼 노출 1280",
+      "pass": true
+    },
+    {
+      "label": "A 편집 체크박스 가림 없음 1280",
+      "pass": true
+    },
+    {
+      "label": "A 편집 저장 버튼 노출 390",
+      "pass": true
+    },
+    {
+      "label": "A 편집 체크박스 가림 없음 390",
+      "pass": true
+    },
+    {
+      "label": "A 상담 순차 원문",
+      "pass": true
+    },
+    {
+      "label": "A 순차 상담에서 계획 이동",
+      "pass": true
+    },
+    {
+      "label": "A 수정 취소 기존 계획 보존",
+      "pass": true
+    },
+    {
+      "label": "A 상담 전체 8개",
+      "pass": true
+    },
+    {
+      "label": "A 저장·상담 재방문 계획 유지",
+      "pass": true
+    },
+    {
+      "label": "A 제외 고정 결과 표시",
+      "pass": true
+    },
+    {
+      "label": "A 제외는 미실행·답변 없음",
+      "pass": true
+    },
+    {
+      "label": "A 포함 고정 결과 표시",
+      "pass": true
+    },
+    {
+      "label": "A 질문 원문 접근",
+      "pass": true
+    },
+    {
+      "label": "A 반복 승인·재진입·렌더 후 fixture 불변",
+      "pass": true
+    },
+    {
+      "label": "A 반복 재진입 표시 중복 없음",
+      "pass": true
+    },
+    {
+      "label": "A 단계 이동 제목 포커스",
+      "pass": true
+    },
+    {
+      "label": "A 제목 다음 행동 키보드 접근",
+      "pass": true
+    },
+    {
+      "label": "A 키보드 포커스 가시성",
+      "pass": true
+    },
+    {
+      "label": "A components long/error/unavailable 1440 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "A components long/error/unavailable 1280 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "A components long/error/unavailable 390 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "B/consultation/1440 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "B/consultation/1440 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "B/consultation/1440 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "B/consultation/1440 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "B/plan/1440 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "B/plan/1440 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "B/plan/1440 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "B/plan/1440 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "B/court/1440 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "B/court/1440 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "B/court/1440 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "B/court/1440 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "B/record/1440 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "B/record/1440 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "B/record/1440 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "B/record/1440 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "B/consultation/1280 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "B/consultation/1280 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "B/consultation/1280 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "B/consultation/1280 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "B/plan/1280 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "B/plan/1280 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "B/plan/1280 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "B/plan/1280 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "B/court/1280 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "B/court/1280 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "B/court/1280 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "B/court/1280 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "B/record/1280 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "B/record/1280 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "B/record/1280 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "B/record/1280 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "B/consultation/390 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "B/consultation/390 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "B/consultation/390 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "B/plan/390 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "B/plan/390 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "B/plan/390 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "B/court/390 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "B/court/390 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "B/court/390 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "B/record/390 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "B/record/390 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "B/record/390 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "B 편집 저장 버튼 노출 1280",
+      "pass": true
+    },
+    {
+      "label": "B 편집 체크박스 가림 없음 1280",
+      "pass": true
+    },
+    {
+      "label": "B 편집 저장 버튼 노출 390",
+      "pass": true
+    },
+    {
+      "label": "B 편집 체크박스 가림 없음 390",
+      "pass": true
+    },
+    {
+      "label": "B 상담 순차 원문",
+      "pass": true
+    },
+    {
+      "label": "B 순차 상담에서 계획 이동",
+      "pass": true
+    },
+    {
+      "label": "B 수정 취소 기존 계획 보존",
+      "pass": true
+    },
+    {
+      "label": "B 상담 전체 8개",
+      "pass": true
+    },
+    {
+      "label": "B 저장·상담 재방문 계획 유지",
+      "pass": true
+    },
+    {
+      "label": "B 제외 고정 결과 표시",
+      "pass": true
+    },
+    {
+      "label": "B 제외는 미실행·답변 없음",
+      "pass": true
+    },
+    {
+      "label": "B 포함 고정 결과 표시",
+      "pass": true
+    },
+    {
+      "label": "B 질문 원문 접근",
+      "pass": true
+    },
+    {
+      "label": "B 반복 승인·재진입·렌더 후 fixture 불변",
+      "pass": true
+    },
+    {
+      "label": "B 반복 재진입 표시 중복 없음",
+      "pass": true
+    },
+    {
+      "label": "B 단계 이동 제목 포커스",
+      "pass": true
+    },
+    {
+      "label": "B 제목 다음 행동 키보드 접근",
+      "pass": true
+    },
+    {
+      "label": "B 키보드 포커스 가시성",
+      "pass": true
+    },
+    {
+      "label": "B components long/error/unavailable 1440 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "B components long/error/unavailable 1280 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "B components long/error/unavailable 390 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "C/consultation/1440 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "C/consultation/1440 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "C/consultation/1440 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "C/consultation/1440 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "C/plan/1440 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "C/plan/1440 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "C/plan/1440 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "C/plan/1440 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "C/court/1440 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "C/court/1440 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "C/court/1440 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "C/court/1440 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "C/record/1440 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "C/record/1440 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "C/record/1440 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "C/record/1440 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "C/consultation/1280 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "C/consultation/1280 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "C/consultation/1280 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "C/consultation/1280 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "C/plan/1280 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "C/plan/1280 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "C/plan/1280 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "C/plan/1280 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "C/court/1280 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "C/court/1280 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "C/court/1280 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "C/court/1280 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "C/record/1280 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "C/record/1280 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "C/record/1280 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "C/record/1280 주 행동 첫 화면 접근",
+      "pass": true
+    },
+    {
+      "label": "C/consultation/390 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "C/consultation/390 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "C/consultation/390 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "C/plan/390 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "C/plan/390 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "C/plan/390 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "C/court/390 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "C/court/390 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "C/court/390 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "C/record/390 가로 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "C/record/390 현재 단계 하나",
+      "pass": true
+    },
+    {
+      "label": "C/record/390 기존 이미지 정상",
+      "pass": true
+    },
+    {
+      "label": "C 편집 저장 버튼 노출 1280",
+      "pass": true
+    },
+    {
+      "label": "C 편집 체크박스 가림 없음 1280",
+      "pass": true
+    },
+    {
+      "label": "C 편집 저장 버튼 노출 390",
+      "pass": true
+    },
+    {
+      "label": "C 편집 체크박스 가림 없음 390",
+      "pass": true
+    },
+    {
+      "label": "C 상담 순차 원문",
+      "pass": true
+    },
+    {
+      "label": "C 순차 상담에서 계획 이동",
+      "pass": true
+    },
+    {
+      "label": "C 수정 취소 기존 계획 보존",
+      "pass": true
+    },
+    {
+      "label": "C 상담 전체 8개",
+      "pass": true
+    },
+    {
+      "label": "C 저장·상담 재방문 계획 유지",
+      "pass": true
+    },
+    {
+      "label": "C 제외 고정 결과 표시",
+      "pass": true
+    },
+    {
+      "label": "C 제외는 미실행·답변 없음",
+      "pass": true
+    },
+    {
+      "label": "C 포함 고정 결과 표시",
+      "pass": true
+    },
+    {
+      "label": "C 질문 원문 접근",
+      "pass": true
+    },
+    {
+      "label": "C 반복 승인·재진입·렌더 후 fixture 불변",
+      "pass": true
+    },
+    {
+      "label": "C 반복 재진입 표시 중복 없음",
+      "pass": true
+    },
+    {
+      "label": "C 단계 이동 제목 포커스",
+      "pass": true
+    },
+    {
+      "label": "C 제목 다음 행동 키보드 접근",
+      "pass": true
+    },
+    {
+      "label": "C 키보드 포커스 가시성",
+      "pass": true
+    },
+    {
+      "label": "C components long/error/unavailable 1440 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "C components long/error/unavailable 1280 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "C components long/error/unavailable 390 overflow 없음",
+      "pass": true
+    },
+    {
+      "label": "실제 Edge pageerror/console error 없음",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "failures": [],
+  "screenshots": [
+    "variants/A/consultation-1440.png",
+    "variants/A/plan-1440.png",
+    "variants/A/court-1440.png",
+    "variants/A/record-1440.png",
+    "variants/A/consultation-1280.png",
+    "variants/A/plan-1280.png",
+    "variants/A/court-1280.png",
+    "variants/A/record-1280.png",
+    "variants/A/consultation-390.png",
+    "variants/A/plan-390.png",
+    "variants/A/court-390.png",
+    "variants/A/record-390.png",
+    "variants/B/consultation-1440.png",
+    "variants/B/plan-1440.png",
+    "variants/B/court-1440.png",
+    "variants/B/record-1440.png",
+    "variants/B/consultation-1280.png",
+    "variants/B/plan-1280.png",
+    "variants/B/court-1280.png",
+    "variants/B/record-1280.png",
+    "variants/B/consultation-390.png",
+    "variants/B/plan-390.png",
+    "variants/B/court-390.png",
+    "variants/B/record-390.png",
+    "variants/C/consultation-1440.png",
+    "variants/C/plan-1440.png",
+    "variants/C/court-1440.png",
+    "variants/C/record-1440.png",
+    "variants/C/consultation-1280.png",
+    "variants/C/plan-1280.png",
+    "variants/C/court-1280.png",
+    "variants/C/record-1280.png",
+    "variants/C/consultation-390.png",
+    "variants/C/plan-390.png",
+    "variants/C/court-390.png",
+    "variants/C/record-390.png"
+  ],
+  "consoleErrors": [],
+  "summary": {
+    "checks": 526,
+    "failures": 0,
+    "exitCode": 0
+  }
+}

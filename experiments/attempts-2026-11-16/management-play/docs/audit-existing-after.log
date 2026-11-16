@@ -1,0 +1,24 @@
+✔ UMD loads in a browser global and CommonJS with independent initial states (4.8814ms)
+✔ invalid commands are atomic and cannot bypass the intake decision (0.8745ms)
+✔ acceptance creates commitments and a receivable but no instant cash or output (1.1819ms)
+✔ declining creates no new work, invoice, fee, or penalty (2.4704ms)
+✔ overcommitment is permitted while actual person time never exceeds capacity (3.2696ms)
+✔ dependencies, actual hours, and completion evidence survive the full week (1.6738ms)
+✔ same-day prerequisites release downstream work without double booking (0.7506ms)
+✔ each receipt is posted exactly once and the final fee follows the actual report (2.9026ms)
+✔ changing staff allocation changes real outputs rather than only forecast labels (4.5966ms)
+✔ reassignment keeps prior work and execution history (0.9526ms)
+✔ forecast reuses actual scheduling without mutating state or persisted reports (3.173ms)
+✔ ledger and daily report reconcile to cash, with one operating expense each day (2.2024ms)
+✔ snapshot roundtrip is independent and rejects corrupt or fabricated history (4.0047ms)
+✔ a valid sequence is deterministic and failed requests do not contaminate later progress (3.2843ms)
+✔ accepting the new case has a reachable plan that completes all seven tasks on time (2.9956ms)
+✔ import rejects malformed IDs before exposing imported entities to UI attributes (14.8696ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 60.3924

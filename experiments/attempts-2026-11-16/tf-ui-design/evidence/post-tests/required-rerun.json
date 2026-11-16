@@ -1,0 +1,18 @@
+[
+    {
+        "started":  "2026-10-13T15:11:36.6894258+09:00",
+        "name":  "core",
+        "exitCode":  0,
+        "command":  "npm test",
+        "finished":  "2026-10-13T15:11:37.8145071+09:00",
+        "log":  "core.log"
+    },
+    {
+        "started":  "2026-10-13T15:11:37.8165102+09:00",
+        "name":  "plan-demo",
+        "exitCode":  0,
+        "command":  "node --test tests/demo.test.js tests/plan-demo.test.js tests/plan-demo-ui.test.js",
+        "finished":  "2026-10-13T15:12:30.2634508+09:00",
+        "log":  "plan-demo.log"
+    }
+]

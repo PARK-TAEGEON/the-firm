@@ -1,0 +1,18 @@
+{
+  "input_zip_sha256": "9cfa2524c877a921657e8bf8bdfe9f08993742d54097ae4297df38d205c9fdea",
+  "original_files_modified": [
+    "README.md",
+    "REPORT.md",
+    "RULES.md",
+    "TASK.md",
+    "dist/THE_FIRM_Management_Play_v0.3.html",
+    "src/engine.js",
+    "src/ui.js",
+    "tests/ui-smoke.cjs",
+    "tools/build.py"
+  ],
+  "godot_byte_identical": true,
+  "source_has_git": false,
+  "engine_sha256": "04f31e73001cf8bb9123d45ada65c9ab4acd1ab12a51bf0abbbaba412f8dc41b",
+  "html_sha256": "2149f35c3bb44fb538392374f6cf766f2d93f173af1258f39cbe352bb6d64286"
+}

@@ -1,0 +1,1149 @@
+{
+  "repository": "PARK-TAEGEON/the-firm",
+  "ref": "main",
+  "checkedAt": "2026-10-27",
+  "sha": "30dc3b25fa7cef6a600a689cd0b1a1cac49cd1d8",
+  "truncated": false,
+  "files": [
+    {
+      "path": ".agent/plans/VS-003.md",
+      "sha": "9ca27ca0fd2fd7b42065ec54ecf1d7b6daed7b3f",
+      "size": 25429
+    },
+    {
+      "path": ".agent/prompts/design-closure-vs.md",
+      "sha": "dc2bf895dbed6f5937e6e2525c355919f3990549",
+      "size": 2259
+    },
+    {
+      "path": ".agent/prompts/implementer-vs.md",
+      "sha": "1817e83ff630bac85c61136e466df7e3a9649ad5",
+      "size": 1024
+    },
+    {
+      "path": ".agent/prompts/planner-vs.md",
+      "sha": "bb02d474d881ed5275a2f965926ca2a65cb5a5ba",
+      "size": 5580
+    },
+    {
+      "path": ".agent/prompts/reviewer-vs.md",
+      "sha": "b77acd1fa94de751f360e313cbc348d2d828aed6",
+      "size": 820
+    },
+    {
+      "path": ".agent/reviews/VS-002.md",
+      "sha": "d88175efd62b3a38da1406fd6aeee87ad6dabbec",
+      "size": 8669
+    },
+    {
+      "path": ".agent/reviews/VS-003.md",
+      "sha": "03291e68921cad3ef0709b613c35a9998cb9b244",
+      "size": 12688
+    },
+    {
+      "path": ".agent/reviews/VS-004-DESIGN-CLOSURE.md",
+      "sha": "fdb474e1f7db6efbc66e2f673a13de1a083cce03",
+      "size": 6612
+    },
+    {
+      "path": ".agent/reviews/VS-004.md",
+      "sha": "693d700fbac122134c81c6cdb2f084c0f32a2616",
+      "size": 182
+    },
+    {
+      "path": ".agent/reviews/VS-005.md",
+      "sha": "4cb35f0680834b7de54183a7f57ffd26f5e59e19",
+      "size": 978
+    },
+    {
+      "path": ".agent/reviews/VS-006.md",
+      "sha": "a38f3d283da0baa4554025148f29d988765a9497",
+      "size": 795
+    },
+    {
+      "path": ".agent/scripts/README.md",
+      "sha": "fca131bb774d57db5864fa27141da9ae9bf5a982",
+      "size": 19390
+    },
+    {
+      "path": ".agent/scripts/REVIEW_PACKET.md",
+      "sha": "7bca37fb027af78e36864fc55ac71f717689e9d7",
+      "size": 2000
+    },
+    {
+      "path": ".agent/scripts/fixtures/vs006-legacy-implementer.json",
+      "sha": "a9c25f41f66de5f7a4a22467bb8c8415a39089f9",
+      "size": 990
+    },
+    {
+      "path": ".agent/scripts/git-scope-self-test.ps1",
+      "sha": "01379a22abeb635e886961475a317dc5de7cdcf8",
+      "size": 3369
+    },
+    {
+      "path": ".agent/scripts/legacy-blocker.ps1",
+      "sha": "0283c07423c3e8cb70f27bf8da9ca3305eed6b36",
+      "size": 3758
+    },
+    {
+      "path": ".agent/scripts/resume-vs.ps1",
+      "sha": "455e21f6a532661a28287ab4375eb144e09b8075",
+      "size": 12297
+    },
+    {
+      "path": ".agent/scripts/role-artifacts-self-test.ps1",
+      "sha": "a3d36234d7ec3d90c1f6905fc4cca083eaf70770",
+      "size": 3497
+    },
+    {
+      "path": ".agent/scripts/role-artifacts.ps1",
+      "sha": "26bf782a77b071d7b6020747c4c888ff94095c25",
+      "size": 5110
+    },
+    {
+      "path": ".agent/scripts/self-test.ps1",
+      "sha": "e47f5f327fc6f16d7703a54e7f7bc71f26df180f",
+      "size": 37830
+    },
+    {
+      "path": ".agent/scripts/start-vs.ps1",
+      "sha": "512f5e2618a49eee5c01afb85590558efe10dbff",
+      "size": 37647
+    },
+    {
+      "path": ".agent/scripts/test-results.log",
+      "sha": "a1a721f2c3347e0ade5065de90ec1616614d85ac",
+      "size": 618
+    },
+    {
+      "path": ".agent/scripts/test-vs.ps1",
+      "sha": "d756f0129d599ebe4a321c9e085a976a830e362b",
+      "size": 2425
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-002.md",
+      "sha": "6f4b53a07d177e3b01935a55c21870a14424f975",
+      "size": 2025
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-003.md",
+      "sha": "cb82a38a5d91c6ab61c76bc2c365515a8d8c0235",
+      "size": 2716
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-005.md",
+      "sha": "5ded85fd34faf97689708f6a20d30721a03eff4a",
+      "size": 3046
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-006.md",
+      "sha": "14071aa4fa86817ed010306415614aa0cf96cbdf",
+      "size": 2369
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-065.md",
+      "sha": "9c1710738f7339440b85b646928eb1af95bf3089",
+      "size": 1525
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-070.md",
+      "sha": "e36aa7d721b4cd6688f866d1a77df12d66850ee7",
+      "size": 1470
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-071.md",
+      "sha": "a25a450339712f9d827e2c2246d6f1f2735d3b4b",
+      "size": 1423
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-080.md",
+      "sha": "a1b605848dd09d19f6912e2e388602e70a5a98eb",
+      "size": 2056
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-081.md",
+      "sha": "ea229a21588b2a3cbbfbe50dcda10a6504791db9",
+      "size": 823
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-090.md",
+      "sha": "09e2e1735fc0eb3477bb0793c1682f0664c6bbaa",
+      "size": 1677
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-091.md",
+      "sha": "3554b4832fb6f19936b493ed57bc6d4e6f6566a8",
+      "size": 1299
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-100.md",
+      "sha": "fa466d28291a03dc2fdc7d21b86b8c15fb4127fb",
+      "size": 5975
+    },
+    {
+      "path": ".agent/tasks/DEMO-001.md",
+      "sha": "ead8dd1b5806632cd6ff2bcb52f2cfd0c265aa7f",
+      "size": 1486
+    },
+    {
+      "path": ".agent/tasks/GEN-001.md",
+      "sha": "db451bef12b6ff0796e181cea880df4a7c709495",
+      "size": 1437
+    },
+    {
+      "path": ".agent/tasks/PLAYTEST-001.md",
+      "sha": "54ae0d7177120774a5051a1a660b11dcef81fc45",
+      "size": 574
+    },
+    {
+      "path": ".agent/tasks/SETTING-001.md",
+      "sha": "119c32d9fe3810b1642fc70376c0440f925ab0c2",
+      "size": 1508
+    },
+    {
+      "path": ".agent/tasks/VS-003.md",
+      "sha": "9cdae55b96b2037e717571b3b588b9ae31c0953b",
+      "size": 6387
+    },
+    {
+      "path": ".agent/tasks/VS-004.md",
+      "sha": "f4cc85729d16c959bc71d7325b3d2c5c95f07f2e",
+      "size": 21733
+    },
+    {
+      "path": ".agent/tasks/VS-005.md",
+      "sha": "e2b0e9fc32adb65cb5926f756f985bfc7c810b49",
+      "size": 31475
+    },
+    {
+      "path": ".agent/tasks/VS-006.md",
+      "sha": "b642358efd5c1da74f97a15ebe29ad35f6869dba",
+      "size": 20791
+    },
+    {
+      "path": ".agent/tasks/WORLD-001.md",
+      "sha": "ffbaaeae8cde93ac4aa1337b27454beeb9f6b6dd",
+      "size": 1763
+    },
+    {
+      "path": ".agent/tasks/WORLD-002.md",
+      "sha": "f317c9800b249ccce96c566e48060c6c6e5aa179",
+      "size": 2355
+    },
+    {
+      "path": ".gitattributes",
+      "sha": "fa7d9934fb1d1c0be6577598c05e79aa531920d9",
+      "size": 286
+    },
+    {
+      "path": ".github/workflows/godot-tests.yml",
+      "sha": "ae176a49678c9ce9bd175b6f1b55204a0aba6f80",
+      "size": 1453
+    },
+    {
+      "path": ".github/workflows/issue-trigger-smoke.yml",
+      "sha": "5cdc3896fbb2f972b06c0181952c93a18865531f",
+      "size": 458
+    },
+    {
+      "path": ".github/workflows/self-hosted-smoke.yml",
+      "sha": "b0e8ae92c70cf100b8bce6b68c12679a2e00d6d1",
+      "size": 323
+    },
+    {
+      "path": ".gitignore",
+      "sha": "e00110a9bf94ed50ec2293ad0d5fbc66ea4f1008",
+      "size": 20
+    },
+    {
+      "path": "00_GAME_CONSTITUTION.md",
+      "sha": "af30e918d31aed7b9d8e77dabe22c8f3b324294f",
+      "size": 10619
+    },
+    {
+      "path": "01_SYSTEM_MAP.md",
+      "sha": "771176298b2fb3cb69f355110dc7deff47ae71c0",
+      "size": 34537
+    },
+    {
+      "path": "02_ARCHITECTURE_RULES.md",
+      "sha": "a94daaffea1e84f45270dcc50ce9fb7f779b29d4",
+      "size": 28328
+    },
+    {
+      "path": "AGENTS.md",
+      "sha": "9749ac3098d8d85712c3a268f4066796c4bf6ebd",
+      "size": 7453
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha": "027c0846a6e6e1226477d551a42fbbb85ebae02b",
+      "size": 430
+    },
+    {
+      "path": "DEC-LITIGATION-001.md",
+      "sha": "d98e55efbaf87eca70c8f2e6b066e1864d47f10a",
+      "size": 41249
+    },
+    {
+      "path": "DEC-LITIGATION-002.md",
+      "sha": "f50a85aee4a2efa2aa1e758036646589add563c7",
+      "size": 32974
+    },
+    {
+      "path": "DEC-LITIGATION-003.md",
+      "sha": "1e7622518ae6a392e31dc8dbe66fb2daaf4ff1e3",
+      "size": 31400
+    },
+    {
+      "path": "DEC-LITIGATION-004.md",
+      "sha": "777cefcc721ac142ae7af23cc45a1bd8e9e563d3",
+      "size": 29755
+    },
+    {
+      "path": "DEC-LITIGATION-005.md",
+      "sha": "61b9b701ff6934b64d0c438ea7904fb413ef2808",
+      "size": 28557
+    },
+    {
+      "path": "DEC-LITIGATION-006_OPPONENT_MODEL.md",
+      "sha": "c7ae37a0f2e09b006129e7b3e47d927f110ab263",
+      "size": 29210
+    },
+    {
+      "path": "DEC-LITIGATION-007_JUDGE_ACCEPTANCE.md",
+      "sha": "08c24b580f5d2f52905652ae4ab2d382b774d71e",
+      "size": 24377
+    },
+    {
+      "path": "DEC-LITIGATION-008_FINAL_ADJUDICATION.md",
+      "sha": "4ecde9219357defe1958a2317b23f6c975d46d0b",
+      "size": 26315
+    },
+    {
+      "path": "DEC-LITIGATION-009_PROCEDURAL_FLOW.md",
+      "sha": "52f24f826b0276e510530e38ef5ff3c0c5f64e59",
+      "size": 39450
+    },
+    {
+      "path": "DEC-LITIGATION-010_APPEAL_AND_COURT_LEVELS.md",
+      "sha": "c92c4fbbc06f55269f0a94722cb4f6737b712ae3",
+      "size": 39958
+    },
+    {
+      "path": "DEC-LITIGATION-011_MINIMUM_FACT_RECOGNITION_MODEL.md",
+      "sha": "aa5f136d2468ca74039a43597c28c1e5556aa399",
+      "size": 40294
+    },
+    {
+      "path": "DEC-LITIGATION-012_RECOGNITION_CRITERION_AND_EVIDENCE_SUFFICIENCY.md",
+      "sha": "9a2352b0b9d2fced1cf6ed58616af7fa60204b66",
+      "size": 68301
+    },
+    {
+      "path": "DEC-LITIGATION-013_JUDGE_INTERPRETATION_AND_JUDICIAL_PROFILE.md",
+      "sha": "1d9cbd1f880d272352c4c2df7964a3fe0bf770cc",
+      "size": 53854
+    },
+    {
+      "path": "DEC-LITIGATION-014_CRITERION_CHOICE_POINT_AUTHORING_AND_VALIDATION.md",
+      "sha": "364a5ea74518f9af55d3c6d2f9361a6b2ac7148a",
+      "size": 58919
+    },
+    {
+      "path": "DEC-LITIGATION-015_JUDGE_GENERATION_CAREER_AND_LIFECYCLE.md",
+      "sha": "9b76254ab1d28f035307b5fc6b64c23b19422504",
+      "size": 62868
+    },
+    {
+      "path": "DEC-LITIGATION-016_LEGAL_PROFESSIONAL_PROFILE_RELATIONSHIP_AND_INTERACTION.md",
+      "sha": "9f735adf5843ddc91366801cfe61be8958608a36",
+      "size": 65724
+    },
+    {
+      "path": "DEC-LITIGATION-017_LAWYER_CAPABILITY_AND_PRACTICE_PROFILE.md",
+      "sha": "41b80505aabcc013fa46d21b2c17fc9a5a3f9195",
+      "size": 64453
+    },
+    {
+      "path": "DEC-LITIGATION-018_LAWYER_TASK_AND_WORKPRODUCT_RESOLUTION.md",
+      "sha": "221f2d3f2379c9969d2a4e484475e66471f1b8cf",
+      "size": 50186
+    },
+    {
+      "path": "DEC-LITIGATION-019_CASE_FILE_AND_MATTER_KNOWLEDGE_MODEL.md",
+      "sha": "749e827e02c83104cae0088f376f7178016e0532",
+      "size": 48389
+    },
+    {
+      "path": "DEC-LITIGATION-020_EVIDENCE_REVIEW.md",
+      "sha": "ec61b6793aa6847eabd0fb4683332f0b0b71c560",
+      "size": 44377
+    },
+    {
+      "path": "DEC-LITIGATION-021_INVESTIGATION_AND_EVIDENCE_ACQUISITION.md",
+      "sha": "dd6ca0ec055adc7fa990da4ed39916cae80864a3",
+      "size": 47004
+    },
+    {
+      "path": "DEC-LITIGATION-022_WITNESS_INTERVIEW_AND_STATEMENT_MODEL.md",
+      "sha": "25004cbd07352ef44befb55c8d7cf5d457017b5a",
+      "size": 56318
+    },
+    {
+      "path": "DEC-LITIGATION-023_LEGAL_RESEARCH_AND_ISSUE_ANALYSIS.md",
+      "sha": "f8f8dc2073b683f5cc89e6fd4eb47ee4f8002d5b",
+      "size": 65480
+    },
+    {
+      "path": "DEC-LITIGATION-024_CASE_THEORY_AND_EVIDENCE_SYNTHESIS.md",
+      "sha": "393537302eb89f94b80ce14aea2e947100d2e711",
+      "size": 55101
+    },
+    {
+      "path": "DEC-LITIGATION-025_DRAFTING_PLEADING_AND_FILING.md",
+      "sha": "5ecbfe0073a5c0b2166dff2e84aad5c16ac25d7b",
+      "size": 52140
+    },
+    {
+      "path": "DEC-LITIGATION-026_TASK_ASSIGNMENT_WORKLOAD_AND_TEAM_COORDINATION.md",
+      "sha": "5566c9b94aaa4d0072a0a9481a3344f86fb9d9d9",
+      "size": 45975
+    },
+    {
+      "path": "DEC-LITIGATION-027_CLIENT_INTERACTION_AND_ADVICE.md",
+      "sha": "72f27c62358d6fc01b04bf1d096391c040f3fdc7",
+      "size": 44378
+    },
+    {
+      "path": "DEC-LITIGATION-028_SETTLEMENT_AND_NEGOTIATION.md",
+      "sha": "49375c3c53a3d8b6c60d6a3c0544d3300000386b",
+      "size": 58620
+    },
+    {
+      "path": "DEC-LITIGATION-029_WITNESS_PREPARATION_AND_COURT_EXAMINATION.md",
+      "sha": "aaba0b44528402cf3da01184a7e8aaa72f57d103",
+      "size": 51919
+    },
+    {
+      "path": "DEC-LITIGATION-030_VS006_BOUNDED_COURT_FACT_FINDING.md",
+      "sha": "8128ad3934aefe960845ec0b9493af1d1149a5be",
+      "size": 16390
+    },
+    {
+      "path": "DEC-LITIGATION-031_NUMERIC_ADJUDICATION_AND_PROPOSED_DEC_RESOLUTION.md",
+      "sha": "c551dfaf04d159081a19526a8ade95b7a48ce751",
+      "size": 7869
+    },
+    {
+      "path": "DEC-LITIGATION-032_LEGAL_SYSTEM_PACK.md",
+      "sha": "c7c2a539850f379c90b5a63470701e59ce8af6b9",
+      "size": 3899
+    },
+    {
+      "path": "DESIGN.md",
+      "sha": "713c41a53021bb5b81c23efa8a805175b12256fb",
+      "size": 10836
+    },
+    {
+      "path": "REVIEW_REQUEST.md",
+      "sha": "a53ace28c76a98069bb931dea426cfc39f0cd177",
+      "size": 4315
+    },
+    {
+      "path": "ROADMAP.md",
+      "sha": "90581526ca94543c689cc7cda1fc728b01fa1e23",
+      "size": 1509
+    },
+    {
+      "path": "SYS-001_LITIGATION.md",
+      "sha": "8bff673d6e0858a3c92d4eb019dec45b1c9d2632",
+      "size": 60114
+    },
+    {
+      "path": "TEST-001_LITIGATION_WALKTHROUGH.md",
+      "sha": "c8daf0e1df0a7d914528b82956c30a4869e60845",
+      "size": 41007
+    },
+    {
+      "path": "TEST-002_LITIGATION_WALKTHROUGH.md",
+      "sha": "93513b574b6f1164f6d1c37c9aae1607178039cf",
+      "size": 42789
+    },
+    {
+      "path": "TEST-003_LITIGATION_WORK_PRODUCT.md",
+      "sha": "e71c8c4b4fbe6c89296fe1e5f539b362d1404661",
+      "size": 29750
+    },
+    {
+      "path": "TEST-004_GENERATION_TRACE.json",
+      "sha": "eae096758ceb93c27b38f2b4a6300bce1c73df72",
+      "size": 9986
+    },
+    {
+      "path": "TEST-004_LITIGATION_GENERATION.md",
+      "sha": "0c38671f400b5d739eca7aeaf8397ac5ba010d94",
+      "size": 21775
+    },
+    {
+      "path": "TEST-005_OPPONENT_BEHAVIOR.md",
+      "sha": "fe137971b9d024e8ac467900a7a75b2abdcf642c",
+      "size": 21831
+    },
+    {
+      "path": "TEST-005_OPPONENT_TRACE.json",
+      "sha": "7babb8098f11f7b5bec76af56a2c6dc09054039d",
+      "size": 5347
+    },
+    {
+      "path": "TEST-006_JUDGE_ACCEPTANCE.md",
+      "sha": "c210884255b2de40697706ad43cb59db7065f59e",
+      "size": 17182
+    },
+    {
+      "path": "TEST-006_JUDGE_TRACE.json",
+      "sha": "941ad5a5a9c1c25237923f8247dc912e38dd8692",
+      "size": 7951
+    },
+    {
+      "path": "TEST-007_FINAL_ADJUDICATION.md",
+      "sha": "3f5525fbd64434663757d03abbcbb821ebab4804",
+      "size": 24245
+    },
+    {
+      "path": "TEST-008_MULTI_HEARING_CASE.md",
+      "sha": "30e448c605f3c3ece9e6ba695b375f8ace8abe04",
+      "size": 38750
+    },
+    {
+      "path": "TEST-009_APPEAL_AND_REMAND.md",
+      "sha": "44d07196e96bdec0c16b157387f9adf033f79a16",
+      "size": 23168
+    },
+    {
+      "path": "TEST-010_MINIMUM_FACT_RECOGNITION.md",
+      "sha": "774a0a791952a6d6e08d7e76a2960ef67ae18177",
+      "size": 23372
+    },
+    {
+      "path": "TEST-011_RECOGNITION_CRITERION_AND_EVIDENCE_SUFFICIENCY.md",
+      "sha": "f9081f1599ece41f386ec63f771ebb81a1fcb68e",
+      "size": 31092
+    },
+    {
+      "path": "TEST-012_JUDGE_INTERPRETATION_AND_JUDICIAL_PROFILE.md",
+      "sha": "3c21a78d810869981452ece1be1d98562d876ff6",
+      "size": 35677
+    },
+    {
+      "path": "TEST-013_CRITERION_CHOICE_POINT_AUTHORING_AND_VALIDATION.md",
+      "sha": "4d1a95d73952a73ff25dc206bd7e56c55e8b6794",
+      "size": 17203
+    },
+    {
+      "path": "TEST-014_JUDGE_GENERATION_CAREER_AND_LIFECYCLE.md",
+      "sha": "ab60826fc042cd5bb402f92a2440499704a49e96",
+      "size": 39656
+    },
+    {
+      "path": "TEST-015_LEGAL_PROFESSIONAL_PROFILE_RELATIONSHIP_AND_INTERACTION.md",
+      "sha": "992b10a21e475f445c34f1d3a84696669978b923",
+      "size": 40513
+    },
+    {
+      "path": "TEST-016_LAWYER_CAPABILITY_AND_PRACTICE_PROFILE.md",
+      "sha": "43df4cf95e1710c97a99667150c661e9b34c6d6a",
+      "size": 40743
+    },
+    {
+      "path": "TEST-017_LAWYER_TASK_AND_WORKPRODUCT_RESOLUTION.md",
+      "sha": "51c3202af7a3ebf0f85ecd83164fd0d2142f4893",
+      "size": 35828
+    },
+    {
+      "path": "TEST-018_CASE_FILE_AND_MATTER_KNOWLEDGE_MODEL.md",
+      "sha": "26aab2701cfeaa383926fe979a95274b9cb87edb",
+      "size": 22873
+    },
+    {
+      "path": "TEST-019_EVIDENCE_REVIEW.md",
+      "sha": "c1d1fe7467756c07248c38701b218ce2274946ba",
+      "size": 29282
+    },
+    {
+      "path": "TEST-020_INVESTIGATION_AND_EVIDENCE_ACQUISITION.md",
+      "sha": "050885707c026525eeddf3e285f663f1c3ff28bf",
+      "size": 43109
+    },
+    {
+      "path": "TEST-021_WITNESS_INTERVIEW_AND_STATEMENT_MODEL.md",
+      "sha": "51367913938b0ab3f3e090ea7db9bd402b4e330e",
+      "size": 44480
+    },
+    {
+      "path": "TEST-022_LEGAL_RESEARCH_AND_ISSUE_ANALYSIS.md",
+      "sha": "1e995dbcb7f28c9f6537bd92ae01d7766d560a4b",
+      "size": 48047
+    },
+    {
+      "path": "TEST-023_CASE_THEORY_AND_EVIDENCE_SYNTHESIS.md",
+      "sha": "bf0a97a31d1dfb15ea07c11fc05fe42985b92f09",
+      "size": 51029
+    },
+    {
+      "path": "TEST-024_DRAFTING_PLEADING_AND_FILING.md",
+      "sha": "300081ee88c1c1a4d5c3d5c9d2a11ad29ed4b9b0",
+      "size": 69389
+    },
+    {
+      "path": "TEST-025_TASK_ASSIGNMENT_WORKLOAD_AND_TEAM_COORDINATION.md",
+      "sha": "9905efba153892b9210a486996f2534185c4cda9",
+      "size": 63811
+    },
+    {
+      "path": "TEST-026_CLIENT_INTERACTION_AND_ADVICE.md",
+      "sha": "e3c1bfdbc16cfb7ca28e0f717298d910ef658db7",
+      "size": 74646
+    },
+    {
+      "path": "TEST-027_SETTLEMENT_AND_NEGOTIATION.md",
+      "sha": "9d3c4327cfffd7afde073572f2ed579345d2b7aa",
+      "size": 109783
+    },
+    {
+      "path": "TEST-028_WITNESS_PREPARATION_AND_COURT_EXAMINATION.md",
+      "sha": "ad07ef3c43be943a9028e5a25ae11cfcf193333f",
+      "size": 133773
+    },
+    {
+      "path": "TEST-029_VS006_BOUNDED_COURT_FACT_FINDING.md",
+      "sha": "68bb81da5cf8bc5d2230810f6d625f5c24948832",
+      "size": 8442
+    },
+    {
+      "path": "WORKFLOW.md",
+      "sha": "89d04f8c80a8e6e5ff5e3e8dedcc7a743caf8b7e",
+      "size": 4044
+    },
+    {
+      "path": "courtroom-prototype/.gitignore",
+      "sha": "99c943ffd42ab2254f31069f75082c957061ff79",
+      "size": 31
+    },
+    {
+      "path": "courtroom-prototype/EXPERIMENT_RULES.md",
+      "sha": "3b62fb8800df7b03525484c754dbcb7570646bed",
+      "size": 18008
+    },
+    {
+      "path": "courtroom-prototype/README.md",
+      "sha": "b7f93350186c92a3ee4fa79ab36409445e5ab9e5",
+      "size": 3244
+    },
+    {
+      "path": "courtroom-prototype/REVIEW_PACKET.md",
+      "sha": "cb6f68b8af128f4a174250b13ff83a76bb6f1843",
+      "size": 43427
+    },
+    {
+      "path": "courtroom-prototype/UI_TEXT_AUDIT.md",
+      "sha": "4a44111589a538933596804575f3452eda8e7e26",
+      "size": 9297
+    },
+    {
+      "path": "courtroom-prototype/data/case.js",
+      "sha": "46fc71f6bc81671b3312d58f7b9085582fa60d2e",
+      "size": 66852
+    },
+    {
+      "path": "courtroom-prototype/data/trial-case.js",
+      "sha": "955961dae4ab12ec2e8d8675b5c707d86081c81b",
+      "size": 22163
+    },
+    {
+      "path": "courtroom-prototype/engine/adjudication.js",
+      "sha": "21f786d02fa999691468a6bee4ed05145697f153",
+      "size": 8654
+    },
+    {
+      "path": "courtroom-prototype/engine/closing.js",
+      "sha": "949598542abba51a2abe268f386e085704959149",
+      "size": 6756
+    },
+    {
+      "path": "courtroom-prototype/engine/core.js",
+      "sha": "b3d4c87cd4e498274d2bd8a97d7de9bbb33fa01e",
+      "size": 23089
+    },
+    {
+      "path": "courtroom-prototype/engine/opening.js",
+      "sha": "18149ae31edfd27335eb2b67640335899aa0b739",
+      "size": 4142
+    },
+    {
+      "path": "courtroom-prototype/engine/procedure.js",
+      "sha": "d188dda59d13480cd9cd055367d76d993a376644",
+      "size": 9673
+    },
+    {
+      "path": "courtroom-prototype/engine/trial.js",
+      "sha": "4850829e791550a37c6d144e81613e1baf2b1ca1",
+      "size": 11544
+    },
+    {
+      "path": "courtroom-prototype/index.html",
+      "sha": "a83aa94a236a566e944e04aeb172e2da8ca8fd61",
+      "size": 2681
+    },
+    {
+      "path": "courtroom-prototype/package.json",
+      "sha": "841b02aece93c98cb777f5be8640e477dc5123b5",
+      "size": 1134
+    },
+    {
+      "path": "courtroom-prototype/reference/original.html",
+      "sha": "396fa6a62bf165f41188ad746a4a3f8ff13cf770",
+      "size": 24055
+    },
+    {
+      "path": "courtroom-prototype/serve.js",
+      "sha": "0a32a60cfa8f5eef0251920d94f06c2afedca0bb",
+      "size": 1035
+    },
+    {
+      "path": "courtroom-prototype/services/courtroom.js",
+      "sha": "214d9b2a1310222648b3071af4b8443d329eecef",
+      "size": 17448
+    },
+    {
+      "path": "courtroom-prototype/services/trial.js",
+      "sha": "7a668c4cb4a51a2cac154182da321134e0fdda8e",
+      "size": 14669
+    },
+    {
+      "path": "courtroom-prototype/test-results.log",
+      "sha": "dfc66b16f819b3fec50f1a4af7b2749f529f19cb",
+      "size": 8495
+    },
+    {
+      "path": "courtroom-prototype/tests/adjudication.test.js",
+      "sha": "8a1cecbd015b92805ba56bab8e99dc53d551b2e1",
+      "size": 13349
+    },
+    {
+      "path": "courtroom-prototype/tests/alternate-verdict-fixture.js",
+      "sha": "c60818a44683eb1ef1030971b0318f92204985af",
+      "size": 869
+    },
+    {
+      "path": "courtroom-prototype/tests/browser-adjudication.test.js",
+      "sha": "a9598dd0a971572958da1422c584f8c70836e096",
+      "size": 6642
+    },
+    {
+      "path": "courtroom-prototype/tests/browser-closing-profile.test.js",
+      "sha": "de1ac91a28487278f23300f525740be4bd4949c0",
+      "size": 4360
+    },
+    {
+      "path": "courtroom-prototype/tests/browser-closing.test.js",
+      "sha": "3693ae3e6208fac904cdb00c34bd60c66b066734",
+      "size": 6004
+    },
+    {
+      "path": "courtroom-prototype/tests/browser-commitment-scope.test.js",
+      "sha": "b87db4cfb44eaedbb8e61c1014dd485aa14c0d8b",
+      "size": 3670
+    },
+    {
+      "path": "courtroom-prototype/tests/browser-flow.test.js",
+      "sha": "83fd20787da9f7d860ac4ccc3f1601133b06a3b1",
+      "size": 9064
+    },
+    {
+      "path": "courtroom-prototype/tests/browser-full-flow.test.js",
+      "sha": "2b1073c0b16d8954b77ded2ad0e64383767b36ff",
+      "size": 10573
+    },
+    {
+      "path": "courtroom-prototype/tests/browser-opening.test.js",
+      "sha": "d3f560d84d837e4d2d9e8dde4604eea0bc440eda",
+      "size": 5808
+    },
+    {
+      "path": "courtroom-prototype/tests/browser-tactics.test.js",
+      "sha": "e8037ac6fb9a45884f0fca5016b2c15ab8b087ab",
+      "size": 8066
+    },
+    {
+      "path": "courtroom-prototype/tests/browser-trial.test.js",
+      "sha": "95fdae2a42d8cc7c3365dcb9c6ab9185c99a2e0d",
+      "size": 7864
+    },
+    {
+      "path": "courtroom-prototype/tests/browser.test.js",
+      "sha": "1b0d4a19483120c1bbf6ecf6b8bcd73ae5308c19",
+      "size": 14311
+    },
+    {
+      "path": "courtroom-prototype/tests/case-v065.js",
+      "sha": "5e64a36a19d718aed9f1184b34f239038dc5d188",
+      "size": 101
+    },
+    {
+      "path": "courtroom-prototype/tests/closing-profile-fixture.js",
+      "sha": "0338d65baf24453842d244af9e689211411a6e92",
+      "size": 375
+    },
+    {
+      "path": "courtroom-prototype/tests/closing-profile.test.js",
+      "sha": "a577853fab507135f1d3bb6a627727f241428c5b",
+      "size": 3386
+    },
+    {
+      "path": "courtroom-prototype/tests/closing.test.js",
+      "sha": "2397815e062bb0aa1edae8bca90571142d068c2e",
+      "size": 8827
+    },
+    {
+      "path": "courtroom-prototype/tests/core.test.js",
+      "sha": "2034f34f5f70796a09a24201ec82b321ab3ec590",
+      "size": 11430
+    },
+    {
+      "path": "courtroom-prototype/tests/flow.test.js",
+      "sha": "68ef78d8894c09f0452fde1beb73b2a1a20cb4ca",
+      "size": 12233
+    },
+    {
+      "path": "courtroom-prototype/tests/inference.test.js",
+      "sha": "e46abe0dc611d08317838c7cce7240dabf761b18",
+      "size": 6682
+    },
+    {
+      "path": "courtroom-prototype/tests/opening.test.js",
+      "sha": "75d144b55ed495e05831798c4c41687f53733087",
+      "size": 10718
+    },
+    {
+      "path": "courtroom-prototype/tests/procedure.test.js",
+      "sha": "84443399dcfe5da4aefd9b272ab120470eea51d7",
+      "size": 10395
+    },
+    {
+      "path": "courtroom-prototype/tests/settle-procedure.js",
+      "sha": "f94b0ea251ba138243e666c51a0a8945abafdcb0",
+      "size": 875
+    },
+    {
+      "path": "courtroom-prototype/tests/strategy.test.js",
+      "sha": "251b11e8efd0e5cf9fe47e61ccf05201db08220b",
+      "size": 10548
+    },
+    {
+      "path": "courtroom-prototype/tests/tactics.test.js",
+      "sha": "052f91d30c3f2e339f67efd54fddc3c9d3536623",
+      "size": 10633
+    },
+    {
+      "path": "courtroom-prototype/tests/trial.test.js",
+      "sha": "a98e8928e7aaa6b30d4bf18d664368951ca2990c",
+      "size": 12905
+    },
+    {
+      "path": "courtroom-prototype/tests/ui-budget-baseline.json",
+      "sha": "872b76459705448777c37f807c2bb3b442a3a15d",
+      "size": 817
+    },
+    {
+      "path": "courtroom-prototype/tests/ui-budget.js",
+      "sha": "be57f1163ff85a9b66b627566dc242bbd2f27998",
+      "size": 3155
+    },
+    {
+      "path": "courtroom-prototype/tests/ui-flow-baseline.json",
+      "sha": "1976f86f6774271ce38bbba51d6110fea41917f1",
+      "size": 2026
+    },
+    {
+      "path": "courtroom-prototype/tests/ui-flow-budget.js",
+      "sha": "0a4e83d7cbf3333ab296290c5ef54279e02e4d90",
+      "size": 1107
+    },
+    {
+      "path": "courtroom-prototype/trial.html",
+      "sha": "7a4daf57826f9c43c21cd16e82109f97c10edfc5",
+      "size": 1150
+    },
+    {
+      "path": "courtroom-prototype/ui/app.js",
+      "sha": "282f71c062ed3c5f0ced1f5b3fa024ca36d10adb",
+      "size": 28710
+    },
+    {
+      "path": "courtroom-prototype/ui/courtroom.css",
+      "sha": "321f5a2c4cc680788dd7e28f8f93eb69bdd5d83a",
+      "size": 14225
+    },
+    {
+      "path": "courtroom-prototype/ui/fonts/Pretendard-LICENSE.txt",
+      "sha": "05ab8a2312a3216ceb97b9264e4a2a760433cef3",
+      "size": 4417
+    },
+    {
+      "path": "courtroom-prototype/ui/fonts/PretendardVariable.woff2",
+      "sha": "49c54b5152a184a243e85f7281ed338b6569987e",
+      "size": 2057688
+    },
+    {
+      "path": "courtroom-prototype/ui/fonts/README.md",
+      "sha": "3535b74e4c83641f86b3542e63a8f2ca9f9ae143",
+      "size": 407
+    },
+    {
+      "path": "courtroom-prototype/ui/original.css",
+      "sha": "c7dbc259cfa338d410e8958c864ce554675cd4e2",
+      "size": 8673
+    },
+    {
+      "path": "courtroom-prototype/ui/trial-app.js",
+      "sha": "db8b959749ab0ae2ef6e506461c5d5a82ac2000b",
+      "size": 18060
+    },
+    {
+      "path": "courtroom-prototype/ui/trial.css",
+      "sha": "00cd274732d040f6686e56b74840f12dd39a8d5c",
+      "size": 16454
+    },
+    {
+      "path": "docs/AUDIT-2026-09.md",
+      "sha": "4f86f437c773ceeda0c0f60fda4ee0766094cfe0",
+      "size": 10548
+    },
+    {
+      "path": "docs/CHANGELOG.md",
+      "sha": "7d7fbc67069dacdccc5e78558eb978964c6e1a68",
+      "size": 19208
+    },
+    {
+      "path": "docs/CURRENT.md",
+      "sha": "5a1efd2ee386384f4a5df91c99406fae9fefc278",
+      "size": 9607
+    },
+    {
+      "path": "docs/DESIGN-NOTES-2026-09.md",
+      "sha": "6c985a2ec8b045e7fd61e3c77058cba984214118",
+      "size": 45908
+    },
+    {
+      "path": "docs/DESIGN.md",
+      "sha": "2bc200f3641e5bc095213aba68781ce5a5356a1a",
+      "size": 9794
+    },
+    {
+      "path": "docs/IMPLEMENT.md",
+      "sha": "f5b81803e0aeea7502b8facd2e1fd74a0fa86950",
+      "size": 7324
+    },
+    {
+      "path": "docs/REVIEW.md",
+      "sha": "53dd627a3e8b5316aaaad5aaa48971122cfdc208",
+      "size": 6551
+    },
+    {
+      "path": "docs/reference/KO-COURT-STATS-2025.md",
+      "sha": "1dc7367cfa03df3a318e8e2fd130ba8959a3b749",
+      "size": 20282
+    },
+    {
+      "path": "docs/reference/KO-LAWYERS-FIRMS-2026.md",
+      "sha": "532d13046e34b37a69cd0fc4fdb6338a2dec953a",
+      "size": 4447
+    },
+    {
+      "path": "litigation-skeleton/.gitignore",
+      "sha": "0f10302583d4e9e89896975364ac6949dcdabeac",
+      "size": 8
+    },
+    {
+      "path": "litigation-skeleton/FEATURE_CONTRACT.md",
+      "sha": "3638caa0e87e9401388649da49c6aef3d03099bc",
+      "size": 1556
+    },
+    {
+      "path": "litigation-skeleton/README.md",
+      "sha": "4ba5096e899409c1642b1e3138e6fbcde1384ad5",
+      "size": 10424
+    },
+    {
+      "path": "litigation-skeleton/REVIEW_PACKET.md",
+      "sha": "8444a91146f92c07e8219fc42c62d69d3d620137",
+      "size": 11912
+    },
+    {
+      "path": "litigation-skeleton/data/litigation_state.gd",
+      "sha": "fc3c470ecc350e7e59ea72fb489d5fbe71528540",
+      "size": 531
+    },
+    {
+      "path": "litigation-skeleton/fixtures/test008.json",
+      "sha": "ce41410b1dec66917007a1b6ef7a05c48f55b93d",
+      "size": 10747
+    },
+    {
+      "path": "litigation-skeleton/fixtures/test009.json",
+      "sha": "7686d3ada09d8ad89976e5a0ec2633b86ab9dedd",
+      "size": 13207
+    },
+    {
+      "path": "litigation-skeleton/project.godot",
+      "sha": "9d0fbf60f2d372b19dad38835a32995fc2e398c7",
+      "size": 338
+    },
+    {
+      "path": "litigation-skeleton/services/litigation_service.gd",
+      "sha": "484234c7a1a6964226212da7c9ad0b1c8a16fb7d",
+      "size": 12264
+    },
+    {
+      "path": "litigation-skeleton/test-results.log",
+      "sha": "fa052b814d14b5d5b3b5939cc5fa0bd75c4c163c",
+      "size": 7266
+    },
+    {
+      "path": "litigation-skeleton/tests/run_regressions.gd",
+      "sha": "3bb3a4d4dec9162c58b099417794b739ef68c168",
+      "size": 11526
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/content/locale_ko.json",
+      "sha": "54f90048da322124500ab777382d771f00f15d1e",
+      "size": 15616
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/content/slice_case.json",
+      "sha": "c1e7b3ff2c55dcdd2095b1e16b35ae8df9d1f934",
+      "size": 25972
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/data/slice_state.gd",
+      "sha": "945d77a2ad0fa0e3ad91dadb36710a644f862530",
+      "size": 9492
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/presentation/slice_localizer.gd",
+      "sha": "719147b6815d606a2f97cdabb4ceede06f70eb59",
+      "size": 357
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/presentation/slice_presenter.gd",
+      "sha": "ce73732123ef5a2b14f16c59cab4215ee1aac47f",
+      "size": 11754
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/services/adjudication_service.gd",
+      "sha": "ffb8253b2086ec607a6bde0fc1f239c00f1e0ca0",
+      "size": 17302
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/services/content_loader.gd",
+      "sha": "8f5c5703a7ed1e263424baa76943a8837c2c1bb0",
+      "size": 717
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/services/investigation_service.gd",
+      "sha": "c522081e6f61631e66d8655010ae031c10405e69",
+      "size": 10863
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/services/legal_research_service.gd",
+      "sha": "40095986168b1f6cfbba59cc096affdb0bcbdbea",
+      "size": 38391
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/services/slice_service.gd",
+      "sha": "4de3019283e155d8745f1757a1407d4176a0c611",
+      "size": 57571
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/services/submission_service.gd",
+      "sha": "5de284cc5b3d60ad14e4899c5a71fd681e9627d8",
+      "size": 18211
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/services/work_service.gd",
+      "sha": "82c7d728f4c0000371a58a71eab6bbbfb515b9b0",
+      "size": 47603
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/test-results.log",
+      "sha": "7bb8466c9a9d5d90a0b6387cb6bdf603040a7a67",
+      "size": 3096
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/tests/run_slice_regressions.gd",
+      "sha": "fe4403d6d7bf9e56bca38166ebb4f33cfd7006ca",
+      "size": 11253
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/tests/run_vs002_regressions.gd",
+      "sha": "87e26f69f00e2ef18447b7c1c7de26c66775a40a",
+      "size": 14193
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/tests/run_vs003_regressions.gd",
+      "sha": "7a37ae293cab85a5513f4a16969413d7deca546f",
+      "size": 24230
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/tests/run_vs004_regressions.gd",
+      "sha": "8a78216d690754a6101b8d22266b65dd3afa2ec9",
+      "size": 23682
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/tests/run_vs005_regressions.gd",
+      "sha": "823e639d7f7af4473fbb85f11414cf7b100eda46",
+      "size": 31727
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/tests/run_vs006_regressions.gd",
+      "sha": "4d63a97995233f0b5b581a9550b275c54dc7114a",
+      "size": 50631
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/ui/main.gd",
+      "sha": "5f75e2b511c75dc30783f6979642d5b0a814a9fe",
+      "size": 42568
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/ui/main.tscn",
+      "sha": "215562d2338771908ad85337df335ac8da2e7e8d",
+      "size": 17674
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/vs002-test-results.log",
+      "sha": "4fc258fcfabb03b2763f1d6b064d5f7ddc516abc",
+      "size": 3091
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/vs003-test-results.log",
+      "sha": "de91924af6b689d43f5efa12569b45106555a64d",
+      "size": 11953
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/vs004-test-results.log",
+      "sha": "7de86821d7fee81a99d71ab397d504afa08881fc",
+      "size": 10059
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/vs005-test-results.log",
+      "sha": "f51e0452f086f666976e30b8e01b465b1122b432",
+      "size": 14240
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/vs006-test-results.log",
+      "sha": "bbb67bdc7ea6ae1efb7b810df44b163d2d593132",
+      "size": 32962
+    }
+  ]
+}

@@ -1,0 +1,173 @@
+✖ AUDIT-01 import completion day must equal the day actual recorded hours first reach the requirement (11.8757ms)
+✖ AUDIT-02 upfront invoice must use configured contract amount, next-day timing, and the correct case (0.4289ms)
+✖ AUDIT-03 canonical receipt-trigger task identity cannot be lost during import (0.3403ms)
+✖ AUDIT-04 processed due-day invoices cannot be restored as unpaid after deleting and reconciling their receipt (1.1391ms)
+✖ AUDIT-05 balance invoice keeps the receipt-trigger case identity (2.9705ms)
+✖ AUDIT-06 valid imported event IDs cannot collide with the next generated event (0.3287ms)
+✔ AUDIT-07 valid snapshots resume identically on every day and cannot advance after the fifth day (12.5909ms)
+✔ AUDIT-08 separate initial balance fixtures remain supported without modifying default economics (2.3928ms)
+✖ AUDIT-09 action history limit rejects extra edits atomically but reserves all mandatory week events (990.4907ms)
+✔ AUDIT-10 default economic state and normal command outcomes remain byte-equivalent to original engine (15.1093ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 3
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1043.4787
+
+✖ failing tests:
+
+test at tests\audit-regressions.cjs:39:1
+✖ AUDIT-01 import completion day must equal the day actual recorded hours first reach the requirement (11.8757ms)
+  AssertionError [ERR_ASSERTION]: inconsistent imported snapshot must be rejected
+  
+  true !== false
+  
+      at rejectedWithoutMutation (C:\Users\Admin\Documents\Codex\2026-10-25\new-chat\work\firm-audit\the-firm-management-slice\tests\audit-regressions.cjs:16:10)
+      at TestContext.<anonymous> (C:\Users\Admin\Documents\Codex\2026-10-25\new-chat\work\firm-audit\the-firm-management-slice\tests\audit-regressions.cjs:44:5)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\audit-regressions.cjs:48:1
+✖ AUDIT-02 upfront invoice must use configured contract amount, next-day timing, and the correct case (0.4289ms)
+  AssertionError [ERR_ASSERTION]: inconsistent imported snapshot must be rejected
+  
+  true !== false
+  
+      at rejectedWithoutMutation (C:\Users\Admin\Documents\Codex\2026-10-25\new-chat\work\firm-audit\the-firm-management-slice\tests\audit-regressions.cjs:16:10)
+      at TestContext.<anonymous> (C:\Users\Admin\Documents\Codex\2026-10-25\new-chat\work\firm-audit\the-firm-management-slice\tests\audit-regressions.cjs:52:5)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\audit-regressions.cjs:56:1
+✖ AUDIT-03 canonical receipt-trigger task identity cannot be lost during import (0.3403ms)
+  AssertionError [ERR_ASSERTION]: inconsistent imported snapshot must be rejected
+  
+  true !== false
+  
+      at rejectedWithoutMutation (C:\Users\Admin\Documents\Codex\2026-10-25\new-chat\work\firm-audit\the-firm-management-slice\tests\audit-regressions.cjs:16:10)
+      at TestContext.<anonymous> (C:\Users\Admin\Documents\Codex\2026-10-25\new-chat\work\firm-audit\the-firm-management-slice\tests\audit-regressions.cjs:59:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\audit-regressions.cjs:62:1
+✖ AUDIT-04 processed due-day invoices cannot be restored as unpaid after deleting and reconciling their receipt (1.1391ms)
+  AssertionError [ERR_ASSERTION]: inconsistent imported snapshot must be rejected
+  
+  true !== false
+  
+      at rejectedWithoutMutation (C:\Users\Admin\Documents\Codex\2026-10-25\new-chat\work\firm-audit\the-firm-management-slice\tests\audit-regressions.cjs:16:10)
+      at TestContext.<anonymous> (C:\Users\Admin\Documents\Codex\2026-10-25\new-chat\work\firm-audit\the-firm-management-slice\tests\audit-regressions.cjs:70:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\audit-regressions.cjs:73:1
+✖ AUDIT-05 balance invoice keeps the receipt-trigger case identity (2.9705ms)
+  AssertionError [ERR_ASSERTION]: inconsistent imported snapshot must be rejected
+  
+  true !== false
+  
+      at rejectedWithoutMutation (C:\Users\Admin\Documents\Codex\2026-10-25\new-chat\work\firm-audit\the-firm-management-slice\tests\audit-regressions.cjs:16:10)
+      at TestContext.<anonymous> (C:\Users\Admin\Documents\Codex\2026-10-25\new-chat\work\firm-audit\the-firm-management-slice\tests\audit-regressions.cjs:79:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\audit-regressions.cjs:82:1
+✖ AUDIT-06 valid imported event IDs cannot collide with the next generated event (0.3287ms)
+  AssertionError [ERR_ASSERTION]: 변경을 반영하지 못했습니다: 이벤트 ID가 잘못되었거나 중복되었습니다.
+  
+  false !== true
+  
+      at act (C:\Users\Admin\Documents\Codex\2026-10-25\new-chat\work\firm-audit\the-firm-management-slice\tests\audit-regressions.cjs:9:10)
+      at TestContext.<anonymous> (C:\Users\Admin\Documents\Codex\2026-10-25\new-chat\work\firm-audit\the-firm-management-slice\tests\audit-regressions.cjs:86:16)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\audit-regressions.cjs:118:1
+✖ AUDIT-09 action history limit rejects extra edits atomically but reserves all mandatory week events (990.4907ms)
+  AssertionError [ERR_ASSERTION]: 변경을 반영하지 못했습니다: 기록 목록이 잘못되었습니다.
+  
+  false !== true
+  
+      at act (C:\Users\Admin\Documents\Codex\2026-10-25\new-chat\work\firm-audit\the-firm-management-slice\tests\audit-regressions.cjs:9:10)
+      at finish (C:\Users\Admin\Documents\Codex\2026-10-25\new-chat\work\firm-audit\the-firm-management-slice\tests\audit-regressions.cjs:13:59)
+      at TestContext.<anonymous> (C:\Users\Admin\Documents\Codex\2026-10-25\new-chat\work\firm-audit\the-firm-management-slice\tests\audit-regressions.cjs:126:23)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,42 @@
+[
+  {
+    "exitCode": 0,
+    "log": "core.log",
+    "name": "core",
+    "started": "2026-10-13T14:45:03.6436571+09:00",
+    "finished": "2026-10-13T14:45:05.0333859+09:00",
+    "command": "npm.cmd test"
+  },
+  {
+    "exitCode": 0,
+    "log": "plan-demo.log",
+    "name": "plan-demo",
+    "started": "2026-10-13T14:45:05.0662915+09:00",
+    "finished": "2026-10-13T14:46:08.7512674+09:00",
+    "command": "node --test tests/demo.test.js tests/plan-demo.test.js tests/plan-demo-ui.test.js"
+  },
+  {
+    "exitCode": 1,
+    "log": "browser.log",
+    "name": "browser",
+    "started": "2026-10-13T14:46:08.7584516+09:00",
+    "finished": "2026-10-13T14:48:50.3142738+09:00",
+    "command": "npm.cmd run test:browser"
+  },
+  {
+    "exitCode": 1,
+    "log": "trial.log",
+    "name": "trial",
+    "started": "2026-10-13T14:48:50.3179659+09:00",
+    "finished": "2026-10-13T14:48:54.1634626+09:00",
+    "command": "npm.cmd run test:trial"
+  },
+  {
+    "exitCode": 0,
+    "log": "budget.log",
+    "name": "budget",
+    "started": "2026-10-13T14:48:54.1666668+09:00",
+    "finished": "2026-10-13T14:49:10.1277624+09:00",
+    "command": "npm.cmd run test:budget"
+  }
+]

@@ -1,0 +1,166 @@
+{
+  "html": "C:\\Users\\Admin\\Documents\\Codex\\2026-10-25\\new-chat\\work\\firm-audit\\the-firm-management-slice\\dist\\THE_FIRM_Management_Play_v0.3.html",
+  "startHash": "bed25cfb948afe0292fccb35c0243e0d3ed057a551c676bc4a86a61d3793b6b0",
+  "started": "2026-10-25T06:38:48.328Z",
+  "checks": [
+    {
+      "name": "offline single-file boot and initial state through UI reset",
+      "pass": true
+    },
+    {
+      "name": "A/B/C and all navigation pages preserve game state",
+      "pass": true
+    },
+    {
+      "name": "C risk list opens assignment and Escape closes it without game mutation",
+      "pass": true
+    },
+    {
+      "name": "intake review is read-only until acceptance",
+      "pass": true
+    },
+    {
+      "name": "unapplied assignee/priority preview is discarded with Escape",
+      "pass": true
+    },
+    {
+      "name": "ineligible legal-task assignment is disabled",
+      "pass": true
+    },
+    {
+      "name": "apply initial assignments through real dialogs",
+      "pass": true
+    },
+    {
+      "name": "day 0 execution produces real work and no premature receipt",
+      "pass": true
+    },
+    {
+      "name": "handoff preserves progress; day 1 posts the upfront receipt once",
+      "pass": true
+    },
+    {
+      "name": "finish five days with every task on time and no duplicate receipts",
+      "pass": true
+    },
+    {
+      "name": "daily report tabs and finance show actual state without mutation",
+      "pass": true
+    },
+    {
+      "name": "JSON download contains the exact raw snapshot",
+      "pass": true
+    },
+    {
+      "name": "invalid JSON and malformed imported IDs preserve the active game",
+      "pass": true
+    },
+    {
+      "name": "normal JSON import restores a completed game after UI reset",
+      "pass": true
+    },
+    {
+      "name": "page reload restores the saved game and A/B/C remain read-only",
+      "pass": true
+    },
+    {
+      "name": "null-assignee import renders, filters, and can be assigned through UI",
+      "pass": true
+    },
+    {
+      "name": "390px window keeps body width bounded across all views and dialogs",
+      "pass": true
+    },
+    {
+      "name": "no JavaScript/console errors or remote network dependencies",
+      "pass": true
+    }
+  ],
+  "runtimeErrors": [],
+  "blockedRequests": [],
+  "overflow": [
+    {
+      "label": "1440-brief",
+      "viewport": 1440,
+      "body": 1440,
+      "html": 1440,
+      "excess": 0
+    },
+    {
+      "label": "1440-dossier",
+      "viewport": 1440,
+      "body": 1440,
+      "html": 1440,
+      "excess": 0
+    },
+    {
+      "label": "1440-operations",
+      "viewport": 1440,
+      "body": 1440,
+      "html": 1440,
+      "excess": 0
+    },
+    {
+      "label": "390-brief",
+      "viewport": 390,
+      "body": 390,
+      "html": 390,
+      "excess": 0
+    },
+    {
+      "label": "390-dossier",
+      "viewport": 390,
+      "body": 390,
+      "html": 390,
+      "excess": 0
+    },
+    {
+      "label": "390-operations",
+      "viewport": 390,
+      "body": 390,
+      "html": 390,
+      "excess": 0
+    },
+    {
+      "label": "390-cases",
+      "viewport": 390,
+      "body": 390,
+      "html": 390,
+      "excess": 0
+    },
+    {
+      "label": "390-people",
+      "viewport": 390,
+      "body": 390,
+      "html": 390,
+      "excess": 0
+    },
+    {
+      "label": "390-finance",
+      "viewport": 390,
+      "body": 390,
+      "html": 390,
+      "excess": 0
+    },
+    {
+      "label": "390-reports",
+      "viewport": 390,
+      "body": 390,
+      "html": 390,
+      "excess": 0
+    },
+    {
+      "label": "390-assignment-dialog",
+      "viewport": 390,
+      "body": 390,
+      "html": 390,
+      "excess": 0
+    }
+  ],
+  "snapshot": "C:\\Users\\Admin\\Documents\\Codex\\2026-10-25\\new-chat\\work\\firm-audit\\the-firm-management-slice\\docs\\audit-ui-before\\THE_FIRM_2026-06-19_snapshot.json",
+  "endHash": "bed25cfb948afe0292fccb35c0243e0d3ed057a551c676bc4a86a61d3793b6b0",
+  "artifactChangedDuringRun": false,
+  "passed": 18,
+  "failed": 0,
+  "finished": "2026-10-25T06:38:54.058Z"
+}

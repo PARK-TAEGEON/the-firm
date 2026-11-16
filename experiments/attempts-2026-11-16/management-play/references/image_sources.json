@@ -1,0 +1,65 @@
+[
+  {
+    "number": 1,
+    "title": "FM24: 많은 대상을 비교하는 목록",
+    "alt": "Football Manager 2024 National Pool List 화면. 많은 대상을 열 단위로 비교하는 목록 레퍼런스.",
+    "url": "https://cdn.footballmanager.com/site/inline-images/England_%20National%20Pool%20List.jpg",
+    "caption": "볼 부분: 대상 이름과 여러 속성을 같은 행에서 비교하는 구조. THE FIRM 적용: 업무명·담당·남은 시간·기한·예상 완료를 비교하고 조정할 행을 고른다. 열 수를 그대로 옮기지 말고 현재 규모에 필요한 정보부터 남긴다.",
+    "included_as": "remote_image_preview",
+    "internet_required": true
+  },
+  {
+    "number": 2,
+    "title": "FM24: 편성과 대상 상세를 연결",
+    "alt": "Football Manager 2024 Squad Planner Position 화면. 편성 목록과 역할 분석을 연결하는 레퍼런스.",
+    "url": "https://cdn.footballmanager.com/site/inline-images/Watford_%20Squad%20Planner%20position.jpg",
+    "caption": "볼 부분: 편성 중인 역할과 후보 정보를 함께 검토하는 구조. THE FIRM 적용: 담당자를 바꿀 때 다른 화면으로 이동하지 않고 해당 직원의 오늘 가용시간·비용·다른 담당 업무를 비교한다.",
+    "included_as": "remote_image_preview",
+    "internet_required": true
+  },
+  {
+    "number": 3,
+    "title": "Carbon: 표의 정보 위계",
+    "alt": "IBM Carbon Data table anatomy. 제목, 도구 모음, 열 머리글, 데이터 행을 구분하는 표 구성도.",
+    "url": "https://s3.us-south.cloud-object-storage.appdomain.cloud/cxp-prod-payload-cms/datatable-anatomy-1.png",
+    "caption": "볼 부분: 표 제목·도구 모음·열 제목·행을 역할별로 분리하는 방식. THE FIRM 적용: 검색·필터·정렬을 한 위치에 두고, 같은 종류의 정보가 매번 같은 열에 나오게 한다. 표의 가독성을 점검하는 기준 자료다.",
+    "included_as": "remote_image_preview",
+    "internet_required": true
+  },
+  {
+    "number": 4,
+    "title": "Carbon: 상세는 필요할 때 펼치기",
+    "alt": "IBM Carbon의 행 펼치기 표 예시. 기본 행 아래에 보조 정보를 공개하는 레퍼런스.",
+    "url": "https://s3.us-south.cloud-object-storage.appdomain.cloud/cxp-prod-payload-cms/datatable-expand-1.png",
+    "caption": "볼 부분: 기본 행과 보조 상세를 구분하는 방식. THE FIRM 적용: 평소에는 업무·담당·시간·기한을 읽고, 수행 이력과 비용 근거는 펼쳐서 본다. 글씨를 줄여 모든 정보를 동시에 넣는 문제를 줄인다.",
+    "included_as": "remote_image_preview",
+    "internet_required": true
+  },
+  {
+    "number": 5,
+    "title": "RimWorld: 사람과 업무를 교차 비교",
+    "alt": "RimWorld Manual priorities 표. 인물과 업무 유형을 교차해 우선순위를 정하는 오래된 화면 예시.",
+    "url": "https://rimworldwiki.com/images/e/e9/Manual_priorities.png",
+    "caption": "볼 부분: 사람×업무의 교차표에서 배정과 우선순위를 비교하는 방식. THE FIRM 적용: 누가 어떤 업무를 담당할 수 있는지, 어디에 우선순위를 주었는지 한 번에 읽는 배정 화면의 보조 참고. 숫자와 색만으로 의미를 전달하지 말고 '높음·보통·낮음'과 배정 제약 설명을 함께 둔다.",
+    "included_as": "remote_image_preview",
+    "internet_required": true
+  },
+  {
+    "number": 6,
+    "title": "Suzerain: 세계의 상황과 정보를 함께 읽기",
+    "alt": "Suzerain 공식 PC 스크린샷 Sordland Country Map Situations. 지도와 상황 정보를 연결하는 화면.",
+    "url": "https://images.squarespace-cdn.com/content/v1/5c425ce655b02c911da1176d/4d63a7a1-f9ec-4270-b00a-7c82d0a295db/SordlandCountryMapSituations_4K.jpg",
+    "caption": "볼 부분: 게임 세계의 맥락과 상태 정보를 함께 제시하는 표현. THE FIRM 적용: 숫자만 있는 요약 대신 사건·의뢰인·직원이라는 대상을 유지하며 관련 정보를 보여준다. 이 이미지 때문에 현재 게임에 지도를 추가할 필요는 없다. 보고서·신문의 문서 표현은 아래 Suzerain 개발자 글에서 별도로 참고한다.",
+    "included_as": "remote_image_preview",
+    "internet_required": true
+  },
+  {
+    "number": 7,
+    "title": "Papers, Please: 서류 검토를 게임의 행위로 표현",
+    "alt": "Papers, Please 공식 작업대 스크린샷. 서류와 인물을 확인하며 판단하는 게임 화면.",
+    "url": "https://papersplea.se/img/Shot02-Booth.png",
+    "caption": "볼 부분: 문서가 단순 설명문이 아니라 실제로 검토하는 대상이 되는 방식. THE FIRM 적용: 수임 요청·계약 조건·준비 보고를 의뢰인과 연결하고, 무엇을 확인해 결정하는지 문서 안에서 분명히 드러낸다. 픽셀 글꼴과 좁은 작업 면적은 가독성의 모범으로 복제하지 않는다.",
+    "included_as": "remote_image_preview",
+    "internet_required": true
+  }
+]

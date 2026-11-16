@@ -1,0 +1,187 @@
+THE FIRM 0.4 play experiment verification
+2026-10-27T05:07:00.586Z
+Node v24.19.0
+SHA256 src/engine.js a288d83b8981dfe5b61b0f95dc700617d84ef0a7082d94e6dbe0c9b4f6019abb
+SHA256 src/ui.js e9a20e30cc104b1cac2b619e7b6c01e5a0421254b6c2679124bd48d735a6001b
+SHA256 src/style.css 9d76602b4015732885dbc6b87f045c8f64be282d53778e42e6f53e72d703e901
+SHA256 dist/THE_FIRM_Management_Play_v0.4.html db0aac8a264ecdf3a75f5343a0e03f9df51e5c713c46a343e616dc9939455727
+
+COMMAND node --test tests/engine.test.cjs tests/audit-regressions.cjs tests/audit-ui.test.cjs
+✔ AUDIT-01 import completion day must equal the day actual recorded hours first reach the requirement (9.8626ms)
+✔ AUDIT-02 upfront invoice must use configured contract amount, next-day timing, and the correct case (1.4845ms)
+✔ AUDIT-03 canonical receipt-trigger task identity cannot be lost during import (0.8071ms)
+✔ AUDIT-04 processed due-day invoices cannot be restored as unpaid after deleting and reconciling their receipt (1.7773ms)
+✔ AUDIT-05 balance invoice keeps the receipt-trigger case identity (5.3941ms)
+✔ AUDIT-06 valid imported event IDs cannot collide with the next generated event (1.2585ms)
+✔ AUDIT-07 valid snapshots resume identically on every day and cannot advance after the fifth day (14.6457ms)
+✔ AUDIT-08 separate initial balance fixtures remain supported without modifying default economics (2.6615ms)
+✔ AUDIT-09 action history limit rejects extra edits atomically but reserves all mandatory week events (3468.4604ms)
+✔ AUDIT-10 default economic state and normal command outcomes remain byte-equivalent to original engine (18.4885ms)
+✔ positive final cash cannot conceal a temporary forecast deficit (45.1237ms)
+✔ current negative cash is visible even if future receipts recover it (2.705ms)
+✔ valid imported capacities determine A/C/people total capacity (3.4882ms)
+✔ default state retains original 14h and has no cash warning (1.7382ms)
+✔ UMD loads in a browser global and CommonJS with independent initial states (5.2989ms)
+✔ invalid commands are atomic and cannot bypass the intake decision (1.2001ms)
+✔ acceptance creates commitments and a receivable but no instant cash or output (1.6633ms)
+✔ declining creates no new work, invoice, fee, or penalty (4.308ms)
+✔ overcommitment is permitted while actual person time never exceeds capacity (5.8343ms)
+✔ dependencies, actual hours, and completion evidence survive the full week (3.0732ms)
+✔ same-day prerequisites release downstream work without double booking (1.4095ms)
+✔ each receipt is posted exactly once and the final fee follows the actual report (4.9753ms)
+✔ changing staff allocation changes real outputs rather than only forecast labels (5.694ms)
+✔ reassignment keeps prior work and execution history (0.8644ms)
+✔ forecast reuses actual scheduling without mutating state or persisted reports (4.8196ms)
+✔ ledger and daily report reconcile to cash, with one operating expense each day (3.5914ms)
+✔ snapshot roundtrip is independent and rejects corrupt or fabricated history (6.8007ms)
+✔ a valid sequence is deterministic and failed requests do not contaminate later progress (4.3811ms)
+✔ accepting the new case has a reachable plan that completes all seven tasks on time (3.9641ms)
+✔ import rejects malformed IDs before exposing imported entities to UI attributes (19.7489ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3642.1224
+
+
+EXIT 0
+
+COMMAND node tools/audit-strategies.cjs --compare docs/audit-strategies-baseline.json
+PASS: 70 strategy/scenario runs + 70 deterministic reruns; 12699 assertions; 0 failures
+Engine SHA-256: a288d83b8981dfe5b61b0f95dc700617d84ef0a7082d94e6dbe0c9b4f6019abb
+PASS: all 70 rows, action traces and daily reports equal baseline 7f3402c767aaa2bb53f6de7da5e3b69b220c671753c07b0d5ef2d2bafffbc1a6
+┌─────────┬─────────────────────────────┬──────────┬─────────────┬───────┬────────────┬───────┬──────┬───────┐
+│ (index) │ strategy                    │ cash     │ receivables │ ready │ unfinished │ tasks │ late │ hours │
+├─────────┼─────────────────────────────┼──────────┼─────────────┼───────┼────────────┼───────┼──────┼───────┤
+│ 0       │ 'decline_default'           │ 20456000 │ 0           │ 2     │ 0          │ '4/4' │ 2    │ 36    │
+│ 1       │ 'accept_default'            │ 22284000 │ 0           │ 2     │ 1          │ '6/7' │ 3    │ 51    │
+│ 2       │ 'accept_concentrated_cheap' │ 23500000 │ 0           │ 1     │ 2          │ '2/7' │ 6    │ 20    │
+│ 3       │ 'accept_distributed'        │ 23236000 │ 0           │ 3     │ 0          │ '7/7' │ 3    │ 52    │
+│ 4       │ 'accept_deadline_handoff'   │ 21880000 │ 1200000     │ 3     │ 0          │ '7/7' │ 0    │ 52    │
+│ 5       │ 'accept_deadline_priority'  │ 22036000 │ 1200000     │ 3     │ 0          │ '7/7' │ 2    │ 52    │
+│ 6       │ 'accept_reward_priority'    │ 23236000 │ 0           │ 3     │ 0          │ '7/7' │ 3    │ 52    │
+└─────────┴─────────────────────────────┴──────────┴─────────────┴───────┴────────────┴───────┴──────┴───────┘
+
+
+EXIT 0
+
+COMMAND node --test tests/play-engine.test.cjs tests/play-ui.test.cjs
+✔ PLAY-01 no-option factory and legacy progress retain the exact original economy (16.1752ms)
+✔ PLAY-02 explicit experiment options are validated and cannot silently change a legacy save (1.431ms)
+✔ PLAY-03 incomplete preparation refunds the configured upfront share once at the contract deadline (3.3414ms)
+✔ PLAY-04 completing on the deadline avoids refund and preserves the final receivable (3.6162ms)
+✔ PLAY-05 refusing the new contract creates no refund or new fee (1.6673ms)
+✔ PLAY-06 forecast and summary remain pure and equal actual execution including refund (11.0541ms)
+✔ PLAY-07 roundtrip preserves experiment identity, forecast, and the next command on every day (11.1607ms)
+✔ PLAY-08 missing, moved, duplicated, or altered refunds are rejected even with reconciled cash (22.0191ms)
+✔ PLAY-09 cash shortfall remains visible without introducing a date-progress lock (2.9072ms)
+✔ PLAY-10 refund sensitivity changes only the contractual expense and uses whole KRW (12.8201ms)
+✔ PLAY-11 summary counts distinct late work and uses actual closing balances, not predictions (4.1313ms)
+✔ fresh UI uses the visible commitment contract only after acceptance (31.1025ms)
+✔ legacy save restores original rules and viewing screens cannot upgrade it (5.6199ms)
+✔ completed experiment exposes money, work, timeliness and refund independently (9.8212ms)
+✔ positive final cash cannot erase the displayed historical deficit (12.3995ms)
+✔ assignment preview shows portfolio effects but cancel leaves the game unchanged (4.1451ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 189.6616
+
+
+EXIT 0
+
+COMMAND node tools/play-experiments.cjs
+PASS: 64 runs + 64 deterministic reruns; 14035 assertions; 0 failures
+Main comparison rows: 56; zero-refund controls: 8
+Original 7 strategies match audited state hashes, reports, traces and metrics; added policy matches original-engine replay
+Engine SHA-256: a288d83b8981dfe5b61b0f95dc700617d84ef0a7082d94e6dbe0c9b4f6019abb
+Random source: none; seed: null
+┌─────────┬─────────────────────────────┬──────────┬─────────────┬───────┬──────┬─────────┬──────────┐
+│ (index) │ strategy                    │ cash     │ receivables │ ready │ late │ refund  │ minimum  │
+├─────────┼─────────────────────────────┼──────────┼─────────────┼───────┼──────┼─────────┼──────────┤
+│ 0       │ 'decline_default'           │ 20456000 │ 0           │ '2/2' │ 2    │ 0       │ 17452000 │
+│ 1       │ 'accept_default'            │ 21084000 │ 0           │ '2/3' │ 3    │ 1200000 │ 17826000 │
+│ 2       │ 'accept_concentrated_cheap' │ 22300000 │ 0           │ '1/3' │ 6    │ 1200000 │ 17880000 │
+│ 3       │ 'accept_distributed'        │ 23236000 │ 0           │ '3/3' │ 3    │ 0       │ 17466000 │
+│ 4       │ 'accept_deadline_handoff'   │ 21880000 │ 1200000     │ '3/3' │ 0    │ 0       │ 17520000 │
+│ 5       │ 'accept_deadline_priority'  │ 22036000 │ 1200000     │ '3/3' │ 2    │ 0       │ 17466000 │
+│ 6       │ 'accept_reward_priority'    │ 23236000 │ 0           │ '3/3' │ 3    │ 0       │ 17466000 │
+│ 7       │ 'accept_cash_safe_handoff'  │ 21968000 │ 1200000     │ '3/3' │ 0    │ 0       │ 17626000 │
+└─────────┴─────────────────────────────┴──────────┴─────────────┴───────┴──────┴─────────┴──────────┘
+
+
+EXIT 0
+
+COMMAND node tests/ui-smoke.cjs
+PASS offline single-file boot and initial state through UI reset
+PASS A/B/C and all navigation pages preserve game state
+PASS C risk list opens assignment and Escape closes it without game mutation
+PASS intake review is read-only until acceptance
+PASS unapplied assignee/priority preview is discarded with Escape
+PASS ineligible legal-task assignment is disabled
+PASS apply initial assignments through real dialogs
+PASS day 0 execution produces real work and no premature receipt
+PASS handoff preserves progress; day 1 posts the upfront receipt once
+PASS finish five days with every task on time and no duplicate receipts
+PASS daily report tabs and finance show actual state without mutation
+PASS JSON download contains the exact raw snapshot
+PASS invalid JSON and malformed imported IDs preserve the active game
+PASS normal JSON import restores a completed game after UI reset
+PASS page reload restores the saved game and A/B/C remain read-only
+PASS null-assignee import renders, filters, and can be assigned through UI
+PASS temporary cash shortfall remains visible despite a positive final forecast
+PASS imported person capacities update all aggregate UI totals
+PASS 390px window keeps body width bounded across all views and dialogs
+PASS no JavaScript/console errors or remote network dependencies
+{"passed":20,"failed":0,"runtimeErrors":0,"blockedRequests":0,"artifactChangedDuringRun":false,"report":"C:\\Users\\Admin\\Documents\\Codex\\2026-10-27\\new-chat\\work\\handoff\\project\\docs\\ui-legacy-final\\result.json"}
+
+
+EXIT 0
+
+COMMAND node tests/play-ui-smoke.cjs
+PASS first run and reset expose the commitment contract before acceptance
+PASS all views expose a current-plan goal panel without mutating the state
+PASS assignment preview shows portfolio effects and cancellation changes nothing
+PASS five real UI days post one refund and keep separate result metrics
+PASS new snapshot export and reload preserve exact state and contract
+PASS tampered refund import is rejected atomically
+PASS legacy import remains under original rules and receives no retroactive refund
+PASS new-week settings are drafts until applied and original comparison is selectable
+PASS tight-cash selection and a stress import preserve interim deficit in final results
+PASS mobile results and new-week controls stay within the viewport
+PASS offline play has no runtime errors or remote dependencies
+{"passed":11,"failed":0,"runtimeErrors":0,"remoteRequests":0,"artifactChangedDuringRun":false,"report":"C:\\Users\\Admin\\Documents\\Codex\\2026-10-27\\new-chat\\work\\handoff\\project\\docs\\ui-play-final\\result.json"}
+
+
+EXIT 0
+
+COMMAND node tests/ui-improvement-smoke.cjs
+PASS defaults use Graphite and the embedded Korean font with unchanged experiment schema
+PASS viewing all screens and layout modes preserves the byte-exact game save
+PASS visual themes are separate from layout modes and preserve the game save
+PASS font candidates disclose actual availability and do not mutate the game save
+PASS case selection retains the three-file context and separates preparation from money
+PASS client review discloses refund and cash timing before acceptance
+PASS acceptance changes the exact engine state and creates seven tasks without instant cash
+PASS remaining-hours sorting changes visible order without changing the allocation
+PASS staff comparison shows legal-role restrictions and cancellation is atomic
+PASS applying a draft uses the same assignment and priority commands
+PASS desktop and mobile screens keep main actions and assignment apply reachable
+PASS five actual day actions match the engine and actual accounting fields
+PASS v0.4 export import and reload preserve exact actual history
+PASS legacy v0.3 save keeps its version and contract through views export and next day
+PASS default offline use has no remote requests or runtime errors and keeps the HTML unchanged
+PASS explicit online font request handles offline failure without claiming success or changing the save
+{"passed":16,"failed":0,"layouts":35,"runtimeErrors":0,"remoteRequests":0,"report":"C:\\Users\\Admin\\Documents\\Codex\\2026-10-27\\new-chat\\work\\handoff\\project\\docs\\ui-improvement-qa\\result.json"}
+
+
+EXIT 0
+
+Command groups: 7; failed: 0

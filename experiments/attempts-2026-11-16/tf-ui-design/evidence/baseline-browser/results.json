@@ -1,0 +1,291 @@
+{
+  "baseline": "d6fa4a303691f60eedf79b829780f443f915e245",
+  "runtime": "v24.19.0",
+  "browser": "msedge",
+  "checks": 36,
+  "failures": [],
+  "rows": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "stage": "consultation",
+      "overflow": false,
+      "documentHeight": 900,
+      "focused": "<button class=\"btn primary\" data-scene=\"next\">계속 ▸</button>",
+      "primary": [
+        {
+          "text": "첫 상담 열기",
+          "top": 448.40625,
+          "bottom": 496.09375,
+          "inViewport": true
+        },
+        {
+          "text": "계속 ▸",
+          "top": 728.3125,
+          "bottom": 776,
+          "inViewport": true
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "stage": "plan",
+      "overflow": false,
+      "documentHeight": 1160,
+      "focused": "<h1 id=\"page-title\" tabindex=\"-1\">상해 인과관계 · 변론 계획</h1>",
+      "primary": [
+        {
+          "text": "기본 계획 승인",
+          "top": 803.09375,
+          "bottom": 850.78125,
+          "inViewport": true
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "stage": "after-checkbox-change",
+      "focused": "BODY"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "stage": "court",
+      "overflow": false,
+      "documentHeight": 1362,
+      "focused": "<body>\n  <div id=\"app\" aria-live=\"polite\"><main class=\"shell\"><header class=\"mast\"><div><div class=\"brand\">THE <span>FIRM</span></div><div class=\"meta\">변론 계획 · 자동 법정 실행 실험</div></div><div class=\"meta\"",
+      "primary": [
+        {
+          "text": "실제 실행 기록 확인",
+          "top": 1066.65625,
+          "bottom": 1114.34375,
+          "inViewport": false
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "stage": "record",
+      "overflow": false,
+      "documentHeight": 900,
+      "focused": "<body>\n  <div id=\"app\" aria-live=\"polite\"><main class=\"shell\"><header class=\"mast\"><div><div class=\"brand\">THE <span>FIRM</span></div><div class=\"meta\">변론 계획 · 자동 법정 실행 실험</div></div><div class=\"meta\"",
+      "primary": [
+        {
+          "text": "반대 계획으로 다시 비교",
+          "top": 667.453125,
+          "bottom": 715.140625,
+          "inViewport": true
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "stage": "errors",
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "stage": "consultation",
+      "overflow": false,
+      "documentHeight": 720,
+      "focused": "<button class=\"btn primary\" data-scene=\"next\">계속 ▸</button>",
+      "primary": [
+        {
+          "text": "첫 상담 열기",
+          "top": 448.40625,
+          "bottom": 496.09375,
+          "inViewport": true
+        },
+        {
+          "text": "계속 ▸",
+          "top": 616.3125,
+          "bottom": 664,
+          "inViewport": true
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "stage": "plan",
+      "overflow": false,
+      "documentHeight": 1160,
+      "focused": "<h1 id=\"page-title\" tabindex=\"-1\">상해 인과관계 · 변론 계획</h1>",
+      "primary": [
+        {
+          "text": "기본 계획 승인",
+          "top": 803.09375,
+          "bottom": 850.78125,
+          "inViewport": false
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "stage": "after-checkbox-change",
+      "focused": "BODY"
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "stage": "court",
+      "overflow": false,
+      "documentHeight": 1362,
+      "focused": "<body>\n  <div id=\"app\" aria-live=\"polite\"><main class=\"shell\"><header class=\"mast\"><div><div class=\"brand\">THE <span>FIRM</span></div><div class=\"meta\">변론 계획 · 자동 법정 실행 실험</div></div><div class=\"meta\"",
+      "primary": [
+        {
+          "text": "실제 실행 기록 확인",
+          "top": 1066.65625,
+          "bottom": 1114.34375,
+          "inViewport": false
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "stage": "record",
+      "overflow": false,
+      "documentHeight": 869,
+      "focused": "<body>\n  <div id=\"app\" aria-live=\"polite\"><main class=\"shell\"><header class=\"mast\"><div><div class=\"brand\">THE <span>FIRM</span></div><div class=\"meta\">변론 계획 · 자동 법정 실행 실험</div></div><div class=\"meta\"",
+      "primary": [
+        {
+          "text": "반대 계획으로 다시 비교",
+          "top": 667.453125,
+          "bottom": 715.140625,
+          "inViewport": true
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "stage": "errors",
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "stage": "consultation",
+      "overflow": false,
+      "documentHeight": 844,
+      "focused": "<button class=\"btn primary\" data-scene=\"next\">계속 ▸</button>",
+      "primary": [
+        {
+          "text": "첫 상담 열기",
+          "top": 409.3125,
+          "bottom": 457,
+          "inViewport": true
+        },
+        {
+          "text": "계속 ▸",
+          "top": 716.3125,
+          "bottom": 764,
+          "inViewport": true
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "stage": "plan",
+      "overflow": false,
+      "documentHeight": 1751,
+      "focused": "<h1 id=\"page-title\" tabindex=\"-1\">상해 인과관계 · 변론 계획</h1>",
+      "primary": [
+        {
+          "text": "기본 계획 승인",
+          "top": 1414.546875,
+          "bottom": 1462.234375,
+          "inViewport": false
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "stage": "after-checkbox-change",
+      "focused": "BODY"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "stage": "court",
+      "overflow": false,
+      "documentHeight": 1915,
+      "focused": "<body>\n  <div id=\"app\" aria-live=\"polite\"><main class=\"shell\"><header class=\"mast\"><div><div class=\"brand\">THE <span>FIRM</span></div><div class=\"meta\">변론 계획 · 자동 법정 실행 실험</div></div><div class=\"meta\"",
+      "primary": [
+        {
+          "text": "실제 실행 기록 확인",
+          "top": 1616.5625,
+          "bottom": 1664.25,
+          "inViewport": false
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "stage": "record",
+      "overflow": false,
+      "documentHeight": 1166,
+      "focused": "<body>\n  <div id=\"app\" aria-live=\"polite\"><main class=\"shell\"><header class=\"mast\"><div><div class=\"brand\">THE <span>FIRM</span></div><div class=\"meta\">변론 계획 · 자동 법정 실행 실험</div></div><div class=\"meta\"",
+      "primary": [
+        {
+          "text": "반대 계획으로 다시 비교",
+          "top": 957.484375,
+          "bottom": 1028.859375,
+          "inViewport": false
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "stage": "errors",
+      "errors": []
+    }
+  ]
+}

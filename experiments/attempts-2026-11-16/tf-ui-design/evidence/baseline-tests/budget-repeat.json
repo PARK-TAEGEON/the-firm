@@ -1,0 +1,16 @@
+{
+  "baseline": "d6fa4a303691f60eedf79b829780f443f915e245",
+  "started": "2026-10-13T15:06:49.3132462+09:00",
+  "exitCode": 1,
+  "log": "budget-repeat.log",
+  "finished": "2026-10-13T15:07:03.3817332+09:00",
+  "repeat": 1,
+  "command": "npm run test:budget",
+  "purpose": "One unchanged-baseline rerun for focus assertion intermittency comparison; original logs preserved.",
+  "completedChecksReported": 14,
+  "failures": 1,
+  "failure": "Record sheet returns focus to rebuilt opener",
+  "failureLocation": "courtroom-prototype/tests/browser-full-flow.test.js:20:652",
+  "totalChecks": null,
+  "trackedDiffEmpty": true
+}

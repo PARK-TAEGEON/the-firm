@@ -1,0 +1,5 @@
+PASS: 64 runs + 64 deterministic reruns; 14035 assertions; 0 failures
+Main comparison rows: 56; zero-refund controls: 8
+Original 7 strategies match audited state hashes, reports, traces and metrics; added policy matches original-engine replay
+Engine SHA-256: a288d83b8981dfe5b61b0f95dc700617d84ef0a7082d94e6dbe0c9b4f6019abb
+Random source: none; seed: null

@@ -1,0 +1,1896 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>THE FIRM · UI 프로토타입</title>
+<!-- 글꼴: Google Fonts (인터넷 연결 시 적용, 오프라인이면 시스템 글꼴로 대체) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&amp;family=Noto+Serif+KR:wght@600;700&amp;family=IBM+Plex+Sans+KR:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;family=Gothic+A1:wght@400;500;700;800&amp;family=Hahmlet:wght@500;600;700&amp;family=Nanum+Gothic:wght@400;700;800&amp;family=Nanum+Myeongjo:wght@700;800&amp;family=Nanum+Gothic+Coding:wght@400;700&amp;family=Gowun+Dodum&amp;family=Gowun+Batang:wght@400;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Orbit&amp;family=Barlow+Semi+Condensed:wght@500;600;700&amp;family=Rajdhani:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{color:inherit}
+.app,.app *,.app *::before,.app *::after{box-sizing:border-box}
+.app{-webkit-font-smoothing:antialiased}
+
+/* ===== A · Navy & Brass ===== */
+.app.tA{--bg:#0D1828;--stripe:rgba(201,164,94,.045);--panel:#16263B;--phead:#1B2E47;--raise:#22395A;--inset:#112033;--line:#263D5A;--line2:#3A5578;--fg:#F2EEE4;--muted:#A8B4C2;--accent:#C9A45E;--accent2:#E0C083;--on-accent:#111B29;--accent-soft:rgba(201,164,94,.15);--sel:rgba(201,164,94,.17);--hover:rgba(242,238,228,.05);--focus:#8EC1F0;--danger:#FF8A80;--on-danger:#2A0E0B;--danger-soft:rgba(255,138,128,.13);--warn:#F4A259;--warn-soft:rgba(244,162,89,.13);--ok:#7FD1A0;--ok-soft:rgba(127,209,160,.13);--info:#8EC1F0;--info-soft:rgba(142,193,240,.13);--top:#08111D;--top2:#0F1C2E;--top2-fg:#F2EEE4;--top-fg:#F2EEE4;--top-muted:#A8B4C2;--top-line:#1F3350;--top-accent:#C9A45E;--font:"Wanted Sans","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;--font-display:"MaruBuri","Hahmlet","Noto Serif KR",serif;--font-num:inherit;--radius:6px;--chip-radius:999px;--shadow:0 18px 48px rgba(3,8,16,.6);--scrim:rgba(4,9,16,.66)}
+/* ===== B · Paper & Ink ===== */
+.app.tB{--bg:#E7E1D3;--stripe:rgba(30,42,52,.04);--panel:#FFFDF8;--phead:#F5F0E5;--raise:#FFFFFF;--inset:#F7F3EA;--line:#DCD3C2;--line2:#BBAF99;--fg:#1E2A34;--muted:#56606A;--accent:#23476E;--accent2:#23476E;--on-accent:#FFFFFF;--accent-soft:rgba(35,71,110,.09);--sel:#E3EAF2;--hover:rgba(30,42,52,.04);--focus:#B4570F;--danger:#B3261E;--on-danger:#FFFFFF;--danger-soft:#FBE9E7;--warn:#8F5200;--warn-soft:#FBF0DE;--ok:#2E6B3A;--ok-soft:#E6F1E7;--info:#1F6A7A;--info-soft:#E3F0F2;--top:#1E2A34;--top2:#F5F0E5;--top2-fg:#1E2A34;--top-fg:#F2EEE4;--top-muted:#B9C2CA;--top-line:#33424F;--top-accent:#D7B98A;--font:"SUIT","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;--font-display:"MaruBuri","Noto Serif KR",serif;--font-num:inherit;--radius:4px;--chip-radius:3px;--shadow:0 16px 40px rgba(30,42,52,.2);--scrim:rgba(30,42,52,.45)}
+/* ===== C · Verdict Graphite ===== */
+.app.tC{--bg:#0E1114;--stripe:rgba(63,167,169,.035);--panel:#171C21;--phead:#1D232A;--raise:#252C34;--inset:#12161A;--line:#29313A;--line2:#3A4450;--fg:#E3EAEC;--muted:#9AA7AE;--accent:#3FA7A9;--accent2:#6FD0D2;--on-accent:#071314;--accent-soft:rgba(63,167,169,.15);--sel:rgba(63,167,169,.18);--hover:rgba(227,234,236,.045);--focus:#8DBFF0;--danger:#FF8F85;--on-danger:#2A0E0B;--danger-soft:rgba(255,143,133,.13);--warn:#EDB95E;--warn-soft:rgba(237,185,94,.12);--ok:#86D49B;--ok-soft:rgba(134,212,155,.12);--info:#8DBFF0;--info-soft:rgba(141,191,240,.12);--top:#090B0D;--top2:#12161A;--top2-fg:#E3EAEC;--top-fg:#E3EAEC;--top-muted:#9AA7AE;--top-line:#20262D;--top-accent:#3FA7A9;--font:"Pretendard","IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;--font-display:"Pretendard","IBM Plex Sans KR","Apple SD Gothic Neo",sans-serif;--font-num:"IBM Plex Mono",ui-monospace,monospace;--radius:3px;--chip-radius:3px;--shadow:0 18px 48px rgba(0,0,0,.65);--scrim:rgba(0,0,0,.62)}
+/* ===== font candidates ===== */
+.app.f1{--font:"Noto Sans KR","Malgun Gothic",sans-serif;--font-display:"Noto Serif KR",serif;--font-num:inherit}
+.app.f2{--font:"IBM Plex Sans KR","Malgun Gothic",sans-serif;--font-display:"IBM Plex Sans KR","Malgun Gothic",sans-serif;--font-num:"IBM Plex Mono",ui-monospace,monospace}
+.app.f3{--font:"Gothic A1","Malgun Gothic",sans-serif;--font-display:"Hahmlet",serif;--font-num:inherit}
+.app.f4{--font:"Nanum Gothic","Malgun Gothic",sans-serif;--font-display:"Nanum Myeongjo",serif;--font-num:"Nanum Gothic Coding",monospace}
+.app.f5{--font:"Gowun Dodum","Malgun Gothic",sans-serif;--font-display:"Gowun Batang",serif;--font-num:inherit}
+.app.f6{--font:"Noto Sans KR","Malgun Gothic",sans-serif;--font-display:"Noto Sans KR","Malgun Gothic",sans-serif;--font-num:"JetBrains Mono","Noto Sans KR",monospace}
+.app.f7{--font:"IBM Plex Sans KR","Malgun Gothic",sans-serif;--font-display:"IBM Plex Sans KR","Malgun Gothic",sans-serif;--font-num:"Barlow Semi Condensed","IBM Plex Sans KR",sans-serif}
+.app.f8{--font:"IBM Plex Sans KR","Malgun Gothic",sans-serif;--font-display:"Orbit","IBM Plex Sans KR",sans-serif;--font-num:"IBM Plex Mono","IBM Plex Sans KR",monospace}
+.app.f9{--font:"Gothic A1","Malgun Gothic",sans-serif;--font-display:"Gothic A1","Malgun Gothic",sans-serif;--font-num:"Rajdhani","Gothic A1",sans-serif}
+/* ===== C palette candidates ===== */
+.app.tC.pc2{--accent:#CDA349;--accent2:#E3C27A;--on-accent:#14110A;--accent-soft:rgba(205,163,73,.15);--sel:rgba(205,163,73,.16);--stripe:rgba(205,163,73,.035);--top-accent:#CDA349;--warn:#F59E5B;--warn-soft:rgba(245,158,91,.13)}
+.app.tC.pc3{--bg:#0D1117;--panel:#161B22;--phead:#1C222B;--raise:#232A35;--inset:#10151B;--line:#283039;--line2:#3A4451;--accent:#5B9BE0;--accent2:#8DBBF0;--on-accent:#08111C;--accent-soft:rgba(91,155,224,.16);--sel:rgba(91,155,224,.18);--stripe:rgba(91,155,224,.035);--info:#7FD3E0;--info-soft:rgba(127,211,224,.12);--focus:#F2C14E;--top:#080B10;--top2:#10151B;--top-line:#1E252E;--top-accent:#5B9BE0}
+.app.tC.pc4{--accent:#C9D2D8;--accent2:#E8EEF1;--on-accent:#0E1114;--accent-soft:rgba(201,210,216,.11);--sel:rgba(201,210,216,.12);--stripe:rgba(255,255,255,.025);--top-accent:#E8EEF1}
+.app.tC.pc5{--bg:#121010;--panel:#1B1817;--phead:#221E1C;--raise:#2B2624;--inset:#151312;--line:#312B28;--line2:#453D39;--fg:#ECE6E1;--muted:#A99F98;--accent:#E07A4F;--accent2:#F0A07C;--on-accent:#1A0D07;--accent-soft:rgba(224,122,79,.16);--sel:rgba(224,122,79,.17);--stripe:rgba(224,122,79,.035);--danger:#FF6B81;--danger-soft:rgba(255,107,129,.13);--warn:#EEC25A;--warn-soft:rgba(238,194,90,.12);--top:#0B0A09;--top2:#151312;--top-fg:#ECE6E1;--top2-fg:#ECE6E1;--top-muted:#A99F98;--top-line:#26211F;--top-accent:#E07A4F}
+
+.app :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.app button{font-family:inherit;font-size:inherit}
+.app ::-webkit-scrollbar{width:10px;height:10px}
+.app ::-webkit-scrollbar-thumb{background:var(--line2);border-radius:8px;border:2px solid transparent;background-clip:padding-box}
+.app ::-webkit-scrollbar-track{background:transparent}
+.ground{background-color:var(--bg);background-image:repeating-linear-gradient(90deg,var(--stripe) 0 1px,transparent 1px 8px)}
+svg.i,.chip svg,.btn svg,.tbtn svg,.ttl svg,.navchev svg,.sc svg,.alert svg,.thumb svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+svg.i{width:18px;height:18px}
+.num{font-family:var(--font-num);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.disp{font-family:var(--font-display)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* review strip */
+.rv-btn{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:4px;border:1px solid #3A414B;background:#161A20;color:#E6E8EB;font-size:13px;font-weight:600;cursor:pointer}
+.rv-btn:hover{background:#20262E}
+.rv-btn.on{background:#E6E8EB;color:#0B0D10;border-color:#E6E8EB}
+.rv-sw{width:10px;height:10px;border-radius:2px;border:1px solid rgba(255,255,255,.35)}
+.rv-sel{height:28px;border-radius:4px;border:1px solid #3A414B;background:#161A20;color:#E6E8EB;font:inherit;font-size:13px;padding:0 6px}
+
+/* top bar */
+.top{height:64px;flex:none;background:var(--top);color:var(--top-fg);display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--top-line);position:relative;z-index:50}
+.tbtn{width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border-radius:var(--radius);border:1px solid var(--top-line);background:rgba(255,255,255,.03);color:var(--top-fg);cursor:pointer;position:relative}
+.tbtn:hover{background:rgba(255,255,255,.08)}
+.tbtn:disabled{color:var(--top-muted);opacity:.45;cursor:not-allowed}
+.tbtn svg{width:18px;height:18px}
+.badge{position:absolute;top:-6px;right:-7px;min-width:19px;height:19px;padding:0 5px;border-radius:10px;background:var(--danger);color:var(--on-danger);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.brand{display:flex;align-items:center;gap:10px;background:none;border:0;color:var(--top-fg);cursor:pointer;padding:4px 8px 4px 4px;border-radius:var(--radius)}
+.mark{width:34px;height:34px;border:2px solid var(--top-accent);border-radius:3px;position:relative;flex:none}
+.mark::before{content:"";position:absolute;left:6px;right:6px;top:6px;height:3px;background:var(--top-accent)}
+.mark::after{content:"";position:absolute;left:12px;width:6px;top:11px;bottom:5px;background:var(--top-accent)}
+.wordmark{font-family:var(--font-display);font-weight:700;font-size:17px;letter-spacing:.1em;white-space:nowrap}
+.gnav{display:flex;align-items:stretch;height:64px;min-width:0}
+.navgrp{position:relative;display:flex;align-items:stretch}
+.navbtn{height:64px;padding:0 4px 0 12px;background:none;border:0;color:var(--top-muted);font-size:15px;font-weight:700;cursor:pointer;position:relative;white-space:nowrap;letter-spacing:.01em}
+.navbtn:hover{color:var(--top-fg)}
+.navgrp.on .navbtn{color:var(--top-fg)}
+.navgrp.on::after{content:"";position:absolute;left:8px;right:8px;bottom:0;height:3px;background:var(--top-accent)}
+.navchev{width:26px;background:none;border:0;color:var(--top-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;margin-right:4px}
+.navchev:hover,.navchev[aria-expanded="true"]{color:var(--top-fg)}
+.navchev svg{width:14px;height:14px}
+.dd{position:absolute;top:58px;left:4px;min-width:200px;background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius);box-shadow:var(--shadow);padding:6px;z-index:60;display:flex;flex-direction:column}
+.dd button{display:flex;align-items:center;justify-content:space-between;gap:16px;height:40px;padding:0 12px;border:0;border-radius:calc(var(--radius) - 2px);background:none;color:var(--fg);font-size:15px;font-weight:600;cursor:pointer;text-align:left;white-space:nowrap}
+.dd button:hover{background:var(--hover)}
+.dd button.on{color:var(--accent2);background:var(--accent-soft)}
+.ddback{position:fixed;inset:0;background:transparent;border:0;z-index:45;cursor:default}
+.datebox{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;line-height:1.2;height:48px;padding:0 12px;white-space:nowrap;border:1px solid var(--top-line);border-radius:var(--radius);background:rgba(255,255,255,.03)}
+.cont{display:flex;align-items:center;gap:14px;height:48px;min-width:196px;justify-content:space-between;padding:0 14px 0 18px;border-radius:var(--radius);border:0;cursor:pointer;text-align:left;white-space:nowrap}
+.cont.blocked{background:var(--danger);color:var(--on-danger)}
+.cont.go{background:var(--accent);color:var(--on-accent)}
+.cont:hover{filter:brightness(1.07)}
+.cont svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+
+/* sub bar */
+.sub{height:44px;flex:none;background:var(--top2);color:var(--top2-fg);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:2px;padding:0 14px;overflow-x:auto}
+.ctx{font-size:15px;font-weight:800;padding-right:14px;margin-right:6px;border-right:1px solid var(--line);white-space:nowrap;display:flex;align-items:center;gap:6px}
+.ctx .muted{font-weight:600}
+.subtab{height:44px;padding:0 12px;border:0;background:none;color:var(--muted);font-size:15px;font-weight:600;cursor:pointer;position:relative;white-space:nowrap}
+.subtab:hover{color:var(--fg)}
+.subtab.on{color:var(--fg);font-weight:800}
+.subtab.on::after{content:"";position:absolute;left:10px;right:10px;bottom:0;height:2px;background:var(--accent)}
+.sc{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 10px;border-radius:var(--radius);border:1px solid var(--line);background:var(--panel);color:var(--fg);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.sc:hover{background:var(--raise)}
+.sc svg{width:15px;height:15px}
+.sc .cnt{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--danger);color:var(--on-danger);font-size:11px;display:inline-flex;align-items:center;justify-content:center}
+.sc .cnt.n{background:var(--line2);color:var(--fg)}
+
+/* panels */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);display:flex;flex-direction:column;min-width:0;box-shadow:0 1px 0 rgba(255,255,255,.03) inset}
+.phd{display:flex;align-items:center;gap:10px;padding:0 14px;min-height:46px;background:var(--phead);border-bottom:1px solid var(--line);border-radius:var(--radius) var(--radius) 0 0;flex-wrap:wrap}
+.ttl{display:inline-flex;align-items:center;gap:6px;background:none;border:0;padding:0;color:var(--accent2);font-size:15px;font-weight:800;cursor:pointer;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:6px;text-decoration-color:color-mix(in srgb,var(--accent) 55%,transparent);white-space:nowrap}
+.ttl:hover{text-decoration-color:var(--accent2)}
+.ttl.static{cursor:default}
+.ttl svg{width:14px;height:14px}
+.h1{margin:0;font-family:var(--font-display);font-size:26px;font-weight:700;line-height:1.2}
+.lbl{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.04em}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:38px;padding:0 14px;border-radius:var(--radius);border:1px solid var(--line2);background:var(--raise);color:var(--fg);font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn:hover{filter:brightness(1.1)}
+.btn:disabled{cursor:not-allowed;color:var(--muted);background:var(--inset);border-color:var(--line);filter:none}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.primary:disabled{background:var(--inset);border-color:var(--line);color:var(--muted)}
+.btn.ghost{background:transparent;border-color:transparent}
+.btn.ghost:hover{background:var(--hover);filter:none}
+.btn.sm{height:32px;padding:0 10px;font-size:14px}
+.btn svg{width:16px;height:16px}
+.iconbtn{width:34px;height:34px;padding:0}
+.lnk{background:none;border:0;padding:0;color:var(--fg);font-weight:700;cursor:pointer;text-align:left}
+.lnk:hover{color:var(--accent2);text-decoration:underline;text-underline-offset:3px}
+.chip{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 9px;border-radius:var(--chip-radius);font-size:13px;font-weight:700;white-space:nowrap;border:1px solid transparent;line-height:1}
+.chip svg{width:14px;height:14px;stroke-width:2.4}
+.c-danger{color:var(--danger);background:var(--danger-soft);border-color:color-mix(in srgb,var(--danger) 40%,transparent)}
+.c-warn{color:var(--warn);background:var(--warn-soft);border-color:color-mix(in srgb,var(--warn) 40%,transparent)}
+.c-ok{color:var(--ok);background:var(--ok-soft);border-color:color-mix(in srgb,var(--ok) 40%,transparent)}
+.c-info{color:var(--info);background:var(--info-soft);border-color:color-mix(in srgb,var(--info) 40%,transparent)}
+.c-accent{color:var(--accent2);background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+.c-neutral{color:var(--muted);background:var(--inset);border-color:var(--line)}
+.tag{display:inline-flex;align-items:center;height:22px;padding:0 7px;border-radius:3px;font-size:12px;font-weight:800;border:1px solid var(--line2);color:var(--muted);white-space:nowrap}
+.tag.acc{border-color:var(--accent);color:var(--accent2)}
+.mockt{display:inline-flex;align-items:center;height:20px;padding:0 6px;border-radius:3px;font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;color:var(--warn);border:1px dashed var(--warn);letter-spacing:.04em;white-space:nowrap}
+.kv{display:grid;grid-template-columns:96px minmax(0,1fr);gap:8px 12px;font-size:15px;margin:0}
+.kv dt{color:var(--muted);font-size:14px;margin:0}
+.kv dd{margin:0;min-width:0}
+.note{font-size:14px;color:var(--muted);line-height:1.5}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:28px 20px;color:var(--muted);font-size:15px}
+.errbox{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;margin:14px;border-radius:var(--radius);background:var(--danger-soft);color:var(--fg);border:1px solid color-mix(in srgb,var(--danger) 45%,transparent)}
+.skel{height:14px;border-radius:4px;background:linear-gradient(90deg,var(--inset) 0%,var(--raise) 50%,var(--inset) 100%);background-size:200% 100%;animation:sk 1.3s linear infinite}
+@keyframes sk{from{background-position:200% 0}to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.skel{animation:none}}
+
+/* avatar / role block / hour pill */
+.av{width:32px;height:32px;border-radius:50%;flex:none;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;background:var(--raise);color:var(--fg);border:1px solid var(--line2)}
+.av.lg{width:72px;height:72px;font-size:22px;border-width:2px;border-color:var(--accent)}
+.rb{display:inline-flex;align-items:center;justify-content:center;width:46px;height:28px;border-radius:3px;font-size:13px;font-weight:800;letter-spacing:.02em}
+.rb-lead{background:var(--accent);color:var(--on-accent)}
+.rb-law{background:var(--info-soft);color:var(--info);border:1px solid color-mix(in srgb,var(--info) 45%,transparent)}
+.rb-ops{background:var(--inset);color:var(--muted);border:1px solid var(--line2)}
+.pill{display:inline-flex;align-items:center;justify-content:center;min-width:48px;height:26px;padding:0 8px;border-radius:13px;font-size:14px;font-weight:800;font-family:var(--font-num);font-variant-numeric:tabular-nums}
+.p-danger{background:var(--danger);color:var(--on-danger)}
+.p-ok{background:var(--ok-soft);color:var(--ok);border:1px solid color-mix(in srgb,var(--ok) 45%,transparent)}
+.p-neutral{background:var(--inset);color:var(--fg);border:1px solid var(--line2)}
+
+/* grid tables */
+.thead{background:var(--phead);color:var(--muted);font-size:13px;font-weight:700;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:1}
+.thead>div{padding:10px 12px;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.sortbtn{display:flex;align-items:center;gap:6px;background:none;border:0;padding:0;color:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.sortbtn:hover,.sortbtn.on{color:var(--fg)}
+.trow{border-bottom:1px solid var(--line);min-height:54px;font-size:15px}
+.trow>div{padding:8px 12px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:10px}
+.trow.click{cursor:pointer}
+.trow.click:hover{background:var(--hover)}
+.trow.sel,.trow.sel:hover{background:var(--sel)}
+.selbtn{width:22px;height:22px;border-radius:50%;border:2px solid var(--line2);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.selbtn span{width:10px;height:10px;border-radius:50%}
+.selbtn.on{border-color:var(--accent)}
+.selbtn.on span{background:var(--accent)}
+.g-p01{display:grid;grid-template-columns:44px 62px minmax(150px,1.3fr) minmax(100px,1fr) 124px 70px minmax(100px,1fr) 76px minmax(130px,1fr) 48px;align-items:stretch}
+.g-case{display:grid;grid-template-columns:minmax(0,1fr) 106px 70px;align-items:stretch}
+.danger-text{color:var(--danger);font-weight:800}
+
+/* lists */
+.li{display:flex;flex-direction:column;gap:4px;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:12px 16px;color:var(--fg);cursor:pointer}
+.li:hover{background:var(--hover)}
+.li.sel{background:var(--sel)}
+.li .row1{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex:none}
+.li .subj{font-size:15px;font-weight:500;line-height:1.35;color:var(--muted)}
+.li.unread .subj{font-weight:800;color:var(--fg)}
+.grp{padding:7px 16px;font-size:12px;font-weight:800;letter-spacing:.04em;color:var(--muted);background:var(--inset);border-bottom:1px solid var(--line)}
+.grp.dang{color:var(--danger);background:var(--danger-soft)}
+.ftab{height:30px;padding:0 10px;border-radius:var(--radius);border:1px solid var(--line);background:transparent;color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.ftab.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+
+/* D01 portal */
+.d01{display:grid;grid-template-columns:340px minmax(0,1fr) 330px;gap:14px;padding:14px;height:100%;min-height:0}
+.col{display:flex;flex-direction:column;gap:14px;min-height:0;overflow:auto}
+.c2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+@media (max-width:1279px){.d01{grid-template-columns:minmax(0,1fr);height:auto}.col{overflow:visible}.c2{grid-template-columns:minmax(0,1fr)}}
+.deccard{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:14px 16px;border-radius:var(--radius);background:var(--danger-soft);border:1px solid color-mix(in srgb,var(--danger) 45%,transparent);color:var(--fg);cursor:pointer}
+.deccard:hover{filter:brightness(1.08)}
+.deccard svg{width:22px;height:22px;color:var(--danger)}
+.emblem{position:relative;height:150px;display:flex;align-items:center;justify-content:center;overflow:hidden;background-color:var(--accent-soft);background-image:repeating-linear-gradient(90deg,color-mix(in srgb,var(--accent) 18%,transparent) 0 1px,transparent 1px 10px);border-bottom:1px solid var(--line)}
+.emblem .glyph{font-family:var(--font-display);font-size:78px;font-weight:700;color:var(--accent2);line-height:1}
+.emblem .eid{position:absolute;left:12px;bottom:10px;font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:600;color:var(--accent2);letter-spacing:.06em}
+.emblem .chip{position:absolute;right:12px;top:12px}
+.newsrow{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:12px 14px;background:none;border:0;border-top:1px solid var(--line);color:var(--fg);cursor:pointer}
+.newsrow:hover{background:var(--hover)}
+.thumb{width:48px;height:48px;border-radius:var(--radius);flex:none;display:flex;align-items:center;justify-content:center;background:var(--inset);border:1px solid var(--line);color:var(--accent2)}
+.thumb svg{width:22px;height:22px}
+.big{font-family:var(--font-num);font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--accent2);line-height:1.15}
+.week{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:4px;padding:12px 12px 4px}
+.day{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-radius:var(--radius);background:var(--inset);border:1px solid var(--line);font-size:12px;color:var(--muted)}
+.day b{font-family:var(--font-num);font-size:15px;color:var(--fg)}
+.day.today{border-color:var(--accent);background:var(--accent-soft)}
+.day.ev{color:var(--fg)}
+.day .mk{width:6px;height:6px;border-radius:50%;background:transparent}
+.day.ev .mk{background:var(--accent2)}
+.evrow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:10px 14px;background:none;border:0;border-top:1px solid var(--line);color:var(--fg);cursor:pointer;font-size:15px;font-weight:600}
+.evrow:hover{background:var(--hover)}
+.srow{display:flex;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid var(--line)}
+
+/* object header (FM club-overview structure) */
+.objband{display:flex;align-items:center;gap:20px;padding:14px 20px;background:var(--phead);border-bottom:1px solid var(--line);flex-wrap:wrap;flex:none}
+.crest{width:58px;height:58px;border-radius:var(--radius);border:2px solid var(--accent);background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--accent2);flex:none}
+.meta{display:flex;flex-direction:column;gap:3px;padding:0 18px;border-left:1px solid var(--line);min-width:0}
+.meta .v{font-size:16px;font-weight:800;white-space:nowrap}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;padding:14px 20px 0;flex:none}
+.tile{display:flex;flex-direction:column;gap:4px;padding:12px 14px;border-radius:var(--radius);background:var(--panel);border:1px solid var(--line);text-align:left;color:var(--fg);cursor:pointer}
+.tile:hover{background:var(--raise)}
+.tile .v{font-size:18px;font-weight:800;display:flex;align-items:center;gap:8px}
+.tile.dang{border-color:color-mix(in srgb,var(--danger) 50%,transparent)}
+.tile.dang .v{color:var(--danger)}
+
+/* side drawer */
+.side{flex:none;min-height:0;overflow:auto}
+@media (max-width:1279px){.side{position:absolute;top:0;right:0;bottom:0;z-index:20;box-shadow:var(--shadow)}}
+
+/* M06 */
+.iss{display:flex;flex-direction:column;gap:6px;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;color:var(--fg);cursor:pointer}
+.iss:hover{background:var(--raise)}
+.iss.sel{background:var(--sel);border-color:var(--accent)}
+.sect{display:flex;flex-direction:column;gap:10px}
+.sect-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mat{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel)}
+.chev{transition:transform .15s}
+.chev.open{transform:rotate(90deg)}
+.track{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.step{display:flex;flex-direction:column;gap:3px;padding:8px 10px;border-radius:var(--radius);border:1px solid var(--line);background:var(--inset);min-width:0}
+.step .sl{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:800;white-space:nowrap}
+.step .sl svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.step .sn{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s-done{background:var(--ok-soft);border-color:color-mix(in srgb,var(--ok) 45%,transparent)}
+.s-done .sl{color:var(--ok)}
+.s-pending{background:var(--warn-soft);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
+.s-pending .sl{color:var(--warn)}
+.s-unknown{border-style:dashed}
+.s-unknown .sl,.s-no .sl{color:var(--muted)}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:var(--radius);overflow:hidden}
+.seg button{height:32px;padding:0 14px;border:0;background:transparent;color:var(--muted);font-size:14px;font-weight:800;cursor:pointer}
+.seg button+button{border-left:1px solid var(--line2)}
+.seg button.on{background:var(--accent);color:var(--on-accent)}
+.usebox{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;white-space:nowrap;cursor:pointer}
+.usebox input{width:18px;height:18px;accent-color:var(--accent);margin:0}
+.usebox.dis{color:var(--muted);cursor:not-allowed}
+.lc{display:inline-flex;align-items:center;height:28px;font-size:13px;font-weight:800;color:var(--muted);padding:0 10px;border-radius:var(--chip-radius);border:1px solid var(--line);white-space:nowrap}
+.lc.cur{color:var(--on-accent);border-color:var(--accent);background:var(--accent)}
+.lc.fut{border-style:dashed}
+.alert{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:var(--radius);font-size:14px;line-height:1.45;width:100%;text-align:left;border:1px solid var(--line);background:var(--inset);color:var(--fg)}
+.alert svg{width:16px;height:16px}
+.alert.warn{border-color:color-mix(in srgb,var(--warn) 40%,transparent)}
+.alert.warn svg{color:var(--warn)}
+.alert.danger{background:var(--danger-soft);border-color:color-mix(in srgb,var(--danger) 45%,transparent)}
+.alert.danger svg{color:var(--danger)}
+.alert.info svg{color:var(--info)}
+button.alert{cursor:pointer}
+button.alert:hover{filter:brightness(1.08)}
+.bbar{flex:none;border-top:1px solid var(--line);background:var(--top2);color:var(--top2-fg);padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+
+/* modal + toast */
+.overlay{position:absolute;inset:0;background:var(--scrim);display:flex;align-items:center;justify-content:center;padding:24px;z-index:70}
+.dialog{background:var(--panel);color:var(--fg);border:1px solid var(--line2);border-radius:calc(var(--radius) + 2px);box-shadow:var(--shadow);max-height:100%;display:flex;flex-direction:column;width:min(900px,100%);outline:none}
+.dlg-h{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;background:var(--phead);border-radius:calc(var(--radius) + 2px) calc(var(--radius) + 2px) 0 0}
+.dlg-h h2{margin:0;font-size:17px;font-weight:800;color:var(--accent2)}
+.dlg-b{padding:18px 20px;overflow:auto;flex:1;min-height:0}
+.dlg-f{padding:12px 20px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--phead)}
+.toast{display:flex;align-items:center;gap:10px;max-width:520px;padding:12px 16px;border-radius:var(--radius);background:var(--fg);color:var(--bg);font-size:14px;font-weight:700;box-shadow:var(--shadow)}
+.selx{height:36px;border-radius:var(--radius);border:1px solid var(--line2);background:var(--inset);color:var(--fg);font-size:14px;padding:0 8px;min-width:0}
+.inp{height:36px;border-radius:var(--radius);border:1px solid var(--line2);background:var(--inset);color:var(--fg);font-size:14px;padding:0 12px;min-width:0}
+.inp::placeholder{color:var(--muted)}
+.fl{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);font-weight:700}
+</style>
+</head>
+<body>
+<div id="dc-root"></div>
+<template id="dc-template">
+<div class="app {{ themeClass }} {{ fontClass }} {{ palClass }}" style="height: 100vh; min-height: 640px; display: flex; flex-direction: column; background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 15px; line-height: 1.5; overflow: hidden; position: relative">
+
+  <!-- ============ REVIEW STRIP (검토 도구 · 게임 UI 아님) ============ -->
+  <sc-if value="{{ showReview }}" hint-placeholder-val="{{ true }}">
+  <div style="display: flex; align-items: center; gap: 14px; padding: 6px 16px; background: #0B0D10; color: #E6E8EB; font-size: 13px; flex-wrap: wrap; border-bottom: 1px solid #2A2F36; flex: none; font-family: 'Noto Sans KR', sans-serif">
+    <strong style="font-weight: 700">디자인 검토</strong>
+    <div style="display: flex; align-items: center; gap: 6px" role="group" aria-label="스타일 전환">
+      <sc-for list="{{ themes }}" as="t" hint-placeholder-count="3">
+        <button class="rv-btn {{ t.cls }}" aria-pressed="{{ t.pressed }}" onClick="{{ t.pick }}"><span class="rv-sw" style="background: {{ t.sw1 }}"></span><span class="rv-sw" style="background: {{ t.sw2 }}"></span>{{ t.label }}</button>
+      </sc-for>
+    </div>
+    <label style="display: flex; align-items: center; gap: 6px; color: #A9B0B8">C 색감
+      <select class="rv-sel" value="{{ pal }}" onChange="{{ onPal }}">
+        <option value="C1">C1 Teal</option>
+        <option value="C2">C2 Brass</option>
+        <option value="C3">C3 Steel Blue</option>
+        <option value="C4">C4 Silver</option>
+        <option value="C5">C5 Ember</option>
+      </select>
+    </label>
+    <label style="display: flex; align-items: center; gap: 6px; color: #A9B0B8">글꼴
+      <select class="rv-sel" value="{{ font }}" onChange="{{ onFont }}">
+        <option value="F0">테마 기본</option>
+        <option value="F1">F1 Noto Sans · Serif KR</option>
+        <option value="F2">F2 IBM Plex KR · Mono</option>
+        <option value="F3">F3 Gothic A1 · Hahmlet</option>
+        <option value="F4">F4 나눔고딕 · 나눔명조</option>
+        <option value="F5">F5 고운돋움 · 고운바탕</option>
+        <option value="F6">F6 Noto Sans KR · JetBrains Mono</option>
+        <option value="F7">F7 IBM Plex KR · Barlow 숫자</option>
+        <option value="F8">F8 Orbit 제목 · IBM Plex KR</option>
+        <option value="F9">F9 Gothic A1 · Rajdhani 숫자</option>
+      </select>
+    </label>
+    <label style="display: flex; align-items: center; gap: 6px; color: #A9B0B8">UI 상태
+      <select class="rv-sel" value="{{ uiState }}" onChange="{{ onUiState }}">
+        <option value="normal">기본</option>
+        <option value="loading">로딩</option>
+        <option value="empty">빈 상태</option>
+        <option value="error">오류</option>
+      </select>
+    </label>
+    <label style="display: flex; align-items: center; gap: 6px; color: #A9B0B8">계속 버튼
+      <select class="rv-sel" value="{{ contMode }}" onChange="{{ onContMode }}">
+        <option value="fixture">결정 2건</option>
+        <option value="clear">결정 없음</option>
+      </select>
+    </label>
+    <span style="margin-left: auto; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; color: #F2C27A; border: 1px dashed #F2C27A; padding: 2px 8px; border-radius: 3px">MOCK · 엔진 미연결</span>
+  </div>
+  </sc-if>
+
+  <!-- ============ GLOBAL TOP BAR ============ -->
+  <header class="top">
+    <div style="display: flex; gap: 4px; flex: none">
+      <button class="tbtn" aria-label="뒤로" disabled="{{ noBack }}" onClick="{{ back }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></button>
+      <button class="tbtn" aria-label="앞으로" disabled="{{ noFwd }}" onClick="{{ fwd }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button>
+    </div>
+    <button class="brand" onClick="{{ goHome }}" aria-label="THE FIRM · 업무실로">
+      <span class="mark" aria-hidden="true"></span>
+      <span style="display: flex; flex-direction: column; line-height: 1.15; text-align: left">
+        <span class="wordmark">THE FIRM</span>
+        <span style="font-size: 11px; color: var(--top-muted); font-weight: 600">시연 로펌 · MOCK</span>
+      </span>
+    </button>
+    <nav class="gnav" aria-label="전역 메뉴">
+      <sc-for list="{{ menus }}" as="m" hint-placeholder-count="7">
+        <div class="navgrp {{ m.cls }}" onKeyDown="{{ m.onKey }}">
+          <button class="navbtn" aria-current="{{ m.current }}" onClick="{{ m.go }}">{{ m.label }}</button>
+          <button class="navchev" aria-expanded="{{ m.expanded }}" aria-label="{{ m.chevLabel }}" onClick="{{ m.toggle }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>
+          <sc-if value="{{ m.open }}" hint-placeholder-val="{{ false }}">
+            <div class="dd" aria-label="{{ m.chevLabel }}">
+              <sc-for list="{{ m.items }}" as="it" hint-placeholder-count="3">
+                <button class="{{ it.cls }}" onClick="{{ it.go }}"><span>{{ it.label }}</span><svg class="i" style="width: 14px; height: 14px" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </nav>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 6px; flex: none">
+      <button class="tbtn" aria-label="검색" onClick="{{ onSearch }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14 M16.5 16.5L21 21"></path></svg></button>
+      <button class="tbtn" aria-label="{{ msgLabel }}" onClick="{{ goInbox }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 6h17v12h-17z M4 7l8 6 8-6"></path></svg><sc-if value="{{ hasUnread }}" hint-placeholder-val="{{ true }}"><span class="badge">{{ unread }}</span></sc-if></button>
+      <button class="tbtn" aria-label="설정" onClick="{{ onSettings }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9 M17 7h3 M15 5v4 M4 17h3 M11 17h9 M9 15v4"></path></svg></button>
+    </div>
+    <div class="datebox">
+      <span class="num" style="font-weight: 800; font-size: 15px">06.12 (금) 2026</span>
+      <span style="font-size: 12px; color: var(--top-muted)">다음 기일 D-6</span>
+    </div>
+    <button class="cont {{ contCls }}" onClick="{{ onCont }}" aria-label="{{ contAria }}">
+      <span style="display: flex; flex-direction: column; line-height: 1.2">
+        <span style="font-size: 16px; font-weight: 800">{{ contLabel }}</span>
+        <span style="font-size: 12px; font-weight: 700; opacity: .85">{{ contSub }}</span>
+      </span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6l6 6-6 6 M12 6l6 6-6 6"></path></svg>
+    </button>
+  </header>
+  <sc-if value="{{ ddOpen }}" hint-placeholder-val="{{ false }}"><button class="ddback" aria-label="메뉴 닫기" onClick="{{ closeDD }}"></button></sc-if>
+
+  <!-- ============ SUB BAR ============ -->
+  <div class="sub">
+    <span class="ctx">{{ ctxLabel }}<sc-if value="{{ hasCtxSub }}" hint-placeholder-val="{{ false }}"><span class="muted">› {{ ctxSub }}</span></sc-if></span>
+    <sc-for list="{{ subtabs }}" as="t" hint-placeholder-count="3">
+      <button class="subtab {{ t.cls }}" aria-current="{{ t.current }}" onClick="{{ t.go }}">{{ t.label }}</button>
+    </sc-for>
+    <div style="margin-left: auto; display: flex; gap: 6px; padding-left: 16px">
+      <sc-for list="{{ shortcuts }}" as="k" hint-placeholder-count="4">
+        <button class="sc" onClick="{{ k.go }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="{{ k.ip }}"></path></svg>{{ k.label }}<sc-if value="{{ k.hasCount }}" hint-placeholder-val="{{ false }}"><span class="cnt {{ k.cntCls }}">{{ k.count }}</span></sc-if></button>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- ============ BODY ============ -->
+  <div class="ground" style="flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative">
+
+    <!-- ================= D01 · 업무실 개요 (portal) ================= -->
+    <sc-if value="{{ isD01 }}" hint-placeholder-val="{{ true }}">
+      <div ref="{{ mainRef }}" onScroll="{{ onMainScroll }}" style="flex: 1; min-height: 0; overflow: auto">
+        <div class="d01">
+          <!-- left : messages -->
+          <section class="panel col" style="gap: 0; overflow: hidden" aria-label="메시지">
+            <div class="phd">
+              <button class="ttl" onClick="{{ goInbox }}">메시지</button>
+              <span class="muted num" style="margin-left: auto; font-size: 13px">{{ unread }} 새 메시지</span>
+            </div>
+            <div style="display: flex; gap: 6px; padding: 10px 12px; border-bottom: 1px solid var(--line)" role="group" aria-label="메시지 필터">
+              <sc-for list="{{ d01Tabs }}" as="f" hint-placeholder-count="3">
+                <button class="ftab {{ f.cls }}" aria-pressed="{{ f.pressed }}" onClick="{{ f.pick }}">{{ f.label }}<span class="num">{{ f.count }}</span></button>
+              </sc-for>
+            </div>
+            <div style="flex: 1; min-height: 0; overflow: auto">
+              <sc-if value="{{ stLoading }}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; flex-direction: column; gap: 14px; padding: 16px" aria-busy="true" aria-label="메시지 불러오는 중"><div class="skel" style="width: 40%"></div><div class="skel" style="width: 85%"></div><div class="skel" style="width: 35%"></div><div class="skel" style="width: 75%"></div><div class="skel" style="width: 45%"></div></div>
+              </sc-if>
+              <sc-if value="{{ stEmpty }}" hint-placeholder-val="{{ false }}"><div class="empty">새 메시지 없음</div></sc-if>
+              <sc-if value="{{ stError }}" hint-placeholder-val="{{ false }}"><div class="errbox" role="alert"><div style="display: flex; flex-direction: column; gap: 8px"><strong>불러오지 못했습니다</strong><button class="btn sm" style="align-self: flex-start" onClick="{{ resetUi }}">다시 시도</button></div></div></sc-if>
+              <sc-if value="{{ stNormal }}" hint-placeholder-val="{{ true }}">
+                <div>
+                  <sc-if value="{{ showDecGroup }}" hint-placeholder-val="{{ true }}">
+                    <div>
+                      <div class="grp dang">결정 필요</div>
+                      <sc-for list="{{ decList }}" as="d" hint-placeholder-count="2">
+                        <button class="li unread" onClick="{{ d.open }}">
+                          <span class="row1"><svg class="i" style="width: 14px; height: 14px; color: var(--danger)" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21.5 20h-19z M12 10v4.5 M12 17.2v.1"></path></svg>{{ d.category }}<span class="chip c-danger" style="margin-left: auto; height: 22px">필수</span></span>
+                          <span class="subj">{{ d.title }}</span>
+                        </button>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                  <sc-for list="{{ msgGroups }}" as="g" hint-placeholder-count="2">
+                    <div>
+                      <div class="grp">{{ g.label }}</div>
+                      <sc-for list="{{ g.items }}" as="n" hint-placeholder-count="2">
+                        <button class="li {{ n.cls }}" onClick="{{ n.open }}">
+                          <span class="row1"><sc-if value="{{ n.unread }}" hint-placeholder-val="{{ true }}"><span class="dot" aria-label="읽지 않음"></span></sc-if>{{ n.sender }}<span class="chip {{ n.chip.cls }}" style="margin-left: auto; height: 22px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="{{ n.chip.ip }}"></path></svg>{{ n.chip.label }}</span></span>
+                          <span style="display: flex; gap: 8px; align-items: baseline"><span class="subj" style="flex: 1">{{ n.subject }}</span><span class="num muted" style="font-size: 12px">{{ n.time }}</span></span>
+                        </button>
+                      </sc-for>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ msgFilterEmpty }}" hint-placeholder-val="{{ false }}"><div class="empty">해당 메시지 없음</div></sc-if>
+                </div>
+              </sc-if>
+            </div>
+          </section>
+
+          <!-- center -->
+          <div class="col">
+            <div class="c2">
+              <sc-for list="{{ decList }}" as="d" hint-placeholder-count="2">
+                <button class="deccard" onClick="{{ d.open }}">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21.5 20h-19z M12 10v4.5 M12 17.2v.1"></path></svg>
+                  <span style="display: flex; flex-direction: column; min-width: 0; flex: 1">
+                    <span style="font-size: 12px; font-weight: 800; color: var(--danger)">결정 필요 · {{ d.category }}</span>
+                    <span style="font-size: 15px; font-weight: 800">{{ d.title }}</span>
+                  </span>
+                  <svg class="i" style="color: var(--fg); width: 18px; height: 18px" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+                </button>
+              </sc-for>
+            </div>
+            <div class="c2">
+              <!-- featured news -->
+              <section class="panel" aria-label="주요 소식">
+                <div class="phd"><button class="ttl" onClick="{{ goInbox }}">주요 소식</button></div>
+                <button style="display: flex; flex-direction: column; background: none; border: 0; padding: 0; color: var(--fg); text-align: left; cursor: pointer" onClick="{{ feat.open }}">
+                  <span class="emblem" aria-hidden="true"><span class="glyph">{{ feat.glyph }}</span><span class="eid">{{ feat.entity }}</span><span class="chip {{ feat.chip.cls }}"><svg viewBox="0 0 24 24"><path d="{{ feat.chip.ip }}"></path></svg>{{ feat.chip.label }}</span></span>
+                  <span style="padding: 14px 16px 12px; display: flex; flex-direction: column; gap: 6px">
+                    <span class="disp" style="font-size: 19px; font-weight: 700; line-height: 1.3">{{ feat.subject }}</span>
+                    <span class="muted" style="font-size: 13px; display: flex; gap: 10px; align-items: center"><span class="num">{{ feat.time }}</span><span>{{ feat.sender }}</span><svg class="i" style="margin-left: auto; width: 16px; height: 16px; color: var(--fg)" viewBox="0 0 24 24"><path d="M5 12h14 M13 6l6 6-6 6"></path></svg></span>
+                  </span>
+                </button>
+                <sc-for list="{{ newsSmall }}" as="n" hint-placeholder-count="2">
+                  <button class="newsrow" onClick="{{ n.open }}">
+                    <span class="thumb" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="{{ n.ip }}"></path></svg></span>
+                    <span style="display: flex; flex-direction: column; min-width: 0; flex: 1"><span style="font-weight: 700; line-height: 1.3">{{ n.subject }}</span><span class="muted" style="font-size: 13px">{{ n.meta }}</span></span>
+                  </button>
+                </sc-for>
+              </section>
+
+              <!-- cases -->
+              <section class="panel" aria-label="진행 사건">
+                <div class="phd"><button class="ttl" onClick="{{ goCaseList }}">진행 사건</button><span class="muted num" style="margin-left: auto; font-size: 13px">{{ caseCount }}</span></div>
+                <div role="table" aria-label="진행 사건">
+                  <div class="thead g-case" role="row"><div role="columnheader">사건</div><div role="columnheader">단계</div><div role="columnheader">기일</div></div>
+                  <sc-for list="{{ caseRows }}" as="c" hint-placeholder-count="3">
+                    <div class="trow g-case" role="row" style="min-height: 62px">
+                      <div role="cell" style="flex-direction: column; align-items: flex-start; gap: 0; justify-content: center">
+                        <span style="display: flex; align-items: center; gap: 6px"><button class="lnk" onClick="{{ c.go }}">{{ c.name }}</button><sc-if value="{{ c.pending }}" hint-placeholder-val="{{ false }}"><button class="chip c-danger" style="height: 20px; padding: 0 5px; cursor: pointer" aria-label="결정 필요" onClick="{{ c.openDec }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21.5 20h-19z M12 10v4.5 M12 17.2v.1"></path></svg></button></sc-if></span>
+                        <span class="muted" style="font-size: 13px">{{ c.assigneeText }}</span>
+                      </div>
+                      <div role="cell"><span class="chip {{ c.chip.cls }}" style="height: 24px; padding: 0 7px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="{{ c.chip.ip }}"></path></svg>{{ c.chip.label }}</span></div>
+                      <div role="cell" style="flex-direction: column; align-items: flex-start; gap: 0; justify-content: center"><span class="num" style="font-weight: 700">{{ c.nextShort }}</span><span class="num muted" style="font-size: 12px">{{ c.dday }}</span></div>
+                    </div>
+                  </sc-for>
+                </div>
+              </section>
+            </div>
+          </div>
+
+          <!-- right -->
+          <div class="col">
+            <section class="panel" aria-label="다음 기일">
+              <div class="phd"><span class="ttl static">다음 기일</span><span class="chip c-accent" style="margin-left: auto"><span class="num">{{ nextCourt.dday }}</span></span></div>
+              <div style="display: flex; gap: 14px; align-items: center; padding: 14px">
+                <span class="crest" aria-hidden="true">{{ nextCourt.glyph }}</span>
+                <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+                  <button class="lnk disp" style="font-size: 18px" onClick="{{ nextCourt.go }}">{{ nextCourt.name }}</button>
+                  <span class="num" style="font-weight: 700">{{ nextCourt.date }}</span>
+                  <span class="muted" style="font-size: 13px">{{ nextCourt.stage }} · 담당 {{ nextCourt.assignee }}</span>
+                </div>
+              </div>
+            </section>
+            <section class="panel" aria-label="일정">
+              <div class="phd"><span class="ttl static">일정</span></div>
+              <div class="week" aria-hidden="true">
+                <sc-for list="{{ week }}" as="w" hint-placeholder-count="9">
+                  <div class="day {{ w.cls }}"><span>{{ w.dow }}</span><b>{{ w.d }}</b><span class="mk"></span></div>
+                </sc-for>
+              </div>
+              <sc-for list="{{ upcoming }}" as="u" hint-placeholder-count="3">
+                <button class="evrow" onClick="{{ u.go }}"><span class="num" style="min-width: 48px; color: var(--accent2); font-weight: 800">{{ u.short }}</span><span style="flex: 1">{{ u.title }}</span><span class="num muted" style="font-size: 12px">{{ u.dday }}</span></button>
+              </sc-for>
+            </section>
+            <section class="panel" aria-label="구성원">
+              <div class="phd"><button class="ttl" onClick="{{ goRoster }}">구성원</button><span class="muted" style="margin-left: auto; font-size: 12px">가용 시간</span></div>
+              <sc-for list="{{ loadRows }}" as="w" hint-placeholder-count="4">
+                <div class="srow">
+                  <span class="av" aria-hidden="true">{{ w.ini }}</span>
+                  <span style="display: flex; flex-direction: column; min-width: 0; flex: 1"><button class="lnk" onClick="{{ w.goDetail }}">{{ w.name }}</button><span class="muted" style="font-size: 12px">{{ w.role }} · {{ w.status }}</span></span>
+                  <span class="pill {{ w.pillCls }}">{{ w.hours }}</span>
+                  <button class="btn ghost iconbtn" aria-label="{{ w.infoLabel }}" onClick="{{ w.goInfo }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0 M12 11v5.5 M12 7.6v.1"></path></svg></button>
+                </div>
+              </sc-for>
+            </section>
+            <section class="panel" aria-label="재무">
+              <div class="phd"><button class="ttl" onClick="{{ goFinance }}">재무</button><span class="mockt" style="margin-left: auto">가상</span></div>
+              <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 14px">
+                <sc-for list="{{ money }}" as="f" hint-placeholder-count="2">
+                  <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0"><span class="lbl">{{ f.label }}</span><span class="big" style="font-size: 20px">{{ f.value }}</span></div>
+                </sc-for>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ================= D02 · 받은편지함 ================= -->
+    <sc-if value="{{ isD02 }}" hint-placeholder-val="{{ false }}">
+      <div style="flex: 1; min-height: 0; display: flex; gap: 14px; padding: 14px">
+        <section class="panel" style="width: 380px; flex: none; min-height: 0; overflow: hidden" aria-label="받은편지함">
+          <div class="phd"><span class="ttl static">받은편지함</span></div>
+          <div style="display: flex; gap: 6px; padding: 10px 12px; border-bottom: 1px solid var(--line); flex-wrap: wrap" role="group" aria-label="분류 필터">
+            <sc-for list="{{ inboxFilters }}" as="f" hint-placeholder-count="5">
+              <button class="ftab {{ f.cls }}" aria-pressed="{{ f.pressed }}" onClick="{{ f.pick }}">{{ f.label }}<span class="num">{{ f.count }}</span></button>
+            </sc-for>
+          </div>
+          <div style="overflow: auto; flex: 1; min-height: 0">
+            <sc-if value="{{ stLoading }}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; gap: 14px; padding: 16px" aria-busy="true"><div class="skel" style="width: 40%"></div><div class="skel" style="width: 85%"></div><div class="skel" style="width: 35%"></div></div></sc-if>
+            <sc-if value="{{ stError }}" hint-placeholder-val="{{ false }}"><div class="errbox" role="alert"><div style="display: flex; flex-direction: column; gap: 8px"><strong>불러오지 못했습니다</strong><button class="btn sm" style="align-self: flex-start" onClick="{{ resetUi }}">다시 시도</button></div></div></sc-if>
+            <sc-if value="{{ inboxEmpty }}" hint-placeholder-val="{{ false }}"><div class="empty">메시지 없음</div></sc-if>
+            <sc-if value="{{ stNormal }}" hint-placeholder-val="{{ true }}">
+              <div>
+                <sc-for list="{{ inboxList }}" as="n" hint-placeholder-count="4">
+                  <button class="li {{ n.cls }}" aria-current="{{ n.current }}" onClick="{{ n.select }}">
+                    <span class="row1"><sc-if value="{{ n.unread }}" hint-placeholder-val="{{ true }}"><span class="dot" aria-label="읽지 않음"></span></sc-if>{{ n.sender }}<span class="chip {{ n.chip.cls }}" style="margin-left: auto; height: 22px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="{{ n.chip.ip }}"></path></svg>{{ n.chip.label }}</span></span>
+                    <span style="display: flex; gap: 8px; align-items: baseline"><span class="subj" style="flex: 1">{{ n.subject }}</span><span class="num muted" style="font-size: 12px">{{ n.time }}</span></span>
+                  </button>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </section>
+
+        <section class="panel" style="flex: 1; min-height: 0; overflow: hidden" aria-labelledby="d02-subj">
+          <div class="phd" style="padding: 12px 20px; gap: 14px">
+            <span class="av" aria-hidden="true">{{ msg.ini }}</span>
+            <div style="display: flex; flex-direction: column; min-width: 0">
+              <span class="muted" style="font-size: 13px"><sc-if value="{{ msg.senderIsStaff }}" hint-placeholder-val="{{ false }}"><button class="lnk" style="font-size: 13px" onClick="{{ msg.goSender }}">{{ msg.sender }}</button></sc-if><sc-if value="{{ msg.senderNotStaff }}" hint-placeholder-val="{{ true }}">{{ msg.sender }}</sc-if></span>
+              <h2 id="d02-subj" class="disp" style="margin: 0; font-size: 20px">{{ msg.subject }}</h2>
+            </div>
+            <div style="margin-left: auto; display: flex; align-items: center; gap: 10px">
+              <span class="chip {{ msg.chip.cls }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="{{ msg.chip.ip }}"></path></svg>{{ msg.chip.label }}</span>
+              <span class="num muted" style="font-size: 13px">{{ msg.when }}</span>
+            </div>
+          </div>
+          <div style="flex: 1; min-height: 0; overflow: auto; padding: 20px; display: flex; flex-direction: column; gap: 18px; max-width: 900px">
+            <p class="muted" style="margin: 0">본문 없음 · 엔진 연결 후 표시</p>
+            <sc-if value="{{ msg.isCase }}" hint-placeholder-val="{{ true }}">
+              <div class="panel" style="flex-direction: row; align-items: center; gap: 16px; padding: 14px 16px; flex-wrap: wrap; background: var(--phead)">
+                <span class="crest" style="width: 48px; height: 48px; font-size: 22px" aria-hidden="true">{{ msg.glyph }}</span>
+                <div style="display: flex; flex-direction: column"><button class="lnk disp" style="font-size: 17px" onClick="{{ msg.goCase }}">{{ msg.caseName }}</button><span class="muted" style="font-size: 13px"><span class="num">{{ msg.caseNo }}</span> · 담당 {{ msg.caseAsg }} · 기일 <span class="num">{{ msg.caseNext }}</span></span></div>
+                <span class="chip {{ msg.caseChip.cls }}" style="margin-left: auto"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="{{ msg.caseChip.ip }}"></path></svg>{{ msg.caseChip.label }}</span>
+              </div>
+            </sc-if>
+            <sc-if value="{{ msg.isOther }}" hint-placeholder-val="{{ false }}">
+              <div class="panel" style="padding: 14px 16px; background: var(--phead); font-weight: 700">{{ msg.entityText }}</div>
+            </sc-if>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap">
+              <button class="btn primary" onClick="{{ msg.act }}">{{ msg.action }}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14 M13 6l6 6-6 6"></path></svg></button>
+            </div>
+          </div>
+          <sc-if value="{{ msg.must }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 20px; border-top: 2px solid var(--danger); background: var(--danger-soft); flex-wrap: wrap">
+              <svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--danger)"><path d="M12 3.5 21.5 20h-19z M12 10v4.5 M12 17.2v.1"></path></svg>
+              <strong style="color: var(--danger); font-size: 16px">필수 응답</strong>
+              <span class="muted" style="font-size: 13px">닫아도 미처리로 남습니다</span>
+              <button class="btn primary" style="margin-left: auto" onClick="{{ msg.openDec }}">판단 요청 열기</button>
+            </div>
+          </sc-if>
+        </section>
+      </div>
+    </sc-if>
+
+    <!-- ================= P01 · 구성원 명부 ================= -->
+    <sc-if value="{{ isP01 }}" hint-placeholder-val="{{ false }}">
+      <div style="flex: 1; min-height: 0; display: flex; flex-direction: column">
+        <div class="objband">
+          <span class="crest" aria-hidden="true">TF</span>
+          <div style="display: flex; flex-direction: column">
+            <span class="h1" style="font-size: 22px">THE FIRM · 시연 로펌</span>
+            <span class="muted" style="font-size: 13px">구성원 명부</span>
+          </div>
+          <div style="display: flex; margin-left: auto; flex-wrap: wrap; row-gap: 8px">
+            <sc-for list="{{ firmMeta }}" as="m" hint-placeholder-count="4">
+              <div class="meta"><span class="lbl">{{ m.label }}</span><span class="v num">{{ m.value }}</span></div>
+            </sc-for>
+          </div>
+        </div>
+        <div class="tiles">
+          <sc-for list="{{ p01Tiles }}" as="t" hint-placeholder-count="4">
+            <button class="tile {{ t.cls }}" onClick="{{ t.go }}"><span class="lbl">{{ t.label }}</span><span class="v">{{ t.value }}</span><span class="muted" style="font-size: 13px">{{ t.sub }}</span></button>
+          </sc-for>
+        </div>
+        <div style="flex: 1; min-height: 0; display: flex; gap: 14px; padding: 14px 20px 16px; position: relative">
+          <section class="panel" style="flex: 1; min-height: 0; overflow: hidden" aria-label="구성원 명부">
+            <div class="phd" style="gap: 12px; padding: 8px 14px">
+              <span class="ttl static">구성원</span>
+              <span class="muted num" style="font-size: 13px">{{ rosterCountText }}</span>
+              <label class="fl"><span class="sr">검색</span><input class="inp" type="search" placeholder="검색" value="{{ q }}" onChange="{{ onQ }}" style="width: 170px"></label>
+              <label class="fl"><span>상태</span>
+                <select class="selx" value="{{ fStatus }}" onChange="{{ onFStatus }}">
+                  <option value="all">전체</option>
+                  <option value="업무 중">업무 중</option>
+                  <option value="배정 충돌">배정 충돌</option>
+                  <option value="여유">여유</option>
+                </select>
+              </label>
+              <label class="fl"><span>역할</span>
+                <select class="selx" value="{{ fRole }}" onChange="{{ onFRole }}">
+                  <option value="all">전체</option>
+                  <option value="대표 변호사">대표 변호사</option>
+                  <option value="변호사">변호사</option>
+                  <option value="사무직원">사무직원</option>
+                </select>
+              </label>
+              <button class="btn sm ghost" disabled="{{ viewDefault }}" onClick="{{ resetView }}">초기화</button>
+              <div style="margin-left: auto; display: flex; gap: 6px">
+                <button class="btn sm" onClick="{{ goHire }}">채용</button>
+                <button class="btn sm" onClick="{{ goDeleg }}">위임</button>
+                <button class="btn sm" onClick="{{ togglePanel }}" aria-pressed="{{ pPanelPressed }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z M15 5v14"></path></svg>정보</button>
+              </div>
+            </div>
+            <div style="flex: 1; min-height: 0; overflow: auto" ref="{{ mainRef }}" onScroll="{{ onMainScroll }}">
+              <div role="table" aria-label="구성원 명부" style="min-width: 960px">
+                <div class="thead g-p01" role="row">
+                  <div role="columnheader"><span class="sr">선택</span></div>
+                  <div role="columnheader">역할</div>
+                  <sc-for list="{{ cols }}" as="c" hint-placeholder-count="7">
+                    <div role="columnheader" aria-sort="{{ c.ariaSort }}">
+                      <sc-if value="{{ c.sortable }}" hint-placeholder-val="{{ true }}"><button class="sortbtn {{ c.cls }}" onClick="{{ c.sort }}">{{ c.label }}<span aria-hidden="true">{{ c.arrow }}</span></button></sc-if>
+                      <sc-if value="{{ c.fixed }}" hint-placeholder-val="{{ false }}"><span>{{ c.label }}</span></sc-if>
+                    </div>
+                  </sc-for>
+                  <div role="columnheader"><span class="sr">정보</span></div>
+                </div>
+                <sc-if value="{{ stLoading }}" hint-placeholder-val="{{ false }}">
+                  <div aria-busy="true" aria-label="불러오는 중">
+                    <sc-for list="{{ skelRows }}" as="k" hint-placeholder-count="4">
+                      <div class="trow g-p01"><div></div><div><div class="skel" style="width: 100%"></div></div><div><div class="skel" style="width: 70%"></div></div><div><div class="skel" style="width: 100%"></div></div><div><div class="skel" style="width: 80%"></div></div><div><div class="skel" style="width: 50%"></div></div><div><div class="skel" style="width: 100%"></div></div><div><div class="skel" style="width: 50%"></div></div><div><div class="skel" style="width: 100%"></div></div><div></div></div>
+                    </sc-for>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ stError }}" hint-placeholder-val="{{ false }}"><div class="errbox" role="alert"><div style="display: flex; flex-direction: column; gap: 8px"><strong>불러오지 못했습니다</strong><button class="btn sm" style="align-self: flex-start" onClick="{{ resetUi }}">다시 시도</button></div></div></sc-if>
+                <sc-if value="{{ rosterEmpty }}" hint-placeholder-val="{{ false }}"><div class="empty">조건에 맞는 구성원 없음<button class="btn sm" onClick="{{ resetView }}">필터 초기화</button></div></sc-if>
+                <sc-if value="{{ rosterShow }}" hint-placeholder-val="{{ true }}">
+                  <div>
+                    <sc-for list="{{ rows }}" as="r" hint-placeholder-count="4">
+                      <div class="trow click g-p01 {{ r.selCls }}" role="row" aria-selected="{{ r.pressed }}" onClick="{{ r.onRow }}">
+                        <div role="cell" style="justify-content: center"><button class="selbtn {{ r.selBtnCls }}" aria-pressed="{{ r.pressed }}" aria-label="{{ r.selLabel }}" onClick="{{ r.onRow }}"><span></span></button></div>
+                        <div role="cell"><span class="rb {{ r.rbCls }}">{{ r.rb }}</span></div>
+                        <div role="cell"><span class="av" aria-hidden="true">{{ r.ini }}</span><button class="lnk" onClick="{{ r.onName }}">{{ r.name }}</button></div>
+                        <div role="cell">{{ r.practice }}</div>
+                        <div role="cell"><span class="chip {{ r.chip.cls }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="{{ r.chip.ip }}"></path></svg>{{ r.chip.label }}</span></div>
+                        <div role="cell" class="num" style="font-weight: 700">{{ r.active }}</div>
+                        <div role="cell">{{ r.lead }}</div>
+                        <div role="cell"><span class="pill {{ r.pillCls }}">{{ r.hours }}</span></div>
+                        <div role="cell" class="num muted">{{ r.next }}</div>
+                        <div role="cell" style="padding: 4px"><button class="btn ghost iconbtn" aria-label="{{ r.infoLabel }}" onClick="{{ r.onInfo }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0 M12 11v5.5 M12 7.6v.1"></path></svg></button></div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+          </section>
+
+          <sc-if value="{{ pPanelOpen }}" hint-placeholder-val="{{ true }}">
+            <aside class="panel side" style="width: 320px" aria-label="빠른 정보">
+              <div class="phd"><span class="ttl static">빠른 정보</span><button class="btn ghost iconbtn" style="margin-left: auto" aria-label="빠른 정보 닫기" onClick="{{ togglePanel }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></div>
+              <sc-if value="{{ qp.none }}" hint-placeholder-val="{{ false }}"><div class="empty">구성원을 선택하세요</div></sc-if>
+              <sc-if value="{{ qp.has }}" hint-placeholder-val="{{ true }}">
+                <div style="display: flex; flex-direction: column; gap: 16px; padding: 18px 16px">
+                  <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center">
+                    <span class="av lg" aria-hidden="true">{{ qp.ini }}</span>
+                    <span class="disp" style="font-size: 22px; font-weight: 700">{{ qp.name }}</span>
+                    <span style="display: flex; gap: 6px; align-items: center"><span class="rb {{ qp.rbCls }}">{{ qp.rb }}</span><span class="muted">{{ qp.practice }}</span></span>
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+                    <div class="tile" style="cursor: default; align-items: center; padding: 10px 6px"><span class="lbl">가용</span><span class="pill {{ qp.pillCls }}">{{ qp.hours }}</span></div>
+                    <div class="tile" style="cursor: default; align-items: center; padding: 10px 6px"><span class="lbl">사건</span><span class="v num">{{ qp.active }}</span></div>
+                    <div class="tile" style="cursor: default; align-items: center; padding: 10px 6px"><span class="lbl">상태</span><span class="chip {{ qp.chip.cls }}" style="height: 24px; padding: 0 6px">{{ qp.chip.label }}</span></div>
+                  </div>
+                  <sc-if value="{{ qp.conflict }}" hint-placeholder-val="{{ false }}">
+                    <button class="alert danger" onClick="{{ qp.openDec }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21.5 20h-19z M12 10v4.5 M12 17.2v.1"></path></svg><span><strong>배정 충돌</strong> · 판단 요청 열기</span></button>
+                  </sc-if>
+                  <dl class="kv"><dt>다음 일정</dt><dd class="num">{{ qp.next }}</dd></dl>
+                  <div class="sect">
+                    <span class="lbl">주 담당 사건</span>
+                    <sc-if value="{{ qp.noCases }}" hint-placeholder-val="{{ false }}"><span class="muted">없음</span></sc-if>
+                    <sc-for list="{{ qp.cases }}" as="c" hint-placeholder-count="1">
+                      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap"><button class="lnk" onClick="{{ c.go }}">{{ c.name }}</button><span class="chip {{ c.chip.cls }}" style="height: 22px">{{ c.chip.label }}</span></div>
+                    </sc-for>
+                  </div>
+                  <div class="sect">
+                    <span class="lbl">담당 쟁점</span>
+                    <sc-if value="{{ qp.noIssues }}" hint-placeholder-val="{{ false }}"><span class="muted">없음</span></sc-if>
+                    <sc-for list="{{ qp.issues }}" as="i" hint-placeholder-count="1"><button class="lnk" style="font-weight: 600" onClick="{{ i.go }}">{{ i.title }}</button></sc-for>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 8px">
+                    <button class="btn primary" onClick="{{ qp.goDetail }}">인물 상세</button>
+                    <button class="btn" onClick="{{ goAssign }}">업무 배정</button>
+                  </div>
+                </div>
+              </sc-if>
+            </aside>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ================= P02 · 인물 상세 ================= -->
+    <sc-if value="{{ isP02 }}" hint-placeholder-val="{{ false }}">
+      <div ref="{{ mainRef }}" onScroll="{{ onMainScroll }}" style="flex: 1; min-height: 0; overflow: auto">
+        <div class="objband">
+          <span class="av lg" aria-hidden="true">{{ p2.ini }}</span>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <span class="h1">{{ p2.name }}</span>
+            <span style="display: flex; gap: 8px; align-items: center"><span class="rb {{ p2.rbCls }}">{{ p2.rb }}</span><span class="muted">{{ p2.role }} · {{ p2.practice }}</span></span>
+          </div>
+          <div style="display: flex; margin-left: auto; flex-wrap: wrap; row-gap: 8px">
+            <div class="meta"><span class="lbl">상태</span><span class="chip {{ p2.chip.cls }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="{{ p2.chip.ip }}"></path></svg>{{ p2.chip.label }}</span></div>
+            <div class="meta"><span class="lbl">가용 시간</span><span class="pill {{ p2.pillCls }}">{{ p2.hours }}</span></div>
+            <div class="meta"><span class="lbl">진행 사건</span><span class="v num">{{ p2.active }}</span></div>
+            <div class="meta"><span class="lbl">다음 일정</span><span class="v num">{{ p2.next }}</span></div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 2px; padding: 0 20px; border-bottom: 1px solid var(--line); background: var(--top2)" role="group" aria-label="인물 상세 탭">
+          <sc-for list="{{ p2Tabs }}" as="t" hint-placeholder-count="4"><button class="subtab {{ t.cls }}" aria-pressed="{{ t.pressed }}" onClick="{{ t.pick }}">{{ t.label }}</button></sc-for>
+        </div>
+        <div style="padding: 16px 20px 40px; display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-start; max-width: 1400px">
+          <sc-if value="{{ p2.tabOverview }}" hint-placeholder-val="{{ true }}">
+            <section class="panel" style="flex: 1 1 420px">
+              <div class="phd"><span class="ttl static">주 담당 사건</span></div>
+              <div style="padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+                <sc-if value="{{ p2.noCases }}" hint-placeholder-val="{{ false }}"><span class="muted">없음</span></sc-if>
+                <sc-for list="{{ p2.cases }}" as="c" hint-placeholder-count="1">
+                  <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap"><button class="lnk" onClick="{{ c.go }}">{{ c.name }}</button><span class="chip {{ c.chip.cls }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="{{ c.chip.ip }}"></path></svg>{{ c.chip.label }}</span><span class="muted num" style="font-size: 14px">{{ c.next }}</span></div>
+                </sc-for>
+              </div>
+            </section>
+            <section class="panel" style="flex: 1 1 320px">
+              <div class="phd"><span class="ttl static">담당 쟁점</span></div>
+              <div style="padding: 14px 16px; display: flex; flex-direction: column; gap: 8px">
+                <sc-if value="{{ p2.noIssues }}" hint-placeholder-val="{{ false }}"><span class="muted">없음</span></sc-if>
+                <sc-for list="{{ p2.issues }}" as="i" hint-placeholder-count="1"><button class="lnk" style="font-weight: 600" onClick="{{ i.go }}">{{ i.title }}</button></sc-for>
+              </div>
+            </section>
+            <section class="panel" style="flex: 1 1 260px">
+              <div class="phd"><span class="ttl static">능력 · 평가</span></div>
+              <div class="empty">엔진 연결 후 표시</div>
+            </section>
+          </sc-if>
+          <sc-if value="{{ p2.tabOther }}" hint-placeholder-val="{{ false }}">
+            <section class="panel" style="flex: 1 1 600px"><div class="empty"><span class="tag">추후 화면</span><strong style="color: var(--fg)">{{ p2.tabLabel }}</strong></div></section>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ================= CASE WORKSPACE ================= -->
+    <sc-if value="{{ isCase }}" hint-placeholder-val="{{ false }}">
+      <div style="flex: 1; min-height: 0; display: flex; flex-direction: column">
+        <div class="objband" style="padding: 12px 20px">
+          <span class="crest" aria-hidden="true">{{ cs.glyph }}</span>
+          <div style="display: flex; flex-direction: column; min-width: 0">
+            <span class="h1" style="font-size: 22px">{{ cs.name }}</span>
+            <span class="muted" style="font-size: 13px; display: flex; gap: 8px; align-items: center"><span class="num" style="font-weight: 700; color: var(--fg)">{{ cs.no }}</span><span>법원 번호 {{ cs.court }}</span><span class="mockt">{{ cs.origin }}</span></span>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; row-gap: 8px; margin-left: 8px">
+            <div class="meta"><span class="lbl">단계</span><span class="chip {{ cs.chip.cls }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="{{ cs.chip.ip }}"></path></svg>{{ cs.chip.label }}</span></div>
+            <div class="meta"><span class="lbl">담당</span><sc-if value="{{ cs.hasAsg }}" hint-placeholder-val="{{ true }}"><button class="lnk v" style="font-size: 16px" onClick="{{ cs.goAsg }}">{{ cs.assignee }}</button></sc-if><sc-if value="{{ cs.noAsg }}" hint-placeholder-val="{{ false }}"><span class="v muted">미배정</span></sc-if></div>
+            <div class="meta"><span class="lbl">다음 기일</span><span class="v num">{{ cs.next }} <span class="muted" style="font-size: 13px">{{ cs.dday }}</span></span></div>
+          </div>
+          <div style="margin-left: auto; display: flex; gap: 10px; align-items: center; flex-wrap: wrap">
+            <sc-if value="{{ cs.pending }}" hint-placeholder-val="{{ false }}"><button class="btn sm" style="color: var(--danger); border-color: var(--danger); background: var(--danger-soft)" onClick="{{ cs.openDec }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21.5 20h-19z M12 10v4.5 M12 17.2v.1"></path></svg>결정 필요</button></sc-if>
+            <label class="fl"><span class="sr">사건 전환</span>
+              <select class="selx" value="{{ cs.id }}" onChange="{{ onCaseSwitch }}">
+                <option value="CASE-DEMO-001">2026-001 정민호</option>
+                <option value="CASE-DEMO-002">2026-002 윤지훈</option>
+                <option value="CASE-DEMO-003">2026-003 고은아</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div style="display: flex; gap: 2px; padding: 0 14px; border-bottom: 1px solid var(--line); background: var(--top2); overflow-x: auto; flex: none" role="group" aria-label="사건 작업실 탭">
+          <sc-for list="{{ caseTabs }}" as="t" hint-placeholder-count="7"><button class="subtab {{ t.cls }}" style="height: 42px" aria-current="{{ t.current }}" onClick="{{ t.go }}">{{ t.label }}</button></sc-for>
+        </div>
+
+        <sc-if value="{{ caseTabPH }}" hint-placeholder-val="{{ false }}">
+          <div style="flex: 1; min-height: 0; overflow: auto; padding: 40px 24px">
+            <div class="panel" style="max-width: 560px; margin: 0 auto">
+              <div class="empty" style="padding: 36px"><span class="tag">추후 화면</span><strong class="disp" style="color: var(--fg); font-size: 20px">{{ caseTabLabel }}</strong><span style="display: flex; gap: 8px"><button class="btn" onClick="{{ back }}" disabled="{{ noBack }}">이전</button><button class="btn primary" onClick="{{ goPlanTab }}">변론 계획</button></span></div>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ planMissing }}" hint-placeholder-val="{{ false }}">
+          <div style="flex: 1; min-height: 0; overflow: auto; padding: 40px 24px">
+            <div class="panel" style="max-width: 560px; margin: 0 auto"><div class="empty" style="padding: 36px"><strong style="color: var(--fg)">변론 계획 없음</strong><button class="btn" onClick="{{ goDemoPlan }}">2026-001 정민호 계획 보기</button></div></div>
+          </div>
+        </sc-if>
+
+        <!-- ===== M06 ===== -->
+        <sc-if value="{{ planShow }}" hint-placeholder-val="{{ true }}">
+          <div style="flex: 1; min-height: 0; display: flex; flex-direction: column">
+            <div style="flex: 1; min-height: 0; display: flex; position: relative; gap: 14px; padding: 14px">
+              <!-- issues -->
+              <aside style="width: 280px; flex: none; overflow: auto; display: flex; flex-direction: column; gap: 8px" aria-label="쟁점 목록">
+                <div style="display: flex; align-items: center; gap: 8px; padding: 2px 2px 4px">
+                  <span class="ttl static">쟁점</span><span class="muted num" style="font-size: 13px">{{ plan.issueCount }}</span>
+                  <button class="chip c-warn" style="margin-left: auto; cursor: pointer" onClick="{{ openVal }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21.5 20h-19z M12 10v4.5 M12 17.2v.1"></path></svg>검증 {{ plan.valCount }}</button>
+                </div>
+                <sc-if value="{{ stLoading }}" hint-placeholder-val="{{ false }}"><div class="panel" style="padding: 16px; gap: 14px" aria-busy="true"><div class="skel" style="width: 70%"></div><div class="skel" style="width: 40%"></div><div class="skel" style="width: 80%"></div></div></sc-if>
+                <sc-if value="{{ stError }}" hint-placeholder-val="{{ false }}"><div class="errbox" role="alert" style="margin: 0"><div style="display: flex; flex-direction: column; gap: 8px"><strong>불러오지 못했습니다</strong><button class="btn sm" style="align-self: flex-start" onClick="{{ resetUi }}">다시 시도</button></div></div></sc-if>
+                <sc-if value="{{ stEmpty }}" hint-placeholder-val="{{ false }}"><div class="panel"><div class="empty">쟁점 없음</div></div></sc-if>
+                <sc-if value="{{ stNormal }}" hint-placeholder-val="{{ true }}">
+                  <div style="display: flex; flex-direction: column; gap: 8px">
+                    <sc-for list="{{ issues }}" as="i" hint-placeholder-count="3">
+                      <button class="iss {{ i.cls }}" aria-current="{{ i.current }}" onClick="{{ i.pick }}">
+                        <span style="display: flex; align-items: center; gap: 6px; width: 100%"><span class="rb {{ i.prioCls }}" style="width: auto; padding: 0 8px; height: 24px">{{ i.priority }}</span><span class="num muted" style="font-size: 12px">{{ i.id }}</span><sc-if value="{{ i.edited }}" hint-placeholder-val="{{ false }}"><span class="tag" style="border-style: dashed">수정</span></sc-if><sc-if value="{{ i.hasVal }}" hint-placeholder-val="{{ false }}"><span class="chip c-warn" style="margin-left: auto; height: 22px; padding: 0 6px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21.5 20h-19z M12 10v4.5 M12 17.2v.1"></path></svg>{{ i.valCount }}</span></sc-if></span>
+                        <span style="font-weight: 800; line-height: 1.35">{{ i.title }}</span>
+                        <span style="display: flex; align-items: center; gap: 6px"><span class="av" style="width: 24px; height: 24px; font-size: 10px" aria-hidden="true">{{ i.ini }}</span><span class="muted" style="font-size: 13px">{{ i.assigned }}</span></span>
+                      </button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </aside>
+
+              <!-- detail -->
+              <main class="panel" style="flex: 1; min-width: 0; overflow: auto">
+                <sc-if value="{{ stNormal }}" hint-placeholder-val="{{ true }}">
+                  <div>
+                    <div class="phd" style="padding: 12px 20px; gap: 14px">
+                      <div style="display: flex; flex-direction: column; min-width: 0; flex: 1">
+                        <span class="num muted" style="font-size: 12px">{{ cur.id }} · {{ plan.title }}</span>
+                        <h2 class="disp" style="margin: 0; font-size: 21px">{{ cur.title }}</h2>
+                      </div>
+                      <div class="seg" role="group" aria-label="우선순위">
+                        <sc-for list="{{ cur.prioOpts }}" as="p" hint-placeholder-count="2"><button class="{{ p.cls }}" aria-pressed="{{ p.pressed }}" onClick="{{ p.pick }}">{{ p.label }}</button></sc-for>
+                      </div>
+                      <button class="btn sm" aria-pressed="{{ inspPressed }}" onClick="{{ toggleInsp }}" aria-label="{{ inspBtnLabel }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z M15 5v14"></path></svg></button>
+                    </div>
+                    <div style="padding: 18px 20px 28px; display: flex; flex-direction: column; gap: 22px">
+                      <section class="sect">
+                        <div class="sect-h"><span class="ttl static">쟁점 목표</span><span class="tag acc">주장</span></div>
+                        <p style="margin: 0; font-size: 17px; font-weight: 500">{{ cur.objective }}</p>
+                      </section>
+                      <section class="sect">
+                        <div class="sect-h"><span class="ttl static">자료 · 출처</span><span class="tag acc">증거</span></div>
+                        <sc-if value="{{ cur.noMats }}" hint-placeholder-val="{{ false }}"><div class="panel" style="background: var(--inset)"><div class="empty" style="padding: 18px">연결된 자료 없음</div></div></sc-if>
+                        <sc-for list="{{ cur.mats }}" as="m" hint-placeholder-count="2">
+                          <div class="mat">
+                            <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; flex-wrap: wrap">
+                              <button class="btn ghost iconbtn" aria-expanded="{{ m.expanded }}" aria-label="{{ m.expLabel }}" onClick="{{ m.toggle }}"><svg class="chev {{ m.chevCls }}" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button>
+                              <span class="thumb" style="width: 38px; height: 38px" aria-hidden="true"><svg viewBox="0 0 24 24" style="width: 18px; height: 18px"><path d="M6.5 3.5h7.5l4 4v13h-11.5z M13.5 3.5v4.5h4.5"></path></svg></span>
+                              <div style="display: flex; flex-direction: column; min-width: 0; flex: 1"><span style="font-weight: 800">{{ m.title }}</span><span class="num muted" style="font-size: 12px">{{ m.id }}</span></div>
+                              <sc-if value="{{ m.changed }}" hint-placeholder-val="{{ false }}"><span class="tag" style="border-style: dashed">수정</span></sc-if>
+                              <label class="usebox {{ m.useCls }}"><input type="checkbox" checked="{{ m.use }}" disabled="{{ m.useDisabled }}" onChange="{{ m.toggleUse }}"><span>{{ m.useNote }}</span></label>
+                            </div>
+                            <div class="track" style="padding: 0 12px 12px" aria-label="{{ m.trackLabel }}">
+                              <sc-for list="{{ m.steps }}" as="st" hint-placeholder-count="5">
+                                <div class="step {{ st.cls }}"><span class="sl"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="{{ st.ip }}"></path></svg>{{ st.label }}</span><span class="sn">{{ st.note }}</span></div>
+                              </sc-for>
+                            </div>
+                            <sc-if value="{{ m.isExp }}" hint-placeholder-val="{{ false }}">
+                              <div style="border-top: 1px solid var(--line); padding: 12px 16px; background: var(--inset)">
+                                <dl class="kv"><dt>확보</dt><dd>{{ m.acqText }}</dd><dt>제출</dt><dd>{{ m.subText }}</dd><dt>접수</dt><dd>{{ m.recText }}</dd><dt>증거 허용</dt><dd>{{ m.admText }}</dd></dl>
+                              </div>
+                            </sc-if>
+                          </div>
+                        </sc-for>
+                      </section>
+                      <div class="c2">
+                        <section class="sect">
+                          <div class="sect-h"><span class="ttl static">예상 반론</span><span class="tag">추정</span></div>
+                          <p style="margin: 0">{{ cur.counter }}</p>
+                        </section>
+                        <section class="sect">
+                          <div class="sect-h"><span class="ttl static">담당 의견</span><span class="tag">추정</span></div>
+                          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+                            <span class="av" aria-hidden="true">{{ cur.ini }}</span>
+                            <button class="lnk" onClick="{{ cur.goAsg }}">{{ cur.assigned }}</button>
+                            <span class="pill {{ cur.asgPill }}">{{ cur.asgHours }}</span>
+                          </div>
+                          <span class="muted" style="font-size: 14px">의견 없음 · 검토 업무 후 생성</span>
+                        </section>
+                      </div>
+                    </div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ stNotNormal }}" hint-placeholder-val="{{ false }}"><div class="empty" style="padding: 60px 20px">—</div></sc-if>
+              </main>
+
+              <!-- inspector -->
+              <sc-if value="{{ inspOpen }}" hint-placeholder-val="{{ true }}">
+                <aside class="side" style="width: 300px; display: flex; flex-direction: column; gap: 14px" aria-label="담당·시간·권한">
+                  <section class="panel">
+                    <div class="phd"><span class="ttl static">담당 · 시간</span><button class="btn sm" style="margin-left: auto" onClick="{{ openAssign }}">배정</button></div>
+                    <sc-for list="{{ insp.people }}" as="p" hint-placeholder-count="2">
+                      <div class="srow">
+                        <span class="av" aria-hidden="true">{{ p.ini }}</span>
+                        <span style="display: flex; flex-direction: column; min-width: 0; flex: 1"><button class="lnk" onClick="{{ p.go }}">{{ p.name }}</button><span class="muted num" style="font-size: 12px">{{ p.issues }}</span></span>
+                        <span class="pill {{ p.pillCls }}">{{ p.hours }}</span>
+                      </div>
+                    </sc-for>
+                  </section>
+                  <section class="panel">
+                    <div class="phd"><span class="ttl static">권한</span><span class="muted" style="margin-left: auto; font-size: 12px">{{ plan.delegation }}</span></div>
+                    <div style="padding: 12px">
+                      <button class="alert danger" onClick="{{ openDec1 }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 11h13v9.5h-13z M8.5 11V8a3.5 3.5 0 0 1 7 0v3"></path></svg><span style="font-weight: 700">의뢰인 권한 확인 대기</span></button>
+                    </div>
+                  </section>
+                  <section class="panel">
+                    <div class="phd"><span class="ttl static">준비 부족</span><span class="muted num" style="margin-left: auto; font-size: 13px">{{ insp.warnCount }}</span></div>
+                    <div style="padding: 12px; display: flex; flex-direction: column; gap: 8px">
+                      <sc-for list="{{ insp.warns }}" as="w" hint-placeholder-count="3">
+                        <button class="alert warn" onClick="{{ w.go }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21.5 20h-19z M12 10v4.5 M12 17.2v.1"></path></svg><span><span class="num" style="font-weight: 800">{{ w.iid }}</span> {{ w.text }}</span></button>
+                      </sc-for>
+                    </div>
+                  </section>
+                </aside>
+              </sc-if>
+            </div>
+
+            <sc-if value="{{ valOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="border-top: 2px solid var(--warn); background: var(--warn-soft); padding: 10px 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; flex: none" role="region" aria-label="검증 결과">
+                <strong style="color: var(--warn); display: flex; align-items: center; gap: 6px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21.5 20h-19z M12 10v4.5 M12 17.2v.1"></path></svg>검증 문제 {{ plan.valCount }}</strong>
+                <sc-for list="{{ plan.val }}" as="v" hint-placeholder-count="2"><button class="btn sm" onClick="{{ v.go }}">{{ v.text }}</button></sc-for>
+                <button class="btn ghost iconbtn" style="margin-left: auto" aria-label="검증 결과 닫기" onClick="{{ closeVal }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+              </div>
+            </sc-if>
+
+            <div class="bbar">
+              <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap" role="group" aria-label="계획 상태">
+                <sc-for list="{{ life }}" as="l" hint-placeholder-count="4"><span class="{{ l.cls }}" aria-current="{{ l.current }}">{{ l.label }}</span></sc-for>
+              </div>
+              <span class="muted" style="font-size: 13px">{{ plan.editSummary }}</span>
+              <div style="margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap">
+                <button class="btn sm" disabled="{{ noUndo }}" onClick="{{ undo }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5 M4 9h11a5 5 0 0 1 0 10h-4"></path></svg>실행 취소</button>
+                <button class="btn sm" disabled="{{ noRedo }}" onClick="{{ redo }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 14l5-5-5-5 M20 9H9a5 5 0 0 0 0 10h4"></path></svg>다시 실행</button>
+                <button class="btn sm" disabled="{{ noEdits }}" onClick="{{ askCancel }}">되돌리기</button>
+                <button class="btn sm" onClick="{{ toggleVal }}">검증 <span class="num">{{ plan.valCount }}</span></button>
+                <button class="btn sm" onClick="{{ openPreview }}">미리보기</button>
+                <button class="btn primary" onClick="{{ openApprove }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>계획 승인</button>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- ================= PLACEHOLDER ================= -->
+    <sc-if value="{{ isPH }}" hint-placeholder-val="{{ false }}">
+      <div ref="{{ mainRef }}" onScroll="{{ onMainScroll }}" style="flex: 1; min-height: 0; overflow: auto; padding: 48px 24px">
+        <div class="panel" style="max-width: 560px; margin: 0 auto">
+          <div class="empty" style="padding: 40px 28px; gap: 12px">
+            <span style="display: flex; gap: 8px; align-items: center"><span class="tag">추후 화면</span><sc-if value="{{ ph.hasCode }}" hint-placeholder-val="{{ false }}"><span class="tag">{{ ph.code }}</span></sc-if></span>
+            <strong class="h1" style="color: var(--fg)">{{ ph.title }}</strong>
+            <span>{{ ph.desc }}</span>
+            <sc-if value="{{ ph.hasFacts }}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; gap: 24px">
+                <sc-for list="{{ ph.facts }}" as="f" hint-placeholder-count="2"><div style="display: flex; flex-direction: column"><span class="lbl">{{ f.label }}</span><span class="big" style="font-size: 20px">{{ f.value }}</span></div></sc-for>
+              </div>
+            </sc-if>
+            <span style="display: flex; gap: 8px"><button class="btn" disabled="{{ noBack }}" onClick="{{ back }}">이전</button><button class="btn primary" onClick="{{ goHome }}">업무실</button></span>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <!-- ================= MODALS ================= -->
+  <sc-if value="{{ modalOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="overlay" onClick="{{ overlayClick }}">
+      <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title" tabindex="-1" ref="{{ dlgRef }}" onKeyDown="{{ dlgKey }}" style="width: min({{ dlgW }}, 100%)">
+
+        <sc-if value="{{ mDec }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; min-height: 0; flex: 1">
+            <div class="dlg-h"><h2 id="dlg-title">판단 요청</h2><span class="chip c-danger">필수 {{ pendingCount }}</span><button class="btn ghost iconbtn" style="margin-left: auto" aria-label="닫기 (보류)" onClick="{{ closeModal }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></div>
+            <div style="display: flex; flex: 1; min-height: 0; flex-wrap: wrap">
+              <div style="flex: 1 1 260px; border-right: 1px solid var(--line); overflow: auto">
+                <sc-for list="{{ decModalList }}" as="d" hint-placeholder-count="2">
+                  <button class="li unread {{ d.cls }}" aria-current="{{ d.current }}" onClick="{{ d.pick }}"><span class="row1"><span class="num">{{ d.id }}</span><span style="margin-left: auto" class="chip c-danger">필수</span></span><span class="subj">{{ d.title }}</span><span class="muted" style="font-size: 13px">{{ d.category }}</span></button>
+                </sc-for>
+              </div>
+              <div style="flex: 2 1 380px; padding: 20px; display: flex; flex-direction: column; gap: 14px; overflow: auto">
+                <span class="lbl">{{ decCur.category }} · <span class="num">{{ decCur.id }}</span></span>
+                <strong class="disp" style="font-size: 20px">{{ decCur.title }}</strong>
+                <dl class="kv"><dt>출처</dt><dd>{{ decCur.source }}</dd><dt>상태</dt><dd>미해결</dd></dl>
+                <div class="alert info"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0 M12 11v5.5 M12 7.6v.1"></path></svg><span>선택지는 엔진이 제공 · 자동 선택 없음</span></div>
+                <button class="btn" style="align-self: flex-start" onClick="{{ decCur.goSource }}">원본 업무 보기<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14 M13 6l6 6-6 6"></path></svg></button>
+              </div>
+            </div>
+            <div class="dlg-f"><span class="note">닫기 = 보류</span><button class="btn" style="margin-left: auto" onClick="{{ closeModal }}">닫기</button><button class="btn primary" disabled="{{ true }}">결정 확정</button></div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ mPreview }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; min-height: 0; flex: 1">
+            <div class="dlg-h"><h2 id="dlg-title">변경 미리보기</h2><span class="muted num" style="font-size: 14px">{{ changeCount }}건</span><button class="btn ghost iconbtn" style="margin-left: auto" aria-label="닫기" onClick="{{ closeModal }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></div>
+            <div class="dlg-b" style="display: flex; flex-direction: column; gap: 10px">
+              <sc-if value="{{ noEdits }}" hint-placeholder-val="{{ false }}"><div class="empty">변경 없음</div></sc-if>
+              <sc-for list="{{ changes }}" as="c" hint-placeholder-count="2"><div class="panel" style="padding: 12px 14px; gap: 2px; background: var(--inset)"><strong>{{ c.text }}</strong><span class="note">{{ c.impact }}</span></div></sc-for>
+            </div>
+            <div class="dlg-f"><button class="btn" style="margin-left: auto" onClick="{{ closeModal }}">닫기</button></div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ mApprove }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; min-height: 0; flex: 1">
+            <div class="dlg-h"><h2 id="dlg-title">계획 승인</h2><span class="tag">초안 v3</span><button class="btn ghost iconbtn" style="margin-left: auto" aria-label="닫기" onClick="{{ closeModal }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></div>
+            <div class="dlg-b" style="display: flex; flex-direction: column; gap: 18px">
+              <div class="sect">
+                <div class="sect-h"><span class="rb rb-lead" style="width: 26px">1</span><strong>변경 내용과 영향</strong></div>
+                <sc-if value="{{ noEdits }}" hint-placeholder-val="{{ true }}"><span class="note">수정 없음</span></sc-if>
+                <sc-for list="{{ changes }}" as="c" hint-placeholder-count="1"><div style="display: flex; flex-direction: column; padding: 8px 0; border-bottom: 1px solid var(--line)"><strong>{{ c.text }}</strong><span class="note">{{ c.impact }}</span></div></sc-for>
+              </div>
+              <div class="sect">
+                <div class="sect-h"><span class="rb rb-lead" style="width: 26px">2</span><strong>승인 차단</strong><span class="chip c-danger">{{ blockCount }}</span></div>
+                <sc-for list="{{ blockers }}" as="b" hint-placeholder-count="3"><button class="alert danger" onClick="{{ b.go }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 11h13v9.5h-13z M8.5 11V8a3.5 3.5 0 0 1 7 0v3"></path></svg><span>{{ b.text }}</span></button></sc-for>
+              </div>
+              <div class="sect">
+                <div class="sect-h"><span class="rb rb-lead" style="width: 26px">3</span><strong>승인의 의미</strong></div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap"><span class="tag">승인 ≠ 법정 실제 발언</span><span class="tag">제출 · 허용 상태 그대로</span><span class="tag">승소 가능성 계산 없음</span></div>
+              </div>
+            </div>
+            <div class="dlg-f"><span class="note">MOCK UI</span><button class="btn" style="margin-left: auto" onClick="{{ closeModal }}">돌아가기</button><button class="btn primary" disabled="{{ approveDisabled }}" onClick="{{ doApprove }}">{{ approveLabel }}</button></div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ mCancel }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column">
+            <div class="dlg-h"><h2 id="dlg-title">초안으로 되돌리기</h2></div>
+            <div class="dlg-b" style="display: flex; flex-direction: column; gap: 6px"><p style="margin: 0">수정 {{ changeCount }}건을 버리고 초안 v3로 되돌립니다.</p><sc-for list="{{ changes }}" as="c" hint-placeholder-count="1"><span class="note">· {{ c.text }}</span></sc-for></div>
+            <div class="dlg-f"><button class="btn" style="margin-left: auto" onClick="{{ closeModal }}">계속 편집</button><button class="btn primary" onClick="{{ doCancel }}">되돌리기</button></div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ mAssign }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; min-height: 0; flex: 1">
+            <div class="dlg-h"><h2 id="dlg-title">쟁점별 담당</h2><span class="tag">초안에만 반영</span><button class="btn ghost iconbtn" style="margin-left: auto" aria-label="닫기" onClick="{{ closeModal }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></div>
+            <div class="dlg-b" style="padding-top: 4px">
+              <sc-for list="{{ asgRows }}" as="a" hint-placeholder-count="3">
+                <div style="display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line); flex-wrap: wrap">
+                  <div style="flex: 1 1 240px; display: flex; flex-direction: column; min-width: 0">
+                    <span style="display: flex; gap: 6px; align-items: center"><span class="num muted" style="font-size: 12px">{{ a.id }}</span><sc-if value="{{ a.changed }}" hint-placeholder-val="{{ false }}"><span class="tag" style="border-style: dashed">변경</span></sc-if></span>
+                    <strong>{{ a.title }}</strong>
+                  </div>
+                  <span class="av" aria-hidden="true">{{ a.ini }}</span>
+                  <label class="fl" style="flex: 0 1 300px"><span class="sr">{{ a.id }} 담당</span>
+                    <select class="selx" style="width: 100%" value="{{ a.val }}" onChange="{{ a.onChange }}">
+                      <option value="이정우">이정우 · 대표 변호사 · 6h</option>
+                      <option value="김현우">김현우 · 변호사 · 0h · 배정 충돌</option>
+                      <option value="박서윤">박서윤 · 변호사 · 12h</option>
+                      <option value="한도윤">한도윤 · 사무직원 · 4h</option>
+                    </select>
+                  </label>
+                  <sc-if value="{{ a.hasWarn }}" hint-placeholder-val="{{ false }}"><div class="alert warn" style="flex-basis: 100%"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 21.5 20h-19z M12 10v4.5 M12 17.2v.1"></path></svg><span>{{ a.warn }}</span></div></sc-if>
+                </div>
+              </sc-for>
+            </div>
+            <div class="dlg-f">
+              <button class="btn sm" disabled="{{ asgNoUndo }}" onClick="{{ asgUndo }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5 M4 9h11a5 5 0 0 1 0 10h-4"></path></svg>실행 취소</button>
+              <button class="btn sm" disabled="{{ asgNoUndo }}" onClick="{{ asgReset }}">초기화</button>
+              <button class="btn" style="margin-left: auto" onClick="{{ closeModal }}">취소</button>
+              <button class="btn primary" disabled="{{ asgNoChange }}" onClick="{{ asgApply }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>반영 {{ asgChangeText }}</button>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <div aria-live="polite" style="position: absolute; right: 24px; bottom: 84px; z-index: 80; display: flex; flex-direction: column; align-items: flex-end; pointer-events: none">
+    <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+      <div class="toast"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 700; border: 1px dashed currentColor; padding: 1px 5px; border-radius: 3px">MOCK</span><span>{{ toastText }}</span></div>
+    </sc-if>
+  </div>
+</div>
+</template>
+<script>/* Preact 10.24.3 (MIT) */
+!function(n){"function"==typeof define&&define.amd?define(n):n()}(function(){var n,l,t,u,i,o,e,r,f,c,s,a,h,p=65536,v=1<<17,d={},y=[],w=/acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i,_=Array.isArray;function g(n,l){for(var t in l)n[t]=l[t];return n}function m(n){n&&n.parentNode&&n.parentNode.removeChild(n)}function b(l,t,u){var i,o,e,r={};for(e in t)"key"==e?i=t[e]:"ref"==e?o=t[e]:r[e]=t[e];if(arguments.length>2&&(r.children=arguments.length>3?n.call(arguments,2):u),"function"==typeof l&&null!=l.defaultProps)for(e in l.defaultProps)void 0===r[e]&&(r[e]=l.defaultProps[e]);return k(l,r,i,o,null)}function k(n,u,i,o,e){var r={type:n,props:u,key:i,ref:o,__k:null,__:null,__b:0,__e:null,__d:void 0,__c:null,constructor:void 0,__v:null==e?++t:e,__i:-1,__u:0};return null==e&&null!=l.vnode&&l.vnode(r),r}function C(n){return n.children}function x(n,l){this.props=n,this.context=l}function S(n,l){if(null==l)return n.__?S(n.__,n.__i+1):null;for(var t;l<n.__k.length;l++)if(null!=(t=n.__k[l])&&null!=t.__e)return t.__e;return"function"==typeof n.type?S(n):null}function M(n){var l,t;if(null!=(n=n.__)&&null!=n.__c){for(n.__e=n.__c.base=null,l=0;l<n.__k.length;l++)if(null!=(t=n.__k[l])&&null!=t.__e){n.__e=n.__c.base=t.__e;break}return M(n)}}function P(n){(!n.__d&&(n.__d=!0)&&i.push(n)&&!$.__r++||o!==l.debounceRendering)&&((o=l.debounceRendering)||e)($)}function $(){var n,t,u,o,e,f,c,s;for(i.sort(r);n=i.shift();)n.__d&&(t=i.length,o=void 0,f=(e=(u=n).__v).__e,c=[],s=[],u.__P&&((o=g({},e)).__v=e.__v+1,l.vnode&&l.vnode(o),O(u.__P,o,e,u.__n,u.__P.namespaceURI,32&e.__u?[f]:null,c,null==f?S(e):f,!!(32&e.__u),s),o.__v=e.__v,o.__.__k[o.__i]=o,V(c,o,s),o.__e!=f&&M(o)),i.length>t&&i.sort(r));$.__r=0}function I(n,l,t,u,i,o,e,r,f,c,s){var a,h,v,w,_,g=u&&u.__k||y,m=l.length;for(t.__d=f,A(t,l,g),f=t.__d,a=0;a<m;a++)null!=(v=t.__k[a])&&(h=-1===v.__i?d:g[v.__i]||d,v.__i=a,O(n,v,h,i,o,e,r,f,c,s),w=v.__e,v.ref&&h.ref!=v.ref&&(h.ref&&z(h.ref,null,v),s.push(v.ref,v.__c||w,v)),null==_&&null!=w&&(_=w),v.__u&p||h.__k===v.__k?f=E(v,f,n):"function"==typeof v.type&&void 0!==v.__d?f=v.__d:w&&(f=w.nextSibling),v.__d=void 0,v.__u&=-196609);t.__d=f,t.__e=_}function A(n,l,t){var u,i,o,e,r,f=l.length,c=t.length,s=c,a=0;for(n.__k=[],u=0;u<f;u++)null!=(i=l[u])&&"boolean"!=typeof i&&"function"!=typeof i?(e=u+a,(i=n.__k[u]="string"==typeof i||"number"==typeof i||"bigint"==typeof i||i.constructor==String?k(null,i,null,null,null):_(i)?k(C,{children:i},null,null,null):void 0===i.constructor&&i.__b>0?k(i.type,i.props,i.key,i.ref?i.ref:null,i.__v):i).__=n,i.__b=n.__b+1,o=null,-1!==(r=i.__i=F(i,t,e,s))&&(s--,(o=t[r])&&(o.__u|=v)),null==o||null===o.__v?(-1==r&&a--,"function"!=typeof i.type&&(i.__u|=p)):r!==e&&(r==e-1?a--:r==e+1?a++:(r>e?a--:a++,i.__u|=p))):i=n.__k[u]=null;if(s)for(u=0;u<c;u++)null!=(o=t[u])&&0==(o.__u&v)&&(o.__e==n.__d&&(n.__d=S(o)),N(o,o))}function E(n,l,t){var u,i;if("function"==typeof n.type){for(u=n.__k,i=0;u&&i<u.length;i++)u[i]&&(u[i].__=n,l=E(u[i],l,t));return l}n.__e!=l&&(l&&n.type&&!t.contains(l)&&(l=S(n)),t.insertBefore(n.__e,l||null),l=n.__e);do{l=l&&l.nextSibling}while(null!=l&&8===l.nodeType);return l}function F(n,l,t,u){var i=n.key,o=n.type,e=t-1,r=t+1,f=l[t];if(null===f||f&&i==f.key&&o===f.type&&0==(f.__u&v))return t;if(u>(null!=f&&0==(f.__u&v)?1:0))for(;e>=0||r<l.length;){if(e>=0){if((f=l[e])&&0==(f.__u&v)&&i==f.key&&o===f.type)return e;e--}if(r<l.length){if((f=l[r])&&0==(f.__u&v)&&i==f.key&&o===f.type)return r;r++}}return-1}function H(n,l,t){"-"===l[0]?n.setProperty(l,null==t?"":t):n[l]=null==t?"":"number"!=typeof t||w.test(l)?t:t+"px"}function L(n,l,t,u,i){var o;n:if("style"===l)if("string"==typeof t)n.style.cssText=t;else{if("string"==typeof u&&(n.style.cssText=u=""),u)for(l in u)t&&l in t||H(n.style,l,"");if(t)for(l in t)u&&t[l]===u[l]||H(n.style,l,t[l])}else if("o"===l[0]&&"n"===l[1])o=l!==(l=l.replace(/(PointerCapture)$|Capture$/i,"$1")),l=l.toLowerCase()in n||"onFocusOut"===l||"onFocusIn"===l?l.toLowerCase().slice(2):l.slice(2),n.l||(n.l={}),n.l[l+o]=t,t?u?t.t=u.t:(t.t=f,n.addEventListener(l,o?s:c,o)):n.removeEventListener(l,o?s:c,o);else{if("http://www.w3.org/2000/svg"==i)l=l.replace(/xlink(H|:h)/,"h").replace(/sName$/,"s");else if("width"!=l&&"height"!=l&&"href"!=l&&"list"!=l&&"form"!=l&&"tabIndex"!=l&&"download"!=l&&"rowSpan"!=l&&"colSpan"!=l&&"role"!=l&&"popover"!=l&&l in n)try{n[l]=null==t?"":t;break n}catch(n){}"function"==typeof t||(null==t||!1===t&&"-"!==l[4]?n.removeAttribute(l):n.setAttribute(l,"popover"==l&&1==t?"":t))}}function T(n){return function(t){if(this.l){var u=this.l[t.type+n];if(null==t.u)t.u=f++;else if(t.u<u.t)return;return u(l.event?l.event(t):t)}}}function O(n,t,u,i,o,e,r,f,c,s){var a,h,p,v,d,y,w,m,b,k,S,M,P,$,A,E,F=t.type;if(void 0!==t.constructor)return null;128&u.__u&&(c=!!(32&u.__u),e=[f=t.__e=u.__e]),(a=l.__b)&&a(t);n:if("function"==typeof F)try{if(m=t.props,b="prototype"in F&&F.prototype.render,k=(a=F.contextType)&&i[a.__c],S=a?k?k.props.value:a.__:i,u.__c?w=(h=t.__c=u.__c).__=h.__E:(b?t.__c=h=new F(m,S):(t.__c=h=new x(m,S),h.constructor=F,h.render=R),k&&k.sub(h),h.props=m,h.state||(h.state={}),h.context=S,h.__n=i,p=h.__d=!0,h.__h=[],h._sb=[]),b&&null==h.__s&&(h.__s=h.state),b&&null!=F.getDerivedStateFromProps&&(h.__s==h.state&&(h.__s=g({},h.__s)),g(h.__s,F.getDerivedStateFromProps(m,h.__s))),v=h.props,d=h.state,h.__v=t,p)b&&null==F.getDerivedStateFromProps&&null!=h.componentWillMount&&h.componentWillMount(),b&&null!=h.componentDidMount&&h.__h.push(h.componentDidMount);else{if(b&&null==F.getDerivedStateFromProps&&m!==v&&null!=h.componentWillReceiveProps&&h.componentWillReceiveProps(m,S),!h.__e&&(null!=h.shouldComponentUpdate&&!1===h.shouldComponentUpdate(m,h.__s,S)||t.__v===u.__v)){for(t.__v!==u.__v&&(h.props=m,h.state=h.__s,h.__d=!1),t.__e=u.__e,t.__k=u.__k,t.__k.some(function(n){n&&(n.__=t)}),M=0;M<h._sb.length;M++)h.__h.push(h._sb[M]);h._sb=[],h.__h.length&&r.push(h);break n}null!=h.componentWillUpdate&&h.componentWillUpdate(m,h.__s,S),b&&null!=h.componentDidUpdate&&h.__h.push(function(){h.componentDidUpdate(v,d,y)})}if(h.context=S,h.props=m,h.__P=n,h.__e=!1,P=l.__r,$=0,b){for(h.state=h.__s,h.__d=!1,P&&P(t),a=h.render(h.props,h.state,h.context),A=0;A<h._sb.length;A++)h.__h.push(h._sb[A]);h._sb=[]}else do{h.__d=!1,P&&P(t),a=h.render(h.props,h.state,h.context),h.state=h.__s}while(h.__d&&++$<25);h.state=h.__s,null!=h.getChildContext&&(i=g(g({},i),h.getChildContext())),b&&!p&&null!=h.getSnapshotBeforeUpdate&&(y=h.getSnapshotBeforeUpdate(v,d)),I(n,_(E=null!=a&&a.type===C&&null==a.key?a.props.children:a)?E:[E],t,u,i,o,e,r,f,c,s),h.base=t.__e,t.__u&=-161,h.__h.length&&r.push(h),w&&(h.__E=h.__=null)}catch(n){if(t.__v=null,c||null!=e){for(t.__u|=c?160:128;f&&8===f.nodeType&&f.nextSibling;)f=f.nextSibling;e[e.indexOf(f)]=null,t.__e=f}else t.__e=u.__e,t.__k=u.__k;l.__e(n,t,u)}else null==e&&t.__v===u.__v?(t.__k=u.__k,t.__e=u.__e):t.__e=j(u.__e,t,u,i,o,e,r,c,s);(a=l.diffed)&&a(t)}function V(n,t,u){t.__d=void 0;for(var i=0;i<u.length;i++)z(u[i],u[++i],u[++i]);l.__c&&l.__c(t,n),n.some(function(t){try{n=t.__h,t.__h=[],n.some(function(n){n.call(t)})}catch(n){l.__e(n,t.__v)}})}function j(t,u,i,o,e,r,f,c,s){var a,h,p,v,y,w,g,b=i.props,k=u.props,C=u.type;if("svg"===C?e="http://www.w3.org/2000/svg":"math"===C?e="http://www.w3.org/1998/Math/MathML":e||(e="http://www.w3.org/1999/xhtml"),null!=r)for(a=0;a<r.length;a++)if((y=r[a])&&"setAttribute"in y==!!C&&(C?y.localName===C:3===y.nodeType)){t=y,r[a]=null;break}if(null==t){if(null===C)return document.createTextNode(k);t=document.createElementNS(e,C,k.is&&k),c&&(l.__m&&l.__m(u,r),c=!1),r=null}if(null===C)b===k||c&&t.data===k||(t.data=k);else{if(r=r&&n.call(t.childNodes),b=i.props||d,!c&&null!=r)for(b={},a=0;a<t.attributes.length;a++)b[(y=t.attributes[a]).name]=y.value;for(a in b)if(y=b[a],"children"==a);else if("dangerouslySetInnerHTML"==a)p=y;else if(!(a in k)){if("value"==a&&"defaultValue"in k||"checked"==a&&"defaultChecked"in k)continue;L(t,a,null,y,e)}for(a in k)y=k[a],"children"==a?v=y:"dangerouslySetInnerHTML"==a?h=y:"value"==a?w=y:"checked"==a?g=y:c&&"function"!=typeof y||b[a]===y||L(t,a,y,b[a],e);if(h)c||p&&(h.__html===p.__html||h.__html===t.innerHTML)||(t.innerHTML=h.__html),u.__k=[];else if(p&&(t.innerHTML=""),I(t,_(v)?v:[v],u,i,o,"foreignObject"===C?"http://www.w3.org/1999/xhtml":e,r,f,r?r[0]:i.__k&&S(i,0),c,s),null!=r)for(a=r.length;a--;)m(r[a]);c||(a="value","progress"===C&&null==w?t.removeAttribute("value"):void 0!==w&&(w!==t[a]||"progress"===C&&!w||"option"===C&&w!==b[a])&&L(t,a,w,b[a],e),a="checked",void 0!==g&&g!==t[a]&&L(t,a,g,b[a],e))}return t}function z(n,t,u){try{if("function"==typeof n){var i="function"==typeof n.__u;i&&n.__u(),i&&null==t||(n.__u=n(t))}else n.current=t}catch(n){l.__e(n,u)}}function N(n,t,u){var i,o;if(l.unmount&&l.unmount(n),(i=n.ref)&&(i.current&&i.current!==n.__e||z(i,null,t)),null!=(i=n.__c)){if(i.componentWillUnmount)try{i.componentWillUnmount()}catch(n){l.__e(n,t)}i.base=i.__P=null}if(i=n.__k)for(o=0;o<i.length;o++)i[o]&&N(i[o],t,u||"function"!=typeof n.type);u||m(n.__e),n.__c=n.__=n.__e=n.__d=void 0}function R(n,l,t){return this.constructor(n,t)}function q(t,u,i){var o,e,r,f;l.__&&l.__(t,u),e=(o="function"==typeof i)?null:i&&i.__k||u.__k,r=[],f=[],O(u,t=(!o&&i||u).__k=b(C,null,[t]),e||d,d,u.namespaceURI,!o&&i?[i]:e?null:u.firstChild?n.call(u.childNodes):null,r,!o&&i?i:e?e.__e:u.firstChild,o,f),V(r,t,f)}n=y.slice,l={__e:function(n,l,t,u){for(var i,o,e;l=l.__;)if((i=l.__c)&&!i.__)try{if((o=i.constructor)&&null!=o.getDerivedStateFromError&&(i.setState(o.getDerivedStateFromError(n)),e=i.__d),null!=i.componentDidCatch&&(i.componentDidCatch(n,u||{}),e=i.__d),e)return i.__E=i}catch(l){n=l}throw n}},t=0,u=function(n){return null!=n&&null==n.constructor},x.prototype.setState=function(n,l){var t;t=null!=this.__s&&this.__s!==this.state?this.__s:this.__s=g({},this.state),"function"==typeof n&&(n=n(g({},t),this.props)),n&&g(t,n),null!=n&&this.__v&&(l&&this._sb.push(l),P(this))},x.prototype.forceUpdate=function(n){this.__v&&(this.__e=!0,n&&this.__h.push(n),P(this))},x.prototype.render=C,i=[],e="function"==typeof Promise?Promise.prototype.then.bind(Promise.resolve()):setTimeout,r=function(n,l){return n.__v.__b-l.__v.__b},$.__r=0,f=0,c=T(!1),s=T(!0),a=0,h={__proto__:null,render:q,hydrate:function n(l,t){q(l,t,n)},createElement:b,h:b,Fragment:C,createRef:function(){return{current:null}},isValidElement:u,Component:x,cloneElement:function(l,t,u){var i,o,e,r,f=g({},l.props);for(e in l.type&&l.type.defaultProps&&(r=l.type.defaultProps),t)"key"==e?i=t[e]:"ref"==e?o=t[e]:f[e]=void 0===t[e]&&void 0!==r?r[e]:t[e];return arguments.length>2&&(f.children=arguments.length>3?n.call(arguments,2):u),k(l.type,f,i||l.key,o||l.ref,null)},createContext:function(n,l){var t={__c:l="__cC"+a++,__:n,Consumer:function(n,l){return n.children(l)},Provider:function(n){var t,u;return this.getChildContext||(t=new Set,(u={})[l]=this,this.getChildContext=function(){return u},this.componentWillUnmount=function(){t=null},this.shouldComponentUpdate=function(n){this.props.value!==n.value&&t.forEach(function(n){n.__e=!0,P(n)})},this.sub=function(n){t.add(n);var l=n.componentWillUnmount;n.componentWillUnmount=function(){t&&t.delete(n),l&&l.call(n)}}),n.children}};return t.Provider.__=t.Consumer.contextType=t},toChildArray:function n(l,t){return t=t||[],null==l||"boolean"==typeof l||(_(l)?l.some(function(l){n(l,t)}):t.push(l)),t},options:l},typeof module<"u"?module.exports=h:self.preact=h});
+
+</script>
+<script>
+/* THE FIRM · standalone runtime: renders the design template with Preact (no build step, no server) */
+(function () {
+  var h = preact.h, render = preact.render, Fragment = preact.Fragment;
+  var scheduled = false, mounted = false, comp = null, tpl = null, root = null;
+
+  function DCLogic(props) { this.props = props || {}; this.state = {}; }
+  DCLogic.prototype.setState = function (p) {
+    if (typeof p === 'function') p = p(this.state, this.props);
+    Object.assign(this.state, p || {});
+    schedule();
+  };
+  DCLogic.prototype.forceUpdate = function () { schedule(); };
+  window.DCLogic = DCLogic;
+
+  function lookup(path, scopes) {
+    path = path.trim();
+    if (path === 'true') return true;
+    if (path === 'false') return false;
+    if (path === 'null') return null;
+    if (/^-?\d+(\.\d+)?$/.test(path)) return Number(path);
+    if (/^(['"]).*\1$/.test(path)) return path.slice(1, -1);
+    var parts = path.split('.');
+    for (var i = scopes.length - 1; i >= 0; i--) {
+      var sc = scopes[i];
+      if (sc && Object.prototype.hasOwnProperty.call(sc, parts[0])) {
+        var v = sc[parts[0]];
+        for (var k = 1; k < parts.length; k++) { if (v == null) return undefined; v = v[parts[k]]; }
+        return v;
+      }
+    }
+    return undefined;
+  }
+  var HOLE = /\{\{\s*([^}]+?)\s*\}\}/g;
+  var WHOLE = /^\s*\{\{\s*([^}]+?)\s*\}\}\s*$/;
+  function interp(str, scopes) { return str.replace(HOLE, function (m, p) { var v = lookup(p, scopes); return v == null ? '' : String(v); }); }
+  function attrVal(str, scopes) { var m = str.match(WHOLE); return m ? lookup(m[1], scopes) : interp(str, scopes); }
+
+  function kids(node, scopes, out) {
+    var c = node.content ? node.content.childNodes : node.childNodes;
+    for (var i = 0; i < c.length; i++) conv(c[i], scopes, out);
+  }
+  function conv(node, scopes, out) {
+    if (node.nodeType === 3) { var t = node.nodeValue; out.push(t.indexOf('{{') >= 0 ? interp(t, scopes) : t); return; }
+    if (node.nodeType !== 1) return;
+    var tag = node.localName;
+    if (tag === 'sc-if') { if (attrVal(node.getAttribute('value') || '', scopes)) kids(node, scopes, out); return; }
+    if (tag === 'sc-for') {
+      var list = attrVal(node.getAttribute('list') || '', scopes) || [];
+      var as = node.getAttribute('as') || 'item';
+      for (var i = 0; i < list.length; i++) { var s = {}; s[as] = list[i]; s.$index = i; kids(node, scopes.concat([s]), out); }
+      return;
+    }
+    var props = {};
+    for (var a = 0; a < node.attributes.length; a++) {
+      var at = node.attributes[a], name = at.name;
+      if (name.indexOf('hint-') === 0) continue;
+      var v = attrVal(at.value, scopes);
+      if (name.slice(0, 2).toLowerCase() === 'on') {
+        if (typeof v !== 'function') continue;
+        var ev = name.toLowerCase();
+        if (ev === 'onchange' && tag === 'input' && (node.getAttribute('type') || 'text') !== 'checkbox') ev = 'oninput';
+        props[ev] = v; continue;
+      }
+      if (name === 'ref') { if (typeof v === 'function') props.ref = v; continue; }
+      if (name === 'tabindex') name = 'tabIndex';
+      if (name === 'disabled' || name === 'checked') { props[name] = !!v && v !== 'false'; continue; }
+      props[name] = v;
+    }
+    var ch = [];
+    kids(node, scopes, ch);
+    out.push(h(tag, props, ch));
+  }
+
+  function doRender() {
+    scheduled = false;
+    var vals = comp.renderVals();
+    var out = [];
+    kids(tpl, [vals], out);
+    render(h(Fragment, null, out), root);
+    if (!mounted) { mounted = true; if (comp.componentDidMount) comp.componentDidMount(); }
+    else if (comp.componentDidUpdate) comp.componentDidUpdate();
+  }
+  function schedule() { if (!mounted && !comp) return; if (!scheduled) { scheduled = true; Promise.resolve().then(doRender); } }
+
+  window.__bootDC = function (Component, props) {
+    tpl = document.getElementById('dc-template');
+    root = document.getElementById('dc-root');
+    comp = new Component(props || {});
+    doRender();
+  };
+})();
+</script>
+<script>
+class Component extends DCLogic {
+  fx() {
+    if (this._fx) return this._fx;
+    this._fx = {
+      game_date: '2026-06-12',
+      decisions: [
+        { id: 'DEC-M-01', category: '의뢰인 권한', title: '정민호 사건 · 대응 범위 확인', source: '사건 CASE-DEMO-001', severity: 'required', resolved: false },
+        { id: 'DEC-M-02', category: '업무 조정', title: '조사 업무 배정 충돌', source: '구성원 / 업무 배정', severity: 'required', resolved: false }
+      ],
+      upcoming: [
+        { date: '2026-06-15', title: '정민호 사건 변론 계획 검토' },
+        { date: '2026-06-18', title: '정민호 사건 다음 기일' },
+        { date: '2026-06-20', title: '월간 운영 보고' }
+      ],
+      summary: [
+        { label: '진행 사건', value: '3건', type: 'count' },
+        { label: '결정 대기', value: '2건', type: 'count' },
+        { label: '현금 잔액(가상)', value: '₩18,200,000', type: 'money' },
+        { label: '미수금(가상)', value: '₩4,500,000', type: 'money' }
+      ],
+      notices: [
+        { id: 'MSG-001', sender: '김현우 변호사', subject: '정민호 사건 · 조사 보고 도착', category: '사건', time: '09:14', action_label: '자료 보기', entity: 'CASE-DEMO-001' },
+        { id: 'MSG-002', sender: '운영 담당', subject: '업무 배정 충돌 확인 요청', category: '필수 결정', time: '08:52', action_label: '업무 배정으로 이동', entity: 'P03' },
+        { id: 'MSG-003', sender: '법원 통지', subject: '다음 기일 일정 확인', category: '일정', time: '08:20', action_label: '기일 보기', entity: 'CASE-DEMO-001' },
+        { id: 'MSG-004', sender: '법조계 소식', subject: '관련 법률 자료 업데이트 안내', category: '일반', time: '어제', action_label: '법률 자료실', entity: 'W04' }
+      ],
+      staff: [
+        { id: 'STAFF-01', name: '이정우', role: '대표 변호사', practice: '형사', status: '업무 중', active_cases: 2, available_hours: '6h', next_commitment: '06/15 · 사건 검토' },
+        { id: 'STAFF-02', name: '김현우', role: '변호사', practice: '형사·증거', status: '배정 충돌', active_cases: 2, available_hours: '0h', next_commitment: '06/18 · 다음 기일' },
+        { id: 'STAFF-03', name: '박서윤', role: '변호사', practice: '계약·조사', status: '여유', active_cases: 1, available_hours: '12h', next_commitment: '06/16 · 조사 보고' },
+        { id: 'STAFF-04', name: '한도윤', role: '사무직원', practice: '사건 운영', status: '업무 중', active_cases: 3, available_hours: '4h', next_commitment: '06/20 · 운영 보고' }
+      ],
+      cases: [
+        { id: 'CASE-DEMO-001', name: '정민호 사건', status: '공판 준비', assignee: '김현우', next_date: '2026-06-18', origin: 'MOCK', decision_pending: true },
+        { id: 'CASE-DEMO-002', name: '윤지훈 사건', status: '수임 검토', assignee: null, next_date: null, origin: 'MOCK', decision_pending: false },
+        { id: 'CASE-DEMO-003', name: '고은아 사건', status: '조사 중', assignee: '박서윤', next_date: '2026-06-16', origin: 'MOCK', decision_pending: false }
+      ],
+      plan: {
+        case_id: 'CASE-DEMO-001',
+        document_title: '변론 계획 · 초안 v3',
+        stage: '공판 준비',
+        assigned_staff: '김현우',
+        next_court_date: '2026-06-18',
+        delegation: '중요 변경만 요청',
+        approval_state: 'review_required',
+        issues: [
+          { id: 'I-01', title: '쟁점 1 · 사실관계 범위', priority: '핵심', objective: '현재 확보한 자료로 확인 가능한 범위를 정리', material_refs: ['SRC-01', 'SRC-02'], anticipated_counter: '추가 확인이 필요할 수 있음', assigned: '김현우', warning: '자료 1건의 허용 범위 미확정' },
+          { id: 'I-02', title: '쟁점 2 · 자료 제출 상태', priority: '핵심', objective: '획득 자료와 법정 제출 상태를 구별해 검토', material_refs: ['SRC-02', 'SRC-03'], anticipated_counter: '절차 상태에 대한 추가 확인 필요', assigned: '이정우', warning: '제출 상태와 법정 허용 상태는 다름' },
+          { id: 'I-03', title: '쟁점 3 · 대응 권한', priority: '보조', objective: '의뢰인 승인 범위 안에서만 대응', material_refs: [], anticipated_counter: '새로운 대응이 권한 범위를 넘을 수 있음', assigned: '김현우', warning: '의뢰인 권한 확인 대기' }
+        ],
+        materials: [
+          { id: 'SRC-01', title: '자료 A · 원문', acquired: true, submission_state: 'not_submitted', admissibility: 'not_applicable_yet' },
+          { id: 'SRC-02', title: '자료 B · 검토 보고', acquired: true, submission_state: 'submitted', admissibility: 'pending' },
+          { id: 'SRC-03', title: '자료 C · 존재가 알려진 자료', acquired: false, submission_state: 'none', admissibility: 'unknown' }
+        ],
+        mock_validation: ['I-03 권한 확인 대기', 'I-01 자료 허용 범위 검토 필요']
+      }
+    };
+    return this._fx;
+  }
+
+  ic() {
+    if (!this._ic) this._ic = {
+      alert: 'M12 3.5 21.5 20h-19z M12 10v4.5 M12 17.2v.1',
+      check: 'M5 12.5l4.5 4.5L19 7.5',
+      clock: 'M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0 M12 7v5l3.5 2',
+      info: 'M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0 M12 11v5.5 M12 7.6v.1',
+      ring: 'M5 12a7 7 0 1 0 14 0a7 7 0 1 0-14 0',
+      help: 'M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0 M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.7 M12 17v.1',
+      file: 'M6.5 3.5h7.5l4 4v13h-11.5z M13.5 3.5v4.5h4.5',
+      cal: 'M4 6h16v14H4z M4 10h16 M8.5 3.5v4 M15.5 3.5v4',
+      lock: 'M5.5 11h13v9.5h-13z M8.5 11V8a3.5 3.5 0 0 1 7 0v3',
+      edit: 'M4 20h4L19 9l-4-4L4 16z',
+      mail: 'M3.5 6h17v12h-17z M4 7l8 6 8-6',
+      users: 'M9 4a3.5 3.5 0 1 0 0 7a3.5 3.5 0 1 0 0-7 M2.5 19c.9-3 3.4-4.5 6.5-4.5s5.6 1.5 6.5 4.5 M16 5a3 3 0 0 1 0 6 M18 14.5c1.8.6 3 2.2 3.5 4.5',
+      scale: 'M12 4v16 M7 20h10 M5 7h14 M5 7l-3 6a3 3 0 0 0 6 0z M19 7l-3 6a3 3 0 0 0 6 0z',
+      bell: 'M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z M10 20.5h4',
+      book: 'M5 4.5h10a3 3 0 0 1 3 3v12H8a3 3 0 0 1-3-3z M5 16.5a3 3 0 0 1 3-3h10'
+    };
+    return this._ic;
+  }
+
+  /* MOCK 내부 관리번호 (fixture 외 보조 데이터) · 법원 번호는 엔진 연결 전까지 미부여 */
+  matterNo(c) { return ({ 'CASE-DEMO-001': '2026-001', 'CASE-DEMO-002': '2026-002', 'CASE-DEMO-003': '2026-003' })[c && c.id] || '—'; }
+  client(c) { return c ? c.name.replace(/ 사건$/, '') : ''; }
+  caseLabel(c) { return this.matterNo(c) + ' ' + this.client(c); }
+  chip(kind, label, icon) { return { cls: 'c-' + kind, label: label, ip: this.ic()[icon] || '' }; }
+  staffChip(st) {
+    if (st === '배정 충돌') return this.chip('danger', st, 'alert');
+    if (st === '여유') return this.chip('ok', st, 'check');
+    return this.chip('info', st, 'clock');
+  }
+  pillCls(st) { return st === '배정 충돌' ? 'p-danger' : (st === '여유' ? 'p-ok' : 'p-neutral'); }
+  roleBlock(role) {
+    if (role === '대표 변호사') return { rb: '대표', rbCls: 'rb-lead' };
+    if (role === '변호사') return { rb: '변호', rbCls: 'rb-law' };
+    return { rb: '사무', rbCls: 'rb-ops' };
+  }
+  ini(name) { return name ? name.slice(1) : ''; }
+  caseChip(st) {
+    if (st === '공판 준비') return this.chip('accent', st, 'cal');
+    if (st === '조사 중') return this.chip('info', st, 'clock');
+    return this.chip('neutral', st, 'file');
+  }
+  catChip(c) {
+    if (c === '필수 결정') return this.chip('danger', c, 'alert');
+    if (c === '사건') return this.chip('info', c, 'file');
+    if (c === '일정') return this.chip('neutral', c, 'cal');
+    return this.chip('neutral', c, 'info');
+  }
+  pd(iso) { const p = iso.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); }
+  fmtD(iso) {
+    if (!iso) return '미정';
+    const d = this.pd(iso), W = ['일', '월', '화', '수', '목', '금', '토'];
+    return String(d.getMonth() + 1).padStart(2, '0') + '.' + String(d.getDate()).padStart(2, '0') + ' (' + W[d.getDay()] + ')';
+  }
+  shortD(iso) { if (!iso) return '미정'; const d = this.pd(iso); return String(d.getMonth() + 1).padStart(2, '0') + '.' + String(d.getDate()).padStart(2, '0'); }
+  dday(iso) {
+    if (!iso) return '';
+    const n = Math.round((this.pd(iso) - this.pd(this.fx().game_date)) / 86400000);
+    return n === 0 ? 'D-DAY' : (n > 0 ? 'D-' + n : 'D+' + (-n));
+  }
+
+  /* ---------- routes ---------- */
+  R(v, x) {
+    if (v === 'D02') return { menu: 'office', view: 'D02', sub: 'D02' };
+    if (v === 'P01') return { menu: 'people', view: 'P01', sub: 'P01' };
+    if (v === 'P02') return { menu: 'people', view: 'P02', sub: 'P01', staffId: x };
+    if (v === 'CASE') return { menu: 'cases', view: 'CASE', sub: 'CASE', caseId: (x && x.caseId) || 'CASE-DEMO-001', tab: (x && x.tab) || 'plan' };
+    return { menu: 'office', view: 'D01', sub: 'D01' };
+  }
+  PH(menu, sub, code, title, desc, facts) { return { menu: menu, view: 'PH', sub: sub, code: code, title: title, desc: desc, facts: facts || [] }; }
+  menuRoute(id) {
+    if (id === 'office') return this.R('D01');
+    if (id === 'cases') return this.R('CASE');
+    if (id === 'people') return this.R('P01');
+    if (id === 'clients') return this.PH('clients', 'C-OV', '', '고객', '의뢰인 · 상담 · 계약 이력');
+    if (id === 'finance') return this.PH('finance', 'F-OV', '', '재무', '현금 · 청구 · 미수금', [{ label: '현금 잔액(가상)', value: '₩18,200,000' }, { label: '미수금(가상)', value: '₩4,500,000' }]);
+    if (id === 'legal') return this.PH('legal', 'W-OV', '', '법조계', '법원 · 상대 측 · 법률 소식');
+    return this.PH('firm', 'FIRM-OV', '', '내 로펌', '로펌 정보 · 운영 보고');
+  }
+  subDefs(menu) {
+    const P = (m, s, c, t, d) => () => this.PH(m, s, c, t, d);
+    const defs = {
+      office: [['D01', '개요', 'D01', () => this.R('D01')], ['D02', '받은편지함', 'D02', () => this.R('D02')], ['SCHED', '일정', '', P('office', 'SCHED', '', '일정', '기일 · 업무 달력')]],
+      people: [['P01', '명부', 'P01', () => this.R('P01')], ['P03', '업무 배정', 'P03', P('people', 'P03', 'P03', '업무 배정', '업무 시간 예약 · 배정')], ['P04', '채용', 'P04', P('people', 'P04', 'P04', '채용', '후보 검토 · 채용')], ['P06', '위임 정책', 'P06', P('people', 'P06', 'P06', '위임 정책', '업무별 직접 처리 · 위임 범위')]],
+      cases: [['CASE', '진행 사건', '', () => this.R('CASE')], ['M01', '사건 목록', 'M01', P('cases', 'M01', 'M01', '사건 목록', '전체 사건 목록')], ['M02', '수임 검토', 'M02', P('cases', 'M02', 'M02', '수임 검토', '새 사건 수임 검토')]],
+      clients: [['C-OV', '개요', '', () => this.menuRoute('clients')]],
+      finance: [['F-OV', '개요', '', () => this.menuRoute('finance')]],
+      legal: [['W-OV', '개요', '', () => this.menuRoute('legal')], ['W04', '법률 자료실', 'W04', P('legal', 'W04', 'W04', '법률 자료실', '법률 자료 열람')]],
+      firm: [['FIRM-OV', '개요', '', () => this.menuRoute('firm')]]
+    };
+    return defs[menu] || [];
+  }
+  caseTabDefs() {
+    return [['brief', '개요·준비 보고', 'M03'], ['materials', '자료', 'M04'], ['research', '조사·검토', 'M05'], ['plan', '변론 계획', 'M06'], ['client', '의뢰인·계약', ''], ['record', '진행·기록', 'M08'], ['result', '결과·정산', 'M09']];
+  }
+
+  /* ---------- state ---------- */
+  baseDraft() {
+    const P = this.fx().plan, d = {};
+    P.issues.forEach(i => {
+      const use = {};
+      i.material_refs.forEach(id => { const m = P.materials.find(x => x.id === id); use[id] = !!(m && m.acquired); });
+      d[i.id] = { priority: i.priority, assigned: i.assigned, use: use };
+    });
+    return d;
+  }
+  st() {
+    const p = this.props || {};
+    const start = ['D01', 'P01', 'M06'].indexOf(p.startScreen) >= 0 ? p.startScreen : 'D01';
+    const route = start === 'P01' ? this.R('P01') : (start === 'M06' ? this.R('CASE') : this.R('D01'));
+    const d = {
+      theme: ['A', 'B', 'C'].indexOf(p.startTheme) >= 0 ? p.startTheme : 'C',
+      pal: ['C1', 'C2', 'C3', 'C4', 'C5'].indexOf(p.startPalette) >= 0 ? p.startPalette : 'C1',
+      font: ['F0', 'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9'].indexOf(p.startFont) >= 0 ? p.startFont : 'F0',
+      hist: [route], idx: 0, openMenu: null,
+      d01Filter: 'all', d02Sel: 'MSG-001', d02Filter: 'all', readMap: {},
+      q: '', fStatus: 'all', fRole: 'all', sortKey: 'name', sortDir: 1, pSel: null, pPanel: true, p02Tab: 'overview',
+      issue: 'I-01', expMat: {}, insp: true,
+      draft: null, undo: [], redo: [],
+      modal: null, decSel: 'DEC-M-01', asg: null, asgHist: [],
+      toast: null, uiState: 'normal', contMode: 'fixture', valOpen: false
+    };
+    const s = Object.assign(d, this.state || {});
+    if (!s.draft) s.draft = this.baseDraft();
+    return s;
+  }
+  clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  go(r, extra) {
+    const s = this.st();
+    const hist = s.hist.slice(0, s.idx + 1);
+    hist.push(r);
+    this.setState(Object.assign({ hist: hist, idx: hist.length - 1, modal: null, openMenu: null }, extra || {}));
+  }
+  back() { const s = this.st(); if (s.idx > 0) this.setState({ idx: s.idx - 1, modal: null, openMenu: null }); }
+  fwd() { const s = this.st(); if (s.idx < s.hist.length - 1) this.setState({ idx: s.idx + 1, modal: null, openMenu: null }); }
+  toast(t) {
+    clearTimeout(this._tt);
+    this.setState({ toast: t });
+    this._tt = setTimeout(() => this.setState({ toast: null }), 4200);
+  }
+  openModal(kind, extra) {
+    try { this._lastFocus = document.activeElement; } catch (e) { this._lastFocus = null; }
+    this.setState(Object.assign({ modal: kind, openMenu: null }, extra || {}));
+  }
+  closeModal() {
+    const el = this._lastFocus;
+    this.setState({ modal: null });
+    setTimeout(() => { try { if (el && el.focus && document.contains(el)) el.focus(); } catch (e) {} }, 0);
+  }
+  edit(fn, desc) {
+    const s = this.st();
+    const next = this.clone(s.draft);
+    fn(next);
+    this.setState({ draft: next, undo: s.undo.concat([{ draft: s.draft, desc: desc }]), redo: [] });
+  }
+  doUndo() {
+    const s = this.st();
+    if (!s.undo.length) return;
+    const last = s.undo[s.undo.length - 1];
+    this.setState({ draft: last.draft, undo: s.undo.slice(0, -1), redo: s.redo.concat([{ draft: s.draft, desc: last.desc }]) });
+    this.toast('실행 취소 · ' + last.desc);
+  }
+  doRedo() {
+    const s = this.st();
+    if (!s.redo.length) return;
+    const last = s.redo[s.redo.length - 1];
+    this.setState({ draft: last.draft, redo: s.redo.slice(0, -1), undo: s.undo.concat([{ draft: s.draft, desc: last.desc }]) });
+    this.toast('다시 실행 · ' + last.desc);
+  }
+  goDecisionSource(id) {
+    if (id === 'DEC-M-01') {
+      this.go(this.R('CASE', { caseId: 'CASE-DEMO-001', tab: 'plan' }), { issue: 'I-03' });
+    } else {
+      this.go(this.R('P01'), { pSel: 'STAFF-02', pPanel: true });
+      this.toast('업무 배정은 추후 화면 · 김현우 선택됨');
+    }
+  }
+
+  componentDidMount() {
+    try { if (window.innerWidth < 1280) this.setState({ insp: false, pPanel: false }); } catch (e) {}
+    this._key = this.routeKey();
+  }
+  componentWillUnmount() { clearTimeout(this._tt); }
+  routeKey() { const s = this.st(); const r = s.hist[s.idx] || {}; return [r.view, r.sub, r.staffId, r.caseId, r.tab].join('|'); }
+  componentDidUpdate() {
+    const key = this.routeKey();
+    if (key !== this._key) {
+      this._key = key;
+      const y = (this._scroll || {})[key] || 0;
+      setTimeout(() => { if (this.mainEl) this.mainEl.scrollTop = y; }, 0);
+    }
+  }
+
+  renderVals() {
+    const F = this.fx(), s = this.st(), IC = this.ic();
+    const r = s.hist[s.idx] || this.R('D01');
+    const staffBy = n => F.staff.find(x => x.name === n);
+    const staffById = id => F.staff.find(x => x.id === id);
+    const caseBy = id => F.cases.find(c => c.id === id);
+    const matBy = id => F.plan.materials.find(m => m.id === id);
+    const pending = F.decisions.filter(d => !d.resolved);
+    const contBlocked = s.contMode === 'fixture' && pending.length > 0;
+    const goCase = (id, tab) => () => this.go(this.R('CASE', { caseId: id, tab: tab || 'plan' }));
+    const goStaff = name => () => { const x = staffBy(name); if (x) this.go(this.R('P02', x.id)); };
+    const openDec = id => () => this.openModal('decisions', { decSel: id });
+    const unreadN = F.notices.filter(n => !s.readMap[n.id]).length;
+
+    /* ----- shell ----- */
+    const TH = [['A', 'Navy & Brass', '#0D1828', '#C9A45E'], ['B', 'Paper & Ink', '#E7E1D3', '#23476E'], ['C', 'Verdict Graphite', '#0E1114', '#3FA7A9']];
+    const themes = TH.map(t => ({ label: t[0] + ' ' + t[1], cls: s.theme === t[0] ? 'on' : '', pressed: s.theme === t[0] ? 'true' : 'false', sw1: t[2], sw2: t[3], pick: () => this.setState({ theme: t[0] }) }));
+    const MENUS = [['office', '업무실'], ['cases', '사건'], ['people', '구성원'], ['clients', '고객'], ['finance', '재무'], ['legal', '법조계'], ['firm', '내 로펌']];
+    const menus = MENUS.map(m => {
+      const open = s.openMenu === m[0];
+      const items = this.subDefs(m[0]).map(t => ({ label: t[1], cls: r.menu === m[0] && r.sub === t[0] ? 'on' : '', go: () => this.go(t[3]()) }));
+      if (m[0] === 'cases') F.cases.forEach(c => items.push({ label: this.caseLabel(c), cls: r.view === 'CASE' && r.caseId === c.id ? 'on' : '', go: goCase(c.id, 'plan') }));
+      return {
+        label: m[1], cls: r.menu === m[0] ? 'on' : '', current: r.menu === m[0] ? 'page' : 'false',
+        go: () => this.go(this.menuRoute(m[0])),
+        open: open, expanded: open ? 'true' : 'false', chevLabel: m[1] + ' 하위 메뉴',
+        toggle: () => this.setState({ openMenu: open ? null : m[0] }),
+        onKey: e => { if (e.key === 'Escape') this.setState({ openMenu: null }); },
+        items: items
+      };
+    });
+    const menuLabel = (MENUS.find(m => m[0] === r.menu) || ['', ''])[1];
+    const subtabs = this.subDefs(r.menu).map(t => ({ label: t[1], cls: r.sub === t[0] ? 'on' : '', current: r.sub === t[0] ? 'page' : 'false', go: () => this.go(t[3]()) }));
+    const cs0 = r.view === 'CASE' ? caseBy(r.caseId) : null;
+    let ctxSub = '';
+    if (r.view === 'P02') ctxSub = (staffById(r.staffId) || {}).name || '';
+    if (r.view === 'CASE' && cs0) ctxSub = this.caseLabel(cs0);
+
+    const ui = s.uiState;
+    const vals = {
+      themeClass: 't' + s.theme,
+      fontClass: s.font === 'F0' ? '' : s.font.toLowerCase(),
+      palClass: 'p' + s.pal.toLowerCase(), pal: s.pal, onPal: e => this.setState({ pal: e.target.value, theme: 'C' }),
+      font: s.font, onFont: e => this.setState({ font: e.target.value }),
+      showReview: (this.props || {}).mode !== 'compare',
+      themes: themes, menus: menus, subtabs: subtabs,
+      ddOpen: !!s.openMenu, closeDD: () => this.setState({ openMenu: null }),
+      ctxLabel: menuLabel, ctxSub: ctxSub, hasCtxSub: !!ctxSub,
+      shortcuts: [
+        { label: '판단 요청', count: pending.length, hasCount: pending.length > 0, cntCls: '', ip: IC.alert, go: openDec(pending.length ? pending[0].id : 'DEC-M-01') },
+        { label: '받은편지함', count: unreadN, hasCount: unreadN > 0, cntCls: 'n', ip: IC.mail, go: () => this.go(this.R('D02')) },
+        { label: '명부', count: 0, hasCount: false, cntCls: '', ip: IC.users, go: () => this.go(this.R('P01')) },
+        { label: '변론 계획', count: 0, hasCount: false, cntCls: '', ip: IC.scale, go: () => this.go(this.R('CASE')) }
+      ],
+      uiState: ui, contMode: s.contMode,
+      onUiState: e => this.setState({ uiState: e.target.value }),
+      onContMode: e => this.setState({ contMode: e.target.value }),
+      resetUi: () => this.setState({ uiState: 'normal' }),
+      stLoading: ui === 'loading', stEmpty: ui === 'empty', stError: ui === 'error', stNormal: ui === 'normal', stNotNormal: ui !== 'normal',
+      noBack: s.idx <= 0, noFwd: s.idx >= s.hist.length - 1,
+      back: () => this.back(), fwd: () => this.fwd(),
+      goHome: () => this.go(this.R('D01')),
+      goInbox: () => this.go(this.R('D02')),
+      onSearch: () => this.toast('전역 검색은 추후 화면'),
+      onSettings: () => this.toast('설정은 추후 화면'),
+      unread: unreadN, hasUnread: unreadN > 0, msgLabel: '메시지 · 읽지 않음 ' + unreadN,
+      contCls: contBlocked ? 'blocked' : 'go',
+      contLabel: contBlocked ? '결정 필요 ' + pending.length : '계속',
+      contSub: contBlocked ? '판단 요청 열기' : '시간 진행',
+      contAria: contBlocked ? '결정 필요 ' + pending.length + '건 · 판단 요청 열기' : '계속 · 시간 진행',
+      onCont: contBlocked ? openDec(pending[0].id) : () => this.toast('엔진 미연결 · 날짜 진행 없음'),
+      pendingCount: pending.length,
+      isD01: r.view === 'D01', isD02: r.view === 'D02', isP01: r.view === 'P01', isP02: r.view === 'P02', isCase: r.view === 'CASE', isPH: r.view === 'PH',
+      mainRef: this._mainRef || (this._mainRef = el => { this.mainEl = el; }),
+      onMainScroll: e => { this._scroll = this._scroll || {}; this._scroll[this._key] = e.currentTarget.scrollTop; },
+      toastText: s.toast || '', hasToast: !!s.toast
+    };
+
+    /* ----- D01 ----- */
+    const noticeRoute = n => {
+      if (n.id === 'MSG-001') return this.R('CASE', { caseId: 'CASE-DEMO-001', tab: 'materials' });
+      if (n.id === 'MSG-003') return this.R('CASE', { caseId: 'CASE-DEMO-001', tab: 'record' });
+      if (n.entity === 'P03') return this.subDefs('people')[1][3]();
+      return this.subDefs('legal')[1][3]();
+    };
+    const readOpen = id => () => this.go(this.R('D02'), { d02Sel: id, readMap: Object.assign({}, s.readMap, { [id]: true }) });
+    const msgItem = n => ({ sender: n.sender, subject: n.subject, time: n.time, chip: this.catChip(n.category), unread: !s.readMap[n.id], cls: s.readMap[n.id] ? '' : 'unread', open: readOpen(n.id) });
+    const f1 = s.d01Filter;
+    vals.d01Tabs = [['all', '전체', F.notices.length + pending.length], ['dec', '결정', pending.length], ['unread', '읽지 않음', unreadN]].map(t => ({ label: t[1], count: t[2], cls: f1 === t[0] ? 'on' : '', pressed: f1 === t[0] ? 'true' : 'false', pick: () => this.setState({ d01Filter: t[0] }) }));
+    vals.showDecGroup = f1 !== 'unread' && pending.length > 0;
+    const msgs = f1 === 'dec' ? [] : F.notices.filter(n => f1 !== 'unread' || !s.readMap[n.id]);
+    const today = msgs.filter(n => n.time !== '어제'), yest = msgs.filter(n => n.time === '어제');
+    vals.msgGroups = [];
+    if (today.length) vals.msgGroups.push({ label: '06.12 (금)', items: today.map(msgItem) });
+    if (yest.length) vals.msgGroups.push({ label: '06.11 (목)', items: yest.map(msgItem) });
+    vals.msgFilterEmpty = msgs.length === 0 && !vals.showDecGroup;
+    vals.decList = pending.map(d => Object.assign({}, d, { open: openDec(d.id) }));
+    const fm = F.notices[0], fcase = caseBy(fm.entity);
+    vals.feat = { glyph: fcase ? fcase.name.charAt(0) : '', entity: fcase ? this.matterNo(fcase) : '', chip: this.catChip(fm.category), subject: fm.subject, sender: fm.sender, time: fm.time, open: readOpen(fm.id) };
+    vals.newsSmall = [F.notices[2], F.notices[3]].map(n => ({ subject: n.subject, meta: n.sender + ' · ' + n.time, ip: n.category === '일정' ? IC.bell : IC.book, open: readOpen(n.id) }));
+    vals.caseCount = F.cases.length;
+    vals.goCaseList = () => this.go(this.subDefs('cases')[1][3]());
+    vals.caseRows = F.cases.map(c => ({
+      name: this.client(c), chip: this.caseChip(c.status), assigneeText: this.matterNo(c) + ' · ' + (c.assignee ? '담당 ' + c.assignee : '미배정'),
+      nextShort: this.shortD(c.next_date), dday: this.dday(c.next_date),
+      pending: c.decision_pending, openDec: openDec('DEC-M-01'), go: goCase(c.id, 'plan')
+    }));
+    const nc = caseBy('CASE-DEMO-001');
+    vals.nextCourt = { glyph: nc.name.charAt(0), name: this.client(nc), date: this.fmtD(nc.next_date), dday: this.dday(nc.next_date), stage: this.matterNo(nc) + ' · ' + nc.status, assignee: nc.assignee, go: goCase(nc.id, 'plan') };
+    const evDates = F.upcoming.map(u => u.date);
+    const W = ['일', '월', '화', '수', '목', '금', '토'];
+    vals.week = [];
+    for (let k = 0; k < 9; k++) {
+      const d = new Date(2026, 5, 12 + k);
+      const iso = '2026-06-' + String(12 + k).padStart(2, '0');
+      vals.week.push({ dow: W[d.getDay()], d: String(d.getDate()), cls: (k === 0 ? 'today ' : '') + (evDates.indexOf(iso) >= 0 ? 'ev' : '') });
+    }
+    vals.goRoster = () => this.go(this.R('P01'));
+    vals.loadRows = F.staff.map(x => ({
+      ini: this.ini(x.name), name: x.name, role: x.role, status: x.status, hours: x.available_hours, pillCls: this.pillCls(x.status),
+      goDetail: goStaff(x.name), infoLabel: x.name + ' 빠른 정보',
+      goInfo: () => this.go(this.R('P01'), { pSel: x.id, pPanel: true })
+    }));
+    const upRoutes = [() => this.R('CASE'), () => this.R('CASE', { caseId: 'CASE-DEMO-001', tab: 'record' }), () => this.PH('firm', 'FIRM-OV', '', '월간 운영 보고', '월간 운영 보고서')];
+    vals.upcoming = F.upcoming.map((u, k) => ({ short: this.shortD(u.date), dday: this.dday(u.date), title: u.title, go: () => this.go(upRoutes[k]()) }));
+    vals.money = [F.summary[2], F.summary[3]];
+    vals.goFinance = () => this.go(this.menuRoute('finance'));
+
+    /* ----- D02 ----- */
+    const cats = [['all', '전체'], ['필수 결정', '필수'], ['사건', '사건'], ['일정', '일정'], ['일반', '일반']];
+    vals.inboxFilters = cats.map(c => ({ label: c[1], count: c[0] === 'all' ? F.notices.length : F.notices.filter(n => n.category === c[0]).length, cls: s.d02Filter === c[0] ? 'on' : '', pressed: s.d02Filter === c[0] ? 'true' : 'false', pick: () => this.setState({ d02Filter: c[0] }) }));
+    const inbox = F.notices.filter(n => s.d02Filter === 'all' || n.category === s.d02Filter);
+    vals.inboxEmpty = ui === 'empty' || (ui === 'normal' && inbox.length === 0);
+    vals.inboxList = ui === 'empty' ? [] : inbox.map(n => ({
+      sender: n.sender, subject: n.subject, time: n.time, chip: this.catChip(n.category), unread: !s.readMap[n.id],
+      cls: (s.d02Sel === n.id ? 'sel ' : '') + (s.readMap[n.id] ? '' : 'unread'), current: s.d02Sel === n.id ? 'true' : 'false',
+      select: () => this.setState({ d02Sel: n.id, readMap: Object.assign({}, s.readMap, { [n.id]: true }) })
+    }));
+    const m = F.notices.find(n => n.id === s.d02Sel) || F.notices[0];
+    const mCase = caseBy(m.entity);
+    const senderStaff = F.staff.find(x => m.sender.indexOf(x.name) === 0);
+    vals.msg = {
+      ini: senderStaff ? this.ini(senderStaff.name) : m.sender.slice(0, 2),
+      sender: m.sender, subject: m.subject, chip: this.catChip(m.category),
+      when: (m.time === '어제' ? this.fmtD('2026-06-11') : this.fmtD(F.game_date) + ' ' + m.time),
+      senderIsStaff: !!senderStaff, senderNotStaff: !senderStaff, goSender: senderStaff ? goStaff(senderStaff.name) : () => {},
+      isCase: !!mCase, isOther: !mCase, glyph: mCase ? mCase.name.charAt(0) : '',
+      caseName: mCase ? this.client(mCase) : '', caseNo: mCase ? this.matterNo(mCase) : '', caseChip: mCase ? this.caseChip(mCase.status) : this.chip('neutral', '', 'file'),
+      caseAsg: mCase ? (mCase.assignee || '미배정') : '', caseNext: mCase ? this.fmtD(mCase.next_date) : '',
+      goCase: mCase ? goCase(mCase.id, 'plan') : () => {},
+      entityText: m.entity === 'P03' ? '구성원 › 업무 배정 (추후 화면)' : '법조계 › 법률 자료실 (추후 화면)',
+      action: m.action_label, act: () => this.go(noticeRoute(m)),
+      must: m.category === '필수 결정', openDec: openDec('DEC-M-02')
+    };
+
+    /* ----- P01 ----- */
+    const hrs = x => parseFloat(x.available_hours) || 0;
+    const Q = (s.q || '').trim();
+    const keyf = { name: x => x.name, practice: x => x.practice, status: x => x.status, active_cases: x => x.active_cases, available_hours: hrs, next_commitment: x => x.next_commitment };
+    let rows = F.staff.filter(x => (!Q || [x.name, x.role, x.practice].some(v => v.indexOf(Q) >= 0)) && (s.fStatus === 'all' || x.status === s.fStatus) && (s.fRole === 'all' || x.role === s.fRole));
+    const sk = keyf[s.sortKey] ? s.sortKey : 'name';
+    rows = rows.slice().sort((a, b) => {
+      const fa = keyf[sk](a), fb = keyf[sk](b);
+      const c = typeof fa === 'number' ? fa - fb : String(fa).localeCompare(String(fb), 'ko');
+      return (c || a.id.localeCompare(b.id)) * s.sortDir;
+    });
+    const COLS = [['name', '이름'], ['practice', '전문 분야'], ['status', '상태'], ['active_cases', '사건'], [null, '주 담당'], ['available_hours', '가용'], ['next_commitment', '다음 일정']];
+    vals.cols = COLS.map(c => {
+      const on = c[0] && sk === c[0];
+      return {
+        label: c[1], sortable: !!c[0], fixed: !c[0], cls: on ? 'on' : '',
+        arrow: on ? (s.sortDir === 1 ? '▲' : '▼') : '',
+        ariaSort: on ? (s.sortDir === 1 ? 'ascending' : 'descending') : 'none',
+        sort: () => { if (!c[0]) return; if (sk === c[0]) this.setState({ sortDir: -s.sortDir }); else this.setState({ sortKey: c[0], sortDir: 1 }); }
+      };
+    });
+    const leadOf = name => F.cases.filter(c => c.assignee === name).map(c => this.caseLabel(c));
+    vals.rows = rows.map(x => {
+      const sel = s.pSel === x.id, rb = this.roleBlock(x.role), lead = leadOf(x.name);
+      return {
+        ini: this.ini(x.name), rb: rb.rb, rbCls: rb.rbCls, name: x.name, practice: x.practice, chip: this.staffChip(x.status), active: x.active_cases,
+        lead: lead.length ? lead.join(', ') : '—', hours: x.available_hours, pillCls: this.pillCls(x.status), next: x.next_commitment,
+        selCls: sel ? 'sel' : '', selBtnCls: sel ? 'on' : '', pressed: sel ? 'true' : 'false', selLabel: x.name + ' 선택',
+        infoLabel: x.name + ' 빠른 정보',
+        onRow: e => { if (e && e.stopPropagation) e.stopPropagation(); this.setState({ pSel: x.id }); },
+        onName: e => { if (e && e.stopPropagation) e.stopPropagation(); this.go(this.R('P02', x.id)); },
+        onInfo: e => { if (e && e.stopPropagation) e.stopPropagation(); this.setState({ pSel: x.id, pPanel: true }); }
+      };
+    });
+    vals.skelRows = [1, 2, 3, 4];
+    vals.rosterEmpty = ui === 'empty' || (ui === 'normal' && rows.length === 0);
+    vals.rosterShow = ui === 'normal' && rows.length > 0;
+    vals.rosterCountText = (ui === 'normal' ? rows.length : 0) + ' / ' + F.staff.length;
+    vals.q = s.q;
+    vals.onQ = e => this.setState({ q: e.target.value });
+    vals.fStatus = s.fStatus; vals.fRole = s.fRole;
+    vals.onFStatus = e => this.setState({ fStatus: e.target.value });
+    vals.onFRole = e => this.setState({ fRole: e.target.value });
+    vals.viewDefault = !s.q && s.fStatus === 'all' && s.fRole === 'all' && sk === 'name' && s.sortDir === 1;
+    vals.resetView = () => { this.setState({ q: '', fStatus: 'all', fRole: 'all', sortKey: 'name', sortDir: 1, uiState: ui === 'empty' ? 'normal' : ui }); this.toast('보기 초기화 · 선택 유지'); };
+    vals.pPanelOpen = !!s.pPanel; vals.pPanelPressed = s.pPanel ? 'true' : 'false';
+    vals.togglePanel = () => this.setState({ pPanel: !s.pPanel });
+    vals.goHire = () => this.go(this.subDefs('people')[2][3]());
+    vals.goDeleg = () => this.go(this.subDefs('people')[3][3]());
+    vals.goAssign = () => this.go(this.subDefs('people')[1][3]());
+    const lawyers = F.staff.filter(x => x.role !== '사무직원').length;
+    vals.firmMeta = [
+      { label: '구성원', value: F.staff.length + '명' },
+      { label: '변호사', value: lawyers + '명' },
+      { label: '진행 사건', value: F.summary[0].value },
+      { label: '결정 대기', value: F.summary[1].value }
+    ];
+    const conflict = F.staff.find(x => x.status === '배정 충돌');
+    const freeMost = F.staff.slice().sort((a, b) => hrs(b) - hrs(a))[0];
+    const lead = F.staff.find(x => x.role === '대표 변호사');
+    vals.p01Tiles = [
+      { label: '대표 변호사', value: lead.name, sub: lead.practice + ' · 가용 ' + lead.available_hours, cls: '', go: () => this.setState({ pSel: lead.id, pPanel: true }) },
+      { label: '배정 충돌', value: conflict ? conflict.name : '없음', sub: conflict ? '가용 ' + conflict.available_hours + ' · 판단 요청' : '', cls: conflict ? 'dang' : '', go: openDec('DEC-M-02') },
+      { label: '가용 시간 최다', value: freeMost.name, sub: freeMost.available_hours + ' · ' + freeMost.status, cls: '', go: () => this.setState({ pSel: freeMost.id, pPanel: true }) },
+      { label: '다음 기일', value: this.caseLabel(caseBy('CASE-DEMO-001')), sub: this.fmtD('2026-06-18') + ' · ' + this.dday('2026-06-18'), cls: '', go: goCase('CASE-DEMO-001', 'plan') }
+    ];
+    const issuesOf = name => F.plan.issues.filter(i => i.assigned === name).map(i => ({ title: i.id + ' ' + i.title.replace(/^쟁점 \d+ · /, ''), go: () => this.go(this.R('CASE'), { issue: i.id }) }));
+    const casesOf = name => F.cases.filter(c => c.assignee === name).map(c => ({ name: this.caseLabel(c), chip: this.caseChip(c.status), next: this.fmtD(c.next_date), go: goCase(c.id, 'plan') }));
+    const ps = s.pSel ? staffById(s.pSel) : null;
+    if (ps) {
+      const rb = this.roleBlock(ps.role);
+      vals.qp = {
+        has: true, none: false, ini: this.ini(ps.name), name: ps.name, rb: rb.rb, rbCls: rb.rbCls, practice: ps.practice, chip: this.staffChip(ps.status),
+        hours: ps.available_hours, pillCls: this.pillCls(ps.status), active: ps.active_cases, next: ps.next_commitment,
+        conflict: ps.status === '배정 충돌', openDec: openDec('DEC-M-02'),
+        cases: casesOf(ps.name), noCases: casesOf(ps.name).length === 0, issues: issuesOf(ps.name), noIssues: issuesOf(ps.name).length === 0,
+        goDetail: () => this.go(this.R('P02', ps.id))
+      };
+    } else {
+      vals.qp = { has: false, none: true, chip: this.chip('neutral', '', 'info'), cases: [], issues: [] };
+    }
+
+    /* ----- P02 ----- */
+    const p2 = staffById(r.staffId) || F.staff[0];
+    const P2T = [['overview', '개요'], ['work', '업무 기록'], ['eval', '경력·평가'], ['contract', '계약']];
+    vals.p2Tabs = P2T.map(t => ({ label: t[1], cls: s.p02Tab === t[0] ? 'on' : '', pressed: s.p02Tab === t[0] ? 'true' : 'false', pick: () => this.setState({ p02Tab: t[0] }) }));
+    const rb2 = this.roleBlock(p2.role);
+    vals.p2 = {
+      ini: this.ini(p2.name), rb: rb2.rb, rbCls: rb2.rbCls, name: p2.name, role: p2.role, practice: p2.practice, chip: this.staffChip(p2.status),
+      hours: p2.available_hours, pillCls: this.pillCls(p2.status), active: p2.active_cases + '건', next: p2.next_commitment,
+      cases: casesOf(p2.name), noCases: casesOf(p2.name).length === 0, issues: issuesOf(p2.name), noIssues: issuesOf(p2.name).length === 0,
+      tabOverview: s.p02Tab === 'overview', tabOther: s.p02Tab !== 'overview', tabLabel: (P2T.find(t => t[0] === s.p02Tab) || ['', ''])[1]
+    };
+
+    /* ----- CASE / M06 ----- */
+    const cs = cs0 || F.cases[0];
+    vals.cs = {
+      glyph: cs.name.charAt(0), id: cs.id, no: this.matterNo(cs), court: '미부여', name: this.client(cs), origin: cs.origin, chip: this.caseChip(cs.status), assignee: cs.assignee || '', hasAsg: !!cs.assignee, noAsg: !cs.assignee,
+      goAsg: goStaff(cs.assignee), next: cs.next_date ? this.fmtD(cs.next_date) : '미정', dday: this.dday(cs.next_date),
+      pending: cs.decision_pending, openDec: openDec('DEC-M-01')
+    };
+    vals.onCaseSwitch = e => this.go(this.R('CASE', { caseId: e.target.value, tab: r.tab }));
+    vals.caseTabs = this.caseTabDefs().map(t => ({ label: t[1], cls: r.tab === t[0] ? 'on' : '', current: r.tab === t[0] ? 'page' : 'false', go: goCase(cs.id, t[0]) }));
+    const ctab = this.caseTabDefs().find(t => t[0] === r.tab) || ['', '', ''];
+    vals.caseTabPH = r.view === 'CASE' && r.tab !== 'plan';
+    vals.caseTabLabel = ctab[1];
+    vals.goPlanTab = goCase(cs.id, 'plan');
+    vals.goDemoPlan = goCase('CASE-DEMO-001', 'plan');
+    const hasPlan = cs.id === F.plan.case_id;
+    vals.planMissing = r.view === 'CASE' && r.tab === 'plan' && !hasPlan;
+    vals.planShow = r.view === 'CASE' && r.tab === 'plan' && hasPlan;
+
+    const P = F.plan, D = s.draft, base = this.baseDraft();
+    const valItems = P.mock_validation.map(t => { const mm = t.match(/^(I-\d+)/); const iid = mm ? mm[1] : null; return { text: t, iid: iid, go: () => this.setState({ issue: iid || s.issue }) }; });
+    const changes = [];
+    P.issues.forEach(i => {
+      const b = base[i.id], d = D[i.id];
+      if (b.priority !== d.priority) changes.push({ iid: i.id, text: i.id + ' 우선순위 ' + b.priority + ' → ' + d.priority, impact: '표시만 변경' });
+      if (b.assigned !== d.assigned) { const sx = staffBy(d.assigned); changes.push({ iid: i.id, text: i.id + ' 담당 ' + b.assigned + ' → ' + d.assigned, impact: d.assigned + ' 가용 ' + sx.available_hours + ' · ' + sx.status }); }
+      Object.keys(b.use).forEach(mid => { if (b.use[mid] !== d.use[mid]) changes.push({ iid: i.id, text: i.id + ' ' + mid + ' 활용 ' + (b.use[mid] ? '예' : '아니오') + ' → ' + (d.use[mid] ? '예' : '아니오'), impact: '절차 상태는 그대로' }); });
+    });
+    const edited = changes.length > 0;
+    vals.changes = changes; vals.changeCount = changes.length; vals.noEdits = !edited;
+    vals.plan = {
+      title: P.document_title, delegation: P.delegation, issueCount: P.issues.length,
+      val: valItems, valCount: valItems.length,
+      editSummary: edited ? '수정 ' + changes.length + '건' : ''
+    };
+    const LC = ['초안', '검증 필요', '승인됨', '법정 실행'];
+    const ci = edited ? 0 : 1;
+    vals.life = LC.map((l, k) => ({ label: l, cls: 'lc ' + (k === ci ? 'cur' : (k < ci ? 'past' : 'fut')), current: k === ci ? 'step' : 'false' }));
+    vals.issues = P.issues.map(i => {
+      const vc = valItems.filter(v => v.iid === i.id).length;
+      return {
+        id: i.id, title: i.title.replace(/^쟁점 \d+ · /, ''), priority: D[i.id].priority, prioCls: D[i.id].priority === '핵심' ? 'rb-lead' : 'rb-ops',
+        assigned: D[i.id].assigned, ini: this.ini(D[i.id].assigned),
+        hasVal: vc > 0, valCount: vc, edited: changes.some(c => c.iid === i.id),
+        cls: s.issue === i.id ? 'sel' : '', current: s.issue === i.id ? 'true' : 'false', pick: () => this.setState({ issue: i.id })
+      };
+    });
+    const I = P.issues.find(i => i.id === s.issue) || P.issues[0];
+    const DI = D[I.id];
+    const STATE_IC = { done: 'check', no: 'ring', pending: 'clock', unknown: 'help' };
+    const steps = mt => {
+      const sub = mt.submission_state === 'submitted';
+      return [
+        { label: '알려짐', st: 'done', note: '목록 등록' },
+        { label: '확보', st: mt.acquired ? 'done' : 'no', note: mt.acquired ? '확보함' : '미확보' },
+        { label: '제출', st: sub ? 'done' : 'no', note: sub ? '제출됨' : (mt.submission_state === 'not_submitted' ? '미제출' : '—') },
+        { label: '접수', st: sub ? 'unknown' : 'no', note: sub ? '정보 없음' : '—' },
+        { label: '증거 허용', st: mt.admissibility === 'pending' ? 'pending' : (mt.admissibility === 'unknown' ? 'unknown' : 'no'), note: ({ pending: '판단 대기', unknown: '알 수 없음', not_applicable_yet: '해당 없음' })[mt.admissibility] || '—' }
+      ].map(x => Object.assign(x, { cls: 's-' + x.st, ip: IC[STATE_IC[x.st]] }));
+    };
+    const asgS = staffBy(DI.assigned);
+    vals.cur = {
+      id: I.id, title: I.title, objective: I.objective, counter: I.anticipated_counter, assigned: DI.assigned, ini: this.ini(DI.assigned),
+      asgHours: asgS.available_hours, asgPill: this.pillCls(asgS.status),
+      goAsg: goStaff(DI.assigned),
+      prioOpts: ['핵심', '보조'].map(p => ({ label: p, cls: DI.priority === p ? 'on' : '', pressed: DI.priority === p ? 'true' : 'false', pick: () => { if (DI.priority !== p) this.edit(d => { d[I.id].priority = p; }, I.id + ' 우선순위 → ' + p); } })),
+      noMats: I.material_refs.length === 0,
+      mats: I.material_refs.map(mid => {
+        const mt = matBy(mid), used = !!DI.use[mid], ek = I.id + ':' + mid, exp = !!s.expMat[ek];
+        return {
+          id: mid, title: mt.title, steps: steps(mt), use: used, useDisabled: !mt.acquired, useCls: mt.acquired ? '' : 'dis',
+          useNote: mt.acquired ? '계획에 활용' : '미확보 · 선택 불가',
+          changed: used !== base[I.id].use[mid],
+          toggleUse: () => {
+            if (!mt.acquired) { this.toast('미확보 자료는 활용 불가'); return; }
+            this.edit(d => { d[I.id].use[mid] = !used; }, I.id + ' ' + mid + ' 활용 ' + (used ? '해제' : '선택'));
+          },
+          expanded: exp ? 'true' : 'false', isExp: exp, chevCls: exp ? 'open' : '', expLabel: mt.title + ' 상세 ' + (exp ? '접기' : '펼치기'),
+          toggle: () => this.setState({ expMat: Object.assign({}, s.expMat, { [ek]: !exp }) }),
+          trackLabel: mt.title + ' 절차 상태',
+          acqText: mt.acquired ? '확보함' : '미확보 · 존재만 알려짐',
+          subText: ({ not_submitted: '미제출', submitted: '제출됨', none: '해당 없음' })[mt.submission_state] || mt.submission_state,
+          recText: mt.submission_state === 'submitted' ? '정보 없음' : '—',
+          admText: ({ not_applicable_yet: '아직 해당 없음', pending: '법원 판단 대기', unknown: '알 수 없음' })[mt.admissibility] || mt.admissibility
+        };
+      })
+    };
+    const involved = [];
+    P.issues.forEach(i => { if (involved.indexOf(D[i.id].assigned) < 0) involved.push(D[i.id].assigned); });
+    vals.insp = {
+      people: involved.map(n => { const x = staffBy(n); return { ini: this.ini(n), name: n, issues: P.issues.filter(i => D[i.id].assigned === n).map(i => i.id).join(' · '), hours: x.available_hours, pillCls: this.pillCls(x.status), go: goStaff(n) }; }),
+      warns: P.issues.map(i => ({ iid: i.id, text: i.warning, go: () => this.setState({ issue: i.id }) })),
+      warnCount: P.issues.length
+    };
+    vals.inspOpen = !!s.insp; vals.inspPressed = s.insp ? 'true' : 'false';
+    vals.inspBtnLabel = s.insp ? '검토 패널 접기' : '검토 패널 열기';
+    vals.toggleInsp = () => this.setState({ insp: !s.insp });
+    vals.openDec1 = openDec('DEC-M-01');
+    vals.valOpen = !!s.valOpen;
+    vals.toggleVal = () => this.setState({ valOpen: !s.valOpen });
+    vals.openVal = () => this.setState({ valOpen: true });
+    vals.closeVal = () => this.setState({ valOpen: false });
+    vals.noUndo = s.undo.length === 0; vals.noRedo = s.redo.length === 0;
+    vals.undo = () => this.doUndo(); vals.redo = () => this.doRedo();
+    vals.askCancel = () => this.openModal('cancel');
+    vals.doCancel = () => { this.setState({ draft: this.baseDraft(), undo: [], redo: [] }); this.closeModal(); this.toast('초안 v3로 되돌림'); };
+    vals.openPreview = () => this.openModal('preview');
+    vals.openApprove = () => this.openModal('approve');
+    const blockers = valItems.map(v => ({ text: '검증 · ' + v.text, go: () => { this.closeModal(); this.setState({ issue: v.iid || s.issue }); } }));
+    pending.filter(d => d.id === 'DEC-M-01').forEach(d => blockers.push({ text: '미해결 판단 · ' + d.title, go: openDec(d.id) }));
+    vals.blockers = blockers; vals.blockCount = blockers.length;
+    vals.approveDisabled = blockers.length > 0;
+    vals.approveLabel = blockers.length > 0 ? '승인 불가 · ' + blockers.length + '건' : '승인 확정';
+    vals.doApprove = () => { this.closeModal(); this.toast('엔진 미연결 · 승인 저장 안 됨'); };
+
+    const asg = s.asg || {};
+    vals.openAssign = () => { const a = {}; P.issues.forEach(i => { a[i.id] = D[i.id].assigned; }); this.openModal('assign', { asg: a, asgHist: [] }); };
+    vals.asgRows = P.issues.map(i => {
+      const v = asg[i.id] || D[i.id].assigned, x = staffBy(v);
+      const risky = x && (x.status === '배정 충돌' || hrs(x) === 0);
+      return {
+        id: i.id, title: i.title, val: v, ini: this.ini(v), changed: v !== D[i.id].assigned,
+        hasWarn: !!risky, warn: risky ? v + ' · 가용 ' + x.available_hours + ' · ' + x.status + ' — 승인 전 조정 필요' : '',
+        onChange: e => { const val = e.target.value; const cur = this.st(); this.setState({ asgHist: cur.asgHist.concat([cur.asg]), asg: Object.assign({}, cur.asg, { [i.id]: val }) }); }
+      };
+    });
+    const asgN = P.issues.filter(i => (asg[i.id] || D[i.id].assigned) !== D[i.id].assigned).length;
+    vals.asgNoUndo = (s.asgHist || []).length === 0;
+    vals.asgNoChange = asgN === 0;
+    vals.asgChangeText = asgN ? asgN + '건' : '';
+    vals.asgUndo = () => { const h = s.asgHist || []; if (!h.length) return; this.setState({ asg: h[h.length - 1], asgHist: h.slice(0, -1) }); };
+    vals.asgReset = () => { const a = {}; P.issues.forEach(i => { a[i.id] = D[i.id].assigned; }); this.setState({ asg: a, asgHist: [] }); };
+    vals.asgApply = () => {
+      const a = Object.assign({}, s.asg);
+      this.edit(d => { P.issues.forEach(i => { if (a[i.id]) d[i.id].assigned = a[i.id]; }); }, '담당 변경 ' + asgN + '건');
+      this.closeModal();
+      this.toast('초안에 반영 · 미승인');
+    };
+
+    vals.decModalList = pending.map(d => ({ id: d.id, title: d.title, category: d.category, cls: s.decSel === d.id ? 'sel' : '', current: s.decSel === d.id ? 'true' : 'false', pick: () => this.setState({ decSel: d.id }) }));
+    const dc = pending.find(d => d.id === s.decSel) || pending[0] || F.decisions[0];
+    vals.decCur = Object.assign({}, dc, { source: dc.source.replace('사건 CASE-DEMO-001', '사건 ' + this.caseLabel(caseBy('CASE-DEMO-001'))), goSource: () => this.goDecisionSource(dc.id) });
+
+    vals.ph = r.view === 'PH' ? { code: r.code, hasCode: !!r.code, title: r.title, desc: r.desc, facts: r.facts || [], hasFacts: (r.facts || []).length > 0 } : { code: '', hasCode: false, title: '', desc: '', facts: [], hasFacts: false };
+
+    const md = s.modal;
+    vals.modalOpen = !!md;
+    vals.mDec = md === 'decisions'; vals.mPreview = md === 'preview'; vals.mApprove = md === 'approve'; vals.mCancel = md === 'cancel'; vals.mAssign = md === 'assign';
+    vals.dlgW = md === 'cancel' ? '480px' : (md === 'preview' ? '640px' : (md === 'assign' ? '760px' : '860px'));
+    vals.closeModal = () => this.closeModal();
+    vals.overlayClick = e => { if (e.target === e.currentTarget && this._dlgEl) { try { this._dlgEl.focus(); } catch (x) {} } };
+    vals.dlgKey = e => { if (e.key === 'Escape') { e.stopPropagation(); this.closeModal(); } };
+    vals.dlgRef = this._dlgRef || (this._dlgRef = el => {
+      if (el && el !== this._dlgEl) { this._dlgEl = el; setTimeout(() => { try { el.focus(); } catch (e) {} }, 0); }
+      if (!el) this._dlgEl = null;
+    });
+    return vals;
+  }
+}
+window.__bootDC(Component, {"startTheme": "C", "startPalette": "C1", "startScreen": "D01", "startFont": "F0", "mode": "review"});
+</script>
+</body>
+</html>

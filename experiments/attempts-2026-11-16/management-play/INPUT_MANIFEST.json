@@ -1,0 +1,537 @@
+{
+  "created_date": "2026-10-27",
+  "purpose": "THE FIRM UI improvement handoff, not an implemented redesign",
+  "source_engine_sha256": "a288d83b8981dfe5b61b0f95dc700617d84ef0a7082d94e6dbe0c9b4f6019abb",
+  "source_runtime_html_sha256": "3456c530eae62bbc4d1f2929078b1d73b5be46597e6704b5dc0815154d93b1e9",
+  "originals": [
+    {
+      "kind": "prototype",
+      "package_name": "THE_FIRM_UI_Prototype_v1.html",
+      "source_library_id": "libfile_05979c724ef48191b44d891e5c20d2c0",
+      "normalized_text_matches_library": true,
+      "raw_bytes_sha256": "aa216c2adcbaadd6eb8ad859beedfed5b2d72057e9aaae450346a1fb31570939"
+    },
+    {
+      "kind": "font",
+      "package_name": "THE_FIRM_Font_Candidates.html",
+      "source_library_id": "libfile_eca9825454a881919a1531a18ca1107d",
+      "normalized_text_matches_library": true,
+      "raw_bytes_sha256": "2d2713cc10c31042e533db39466daf45b3c83fcb9604f669879f184693a5afbd"
+    }
+  ],
+  "reference_previews": 7,
+  "reference_image_binaries_included": false,
+  "gameplay_qa_screenshots_included": false,
+  "files": [
+    {
+      "path": "00_README.md",
+      "bytes": 3630,
+      "sha256": "269673d0a5d9f030d26948feefd4d2066602b55a3aa9a5f068b8b583a28c6970"
+    },
+    {
+      "path": "01_UI_IMPROVEMENT_TASK.md",
+      "bytes": 8283,
+      "sha256": "8a8c99eaf5ee58397fb98ab792cc3412eb5e8949dc3add88b701317aba923741"
+    },
+    {
+      "path": "02_REFERENCE_BRIEF.md",
+      "bytes": 20692,
+      "sha256": "53f76acfd8ea8a9d2538d681e59979a39239c88e25306c2e0ba7cdde45b252dd"
+    },
+    {
+      "path": "03_ACCEPTANCE_CHECKLIST.md",
+      "bytes": 2591,
+      "sha256": "2b83676f948ac11aaac7cc7a3829bbe6555f69f63aa016a9df936b0ab0673724"
+    },
+    {
+      "path": "project/assets/art/staff-atlas.png",
+      "bytes": 2293851,
+      "sha256": "9266a65d5baaf6c942faf4823b572efe713e9577bcd63775e7c247b6f4c93d8a"
+    },
+    {
+      "path": "project/assets/fonts/FirmSans-Subset.ttf",
+      "bytes": 4673088,
+      "sha256": "620a692f71d4135b81cc7d048c4f3e88eacf416910106ba0e87e0f2dd403051d"
+    },
+    {
+      "path": "project/assets/fonts/NotoSansKR.ttf",
+      "bytes": 10414588,
+      "sha256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252"
+    },
+    {
+      "path": "project/assets/fonts/OFL.txt",
+      "bytes": 4388,
+      "sha256": "1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9"
+    },
+    {
+      "path": "project/AUDIT_REPORT.md",
+      "bytes": 7310,
+      "sha256": "ef27cac1da54f75dfb69ab54042a77b8b24746ef52c1880a9b44e37a90ef6182"
+    },
+    {
+      "path": "project/CREDITS.md",
+      "bytes": 1393,
+      "sha256": "0e9b8c851e37579c9c88d57d138389afaff4902a488f98e2407a57f6aa8f03db"
+    },
+    {
+      "path": "project/dist/THE_FIRM_Management_Play_v0.3.html",
+      "bytes": 9449857,
+      "sha256": "3456c530eae62bbc4d1f2929078b1d73b5be46597e6704b5dc0815154d93b1e9"
+    },
+    {
+      "path": "project/dist/THE_FIRM_Management_Play_v0.4.html",
+      "bytes": 9449857,
+      "sha256": "3456c530eae62bbc4d1f2929078b1d73b5be46597e6704b5dc0815154d93b1e9"
+    },
+    {
+      "path": "project/docs/audit-build-after.log",
+      "bytes": 188,
+      "sha256": "ec10185859a40bb331d8f3e18742d9c7b2c108878029892aa663999996a18dc3"
+    },
+    {
+      "path": "project/docs/audit-engine-after.log",
+      "bytes": 1213,
+      "sha256": "5a8f3ba992dbe11cfdf362c320cba7ebfd25fc1854cd3f5a7fa38662b6940ae1"
+    },
+    {
+      "path": "project/docs/audit-engine-before.log",
+      "bytes": 9284,
+      "sha256": "750d33e5875795c6fe31ae3bd9a926f384f4b4044249e3c2aa01ac23985a96fd"
+    },
+    {
+      "path": "project/docs/audit-existing-after.log",
+      "bytes": 1569,
+      "sha256": "ce20284405fb2d62095c46551df8be4d1e94074a1038f56566c6585076da5a15"
+    },
+    {
+      "path": "project/docs/audit-provenance.json",
+      "bytes": 573,
+      "sha256": "d2d03104208bbc54b77bc56f6975f64d22c48c5b7f754d30bf63bdce9eaf52f5"
+    },
+    {
+      "path": "project/docs/audit-source-diff.patch",
+      "bytes": 42147,
+      "sha256": "29c0c4ebc8328035470f25aefae69f2d76e2634625a2329a1b11b56c88ecdea7"
+    },
+    {
+      "path": "project/docs/audit-strategies-baseline.csv",
+      "bytes": 28241,
+      "sha256": "52e6fff047f7ed1d36624048a11f3781e3870921834a0f583407321faf4eda4a"
+    },
+    {
+      "path": "project/docs/audit-strategies-baseline.json",
+      "bytes": 536615,
+      "sha256": "ef7a71b7da07dd9af5385cd3dd09d5e6eb6707d3cebe85a9472a0209eb05b3d5"
+    },
+    {
+      "path": "project/docs/audit-strategies-baseline.log",
+      "bytes": 169,
+      "sha256": "ee9d419b9a67812ec877b8fe72cc1f163d0bb273509e752e0f18f1774075ac35"
+    },
+    {
+      "path": "project/docs/audit-strategies.csv",
+      "bytes": 28241,
+      "sha256": "52e6fff047f7ed1d36624048a11f3781e3870921834a0f583407321faf4eda4a"
+    },
+    {
+      "path": "project/docs/audit-strategies.json",
+      "bytes": 536816,
+      "sha256": "3cb3734cd2a60e3b49369ddc5e3ae16244101a59371080ed3364f7f30c61106b"
+    },
+    {
+      "path": "project/docs/audit-strategies.log",
+      "bytes": 300,
+      "sha256": "5b2358750a4c287d362f0fb97ee42a6a6c446b6cee4de6337c4b7f26b2bdd0b4"
+    },
+    {
+      "path": "project/docs/audit-strategies.md",
+      "bytes": 14197,
+      "sha256": "6e0a671e7a510b070712ebfa5c06dd7c54eab830701123866a742b716fd98006"
+    },
+    {
+      "path": "project/docs/audit-ui-after/result.json",
+      "bytes": 4407,
+      "sha256": "4c454308eb4a8ab0fa3be633fdca7516431285106fe3b1acc47ef2e4b63751fd"
+    },
+    {
+      "path": "project/docs/audit-ui-after/THE_FIRM_2026-06-19_snapshot.json",
+      "bytes": 17704,
+      "sha256": "0aac31224265c270650843de79a0f4ae66aff36b5147ac4a4b056f493ed62fb5"
+    },
+    {
+      "path": "project/docs/audit-ui-after.log",
+      "bytes": 413,
+      "sha256": "c1e8b1ea69eb50480de4b140555e363bc7b167f89ee87351f4db2ed6899304ee"
+    },
+    {
+      "path": "project/docs/audit-ui-before/result.json",
+      "bytes": 4050,
+      "sha256": "439c66b663ced78ff20772cce0735b4baaa7263659993f95a97c8f61e5b7755e"
+    },
+    {
+      "path": "project/docs/audit-ui-before/THE_FIRM_2026-06-19_snapshot.json",
+      "bytes": 17704,
+      "sha256": "0aac31224265c270650843de79a0f4ae66aff36b5147ac4a4b056f493ed62fb5"
+    },
+    {
+      "path": "project/docs/audit-ui-before.log",
+      "bytes": 62667,
+      "sha256": "86cf4563cc24720e3702fa00aae101d9ba1cca4aab273a7e41cb5afa1b85a887"
+    },
+    {
+      "path": "project/docs/audit-ui-browser.log",
+      "bytes": 1566,
+      "sha256": "168732b20a801ff649d6443ab74042ac15cc29fd2ba2d6f8a7550329f11a5ea3"
+    },
+    {
+      "path": "project/docs/audit-ui-final/result.json",
+      "bytes": 4407,
+      "sha256": "eb29ebce2fb7a45600fbad638d67b970cec475e04ccb3a17e3b4e52dbbfa15a5"
+    },
+    {
+      "path": "project/docs/audit-ui-final/THE_FIRM_2026-06-19_snapshot.json",
+      "bytes": 17704,
+      "sha256": "0aac31224265c270650843de79a0f4ae66aff36b5147ac4a4b056f493ed62fb5"
+    },
+    {
+      "path": "project/docs/DESIGN.md",
+      "bytes": 6288,
+      "sha256": "fe2aaecb3fc6ec09cf659b620c44e0ba58def6eb2518f8b7be16ec1f359ff457"
+    },
+    {
+      "path": "project/docs/ENGINE_AUDIT.md",
+      "bytes": 6047,
+      "sha256": "5e782d1fabb368ed068d816d1e7449515a570b42da6fedaf04f447d895897fe4"
+    },
+    {
+      "path": "project/docs/INDEPENDENT_REVIEW.md",
+      "bytes": 7267,
+      "sha256": "e67e2aef8c77e5668441c03d3c8f183daff0a5d797c7f5b1dfd574ddd3774713"
+    },
+    {
+      "path": "project/docs/management-research.md",
+      "bytes": 9002,
+      "sha256": "7d003c7294c65eafecacec8b8ffb64914fa3cd5e2b292edd834767bdab4bccef"
+    },
+    {
+      "path": "project/docs/play-experiments.csv",
+      "bytes": 26509,
+      "sha256": "e504a07fc447314891671bd32a56535ae494f09448617ab9ab7d6a9d4425105e"
+    },
+    {
+      "path": "project/docs/play-experiments.json",
+      "bytes": 492790,
+      "sha256": "4ce6cfe9033195bd2863064d78a3d01e6f6c0a5d1c26b5c8dcc07c32bec5d03a"
+    },
+    {
+      "path": "project/docs/play-experiments.log",
+      "bytes": 356,
+      "sha256": "1a45a1f0e077583f91a4c7537c79c6a0bd7a3e26c6be2f31c7eb1f6ee5ea4041"
+    },
+    {
+      "path": "project/docs/play-experiments.md",
+      "bytes": 10358,
+      "sha256": "e43d0bb99c7c82a60c85ed02197017b9029800c6764a754fc55d08ffebe50417"
+    },
+    {
+      "path": "project/docs/play-legacy-ui-qa/exported-play-state.json",
+      "bytes": 17244,
+      "sha256": "37e70f263fc6279341f502710b78865ceda5945c269c8a19cb8d1be3c2421295"
+    },
+    {
+      "path": "project/docs/play-legacy-ui-qa/result.json",
+      "bytes": 2891,
+      "sha256": "0c78aa12bc393684c4fd6c57aeb941a905430340057d73c8f6e2cdefbec0deb2"
+    },
+    {
+      "path": "project/docs/play-legacy-ui-qa/THE_FIRM_2026-06-19_snapshot.json",
+      "bytes": 17778,
+      "sha256": "cce35f363c9f22314f44a84ee0bc13e18853594fbf8676c8f292b22faac522a1"
+    },
+    {
+      "path": "project/docs/play-provenance.json",
+      "bytes": 1534,
+      "sha256": "e724f6a72308c5481838526c07e584b9846ea72bb7f73ba4e9e02ee9188290a6"
+    },
+    {
+      "path": "project/docs/play-source-diff.patch",
+      "bytes": 270999,
+      "sha256": "f47d877f90df5e79e2e67c10ec58431390c459944431c8e601ff348df53d435a"
+    },
+    {
+      "path": "project/docs/play-ui-qa/capture-metadata.json",
+      "bytes": 104,
+      "sha256": "8dc052ba0386d55ab47fb19532a83a93e127841dc1b5a76543fc1161c24f2de7"
+    },
+    {
+      "path": "project/docs/play-ui-qa/exported-play-state.json",
+      "bytes": 17244,
+      "sha256": "37e70f263fc6279341f502710b78865ceda5945c269c8a19cb8d1be3c2421295"
+    },
+    {
+      "path": "project/docs/play-ui-qa/result.json",
+      "bytes": 2891,
+      "sha256": "0f00ae5f20b4148c2e0af966d81ed6e95334a35a83241b2ec770d4d1b11c63e7"
+    },
+    {
+      "path": "project/docs/PLAY_REVIEW.md",
+      "bytes": 5388,
+      "sha256": "5f4d558df0ee12f85688d328d8f5bd7c0fc30865fa06af364db6c64e392dfb69"
+    },
+    {
+      "path": "project/docs/UI_REFERENCE_BRIEF_2026-10-27.md",
+      "bytes": 20692,
+      "sha256": "53f76acfd8ea8a9d2538d681e59979a39239c88e25306c2e0ba7cdde45b252dd"
+    },
+    {
+      "path": "project/docs/WEB_QA.json",
+      "bytes": 3716,
+      "sha256": "92d5cdbdfb1294032e37979a28731e65e73761d6d0011333dae10fce3c2c9894"
+    },
+    {
+      "path": "project/godot/assets/NotoSansKR.ttf",
+      "bytes": 10414588,
+      "sha256": "194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252"
+    },
+    {
+      "path": "project/godot/assets/NotoSansKR.ttf.import",
+      "bytes": 762,
+      "sha256": "407761696c6e0d886f03a7b950545265e1a3a6a6f2aec1bcbf6182b929b501a7"
+    },
+    {
+      "path": "project/godot/assets/OFL.txt",
+      "bytes": 4388,
+      "sha256": "1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9"
+    },
+    {
+      "path": "project/godot/assets/portraits.png",
+      "bytes": 2293851,
+      "sha256": "9266a65d5baaf6c942faf4823b572efe713e9577bcd63775e7c247b6f4c93d8a"
+    },
+    {
+      "path": "project/godot/assets/portraits.png.import",
+      "bytes": 938,
+      "sha256": "dae3e7533115d07e7f2c7e58371f6097224af6f376d0afcdd8d952208bc86a06"
+    },
+    {
+      "path": "project/godot/data/sample.json",
+      "bytes": 4389,
+      "sha256": "1b64f20d8cdb3b09f62409382fb1c3a12fad1ed236930e5a08fb69dba8e94e06"
+    },
+    {
+      "path": "project/godot/main.gd",
+      "bytes": 22247,
+      "sha256": "b42decd65bc44ba843096e0a60659c5f0652bb04f8c0561953075df607e9f5d6"
+    },
+    {
+      "path": "project/godot/main.gd.uid",
+      "bytes": 19,
+      "sha256": "3262f4c1c3609a390be56dccaa1f1769646c11fb5292e4e29466953c302ac06c"
+    },
+    {
+      "path": "project/godot/main.tscn",
+      "bytes": 278,
+      "sha256": "4dbe73cf60db98ebb8260cd6331fccc5e182e5edac49aba0b287027c628d1614"
+    },
+    {
+      "path": "project/godot/project.godot",
+      "bytes": 794,
+      "sha256": "c1f5e527aa3a5d751db8ac9bdc9b759eface0a6a2ad90006f15c460e6f938fc3"
+    },
+    {
+      "path": "project/godot/README.md",
+      "bytes": 4488,
+      "sha256": "3d14325ff3e936745eb0918cc1aa18cd654b24f65400562605cdd8be1b513a43"
+    },
+    {
+      "path": "project/godot/snapshot_store.gd",
+      "bytes": 8679,
+      "sha256": "4b852fb094870bc793f97de97f2f5a3f0c40e4de755f59f1343948635effe4d8"
+    },
+    {
+      "path": "project/godot/snapshot_store.gd.uid",
+      "bytes": 20,
+      "sha256": "9e5aedb452c5843dbe14220ddc2d7f417da4c08cf79575f1374e50e873e549ad"
+    },
+    {
+      "path": "project/godot/tests/capture.gd",
+      "bytes": 714,
+      "sha256": "30cea565d5d1d2e58c58dfa1099017cfb3e8a6d7e4b9f5ffd7e35a6bed9857f8"
+    },
+    {
+      "path": "project/godot/tests/capture.gd.uid",
+      "bytes": 19,
+      "sha256": "7a23b1bc977467933618bf0a4388dc79286344e1975e2fcea814430eaafdc26d"
+    },
+    {
+      "path": "project/godot/tests/progressed-snapshot.json",
+      "bytes": 9337,
+      "sha256": "091ab5ae440ec48e4b3a12846e6474e41512e47c1ea29611ae8e832b0dfafe16"
+    },
+    {
+      "path": "project/godot/tests/smoke.gd",
+      "bytes": 3047,
+      "sha256": "93e98f52f91d855f91f1bfe72e2477eb385174ca2e11a01f94d5ac92386ef340"
+    },
+    {
+      "path": "project/godot/tests/smoke.gd.uid",
+      "bytes": 20,
+      "sha256": "a94188e401003270aa3fa3a8c231fc8cc20016cee60339f08c296dcddf9921e9"
+    },
+    {
+      "path": "project/PLAY_REPORT.md",
+      "bytes": 7194,
+      "sha256": "80c63ced78c2eead5a7c04d39f7fdff59040dc1db6229cac8f7d42bf5a57e54e"
+    },
+    {
+      "path": "project/README.md",
+      "bytes": 8283,
+      "sha256": "cfa1cab92eeb952cceecb3c19ffdcf5737f24df6a4574e893edaa0f0d8395605"
+    },
+    {
+      "path": "project/REPORT.md",
+      "bytes": 9402,
+      "sha256": "bcc4397badf54bb4501e47fc8ede3a16accff8107a80f60324e1bb6791e30d6c"
+    },
+    {
+      "path": "project/REVIEW_PACKET.md",
+      "bytes": 3978,
+      "sha256": "e47fb70233944ed430109070d60c0b88b266217c95dec341a4d24e1949a69c7c"
+    },
+    {
+      "path": "project/RULES.md",
+      "bytes": 18886,
+      "sha256": "91f38d9108efdb26a14d814968ebda4f346ffb9d99d5dc1ba5f42b06548648d2"
+    },
+    {
+      "path": "project/src/engine.js",
+      "bytes": 36634,
+      "sha256": "a288d83b8981dfe5b61b0f95dc700617d84ef0a7082d94e6dbe0c9b4f6019abb"
+    },
+    {
+      "path": "project/src/index.template.html",
+      "bytes": 583,
+      "sha256": "f4dabffb65c258e538ba6e52f4499b79e24ffb72b0616832bfe3639975b6c358"
+    },
+    {
+      "path": "project/src/style.css",
+      "bytes": 48093,
+      "sha256": "1410b9dd2a611ed7be78c2ac568e04c47ca270280339515582850b0c53594bf8"
+    },
+    {
+      "path": "project/src/ui.js",
+      "bytes": 74705,
+      "sha256": "0fb08e19c20d282f44d1380d94b06b38de58b3bff33844b6ceb17e8c1680f239"
+    },
+    {
+      "path": "project/TASK.md",
+      "bytes": 4832,
+      "sha256": "1db9ef7ee9c21ba0b48190872794292f9611ef5ab4e097fc02d329bed4a769d8"
+    },
+    {
+      "path": "project/test-results.log",
+      "bytes": 12820,
+      "sha256": "5fb370960a0d26664e72630d2185dc0d188279351fa5699fc0bbdddbbc8e6fde"
+    },
+    {
+      "path": "project/tests/audit-regressions.cjs",
+      "bytes": 9419,
+      "sha256": "586b5e944b904d71c6179af892dd0c16d915542111dc0956aef1594edfa27dbb"
+    },
+    {
+      "path": "project/tests/audit-ui.test.cjs",
+      "bytes": 3104,
+      "sha256": "3c41cd1e2a523ade582158f4af8fe4b99c670aa1e15739fe3e3b4cb650902b56"
+    },
+    {
+      "path": "project/tests/engine.test.cjs",
+      "bytes": 14085,
+      "sha256": "03cd47a80e095de5ddfa29db3e90c24d15312bcf15036025f41729492eee069b"
+    },
+    {
+      "path": "project/tests/fixtures/build-before-audit.py",
+      "bytes": 1626,
+      "sha256": "e72c293e185b54806a4ee86630405d8e02bbf8727a7d0affab0f113c72c1a662"
+    },
+    {
+      "path": "project/tests/fixtures/engine-before-audit.cjs",
+      "bytes": 29575,
+      "sha256": "7f3402c767aaa2bb53f6de7da5e3b69b220c671753c07b0d5ef2d2bafffbc1a6"
+    },
+    {
+      "path": "project/tests/fixtures/ui-before-audit.js",
+      "bytes": 62610,
+      "sha256": "d338b87432c0140ebd22e8388d69428cc4efa4b10e68267ca3e7c6aa41ff894f"
+    },
+    {
+      "path": "project/tests/play-engine.test.cjs",
+      "bytes": 12785,
+      "sha256": "4d25ef198a5d52f77d59eca17405245f8556018c9ae3f3e533ae3d069988b3e3"
+    },
+    {
+      "path": "project/tests/play-ui-smoke.cjs",
+      "bytes": 13279,
+      "sha256": "6a40ded092afb3f472d01daf444f6dfd36f1eb8cef578997db221124264bfcd5"
+    },
+    {
+      "path": "project/tests/play-ui.test.cjs",
+      "bytes": 4689,
+      "sha256": "59dbc5221589ca1f908bae4276a2efe8920f7b9d7dbb542bc4801dcecfe5b8d0"
+    },
+    {
+      "path": "project/tests/ui-smoke.cjs",
+      "bytes": 19712,
+      "sha256": "747b648546496d6ebd2e25f7beabeeb0e3027a65c88ea7d5e96c65d22a97c982"
+    },
+    {
+      "path": "project/tools/audit-strategies.cjs",
+      "bytes": 12883,
+      "sha256": "d3b97e2bb856700e934975bb6f144c8d1c89dc6f05501f6655efcd8f29b4a70b"
+    },
+    {
+      "path": "project/tools/audit-verify.cjs",
+      "bytes": 1739,
+      "sha256": "b4515f594561c69daeedd4b595a3b62989ba37ddc4a570f1879cf165b8772d9b"
+    },
+    {
+      "path": "project/tools/build.py",
+      "bytes": 1891,
+      "sha256": "dd4f24ea93e935a59afed57a10e053df6e31df1c95aa108205b097d6170ac896"
+    },
+    {
+      "path": "project/tools/package-play.py",
+      "bytes": 3582,
+      "sha256": "0b54af37441989d24fde3e15f777c545dd291e5b4a9d888116249bf2dc7f13f6"
+    },
+    {
+      "path": "project/tools/play-experiments.cjs",
+      "bytes": 25799,
+      "sha256": "55d70729ffe06d0ae3cd86bc7fc0435364b7a9848d865f8862c98613062a3009"
+    },
+    {
+      "path": "project/tools/play-verify.cjs",
+      "bytes": 1857,
+      "sha256": "e45d4254e38c1be7f8cff89921179d005d3fd0ad3b06c1c88659d249544c1385"
+    },
+    {
+      "path": "references/IMAGE_GALLERY.html",
+      "bytes": 8111,
+      "sha256": "f7a5c2ae6fc34558af49debd9353dac23333799fa7af4afbd6107ce6fcb55a4a"
+    },
+    {
+      "path": "references/image_sources.json",
+      "bytes": 5120,
+      "sha256": "35cbb34c83daecadcf6c4c0dd95110a7d6b1ace463c62c6ca11c52c0a113c436"
+    },
+    {
+      "path": "references/original/THE_FIRM_Font_Candidates.html",
+      "bytes": 24321,
+      "sha256": "2d2713cc10c31042e533db39466daf45b3c83fcb9604f669879f184693a5afbd"
+    },
+    {
+      "path": "references/original/THE_FIRM_UI_Prototype_v1.html",
+      "bytes": 166710,
+      "sha256": "aa216c2adcbaadd6eb8ad859beedfed5b2d72057e9aaae450346a1fb31570939"
+    }
+  ]
+}

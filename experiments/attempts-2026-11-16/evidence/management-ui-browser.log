@@ -1,0 +1,17 @@
+PASS defaults use Graphite and the embedded Korean font with unchanged experiment schema
+PASS viewing all screens and layout modes preserves the byte-exact game save
+PASS visual themes are separate from layout modes and preserve the game save
+PASS font candidates disclose actual availability and do not mutate the game save
+PASS case selection retains the three-file context and separates preparation from money
+PASS client review discloses refund and cash timing before acceptance
+PASS acceptance changes the exact engine state and creates seven tasks without instant cash
+PASS remaining-hours sorting changes visible order without changing the allocation
+PASS staff comparison shows legal-role restrictions and cancellation is atomic
+PASS applying a draft uses the same assignment and priority commands
+PASS desktop and mobile screens keep main actions and assignment apply reachable
+PASS five actual day actions match the engine and actual accounting fields
+PASS v0.4 export import and reload preserve exact actual history
+PASS legacy v0.3 save keeps its version and contract through views export and next day
+PASS default offline use has no remote requests or runtime errors and keeps the HTML unchanged
+PASS explicit online font request handles offline failure without claiming success or changing the save
+{"passed":16,"failed":0,"layouts":35,"runtimeErrors":0,"remoteRequests":0,"report":"C:\\Users\\Admin\\Documents\\Codex\\2026-11-16\\new-chat-7\\work\\ui-source\\THE_FIRM_UI_Improved\\docs\\ui-improvement-qa\\result.json"}

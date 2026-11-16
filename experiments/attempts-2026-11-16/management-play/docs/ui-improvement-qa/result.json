@@ -1,0 +1,400 @@
+{
+  "started": "2026-10-27T05:07:18.617Z",
+  "html": "C:\\Users\\Admin\\Documents\\Codex\\2026-10-27\\new-chat\\work\\handoff\\project\\dist\\THE_FIRM_Management_Play_v0.4.html",
+  "startHash": "db0aac8a264ecdf3a75f5343a0e03f9df51e5c713c46a343e616dc9939455727",
+  "checks": [
+    {
+      "name": "defaults use Graphite and the embedded Korean font with unchanged experiment schema",
+      "pass": true
+    },
+    {
+      "name": "viewing all screens and layout modes preserves the byte-exact game save",
+      "pass": true
+    },
+    {
+      "name": "visual themes are separate from layout modes and preserve the game save",
+      "pass": true
+    },
+    {
+      "name": "font candidates disclose actual availability and do not mutate the game save",
+      "pass": true
+    },
+    {
+      "name": "case selection retains the three-file context and separates preparation from money",
+      "pass": true
+    },
+    {
+      "name": "client review discloses refund and cash timing before acceptance",
+      "pass": true
+    },
+    {
+      "name": "acceptance changes the exact engine state and creates seven tasks without instant cash",
+      "pass": true
+    },
+    {
+      "name": "remaining-hours sorting changes visible order without changing the allocation",
+      "pass": true
+    },
+    {
+      "name": "staff comparison shows legal-role restrictions and cancellation is atomic",
+      "pass": true
+    },
+    {
+      "name": "applying a draft uses the same assignment and priority commands",
+      "pass": true
+    },
+    {
+      "name": "desktop and mobile screens keep main actions and assignment apply reachable",
+      "pass": true
+    },
+    {
+      "name": "five actual day actions match the engine and actual accounting fields",
+      "pass": true
+    },
+    {
+      "name": "v0.4 export import and reload preserve exact actual history",
+      "pass": true
+    },
+    {
+      "name": "legacy v0.3 save keeps its version and contract through views export and next day",
+      "pass": true
+    },
+    {
+      "name": "default offline use has no remote requests or runtime errors and keeps the HTML unchanged",
+      "pass": true
+    },
+    {
+      "name": "explicit online font request handles offline failure without claiming success or changing the save",
+      "pass": true
+    }
+  ],
+  "layouts": [
+    {
+      "label": "1366-home",
+      "width": 1366,
+      "height": 768,
+      "body": 1366,
+      "html": 1366
+    },
+    {
+      "label": "1366-cases",
+      "width": 1366,
+      "height": 768,
+      "body": 1366,
+      "html": 1366
+    },
+    {
+      "label": "1366-people",
+      "width": 1366,
+      "height": 768,
+      "body": 1366,
+      "html": 1366
+    },
+    {
+      "label": "1366-finance",
+      "width": 1366,
+      "height": 768,
+      "body": 1366,
+      "html": 1366
+    },
+    {
+      "label": "1366-reports",
+      "width": 1366,
+      "height": 768,
+      "body": 1366,
+      "html": 1366
+    },
+    {
+      "label": "1366-brief",
+      "width": 1366,
+      "height": 768,
+      "body": 1366,
+      "html": 1366
+    },
+    {
+      "label": "1366-dossier",
+      "width": 1366,
+      "height": 768,
+      "body": 1366,
+      "html": 1366
+    },
+    {
+      "label": "1366-operations",
+      "width": 1366,
+      "height": 768,
+      "body": 1366,
+      "html": 1366
+    },
+    {
+      "label": "1440-home",
+      "width": 1440,
+      "height": 900,
+      "body": 1440,
+      "html": 1440
+    },
+    {
+      "label": "1440-cases",
+      "width": 1440,
+      "height": 900,
+      "body": 1440,
+      "html": 1440
+    },
+    {
+      "label": "1440-people",
+      "width": 1440,
+      "height": 900,
+      "body": 1440,
+      "html": 1440
+    },
+    {
+      "label": "1440-finance",
+      "width": 1440,
+      "height": 900,
+      "body": 1440,
+      "html": 1440
+    },
+    {
+      "label": "1440-reports",
+      "width": 1440,
+      "height": 900,
+      "body": 1440,
+      "html": 1440
+    },
+    {
+      "label": "1440-brief",
+      "width": 1440,
+      "height": 900,
+      "body": 1440,
+      "html": 1440
+    },
+    {
+      "label": "1440-dossier",
+      "width": 1440,
+      "height": 900,
+      "body": 1440,
+      "html": 1440
+    },
+    {
+      "label": "1440-operations",
+      "width": 1440,
+      "height": 900,
+      "body": 1440,
+      "html": 1440
+    },
+    {
+      "label": "1440-assignment",
+      "width": 1440,
+      "height": 900,
+      "body": 1440,
+      "html": 1440
+    },
+    {
+      "label": "1366-home",
+      "width": 1366,
+      "height": 768,
+      "body": 1366,
+      "html": 1366
+    },
+    {
+      "label": "1366-cases",
+      "width": 1366,
+      "height": 768,
+      "body": 1366,
+      "html": 1366
+    },
+    {
+      "label": "1366-people",
+      "width": 1366,
+      "height": 768,
+      "body": 1366,
+      "html": 1366
+    },
+    {
+      "label": "1366-finance",
+      "width": 1366,
+      "height": 768,
+      "body": 1366,
+      "html": 1366
+    },
+    {
+      "label": "1366-reports",
+      "width": 1366,
+      "height": 768,
+      "body": 1366,
+      "html": 1366
+    },
+    {
+      "label": "1366-brief",
+      "width": 1366,
+      "height": 768,
+      "body": 1366,
+      "html": 1366
+    },
+    {
+      "label": "1366-dossier",
+      "width": 1366,
+      "height": 768,
+      "body": 1366,
+      "html": 1366
+    },
+    {
+      "label": "1366-operations",
+      "width": 1366,
+      "height": 768,
+      "body": 1366,
+      "html": 1366
+    },
+    {
+      "label": "1366-assignment",
+      "width": 1366,
+      "height": 768,
+      "body": 1366,
+      "html": 1366
+    },
+    {
+      "label": "390-home",
+      "width": 390,
+      "height": 844,
+      "body": 390,
+      "html": 390
+    },
+    {
+      "label": "390-cases",
+      "width": 390,
+      "height": 844,
+      "body": 390,
+      "html": 390
+    },
+    {
+      "label": "390-people",
+      "width": 390,
+      "height": 844,
+      "body": 390,
+      "html": 390
+    },
+    {
+      "label": "390-finance",
+      "width": 390,
+      "height": 844,
+      "body": 390,
+      "html": 390
+    },
+    {
+      "label": "390-reports",
+      "width": 390,
+      "height": 844,
+      "body": 390,
+      "html": 390
+    },
+    {
+      "label": "390-brief",
+      "width": 390,
+      "height": 844,
+      "body": 390,
+      "html": 390
+    },
+    {
+      "label": "390-dossier",
+      "width": 390,
+      "height": 844,
+      "body": 390,
+      "html": 390
+    },
+    {
+      "label": "390-operations",
+      "width": 390,
+      "height": 844,
+      "body": 390,
+      "html": 390
+    },
+    {
+      "label": "390-assignment",
+      "width": 390,
+      "height": 844,
+      "body": 390,
+      "html": 390
+    }
+  ],
+  "fontEvidence": [
+    {
+      "label": "initial embedded face",
+      "faces": [
+        {
+          "family": "Firm Sans",
+          "status": "loaded",
+          "weight": "100 900"
+        },
+        {
+          "family": "\"Noto Sans KR\"",
+          "status": "loaded",
+          "weight": "normal"
+        },
+        {
+          "family": "\"Noto Serif KR\"",
+          "status": "loaded",
+          "weight": "normal"
+        }
+      ]
+    },
+    {
+      "preset": "F0",
+      "status": "본문: 미로드 · 내장 글꼴로 대체 / 제목: 미로드 · 내장 글꼴로 대체 / 숫자: 미로드 · 내장 글꼴로 대체"
+    },
+    {
+      "preset": "F1",
+      "status": "본문: Noto Sans KR 로드 확인 / 제목: Noto Serif KR 로드 확인 / 숫자: Noto Sans KR 로드 확인"
+    },
+    {
+      "preset": "F2",
+      "status": "본문: 미로드 · 내장 글꼴로 대체 / 제목: 미로드 · 내장 글꼴로 대체 / 숫자: 미로드 · 내장 글꼴로 대체"
+    },
+    {
+      "preset": "F3",
+      "status": "본문: 미로드 · 내장 글꼴로 대체 / 제목: 미로드 · 내장 글꼴로 대체 / 숫자: 미로드 · 내장 글꼴로 대체"
+    },
+    {
+      "preset": "F4",
+      "status": "본문: 미로드 · 내장 글꼴로 대체 / 제목: 미로드 · 내장 글꼴로 대체 / 숫자: 미로드 · 내장 글꼴로 대체"
+    },
+    {
+      "preset": "F5",
+      "status": "본문: 미로드 · 내장 글꼴로 대체 / 제목: 미로드 · 내장 글꼴로 대체 / 숫자: 미로드 · 내장 글꼴로 대체"
+    },
+    {
+      "preset": "F6",
+      "status": "본문: Noto Sans KR 로드 확인 / 제목: Noto Sans KR 로드 확인 / 숫자: 미로드 · 내장 글꼴로 대체"
+    },
+    {
+      "preset": "F7",
+      "status": "본문: 미로드 · 내장 글꼴로 대체 / 제목: 미로드 · 내장 글꼴로 대체 / 숫자: 미로드 · 내장 글꼴로 대체"
+    },
+    {
+      "preset": "F8",
+      "status": "본문: 미로드 · 내장 글꼴로 대체 / 제목: 미로드 · 내장 글꼴로 대체 / 숫자: 미로드 · 내장 글꼴로 대체"
+    },
+    {
+      "preset": "F9",
+      "status": "본문: 미로드 · 내장 글꼴로 대체 / 제목: 미로드 · 내장 글꼴로 대체 / 숫자: 미로드 · 내장 글꼴로 대체"
+    },
+    {
+      "preset": "local-pretendard",
+      "status": "본문: 미로드 · 내장 글꼴로 대체 / 제목: 미로드 · 내장 글꼴로 대체 / 숫자: 미로드 · 내장 글꼴로 대체"
+    },
+    {
+      "preset": "embedded",
+      "status": "본문: Firm Sans 로드 확인 / 제목: Firm Sans 로드 확인 / 숫자: Firm Sans 로드 확인"
+    }
+  ],
+  "runtimeErrors": [],
+  "remoteRequests": [],
+  "explicitFontRequests": [
+    "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@600;700&family=Gothic+A1:wght@400;500;700&family=Hahmlet:wght@600;700&family=Nanum+Gothic:wght@400;700&family=Nanum+Myeongjo:wght@700&family=Nanum+Gothic+Coding:wght@400;700&family=Gowun+Dodum&family=Gowun+Batang:wght@700&family=JetBrains+Mono:wght@400;500;700&family=Barlow+Semi+Condensed:wght@500;600;700&family=Orbit&family=Rajdhani:wght@500;600;700&display=swap"
+  ],
+  "expectedFontNetworkErrors": [
+    "Failed to load resource: net::ERR_FAILED"
+  ],
+  "endHash": "db0aac8a264ecdf3a75f5343a0e03f9df51e5c713c46a343e616dc9939455727",
+  "finished": "2026-10-27T05:07:24.898Z",
+  "passed": 16,
+  "failed": 0
+}

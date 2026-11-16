@@ -1,0 +1,7 @@
+2026-11-16 archive validation
+node experiments/attempts-2026-11-16/verify.cjs
+PASS: 4 attempt entries; 323 snapshot size/SHA256 checks; hashFailures=0; indexFailures=0; exit=0
+cd courtroom-prototype && npm test
+PASS: tests=247; failures=0; exit=0
+Historical/current pre-archive gameplay review: evidence/INTEGRATION_REVIEW.md
+No full browser/Godot/human playtest pass claimed by this archive.

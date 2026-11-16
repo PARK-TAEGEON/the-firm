@@ -1,5 +1,9 @@
 # THE FIRM — Current State
 
+## 이전 시도 참고 · 2026-11-16
+
+[실험 시도 보관함](../experiments/attempts-2026-11-16/README.md) · [AI용 구조화 로그](../experiments/attempts-2026-11-16/attempts.json): 경영/UI, GEN 전망, World 커리어, TF-UI 디자인의 과거 시도와 한계를 보존한다. **본게임 통합·Accepted 설계·재미 검증 완료가 아니다.** 아래 기존 제품 현황을 이 보관 작업의 구현 결과로 해석하지 않는다.
+
 현재 상태와 미결정 사항의 짧은 source of truth다. 과거 구현·검증은 [CHANGELOG](CHANGELOG.md), 실험 설계는 [9월 설계 메모](DESIGN-NOTES-2026-09.md)를 본다.
 
 ## Current Version

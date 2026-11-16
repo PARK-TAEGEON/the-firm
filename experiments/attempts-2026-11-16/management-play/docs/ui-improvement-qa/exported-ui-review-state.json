@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "version": "0.3.0",
+  "dayIndex": 0,
+  "dates": [
+    "2026-06-12",
+    "2026-06-15",
+    "2026-06-16",
+    "2026-06-17",
+    "2026-06-18",
+    "2026-06-19"
+  ],
+  "cash": 18200000,
+  "openingCash": 18200000,
+  "intake": {
+    "status": "pending",
+    "client": "윤지훈",
+    "fee": 3600000,
+    "upfront": 2400000,
+    "balance": 1200000,
+    "dueDay": 4
+  },
+  "staff": [
+    {
+      "id": "lee",
+      "name": "이정우",
+      "role": "lawyer",
+      "specialty": "형사 · 총괄 검토",
+      "capacity": 3,
+      "hourlyCost": 60000
+    },
+    {
+      "id": "kim",
+      "name": "김현우",
+      "role": "lawyer",
+      "specialty": "형사 · 기록 분석",
+      "capacity": 4,
+      "hourlyCost": 45000
+    },
+    {
+      "id": "park",
+      "name": "박서윤",
+      "role": "lawyer",
+      "specialty": "계약 · 조사",
+      "capacity": 4,
+      "hourlyCost": 40000
+    },
+    {
+      "id": "han",
+      "name": "한도윤",
+      "role": "admin",
+      "specialty": "자료 정리 · 사건 운영",
+      "capacity": 3,
+      "hourlyCost": 18000
+    }
+  ],
+  "cases": [
+    {
+      "id": "jung",
+      "client": "정민호",
+      "title": "정민호 사건",
+      "status": "active",
+      "dueDay": 3,
+      "summary": "자료를 정리한 뒤 기록을 검토합니다. 자료 정리가 후속 검토의 선행 조건입니다."
+    },
+    {
+      "id": "go",
+      "client": "고은아",
+      "title": "고은아 사건",
+      "status": "active",
+      "dueDay": 3,
+      "summary": "조사 메모를 작성하고 대표 검토를 마무리합니다. 기존 업무의 미수금 입금이 예정되어 있습니다."
+    },
+    {
+      "id": "yoon",
+      "client": "윤지훈",
+      "title": "윤지훈 수임 검토",
+      "status": "pending",
+      "dueDay": 4,
+      "summary": "신규 수임을 결정하면 자료 취합·초기 검토·준비 보고가 추가됩니다."
+    }
+  ],
+  "tasks": [
+    {
+      "id": "jung-organize",
+      "caseId": "jung",
+      "title": "정민호 · 자료 정리",
+      "requiredHours": 8,
+      "doneHours": 0,
+      "assignee": "han",
+      "priority": 1,
+      "dueDay": 1,
+      "requires": [],
+      "roles": [
+        "admin",
+        "lawyer"
+      ],
+      "outputText": "수집한 자료를 항목별로 정리했습니다. 기록 검토를 시작할 수 있습니다.",
+      "completedDay": null
+    },
+    {
+      "id": "jung-review",
+      "caseId": "jung",
+      "title": "정민호 · 기록 검토",
+      "requiredHours": 12,
+      "doneHours": 0,
+      "assignee": "kim",
+      "priority": 1,
+      "dueDay": 3,
+      "requires": [
+        "jung-organize"
+      ],
+      "roles": [
+        "lawyer"
+      ],
+      "outputText": "정리된 기록의 확인 범위와 추가 검토 항목을 정리했습니다. 법적 판단이나 승소 전망을 확정하지 않습니다.",
+      "completedDay": null
+    },
+    {
+      "id": "go-memo",
+      "caseId": "go",
+      "title": "고은아 · 조사 메모",
+      "requiredHours": 10,
+      "doneHours": 0,
+      "assignee": "park",
+      "priority": 2,
+      "dueDay": 3,
+      "requires": [],
+      "roles": [
+        "lawyer"
+      ],
+      "outputText": "확인한 자료와 아직 확인하지 못한 사항을 조사 메모로 정리했습니다.",
+      "completedDay": null
+    },
+    {
+      "id": "go-review",
+      "caseId": "go",
+      "title": "고은아 · 검토 마무리",
+      "requiredHours": 6,
+      "doneHours": 0,
+      "assignee": "lee",
+      "priority": 2,
+      "dueDay": 3,
+      "requires": [
+        "go-memo"
+      ],
+      "roles": [
+        "lawyer"
+      ],
+      "outputText": "조사 메모 검토를 마쳤습니다. 준비된 범위와 추가 확인 사항을 의뢰인 설명용으로 정리했습니다.",
+      "completedDay": null
+    }
+  ],
+  "ledger": [],
+  "invoices": [
+    {
+      "id": "invoice-existing",
+      "caseId": "go",
+      "amount": 4500000,
+      "dueDay": 2,
+      "status": "unpaid",
+      "paidDay": null,
+      "title": "기존 업무 미수금"
+    }
+  ],
+  "reports": [],
+  "events": [
+    {
+      "id": "event-0001",
+      "day": 0,
+      "title": "업무 주간 시작",
+      "detail": "기존 사건 2건과 신규 수임 요청 1건을 검토합니다. 배정·준비 범위와 현금 변화를 확인하세요."
+    }
+  ],
+  "completed": false
+}

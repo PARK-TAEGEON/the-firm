@@ -1,0 +1,30 @@
+
+> the-firm-courtroom-experiment@0.10.0 test:browser
+> node tests/browser.test.js && node tests/browser-flow.test.js && node tests/browser-tactics.test.js && node tests/browser-opening.test.js && node tests/browser-commitment-scope.test.js && node tests/browser-closing.test.js && node tests/browser-closing-profile.test.js && node tests/browser-adjudication.test.js && node tests/browser-full-flow.test.js && node tests/browser-trial.test.js
+
+Browser: 87 checks, 0 failures, exit 0
+Flow browser: 47 checks, 0 failures, exit 0
+Tactical browser: 35 checks, 0 failures, exit 0
+Opening browser: 52 checks, 0 failures, exit 0
+Cross-issue browser: 37 checks, 0 failures, exit 0
+Closing browser: 58 checks, 0 failures, exit 0
+Closing profile browser: 67 checks, 0 failures, exit 0
+Adjudication browser: 208 checks, 0 failures, exit 0
+npm.cmd : AssertionError [ERR_ASSERTION]: Record sheet returns focus to rebuilt opener
+At C:\Users\Admin\.codex\worktrees\tf-ui-001\The Firm\docs\sprints\TF-UI-001\tools\run-regressions.ps1:12 char:2
++  & $taskExe @taskArgs *> (Join-Path $taskOut ($taskCheck.name+'.log') ...
++  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (AssertionError ... rebuilt opener:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+    at check (C:\Users\Admin\.codex\worktrees\tf-ui-001\The Firm\courtroom-prototype\tests\browser-full-flow.test.js:6:
+29)
+    at run (C:\Users\Admin\.codex\worktrees\tf-ui-001\The Firm\courtroom-prototype\tests\browser-full-flow.test.js:20:6
+52) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}

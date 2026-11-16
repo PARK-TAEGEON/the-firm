@@ -1,0 +1,21 @@
+PASS offline single-file boot and initial state through UI reset
+PASS A/B/C and all navigation pages preserve game state
+PASS C risk list opens assignment and Escape closes it without game mutation
+PASS intake review is read-only until acceptance
+PASS unapplied assignee/priority preview is discarded with Escape
+PASS ineligible legal-task assignment is disabled
+PASS apply initial assignments through real dialogs
+PASS day 0 execution produces real work and no premature receipt
+PASS handoff preserves progress; day 1 posts the upfront receipt once
+PASS finish five days with every task on time and no duplicate receipts
+PASS daily report tabs and finance show actual state without mutation
+PASS JSON download contains the exact raw snapshot
+PASS invalid JSON and malformed imported IDs preserve the active game
+PASS normal JSON import restores a completed game after UI reset
+PASS page reload restores the saved game and A/B/C remain read-only
+PASS null-assignee import renders, filters, and can be assigned through UI
+PASS temporary cash shortfall remains visible despite a positive final forecast
+PASS imported person capacities update all aggregate UI totals
+PASS 390px window keeps body width bounded across all views and dialogs
+PASS no JavaScript/console errors or remote network dependencies
+{"passed":20,"failed":0,"runtimeErrors":0,"blockedRequests":0,"artifactChangedDuringRun":false,"report":"C:\\Users\\Admin\\Documents\\Codex\\2026-10-25\\new-chat\\work\\firm-audit\\the-firm-management-slice\\docs\\audit-ui-after\\result.json"}

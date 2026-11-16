@@ -1,0 +1,9 @@
+{
+  "zip_crc_ok": true,
+  "source_extracted_and_rebuilt": true,
+  "rebuild_byte_identical": true,
+  "runtime_sha256": "db0aac8a264ecdf3a75f5343a0e03f9df51e5c713c46a343e616dc9939455727",
+  "runtime_bytes": 9534771,
+  "reference_and_license_files_present": true,
+  "build_exit_code": 0
+}

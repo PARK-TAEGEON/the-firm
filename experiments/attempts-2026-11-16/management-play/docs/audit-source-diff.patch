@@ -1,0 +1,230 @@
+--- original/README.md
++++ audited/README.md
+@@ -1,4 +1,6 @@
+ # THE FIRM — 한 주의 경영 0.3
++
++> **2026-10-25 경영 감사 반영:** 저장 기록 검증·현금 부족 경고·가용시간 표시·Windows 빌드를 수정했습니다. 경제 기본값은 유지했습니다. 결과와 재현 명령은 [AUDIT_REPORT.md](AUDIT_REPORT.md), 통합 검증은 `node tools/audit-verify.cjs`입니다. 수정된 `dist/THE_FIRM_Management_Play_v0.3.html`을 바로 열어 실행할 수 있습니다.
+ 
+ **수임 검토 → 담당 배정 → 5업무일 진행 → 준비·현금 보고**를 실제 상태 변화로 연결한 독립 실행 실험입니다. 같은 상황을 브리핑·서류철·편성표의 세 화면 구성으로 비교할 수 있습니다.
+ 
+--- original/REPORT.md
++++ audited/REPORT.md
+@@ -1,4 +1,6 @@
+ # THE FIRM 경영 실험 0.3 — 구현·검증 보고
++
++> 2026-10-25 후속 경영 감사 결과는 `AUDIT_REPORT.md`와 `test-results.log`를 참고하세요. 아래는 최초 제작 시점의 보고이며, 후속 검증은 엔진/렌더러30개·브라우저20개·70전략조건+70반복(실패0)입니다. 원본 경제 수치는 변경하지 않았습니다.
+ 
+ 작성: 2026-10-25
+ 
+--- original/RULES.md
++++ audited/RULES.md
+@@ -124,6 +124,12 @@
+ 
+ ## 7. 검증 명령과 남은 범위
+ 
++### 2026-10-25 저장 무결성 보강
++
++경제·스케줄링 기본값은 유지한다. 실제 작업이 요구량을 채운 날짜와 완료일, 고정 시나리오의 필수 업무/청구 ID 및 사건 연결, 계약과 착수금의 일치, 처리된 지급일의 입금 상태를 추가 대조한다. 저장 형식/버전은 바꾸지 않으며 정상 기존 저장과 수치 실험은 계속 지원한다.
++
++이벤트 기록의 허용 수는 `1000 + dayIndex + 완료 업무 수 + 수임 결정 여부(0/1)`이다. 반복 사용자 변경이 기본 예산을 채우면 추가 배정·우선순위 변경을 원자적으로 거부하되, 필수 수임 결정·하루 마감·완료 기록은 별도 여유를 사용하여 주간 진행을 막지 않는다. 기존 기록을 삭제하지 않고 새 ID 충돌도 피한다. 자세한 재현은 `docs/ENGINE_AUDIT.md`를 따른다.
++
+ ```sh
+ node --test tests/engine.test.cjs
+ ```
+--- original/TASK.md
++++ audited/TASK.md
+@@ -1,6 +1,9 @@
+ # THE FIRM · Management Play 0.3
+ 
+ Lane: experiment
++
++## 2026-10-25 후속 감사 계약
++현재 사용자 요청에 따라 이 디렉터리의 실제 경영 규칙·전략·저장/진행 오류를 검증하고 재현된 오류만 수정한다. 최대 2시간, 마지막 15분은 검증·정리. 원본 경제 수치 변경, 재판 확장, Godot 본이식과 기존 Git 작업본 변경은 제외한다. 엔진 담당은 src/engine.js, UI/빌드는 주 담당, 전략 담당은 별도 tools/docs, 독립 검토는 검토 문서만 작성한다. 산출물은 AUDIT_REPORT.md, REVIEW_PACKET.md, test-results.log, 재현 스크립트, CSV/JSON이다.
+ 
+ ## 목적
+ 사용자가 승인한 수임 검토 → 배정 → 시간 진행 → 준비/경영 보고를 실제 상태 변화로 연결하고, 같은 상태를 브리핑·서류철·편성표의 세 구조로 검토한다. 전체 제품이나 기존 재판 통합 완료를 주장하지 않는다.
+--- original/src/engine.js
++++ audited/src/engine.js
+@@ -11,6 +11,7 @@
+   var DATES = ['2026-06-12', '2026-06-15', '2026-06-16', '2026-06-17', '2026-06-18', '2026-06-19'];
+   var WORK_DAYS = 5;
+   var OPERATING_COST = 160000;
++  var ACTION_EVENT_BUDGET = 1000;
+   var ROLES = ['lawyer', 'admin'];
+ 
+   function clone(value) { return JSON.parse(JSON.stringify(value)); }
+@@ -19,7 +20,10 @@
+   function find(items, id) { return items.find(function (item) { return item.id === id; }); }
+   function remaining(task) { return task.requiredHours - task.doneHours; }
+   function event(state, title, detail) {
+-    state.events.push({ id: 'event-' + String(state.events.length + 1).padStart(4, '0'), day: state.dayIndex, title: title, detail: detail });
++    var sequence = state.events.length + 1;
++    var id = 'event-' + String(sequence).padStart(4, '0');
++    while (find(state.events, id)) { sequence += 1; id = 'event-' + String(sequence).padStart(4, '0'); }
++    state.events.push({ id: id, day: state.dayIndex, title: title, detail: detail });
+   }
+   function task(id, caseId, title, hours, assignee, priority, dueDay, requires, roles, outputText) {
+     return { id: id, caseId: caseId, title: title, requiredHours: hours, doneHours: 0,
+@@ -267,7 +271,12 @@
+           raw.intake.fee !== raw.intake.upfront + raw.intake.balance || raw.intake.dueDay !== 4) fail('수임 조건이 잘못되었습니다.');
+       if (raw.intake.status === 'pending' && raw.dayIndex > 0) fail('수임 미결정 상태에서는 업무일이 진행될 수 없습니다.');
+       if (!list(raw.staff, 4) || raw.staff.length !== 4 || !list(raw.cases, 3) || raw.cases.length !== 3 || !list(raw.tasks, 7) || raw.tasks.length < 4) fail('인력·사건·업무 목록이 잘못되었습니다.');
+-      if (!list(raw.ledger, 100) || !list(raw.invoices, 3) || !list(raw.reports, WORK_DAYS) || !list(raw.events, 1000)) fail('기록 목록이 잘못되었습니다.');
++      // Reserve room for mandatory intake/day/completion events. Repeated edits
++      // can exhaust the action budget, but must never prevent the week closing.
++      var mandatoryEvents = raw.dayIndex + (raw.intake.status === 'pending' ? 0 : 1) + raw.tasks.filter(function (item) {
++        return record(item) && item.completedDay !== null;
++      }).length;
++      if (!list(raw.ledger, 100) || !list(raw.invoices, 3) || !list(raw.reports, WORK_DAYS) || !list(raw.events, ACTION_EVENT_BUDGET + mandatoryEvents)) fail('기록 목록이 잘못되었거나 조작 기록 한도를 넘었습니다.');
+       [raw.staff, raw.cases, raw.tasks, raw.ledger, raw.invoices, raw.reports, raw.events].forEach(function (items, i) { unique(items, ['인력', '사건', '업무', '원장', '청구', '보고', '이벤트'][i]); });
+       if (['lee', 'kim', 'park', 'han'].some(function (id) { return !find(raw.staff, id); }) || ['jung', 'go', 'yoon'].some(function (id) { return !find(raw.cases, id); })) fail('필수 인력 또는 사건이 없습니다.');
+       raw.staff.forEach(function (person) {
+@@ -278,6 +287,15 @@
+       });
+       var yoonTasks = raw.tasks.filter(function (item) { return item.caseId === 'yoon'; });
+       if ((raw.intake.status === 'accepted' && yoonTasks.length !== 3) || (raw.intake.status !== 'accepted' && yoonTasks.length)) fail('수임 상태와 생성된 업무가 다릅니다.');
++      // These identities are referenced by the authored receipt/completion rules.
++      // Numerical scenario values stay configurable for separate balance fixtures.
++      var taskCases = { 'jung-organize': 'jung', 'jung-review': 'jung', 'go-memo': 'go', 'go-review': 'go' };
++      if (raw.intake.status === 'accepted') {
++        taskCases['yoon-collect'] = 'yoon'; taskCases['yoon-review'] = 'yoon'; taskCases['yoon-brief'] = 'yoon';
++      }
++      if (raw.tasks.length !== Object.keys(taskCases).length || raw.tasks.some(function (item) {
++        return !Object.prototype.hasOwnProperty.call(taskCases, item.id) || taskCases[item.id] !== item.caseId;
++      })) fail('필수 업무 ID 또는 사건 연결이 다릅니다.');
+       raw.tasks.forEach(function (item) {
+         if (!find(raw.cases, item.caseId) || !text(item.title) || !text(item.outputText) || !int(item.requiredHours, 1, 1000) || !int(item.doneHours, 0, item.requiredHours) || ![1, 2, 3].includes(item.priority) || !int(item.dueDay, 0, 4)) fail('업무 설정이 잘못되었습니다.');
+         if (!list(item.roles, 2) || !item.roles.length || new Set(item.roles).size !== item.roles.length || item.roles.some(function (role) { return !ROLES.includes(role); })) fail('업무의 수행 직무가 잘못되었습니다.');
+@@ -299,14 +317,19 @@
+       if (balance !== raw.cash) fail('현금과 입출금 원장이 일치하지 않습니다.');
+       raw.invoices.forEach(function (invoice) {
+         if (!find(raw.cases, invoice.caseId) || !int(invoice.amount, 1, 1000000000) || !int(invoice.dueDay, 0, 5) || !text(invoice.title) || !['unpaid', 'paid'].includes(invoice.status)) fail('청구 정보가 잘못되었습니다.');
++        if (!['invoice-existing', 'invoice-yoon-upfront', 'invoice-yoon-balance'].includes(invoice.id) ||
++            invoice.caseId !== (invoice.id === 'invoice-existing' ? 'go' : 'yoon')) fail('청구 ID 또는 사건 연결이 다릅니다.');
+         var payments = raw.ledger.filter(function (entry) { return entry.type === 'income' && entry.sourceId === invoice.id; });
+         if (invoice.status === 'paid') {
+-          if (!int(invoice.paidDay, invoice.dueDay, raw.dayIndex - 1) || payments.length !== 1 || payments[0].amount !== invoice.amount || payments[0].day !== invoice.paidDay) fail('입금 기록과 청구 상태가 다릅니다.');
++          if (!int(invoice.paidDay, invoice.dueDay, raw.dayIndex - 1) || invoice.paidDay !== invoice.dueDay || payments.length !== 1 || payments[0].amount !== invoice.amount || payments[0].day !== invoice.paidDay) fail('입금 기록과 청구 상태가 다릅니다.');
+         } else if (invoice.paidDay !== null || payments.length) fail('미입금 청구에 입금 기록이 있습니다.');
++        if (invoice.status === 'unpaid' && invoice.dueDay < raw.dayIndex) fail('처리된 지급일의 청구가 미입금 상태입니다.');
+       });
+       if (raw.ledger.some(function (entry) { return entry.type === 'income' && !find(raw.invoices, entry.sourceId); })) fail('청구 근거 없는 입금이 있습니다.');
+       if (!find(raw.invoices, 'invoice-existing')) fail('기존 미수금 기록이 없습니다.');
+       if (raw.intake.status === 'accepted' ? !find(raw.invoices, 'invoice-yoon-upfront') : raw.invoices.some(function (invoice) { return invoice.caseId === 'yoon'; })) fail('수임 상태와 착수금 청구가 다릅니다.');
++      var upfrontInvoice = find(raw.invoices, 'invoice-yoon-upfront');
++      if (upfrontInvoice && (upfrontInvoice.amount !== raw.intake.upfront || upfrontInvoice.dueDay !== 1)) fail('계약 조건과 착수금 청구 금액 또는 지급일이 다릅니다.');
+       var brief = find(raw.tasks, 'yoon-brief');
+       var finalInvoice = find(raw.invoices, 'invoice-yoon-balance');
+       if (!!finalInvoice !== !!(brief && brief.completedDay !== null) || (finalInvoice && (finalInvoice.dueDay !== brief.completedDay + 1 || finalInvoice.amount !== raw.intake.balance))) fail('준비 보고 완료 전에는 잔금을 청구할 수 없습니다.');
+@@ -322,6 +345,7 @@
+           if (item.requires.some(function (id) { return performed[id] < find(raw.tasks, id).requiredHours; })) fail('선행 업무 완료 전에 후속 업무가 수행되었습니다.');
+           used[person.id] += entry.hours; performed[item.id] += entry.hours;
+           if (used[person.id] > person.capacity || performed[item.id] > item.requiredHours) fail('실제 작업량이 가용시간 또는 업무 요구량을 넘습니다.');
++          if (performed[item.id] === item.requiredHours && item.completedDay !== day) fail('완료 날짜와 실제 요구량을 채운 날짜가 다릅니다.');
+           var expense = raw.ledger.find(function (line) { return line.sourceId === 'work:' + day + ':' + item.id + ':' + person.id; });
+           if (!expense || expense.type !== 'expense' || expense.day !== day || expense.amount !== entry.cost) fail('수행 기록과 업무비가 다릅니다.');
+         });
+--- original/src/ui.js
++++ audited/src/ui.js
+@@ -46,6 +46,11 @@
+   function toast(message, reportId) { clearTimeout(toastTimer); const el = $('#toast'); el.innerHTML = esc(message) + (reportId ? '<button class="toast-action" data-action="open-report" data-id="' + esc(reportId) + '">보고 열기</button>' : ''); el.classList.add('show'); toastTimer = setTimeout(() => el.classList.remove('show'), reportId ? 8000 : 4500); }
+   function dispatch(action) { const r = E.command(state, action); if (!r.ok) { toast(r.error); return false; } state = r.state; persist(); return true; }
+   function head(title, sub, note = '') { return '<div class="screen-head"><div><div class="chapter">CHAPTER 01 / THE FIRST WEEK</div><h1>' + title + '</h1><p class="sub">' + sub + '</p></div>' + (note ? '<div class="head-note">' + note + '</div>' : '') + '</div>'; }
++  function cashWarning(f) {
++    const shortfall = f.warnings.find((warning) => warning.code === 'cash_shortfall');
++    if (state.cash >= 0 && !shortfall) return '';
++    return '<div class="impact-box" role="status" data-cash-warning><h4>' + (state.cash < 0 ? '현재 현금 부족' : '업무일 중 현금 부족 예상') + '</h4><p>' + (state.cash < 0 ? '현재 현금이 ' + won(state.cash) + '입니다. ' : '') + (shortfall ? esc(shortfall.message) + ' ' : '') + '주간 최종 현금이 양수여도 중간 업무일에는 자금이 부족할 수 있습니다. 이 실험은 부족액을 자동 대출하거나 업무를 중단하지 않습니다.</p></div>';
++  }
+   function render() {
+     const f = E.forecast(state); const active = state.cases.filter((c) => ['active', 'ready'].includes(c.status));
+     const navs = [['home', 'home', '업무실'], ['cases', 'case', '사건'], ['people', 'people', '구성원'], ['finance', 'money', '재무'], ['reports', 'report', '보고']];
+@@ -53,7 +58,7 @@
+     $('#app').innerHTML = '<div class="review-bar"><div class="review-caption"><b>PLAYABLE STUDY 0.3</b><span>화면 구성 비교</span></div><div class="review-tabs" role="group" aria-label="업무실 화면 구성">' + modeNames.map(([id, label]) => '<button data-action="mode" data-id="' + id + '" aria-pressed="' + (ui.mode === id) + '" class="' + (ui.mode === id ? 'active' : '') + '">' + label + '</button>').join('') + '</div><div class="review-right"><span class="save-state"><span class="save-dot"></span>' + (storageOK ? '자동 저장' : '파일 저장 필요') + '</span><button data-action="rules">실험 규칙</button></div></div>' +
+       '<header class="topbar"><button class="brand" data-action="nav" data-id="home" aria-label="THE FIRM 업무실"><span class="brand-symbol">F</span><span><span class="brand-word">THE FIRM</span><span class="brand-sub" style="display:block">LAW & MANAGEMENT</span></span></button><div class="top-caption">작은 사무실, 당신의 첫 결정<span>01 — 서초 사무소</span></div><div class="top-stats"><div class="cash-head"><span class="label">사용 가능 현금</span><strong class="money">₩ ' + num(state.cash) + '</strong></div><div class="top-date">' + day(state.dayIndex, true) + '<small>' + (state.completed ? '업무 주간 마감' : '업무 ' + (state.dayIndex + 1) + ' / 5일 · 진행 대기') + '</small></div>' + btn((state.completed ? '주간 보고' : state.intake.status === 'pending' ? '수임 검토' : '하루 진행') + icon('arrow'), 'advance', 'primary advance') + '</div></header>' +
+       '<nav class="nav-bar" aria-label="주 메뉴"><div class="nav-links">' + navs.map(([id, i, label]) => '<button class="nav-item ' + (ui.page === id ? 'active' : '') + '" data-action="nav" data-id="' + id + '"' + (ui.page === id ? ' aria-current="page"' : '') + '>' + icon(i) + label + (id === 'reports' && state.reports.length ? '<span class="count">' + state.reports.length + '</span>' : '') + '</button>').join('') + '</div><div class="nav-tools"><button class="icon-btn" data-action="help" aria-label="진행 방법">' + icon('help') + '</button><button class="icon-btn" data-action="save" aria-label="저장과 새로 시작">' + icon('settings') + '</button></div></nav>' +
+-      '<main class="screen" id="main">' + ({ home: () => renderHome(f), cases: () => renderCases(f), people: () => renderPeople(f), finance: () => renderFinance(f), reports: () => renderReports(f) }[ui.page] || (() => renderHome(f)))() + '<div class="rule-strip">' + icon('info') + '<span>준비 업무와 사무실 경영을 다루는 5업무일 시나리오 · 금액·시간은 이번 실험의 설정값입니다.</span><button data-action="rules">조건 보기</button></div><footer class="page-footer"><span>THE FIRM / SEOCHO OFFICE</span><span>진행 사건 ' + active.length + '건 · 구성원 4명</span></footer></main>';
++      '<main class="screen" id="main">' + cashWarning(f) + ({ home: () => renderHome(f), cases: () => renderCases(f), people: () => renderPeople(f), finance: () => renderFinance(f), reports: () => renderReports(f) }[ui.page] || (() => renderHome(f)))() + '<div class="rule-strip">' + icon('info') + '<span>준비 업무와 사무실 경영을 다루는 5업무일 시나리오 · 금액·시간은 이번 실험의 설정값입니다.</span><button data-action="rules">조건 보기</button></div><footer class="page-footer"><span>THE FIRM / SEOCHO OFFICE</span><span>진행 사건 ' + active.length + '건 · 구성원 4명</span></footer></main>';
+     renderModal();
+   }
+   function renderHome(f) {
+@@ -65,7 +70,7 @@
+     const totalToday = sum(f.today, (p) => p.scheduledHours);
+     const body = head('대표의 업무실', state.completed ? '보고를 확인하고 다른 선택의 결과를 비교해 보세요.' : '오늘의 결정이 의뢰인과 동료의 다음 일정을 만듭니다.', '<strong>' + day(state.dayIndex) + '</strong>' + (state.completed ? '마감 브리핑' : '오전 업무 브리핑')) +
+       '<div class="brief-grid"><section class="brief-paper"><div class="brief-body"><div class="paper-kicker">' + (pending ? 'NEW INQUIRY / 003' : state.completed ? 'WEEKLY REVIEW / 001' : 'PARTNER’S BRIEF / 001') + '</div><h2>' + title + '</h2><p>' + copy + '</p><div class="hero-actions">' + btn((pending ? '의뢰 내용 검토' : state.completed ? '주간 보고 열기' : '업무 배정 살펴보기') + icon('arrow'), pending ? 'intake' : state.completed ? 'week' : 'nav', 'primary', pending || state.completed ? '' : 'data-id="people"') + link(pending ? '현재 업무 보기' : '편성표 보기', pending ? 'nav' : 'mode', pending ? 'data-id="people"' : 'data-id="operations"') + '</div></div><div class="brief-facts"><div class="paper-fact"><span class="label">' + (pending ? '계약 수임료' : '마감 예상 현금') + '</span><strong>' + (pending ? man(state.intake.fee) : man(f.projectedCash)) + '<small>원</small></strong><div class="note">' + (pending ? '착수 240만 · 잔금 120만' : '예정 입금과 업무비 반영') + '</div></div><div class="paper-fact"><span class="label">' + (pending ? '추가 준비 업무' : '남은 준비 업무') + '</span><strong>' + (pending ? '16' : sum(state.tasks, left)) + '<small>시간</small></strong><div class="note">' + (pending ? '취합 → 검토 → 준비 보고' : '담당자별 하루 가용시간 적용') + '</div></div><div class="paper-fact"><span class="label">준비 마감</span><strong style="font-size:19px">' + day(4) + '</strong><div class="note">준비 업무의 내부 마감</div></div></div></section>' +
+-      '<aside class="ops-aside"><div><div class="section-top"><h2>사무실의 오늘</h2><small>' + (state.completed ? '마감' : '현재 배정 기준') + '</small></div><div class="ops-stats"><div class="ops-stat"><span>진행 사건</span><b>' + state.cases.filter((c) => c.status === 'active').length + '<small>건</small></b></div><div class="ops-stat"><span>오늘 처리 예정</span><b>' + totalToday + '<small>/ 14시간</small></b></div><div class="ops-stat"><span>기한 조정이 필요한 업무</span><b class="' + (risks.length ? 'danger' : '') + '">' + risks.length + '<small>건</small></b></div></div></div><div class="advisor">' + portrait('han') + '<p><strong>한도윤 · 사무직원</strong>' + (state.completed ? '“이번 주에 실제로 준비된 범위를 보고서에 정리해 두었습니다.”' : '“자료 정리가 끝나야 검토를 시작할 수 있어요. 첫 배정을 확인해 주세요.”') + '</p></div></aside></div>' +
++      '<aside class="ops-aside"><div><div class="section-top"><h2>사무실의 오늘</h2><small>' + (state.completed ? '마감' : '현재 배정 기준') + '</small></div><div class="ops-stats"><div class="ops-stat"><span>진행 사건</span><b>' + state.cases.filter((c) => c.status === 'active').length + '<small>건</small></b></div><div class="ops-stat"><span>오늘 처리 예정</span><b>' + totalToday + '<small>/ ' + sum(state.staff, (p) => p.capacity) + '시간</small></b></div><div class="ops-stat"><span>기한 조정이 필요한 업무</span><b class="' + (risks.length ? 'danger' : '') + '">' + risks.length + '<small>건</small></b></div></div></div><div class="advisor">' + portrait('han') + '<p><strong>한도윤 · 사무직원</strong>' + (state.completed ? '“이번 주에 실제로 준비된 범위를 보고서에 정리해 두었습니다.”' : '“자료 정리가 끝나야 검토를 시작할 수 있어요. 첫 배정을 확인해 주세요.”') + '</p></div></aside></div>' +
+       '<div class="bottom-grid"><section><div class="section-top"><h2>책상 위의 사건</h2>' + link('모든 사건', 'nav', 'data-id="cases"') + '</div><div class="case-list">' + state.cases.map((c, i) => renderCaseRow(c, i, f)).join('') + '</div>' + renderRecentReport() + '</section><section class="team-panel"><div class="section-top"><h2>함께 일하는 사람들</h2><small>오늘 처리 예정 / 가용</small></div><div class="team-list">' + state.staff.map((p) => { const work = f.today.find((t) => t.staffId === p.id); return '<button class="team-mini" data-action="staff" data-id="' + p.id + '">' + portrait(p.id) + '<span><span class="person">' + esc(p.name) + '</span><span class="role" style="display:block">' + role(p) + '</span></span><span class="workload">' + work.scheduledHours + ' / ' + p.capacity + 'h<small>남은 담당 업무 ' + work.assignedRemainingHours + 'h</small></span></button>'; }).join('') + '</div></section></div>';
+     return body;
+   }
+@@ -90,11 +95,11 @@
+   }
+   function renderOperations(f) {
+     const totalToday = sum(f.today, (p) => p.scheduledHours); const risks = forecastRisk(f);
+-    return head('한 주의 편성표', '사람과 시간을 함께 놓고, 배정의 결과를 읽습니다.', '<strong>6.12 — 6.18</strong>5업무일 · 금 / 월 / 화 / 수 / 목') + '<div class="schedule-summary"><div class="schedule-stat"><strong>' + totalToday + '<small style="font-size:13px"> / 14h</small></strong><span>오늘 처리 예정</span></div><div class="schedule-stat"><strong>' + sum(state.tasks, left) + 'h</strong><span>남은 담당 업무</span></div><div class="schedule-stat"><strong class="' + (risks.length ? 'danger' : '') + '">' + risks.length + '</strong><span>기한 초과 예상 업무</span></div><div class="schedule-stat"><strong>' + man(f.projectedCash) + '원</strong><span>마감 예상 현금</span></div></div>' + renderRiskList(f) + '<div class="schedule-wrap"><table class="schedule"><thead><tr><th>구성원 / 하루 가용</th>' + state.dates.slice(0, 5).map((_, d) => '<th class="' + (d === state.dayIndex ? 'today' : '') + '"><div class="day-label">' + day(d) + (d === state.dayIndex ? '<small>오늘</small>' : '') + '</div></th>').join('') + '</tr></thead><tbody>' + state.staff.map((p) => '<tr><td>' + personLine(p.id) + '<div style="font-size:10px;margin-top:8px" class="dim">하루 ' + p.capacity + 'h · 시간당 ' + man(p.hourlyCost) + '원</div></td>' + state.dates.slice(0, 5).map((_, d) => { const past = d < state.dayIndex; const source = past ? state.reports.find((r) => r.day === d) : f.days.find((r) => r.day === d); const work = (source ? source.work : []).filter((e) => e.staffId === p.id); const used = sum(work, (e) => e.hours); return '<td class="' + (d === state.dayIndex ? 'today' : '') + '">' + work.map((e) => { const t = find(state.tasks, e.taskId); const pred = f.tasks.find((x) => x.taskId === t.id); const risky = !past && ['late', 'beyond_horizon'].includes(pred.status); return '<button class="task-block ' + (past ? 'past' : 'future') + (risky ? ' late' : '') + '" data-action="assign" data-id="' + esc(t.id) + '" aria-label="' + esc(t.title) + ' 담당 조정"><span class="block-top"><span>' + esc(find(state.cases, t.caseId).client) + '</span><span>' + e.hours + 'h</span></span><span class="block-desc">' + esc(shortTask(t)) + (past ? ' · 수행' : ' · 예정') + '</span>' + (risky ? '<span class="block-warning">' + (pred.predictedCompletionDay === null ? '주간 내 미완료' : '기한 +' + (pred.predictedCompletionDay - t.dueDay) + '업무일') + '</span>' : '') + '</button>'; }).join('') + (used < p.capacity ? '<div class="open-slot">' + (past ? '미사용 ' : '예정 없음 ') + (p.capacity - used) + 'h</div>' : '') + '</td>'; }).join('') + '</tr>').join('') + '</tbody></table></div><div class="schedule-foot"><span>녹색: 실제 수행 · 황토색: 현재 배정의 예상 작업<br>' + (state.intake.status === 'pending' ? '미결정 신규 의뢰는 제외되어 있습니다.' : '업무를 누르면 담당자·우선순위를 조정할 수 있습니다.') + '</span><button class="link-btn" data-action="forecast">예측 조건 ' + icon('info') + '</button></div><div class="schedule-cta paper"><div><div class="eyebrow">' + (state.intake.status === 'pending' ? 'A NEW COMMITMENT' : state.completed ? 'WEEK CLOSED' : 'THE NEXT DECISION') + '</div><h3>' + (state.intake.status === 'pending' ? '윤지훈 님의 의뢰를 맡을 여력이 있을까요?' : state.completed ? '실제 수행한 주간을 돌아봅니다.' : '같은 14시간도, 누구에게 맡기는지에 따라 달라집니다.') + '</h3><p>' + (state.intake.status === 'pending' ? '추가 16시간 · 준비 기한 6/18 · 계약 수임료 360만원' : '남은 일의 총량과 오늘 처리 가능한 시간은 다릅니다. 선행 업무와 비용을 함께 살펴보세요.') + '</p></div>' + btn((state.intake.status === 'pending' ? '수임 조건 검토' : state.completed ? '주간 보고' : '업무 배정 조정') + icon('arrow'), state.intake.status === 'pending' ? 'intake' : state.completed ? 'week' : 'nav', 'primary', state.intake.status === 'accepted' || state.intake.status === 'declined' ? 'data-id="people"' : '') + '</div>';
++    return head('한 주의 편성표', '사람과 시간을 함께 놓고, 배정의 결과를 읽습니다.', '<strong>6.12 — 6.18</strong>5업무일 · 금 / 월 / 화 / 수 / 목') + '<div class="schedule-summary"><div class="schedule-stat"><strong>' + totalToday + '<small style="font-size:13px"> / ' + sum(state.staff, (p) => p.capacity) + 'h</small></strong><span>오늘 처리 예정</span></div><div class="schedule-stat"><strong>' + sum(state.tasks, left) + 'h</strong><span>남은 담당 업무</span></div><div class="schedule-stat"><strong class="' + (risks.length ? 'danger' : '') + '">' + risks.length + '</strong><span>기한 초과 예상 업무</span></div><div class="schedule-stat"><strong>' + man(f.projectedCash) + '원</strong><span>마감 예상 현금</span></div></div>' + renderRiskList(f) + '<div class="schedule-wrap"><table class="schedule"><thead><tr><th>구성원 / 하루 가용</th>' + state.dates.slice(0, 5).map((_, d) => '<th class="' + (d === state.dayIndex ? 'today' : '') + '"><div class="day-label">' + day(d) + (d === state.dayIndex ? '<small>오늘</small>' : '') + '</div></th>').join('') + '</tr></thead><tbody>' + state.staff.map((p) => '<tr><td>' + personLine(p.id) + '<div style="font-size:10px;margin-top:8px" class="dim">하루 ' + p.capacity + 'h · 시간당 ' + man(p.hourlyCost) + '원</div></td>' + state.dates.slice(0, 5).map((_, d) => { const past = d < state.dayIndex; const source = past ? state.reports.find((r) => r.day === d) : f.days.find((r) => r.day === d); const work = (source ? source.work : []).filter((e) => e.staffId === p.id); const used = sum(work, (e) => e.hours); return '<td class="' + (d === state.dayIndex ? 'today' : '') + '">' + work.map((e) => { const t = find(state.tasks, e.taskId); const pred = f.tasks.find((x) => x.taskId === t.id); const risky = !past && ['late', 'beyond_horizon'].includes(pred.status); return '<button class="task-block ' + (past ? 'past' : 'future') + (risky ? ' late' : '') + '" data-action="assign" data-id="' + esc(t.id) + '" aria-label="' + esc(t.title) + ' 담당 조정"><span class="block-top"><span>' + esc(find(state.cases, t.caseId).client) + '</span><span>' + e.hours + 'h</span></span><span class="block-desc">' + esc(shortTask(t)) + (past ? ' · 수행' : ' · 예정') + '</span>' + (risky ? '<span class="block-warning">' + (pred.predictedCompletionDay === null ? '주간 내 미완료' : '기한 +' + (pred.predictedCompletionDay - t.dueDay) + '업무일') + '</span>' : '') + '</button>'; }).join('') + (used < p.capacity ? '<div class="open-slot">' + (past ? '미사용 ' : '예정 없음 ') + (p.capacity - used) + 'h</div>' : '') + '</td>'; }).join('') + '</tr>').join('') + '</tbody></table></div><div class="schedule-foot"><span>녹색: 실제 수행 · 황토색: 현재 배정의 예상 작업<br>' + (state.intake.status === 'pending' ? '미결정 신규 의뢰는 제외되어 있습니다.' : '업무를 누르면 담당자·우선순위를 조정할 수 있습니다.') + '</span><button class="link-btn" data-action="forecast">예측 조건 ' + icon('info') + '</button></div><div class="schedule-cta paper"><div><div class="eyebrow">' + (state.intake.status === 'pending' ? 'A NEW COMMITMENT' : state.completed ? 'WEEK CLOSED' : 'THE NEXT DECISION') + '</div><h3>' + (state.intake.status === 'pending' ? '윤지훈 님의 의뢰를 맡을 여력이 있을까요?' : state.completed ? '실제 수행한 주간을 돌아봅니다.' : '같은 ' + sum(state.staff, (p) => p.capacity) + '시간도, 누구에게 맡기는지에 따라 달라집니다.') + '</h3><p>' + (state.intake.status === 'pending' ? '추가 16시간 · 준비 기한 6/18 · 계약 수임료 360만원' : '남은 일의 총량과 오늘 처리 가능한 시간은 다릅니다. 선행 업무와 비용을 함께 살펴보세요.') + '</p></div>' + btn((state.intake.status === 'pending' ? '수임 조건 검토' : state.completed ? '주간 보고' : '업무 배정 조정') + icon('arrow'), state.intake.status === 'pending' ? 'intake' : state.completed ? 'week' : 'nav', 'primary', state.intake.status === 'accepted' || state.intake.status === 'declined' ? 'data-id="people"' : '') + '</div>';
+   }
+   function renderPeople(f) {
+     let tasks = state.tasks.filter((t) => (!ui.q || (t.title + (find(state.staff, t.assignee)?.name || '미배정')).includes(ui.q)) && (ui.filter === 'all' || ui.filter === 'open' && left(t) > 0 || ui.filter === 'risk' && f.tasks.some((p) => p.taskId === t.id && ['late', 'beyond_horizon'].includes(p.status))));
+-    return head('구성원과 업무 배정', '기한, 선행 업무, 비용을 확인하고 담당을 정합니다.', '<strong>' + sum(f.today, (p) => p.scheduledHours) + ' / 14시간</strong>오늘 실제로 처리할 예정인 시간') + '<div class="people-cards">' + state.staff.map((p) => { const v = f.today.find((v) => v.staffId === p.id); return '<article class="people-card">' + portrait(p.id) + '<div><h3>' + esc(p.name) + '</h3><div class="role">' + role(p) + '<span class="specialty"> · ' + man(p.hourlyCost) + '원/h</span></div><div class="hours">오늘 ' + v.scheduledHours + ' / ' + p.capacity + 'h<small>남은 담당 ' + v.assignedRemainingHours + 'h</small></div></div></article>'; }).join('') + '</div><div class="inline-note">하루 가용시간보다 많은 일을 맡길 수 있습니다. 실제 작업은 <b>선행 업무가 끝난 순서에서 우선순위에 따라</b> 하루 가용시간 안에서만 진행합니다. 자료 정리·취합은 변호사에게도 맡길 수 있지만 업무비가 더 듭니다.</div><div class="search-line"><label class="sr-only" for="work-search">업무 또는 담당자 검색</label><input id="work-search" placeholder="업무 또는 담당자 검색" value="' + esc(ui.q) + '"><div class="segment-buttons" role="group" aria-label="업무 필터">' + [['all', '전체 업무'], ['open', '남은 업무'], ['risk', '기한 확인']].map(([id, label]) => '<button data-action="filter" data-id="' + id + '" class="' + (ui.filter === id ? 'active' : '') + '" aria-pressed="' + (ui.filter === id) + '">' + label + '</button>').join('') + '</div></div><div class="work-table-wrap"><table class="work-table"><thead><tr><th>준비 업무 / 선행 조건</th><th>담당</th><th>수행 / 필요 시간</th><th>우선순위</th><th>기한 / 예상 완료</th><th>배정</th></tr></thead><tbody>' + tasks.map((t) => { const p = f.tasks.find((p) => p.taskId === t.id); return '<tr class="' + (left(t) ? '' : 'done') + '"><td class="work-name">' + esc(t.title) + '<small>' + (t.requires.length ? '선행: ' + t.requires.map((id) => esc(shortTask(find(state.tasks, id)))).join(', ') : '선행 조건 없음') + ' · ' + taskState(t) + '</small></td><td>' + personLine(t.assignee) + '</td><td class="progress-cell"><div class="case-progress-info"><span>' + t.doneHours + ' / ' + t.requiredHours + 'h</span><span>' + Math.round(t.doneHours / t.requiredHours * 100) + '%</span></div><div class="case-progress ' + (left(t) ? '' : 'complete') + '"><span style="width:' + t.doneHours / t.requiredHours * 100 + '%"></span></div></td><td><span class="priority ' + (t.priority === 1 ? 'high' : '') + '">' + ['','높음','보통','낮음'][t.priority] + '</span></td><td class="deadline">' + day(t.dueDay) + '<small class="' + (p.onTime === false || p.status === 'beyond_horizon' ? 'danger' : '') + '">' + taskPrediction(p) + '</small></td><td>' + btn(left(t) && !state.completed ? '담당 조정' : '기록 보기', 'assign', 'small ghost', 'data-id="' + esc(t.id) + '"') + '</td></tr>'; }).join('') + '</tbody></table>' + (!tasks.length ? '<div class="empty">조건에 맞는 업무가 없습니다.</div>' : '') + '</div>';
++    return head('구성원과 업무 배정', '기한, 선행 업무, 비용을 확인하고 담당을 정합니다.', '<strong>' + sum(f.today, (p) => p.scheduledHours) + ' / ' + sum(state.staff, (p) => p.capacity) + '시간</strong>오늘 실제로 처리할 예정인 시간') + '<div class="people-cards">' + state.staff.map((p) => { const v = f.today.find((v) => v.staffId === p.id); return '<article class="people-card">' + portrait(p.id) + '<div><h3>' + esc(p.name) + '</h3><div class="role">' + role(p) + '<span class="specialty"> · ' + man(p.hourlyCost) + '원/h</span></div><div class="hours">오늘 ' + v.scheduledHours + ' / ' + p.capacity + 'h<small>남은 담당 ' + v.assignedRemainingHours + 'h</small></div></div></article>'; }).join('') + '</div><div class="inline-note">하루 가용시간보다 많은 일을 맡길 수 있습니다. 실제 작업은 <b>선행 업무가 끝난 순서에서 우선순위에 따라</b> 하루 가용시간 안에서만 진행합니다. 자료 정리·취합은 변호사에게도 맡길 수 있지만 업무비가 더 듭니다.</div><div class="search-line"><label class="sr-only" for="work-search">업무 또는 담당자 검색</label><input id="work-search" placeholder="업무 또는 담당자 검색" value="' + esc(ui.q) + '"><div class="segment-buttons" role="group" aria-label="업무 필터">' + [['all', '전체 업무'], ['open', '남은 업무'], ['risk', '기한 확인']].map(([id, label]) => '<button data-action="filter" data-id="' + id + '" class="' + (ui.filter === id ? 'active' : '') + '" aria-pressed="' + (ui.filter === id) + '">' + label + '</button>').join('') + '</div></div><div class="work-table-wrap"><table class="work-table"><thead><tr><th>준비 업무 / 선행 조건</th><th>담당</th><th>수행 / 필요 시간</th><th>우선순위</th><th>기한 / 예상 완료</th><th>배정</th></tr></thead><tbody>' + tasks.map((t) => { const p = f.tasks.find((p) => p.taskId === t.id); return '<tr class="' + (left(t) ? '' : 'done') + '"><td class="work-name">' + esc(t.title) + '<small>' + (t.requires.length ? '선행: ' + t.requires.map((id) => esc(shortTask(find(state.tasks, id)))).join(', ') : '선행 조건 없음') + ' · ' + taskState(t) + '</small></td><td>' + personLine(t.assignee) + '</td><td class="progress-cell"><div class="case-progress-info"><span>' + t.doneHours + ' / ' + t.requiredHours + 'h</span><span>' + Math.round(t.doneHours / t.requiredHours * 100) + '%</span></div><div class="case-progress ' + (left(t) ? '' : 'complete') + '"><span style="width:' + t.doneHours / t.requiredHours * 100 + '%"></span></div></td><td><span class="priority ' + (t.priority === 1 ? 'high' : '') + '">' + ['','높음','보통','낮음'][t.priority] + '</span></td><td class="deadline">' + day(t.dueDay) + '<small class="' + (p.onTime === false || p.status === 'beyond_horizon' ? 'danger' : '') + '">' + taskPrediction(p) + '</small></td><td>' + btn(left(t) && !state.completed ? '담당 조정' : '기록 보기', 'assign', 'small ghost', 'data-id="' + esc(t.id) + '"') + '</td></tr>'; }).join('') + '</tbody></table>' + (!tasks.length ? '<div class="empty">조건에 맞는 업무가 없습니다.</div>' : '') + '</div>';
+   }
+   function renderCases(f) {
+     return head('사건', '의뢰인에게 약속한 준비 범위와 진행 상태입니다.') + '<div class="case-grid">' + state.cases.map((c, i) => { const w = caseWork(c.id); const risk = f.tasks.filter((p) => w.tasks.some((t) => t.id === p.taskId) && ['late', 'beyond_horizon'].includes(p.status)); return '<article class="matter-card"><div class="spread"><span class="matter-no">FIRM / 00' + (i + 1) + '</span>' + pill(caseState(c), c.status === 'ready' ? 'green' : c.status === 'pending' ? 'warm' : '') + '</div><h3>' + esc(c.client) + '</h3><p>' + esc(c.summary) + '</p><div class="case-progress-info"><span>준비 업무</span><span>' + w.done + ' / ' + w.total + 'h</span></div><div class="case-progress"><span style="width:' + (w.total ? w.done / w.total * 100 : 0) + '%"></span></div><div class="card-meta"><span>준비 기한 ' + day(c.dueDay) + '</span><span class="' + (risk.length ? 'danger' : '') + '">' + (risk.length ? risk.length + '개 업무 지연 예상' : w.finished + '개 완료') + '</span></div>' + btn((c.status === 'pending' ? '수임 검토' : '사건 서류 열기') + icon('arrow'), 'case', 'ghost', 'data-id="' + esc(c.id) + '"') + '</article>'; }).join('') + '</div>';
+--- original/tests/ui-smoke.cjs
++++ audited/tests/ui-smoke.cjs
+@@ -253,6 +253,35 @@
+       await click('choose-person', 'kim', '#modal-root'); await click('commit-assignment', undefined, '#modal-root');
+       assert.equal((await state()).tasks.find(t => t.id === 'jung-organize').assignee, 'kim');
+     });
++    await check('temporary cash shortfall remains visible despite a positive final forecast', async () => {
++      const lowCash = JSON.parse(JSON.stringify(initialState));
++      lowCash.cash = lowCash.openingCash = 100000;
++      await importFile(JSON.stringify(lowCash), 'low-cash.json'); await waitToast('저장된 진행을 가져왔습니다');
++      await page.locator('.advance').click(); await click('accept', undefined, '#modal-root');
++      for (const mode of ['brief', 'dossier', 'operations']) {
++        await click('mode', mode);
++        assert.match(await page.locator('[data-cash-warning]').innerText(), /업무일 중 현금 부족 예상/);
++      }
++      await nav('finance');
++      assert.match(await page.locator('[data-cash-warning]').innerText(), /최종 현금이 양수여도/);
++      await page.screenshot({ path: path.join(TEMP, 'cash-warning-1440.png'), fullPage: true });
++      await advance();
++      assert.equal((await state()).cash, -274000);
++      assert.match(await page.locator('[data-cash-warning]').innerText(), /현재 현금 부족/);
++      await page.setViewportSize({ width: 390, height: 844 });
++      await measureOverflow('390-cash-warning');
++      await page.setViewportSize({ width: 1440, height: 900 });
++    });
++    await check('imported person capacities update all aggregate UI totals', async () => {
++      const reduced = JSON.parse(JSON.stringify(initialState));
++      reduced.staff.find(p => p.id === 'lee').capacity = 1;
++      await importFile(JSON.stringify(reduced), 'reduced-capacity.json'); await waitToast('저장된 진행을 가져왔습니다');
++      for (const mode of ['brief', 'operations']) {
++        await click('mode', mode);
++        assert.match(await page.locator('#main').innerText(), /\/ 12(?:시간|h)/);
++      }
++      await nav('people'); assert.match(await page.locator('.head-note').innerText(), /\/ 12시간/);
++    });
+     await check('390px window keeps body width bounded across all views and dialogs', async () => {
+       await page.setViewportSize({ width: 390, height: 844 });
+       const before = await stateText();
+--- original/tools/build.py
++++ audited/tools/build.py
+@@ -14,13 +14,13 @@
+     if not font.exists():
+         font = ROOT / 'assets/fonts/NotoSansKR.ttf'
+     font_css = "@font-face{font-family:'Firm Sans';src:url('" + data_url(font, 'font/ttf') + "') format('truetype');font-weight:100 900;font-style:normal;font-display:swap}"
+-    css = (ROOT / 'src/style.css').read_text().replace('/*__ATLAS__*/', data_url(ROOT / 'assets/art/staff-atlas.png', 'image/png'))
+-    html = (ROOT / 'src/index.template.html').read_text()
++    css = (ROOT / 'src/style.css').read_text(encoding='utf-8').replace('/*__ATLAS__*/', data_url(ROOT / 'assets/art/staff-atlas.png', 'image/png'))
++    html = (ROOT / 'src/index.template.html').read_text(encoding='utf-8')
+     replacements = {
+         '/*__FONT__*/': font_css,
+         '/*__STYLE__*/': css,
+-        '/*__ENGINE__*/': (ROOT / 'src/engine.js').read_text(),
+-        '/*__UI__*/': (ROOT / 'src/ui.js').read_text(),
++        '/*__ENGINE__*/': (ROOT / 'src/engine.js').read_text(encoding='utf-8'),
++        '/*__UI__*/': (ROOT / 'src/ui.js').read_text(encoding='utf-8'),
+     }
+     for marker, value in replacements.items():
+         if marker not in html:

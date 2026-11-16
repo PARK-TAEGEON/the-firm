@@ -1,0 +1,74 @@
+{
+  "environment": {
+    "node": "24.19.0",
+    "browser": "Edge 142.0.3595.94",
+    "os": "Windows",
+    "npm": "11.17.0"
+  },
+  "date": "2026-10-13",
+  "commands": [
+    {
+      "failures": 0,
+      "tests": 247,
+      "command": "npm test",
+      "log": "core.log",
+      "exitCode": 0
+    },
+    {
+      "failures": 0,
+      "tests": 39,
+      "command": "node --test tests/demo.test.js tests/plan-demo.test.js tests/plan-demo-ui.test.js",
+      "log": "plan-demo.log",
+      "exitCode": 0
+    },
+    {
+      "failure": "Record sheet returns focus to rebuilt opener",
+      "failures": 1,
+      "log": "browser.log",
+      "completedChecksReported": 591,
+      "command": "npm run test:browser",
+      "exitCode": 1,
+      "totalChecks": null
+    },
+    {
+      "browserChecksTotal": null,
+      "failure": "desktop/acquit console 404 /favicon.ico",
+      "nodeTests": 19,
+      "log": "trial.log",
+      "failures": 1,
+      "command": "npm run test:trial",
+      "exitCode": 1
+    },
+    {
+      "checks": 262,
+      "log": "budget.log",
+      "failures": 0,
+      "command": "npm run test:budget",
+      "components": {
+        "examinationBudget": 14,
+        "fullFlowBrowser": 187,
+        "flowBudget": 61
+      },
+      "exitCode": 0
+    },
+    {
+      "failures": 0,
+      "command": "node docs/sprints/TF-UI-001/evidence/baseline-browser/inspect.cjs",
+      "checks": 36,
+      "log": "../baseline-browser/test-results.log",
+      "exitCode": 0
+    }
+  ],
+  "timezone": "Asia/Seoul",
+  "baseline": "d6fa4a303691f60eedf79b829780f443f915e245",
+  "required": {
+    "failures": 0,
+    "tests": 286,
+    "exitCode": 0
+  },
+  "notes": [
+    "Optional commands include duplicated test coverage. Do not sum as unique tests.",
+    "Full-flow focus assertion failed in test:browser but its budgetOnly path passed later.",
+    "Original tracked files unchanged; ignored tests/artifacts created by existing tests remain."
+  ]
+}
