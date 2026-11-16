@@ -2,6 +2,10 @@
 
 현재 상태와 미결정 사항의 짧은 source of truth다. 과거 구현·검증은 [CHANGELOG](CHANGELOG.md), 실험 설계는 [9월 설계 메모](DESIGN-NOTES-2026-09.md)를 본다.
 
+## Playable Slice · 2026-11-16
+
+[`game/`](../game/README.md): 사무소의 한 주 → 공판 → 결산을 잇는 한 판(PORTFOLIO-001, 실험 lane). 기존 두 엔진의 사본을 연결했으며 `courtroom-prototype/`와 Accepted DEC는 바꾸지 않았다. 사람 플레이테스트 전이다. 규칙 `game/RULES.md`, 점검 `game/REPORT.md`.
+
 ## Current Version
 
 - **v0.10.0** (`courtroom-prototype/package.json`) — Adversarial Trial 실험 구현, 독립 리뷰·사람 플레이테스트 대기.

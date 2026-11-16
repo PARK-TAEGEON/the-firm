@@ -1,0 +1,10 @@
+# 자산 출처
+
+| 파일 | 출처 | 라이선스 |
+|---|---|---|
+| art/office_lounge.jpg | Unsplash, Bennie Bates, https://unsplash.com/photos/a-conference-room-with-a-large-wooden-table-and-leather-chairs-znrDHyqHpSI (`task/plan-demo-001`의 `courtroom-prototype/assets/locations/`에서 복사) | Unsplash License |
+| art/silhouette.svg | THE FIRM 자체 제작 기본 실루엣 (`courtroom-prototype/assets/portraits/default.svg`) | 프로젝트 소유 |
+| art/staff-*.jpg | 경영 실험 v0.4의 `staff-atlas.png`를 4장으로 잘라 256px로 줄임. 실험용으로 생성한 가상 인물이며 실존 인물이 아님(원 CREDITS 기재) | 프로젝트 소유 |
+| fonts/PretendardVariable.woff2 | Pretendard (`courtroom-prototype/ui/fonts/`) | SIL OFL 1.1, `fonts/Pretendard-LICENSE.txt` |
+
+효과음은 WebAudio 합성이며 음원 파일이 없다.

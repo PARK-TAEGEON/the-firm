@@ -1,0 +1,54 @@
+{
+ "note": "Byte-identical copies. Do not edit; re-copy from the source commit instead. tests/game.test.js verifies these hashes.",
+ "files": [
+  {
+   "path": "vendor/firm/engine.js",
+   "branch": "task/experiment-archive-2026-11-16",
+   "commit": "3b8a863658a230853ab193514ace003485a046b5",
+   "original": "experiments/attempts-2026-11-16/management-play/src/engine.js",
+   "sha256": "a288d83b8981dfe5b61b0f95dc700617d84ef0a7082d94e6dbe0c9b4f6019abb"
+  },
+  {
+   "path": "vendor/court/data/demo-ko-pack.js",
+   "branch": "task/plan-demo-001",
+   "commit": "d6fa4a303691f60eedf79b829780f443f915e245",
+   "original": "courtroom-prototype/data/demo-ko-pack.js",
+   "sha256": "9abf44d93531f7e66a88cdfe7b8710210d38a34a6a613faf5e57433f87da1e17"
+  },
+  {
+   "path": "vendor/court/data/demo-separated-moments.js",
+   "branch": "task/plan-demo-001",
+   "commit": "d6fa4a303691f60eedf79b829780f443f915e245",
+   "original": "courtroom-prototype/data/demo-separated-moments.js",
+   "sha256": "63081af72cd26ef6c1c3addf04a2e84faa3a4fd0a800820d50d2af29ac3a17fb"
+  },
+  {
+   "path": "vendor/court/engine/trial.js",
+   "branch": "task/plan-demo-001",
+   "commit": "d6fa4a303691f60eedf79b829780f443f915e245",
+   "original": "courtroom-prototype/engine/trial.js",
+   "sha256": "19e36f206524fc46a4d5cbca89fe2642a1efc5e824577497a178d0ffeea0b760"
+  },
+  {
+   "path": "vendor/court/services/demo-trial.js",
+   "branch": "task/plan-demo-001",
+   "commit": "d6fa4a303691f60eedf79b829780f443f915e245",
+   "original": "courtroom-prototype/services/demo-trial.js",
+   "sha256": "3d7565e44096e1c07c59b4de3e342d923e39e8681337e72f844f343b0561f20b"
+  },
+  {
+   "path": "vendor/court/services/demo-outcome.js",
+   "branch": "task/plan-demo-001",
+   "commit": "d6fa4a303691f60eedf79b829780f443f915e245",
+   "original": "courtroom-prototype/services/demo-outcome.js",
+   "sha256": "91e95c19985e3195c51a182ff4f23b9d2a3090918609134dd75308edc89dc485"
+  },
+  {
+   "path": "vendor/court/services/demo-session.js",
+   "branch": "task/plan-demo-001",
+   "commit": "d6fa4a303691f60eedf79b829780f443f915e245",
+   "original": "courtroom-prototype/services/demo-session.js",
+   "sha256": "a97564d516392b772e8ff31f65c5ffef9a37ddf7d6a24ce682f74e16cdf3ff75"
+  }
+ ]
+}
