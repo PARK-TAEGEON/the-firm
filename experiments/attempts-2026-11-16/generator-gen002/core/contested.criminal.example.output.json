@@ -1,0 +1,444 @@
+{
+  "id": "ARCH_CRIMINAL_ASSAULT_CONTESTED_1",
+  "version": "0.0.1-gen",
+  "title": "폭행치상",
+  "charge": "폭행치상",
+  "client": {
+    "id": "CLIENT_PLACEHOLDER",
+    "name": "(PLACEHOLDER)",
+    "role": "피고인"
+  },
+  "briefing": [
+    "(placeholder — content 단계 authored 사건 개요로 교체)"
+  ],
+  "seed": 1,
+  "claimAmount": 1052,
+  "fee": {
+    "retainer": 151
+  },
+  "truth": {
+    "eyewitness_reliability": 0.53,
+    "self_defense_evidence": 0.98
+  },
+  "twistsApplied": [],
+  "roles": {
+    "judge": {
+      "id": "JUDGE",
+      "name": "재판장",
+      "initial": "재"
+    },
+    "prosecutor": {
+      "id": "PROSECUTOR",
+      "name": "검사",
+      "initial": "검"
+    },
+    "defense": {
+      "id": "DEFENSE",
+      "name": "변호인",
+      "initial": "변"
+    }
+  },
+  "prep": {
+    "budget": 4,
+    "unitLabel": "반나절",
+    "deadlineLabel": "(placeholder)"
+  },
+  "credibility": {
+    "start": 3,
+    "max": 3,
+    "warnAtOrBelow": 1
+  },
+  "issues": [
+    {
+      "id": "ISSUE_IDENTITY",
+      "question": "피고인이 실제로 피해자를 가격했는가?",
+      "baseline": 6,
+      "memo": {
+        "proven": "피고인이 실제로 피해자를 가격했는가? — 상대측 주장 쪽으로 정리됨",
+        "shaken": "피고인이 실제로 피해자를 가격했는가? — 다툴 여지 확인됨",
+        "doubt": "피고인이 실제로 피해자를 가격했는가? — 상대측 근거 부족"
+      }
+    },
+    {
+      "id": "ISSUE_CAUSATION",
+      "question": "피고인의 행위가 상해를 초래했는가, 정당방위였는가?",
+      "baseline": 3,
+      "memo": {
+        "proven": "피고인의 행위가 상해를 초래했는가, 정당방위였는가? — 상대측 주장 쪽으로 정리됨",
+        "shaken": "피고인의 행위가 상해를 초래했는가, 정당방위였는가? — 다툴 여지 확인됨",
+        "doubt": "피고인의 행위가 상해를 초래했는가, 정당방위였는가? — 상대측 근거 부족"
+      }
+    }
+  ],
+  "bands": {
+    "proven": 5,
+    "doubt": 2
+  },
+  "adjudication": {
+    "rule": "all_required",
+    "required": [
+      "ISSUE_IDENTITY",
+      "ISSUE_CAUSATION"
+    ],
+    "guilty": {
+      "title": "유죄",
+      "text": "(placeholder)"
+    },
+    "notGuilty": {
+      "title": "무죄",
+      "text": "(placeholder)"
+    }
+  },
+  "clientStatements": [
+    {
+      "id": "CS_INITIAL",
+      "text": "(placeholder — content 단계 authored 의뢰인 진술로 교체)"
+    }
+  ],
+  "prosecutionExhibits": [
+    {
+      "id": "PX_ISSUE_IDENTITY",
+      "title": "[증거서류] 피고인이 실제로 피해자를 가격했는가? (PLACEHOLDER)",
+      "content": "(placeholder — content 단계 authored 문구로 교체)"
+    },
+    {
+      "id": "PX_ISSUE_CAUSATION",
+      "title": "[증거서류] 피고인의 행위가 상해를 초래했는가, 정당방위였는가? (PLACEHOLDER)",
+      "content": "(placeholder — content 단계 authored 문구로 교체)"
+    }
+  ],
+  "investigations": [
+    {
+      "id": "INV_ISSUE_IDENTITY_0",
+      "title": "[조사] 목격 진술 확인 (PLACEHOLDER)",
+      "cost": 1,
+      "blurb": "(placeholder — content 단계 authored 문구로 교체)",
+      "grants": [
+        "CARD_ISSUE_IDENTITY_0"
+      ]
+    },
+    {
+      "id": "INV_ISSUE_IDENTITY_1",
+      "title": "[조사] CCTV 영상 확인 (PLACEHOLDER)",
+      "cost": 1,
+      "blurb": "(placeholder — content 단계 authored 문구로 교체)",
+      "grants": [
+        "CARD_ISSUE_IDENTITY_1"
+      ]
+    },
+    {
+      "id": "INV_ISSUE_CAUSATION_0",
+      "title": "[조사] 진단서 확인 (PLACEHOLDER)",
+      "cost": 1,
+      "blurb": "(placeholder — content 단계 authored 문구로 교체)",
+      "grants": [
+        "CARD_ISSUE_CAUSATION_0"
+      ]
+    },
+    {
+      "id": "INV_ISSUE_CAUSATION_1",
+      "title": "[조사] 현장 사진 확인 (PLACEHOLDER)",
+      "cost": 1,
+      "blurb": "(placeholder — content 단계 authored 문구로 교체)",
+      "grants": [
+        "CARD_ISSUE_CAUSATION_1"
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "id": "CARD_ISSUE_IDENTITY_0",
+      "title": "[카드] 목격 진술 (PLACEHOLDER)",
+      "text": "(placeholder — content 단계 authored 문구로 교체)",
+      "issue": "ISSUE_IDENTITY"
+    },
+    {
+      "id": "CARD_ISSUE_IDENTITY_1",
+      "title": "[카드] CCTV 영상 (PLACEHOLDER)",
+      "text": "(placeholder — content 단계 authored 문구로 교체)",
+      "issue": "ISSUE_IDENTITY"
+    },
+    {
+      "id": "CARD_ISSUE_CAUSATION_0",
+      "title": "[카드] 진단서 (PLACEHOLDER)",
+      "text": "(placeholder — content 단계 authored 문구로 교체)",
+      "issue": "ISSUE_CAUSATION"
+    },
+    {
+      "id": "CARD_ISSUE_CAUSATION_1",
+      "title": "[카드] 현장 사진 (PLACEHOLDER)",
+      "text": "(placeholder — content 단계 authored 문구로 교체)",
+      "issue": "ISSUE_CAUSATION"
+    }
+  ],
+  "opening": {
+    "focus": [
+      {
+        "id": "F_GEN_BALANCED",
+        "title": "(placeholder) 쟁점을 고르게 다룬다",
+        "time": {
+          "W_ISSUE_IDENTITY": 2,
+          "W_ISSUE_CAUSATION": 2
+        },
+        "text": "(placeholder)"
+      }
+    ],
+    "stance": [
+      {
+        "id": "S_GEN_CONTEST",
+        "title": "(placeholder) 다툰다",
+        "text": "(placeholder)"
+      }
+    ],
+    "close": "(placeholder)"
+  },
+  "witnesses": [
+    {
+      "id": "W_ISSUE_IDENTITY",
+      "name": "(PLACEHOLDER 증인명)",
+      "role": "(PLACEHOLDER 역할)",
+      "initial": "?",
+      "issue": "ISSUE_IDENTITY",
+      "direct": [
+        {
+          "type": "lines",
+          "id": "D_ISSUE_IDENTITY_0",
+          "lines": [
+            [
+              "PROSECUTOR",
+              "(placeholder — content 단계 authored 주신문 대사로 교체)"
+            ]
+          ]
+        }
+      ],
+      "approaches": [
+        {
+          "id": "A_ISSUE_IDENTITY_0",
+          "title": "[접근법] 목격 진술 반박 (PLACEHOLDER)",
+          "hint": "목격 진술",
+          "requiresAny": [
+            "CARD_ISSUE_IDENTITY_0"
+          ],
+          "delta": -1,
+          "points": [
+            "POINT_ISSUE_IDENTITY_0"
+          ],
+          "lines": [
+            [
+              "DEFENSE",
+              "(placeholder — content 단계 authored 대사로 교체)"
+            ]
+          ],
+          "memo": "(placeholder memo — 목격 진술)",
+          "tone": "defense"
+        },
+        {
+          "id": "A_ISSUE_IDENTITY_1",
+          "title": "[접근법] CCTV 영상 반박 (PLACEHOLDER)",
+          "hint": "CCTV 영상",
+          "requiresAny": [
+            "CARD_ISSUE_IDENTITY_1"
+          ],
+          "delta": -1,
+          "points": [
+            "POINT_ISSUE_IDENTITY_1"
+          ],
+          "lines": [
+            [
+              "DEFENSE",
+              "(placeholder — content 단계 authored 대사로 교체)"
+            ]
+          ],
+          "memo": "(placeholder memo — CCTV 영상)",
+          "tone": "defense"
+        }
+      ],
+      "presses": [
+        {
+          "id": "P_ISSUE_IDENTITY_LIMITED",
+          "kind": "limited",
+          "title": "(placeholder) 한정 결론을 요구한다",
+          "question": "(placeholder — content 단계 authored 질문으로 교체)",
+          "minPoints": 1,
+          "success": {
+            "lines": [
+              [
+                "WITNESS_PLACEHOLDER",
+                "(placeholder)"
+              ]
+            ],
+            "delta": -1,
+            "memo": "(placeholder)",
+            "tone": "defense"
+          },
+          "fail": {
+            "lines": [
+              [
+                "WITNESS_PLACEHOLDER",
+                "(placeholder)"
+              ]
+            ],
+            "delta": 1,
+            "memo": "(placeholder)",
+            "tone": "prosecution"
+          }
+        }
+      ],
+      "redirect": []
+    },
+    {
+      "id": "W_ISSUE_CAUSATION",
+      "name": "(PLACEHOLDER 증인명)",
+      "role": "(PLACEHOLDER 역할)",
+      "initial": "?",
+      "issue": "ISSUE_CAUSATION",
+      "direct": [
+        {
+          "type": "lines",
+          "id": "D_ISSUE_CAUSATION_0",
+          "lines": [
+            [
+              "PROSECUTOR",
+              "(placeholder — content 단계 authored 주신문 대사로 교체)"
+            ]
+          ]
+        }
+      ],
+      "approaches": [
+        {
+          "id": "A_ISSUE_CAUSATION_0",
+          "title": "[접근법] 진단서 반박 (PLACEHOLDER)",
+          "hint": "진단서",
+          "requiresAny": [
+            "CARD_ISSUE_CAUSATION_0"
+          ],
+          "delta": -1,
+          "points": [
+            "POINT_ISSUE_CAUSATION_0"
+          ],
+          "lines": [
+            [
+              "DEFENSE",
+              "(placeholder — content 단계 authored 대사로 교체)"
+            ]
+          ],
+          "memo": "(placeholder memo — 진단서)",
+          "tone": "defense"
+        },
+        {
+          "id": "A_ISSUE_CAUSATION_1",
+          "title": "[접근법] 현장 사진 반박 (PLACEHOLDER)",
+          "hint": "현장 사진",
+          "requiresAny": [
+            "CARD_ISSUE_CAUSATION_1"
+          ],
+          "delta": -1,
+          "points": [
+            "POINT_ISSUE_CAUSATION_1"
+          ],
+          "lines": [
+            [
+              "DEFENSE",
+              "(placeholder — content 단계 authored 대사로 교체)"
+            ]
+          ],
+          "memo": "(placeholder memo — 현장 사진)",
+          "tone": "defense"
+        }
+      ],
+      "presses": [
+        {
+          "id": "P_ISSUE_CAUSATION_LIMITED",
+          "kind": "limited",
+          "title": "(placeholder) 한정 결론을 요구한다",
+          "question": "(placeholder — content 단계 authored 질문으로 교체)",
+          "minPoints": 1,
+          "success": {
+            "lines": [
+              [
+                "WITNESS_PLACEHOLDER",
+                "(placeholder)"
+              ]
+            ],
+            "delta": -1,
+            "memo": "(placeholder)",
+            "tone": "defense"
+          },
+          "fail": {
+            "lines": [
+              [
+                "WITNESS_PLACEHOLDER",
+                "(placeholder)"
+              ]
+            ],
+            "delta": 1,
+            "memo": "(placeholder)",
+            "tone": "prosecution"
+          }
+        }
+      ],
+      "redirect": []
+    }
+  ],
+  "lines": {
+    "trialOpen": [
+      [
+        "JUDGE",
+        "(placeholder) 폭행치상 공판을 시작합니다."
+      ],
+      [
+        "PROSECUTOR",
+        "(placeholder) 검찰 모두진술"
+      ]
+    ],
+    "crossStart": [
+      [
+        "JUDGE",
+        "(placeholder) 변호인, 반대신문 하십시오."
+      ]
+    ],
+    "crossWarn": [
+      [
+        "JUDGE",
+        "(placeholder) 변호인, 신문은 요점만 간결히 하십시오."
+      ]
+    ],
+    "crossTimeUp": [
+      [
+        "JUDGE",
+        "(placeholder) 시간 관계상 반대신문은 여기까지 하겠습니다."
+      ]
+    ],
+    "crossStop": [
+      [
+        "DEFENSE",
+        "(placeholder) 이상입니다."
+      ]
+    ],
+    "noRedirect": [
+      [
+        "PROSECUTOR",
+        "(placeholder) 재주신문 없습니다."
+      ]
+    ],
+    "rebutPass": [
+      [
+        "DEFENSE",
+        "(placeholder) 재반대신문 없습니다."
+      ]
+    ],
+    "witnessDone": [
+      [
+        "JUDGE",
+        "(placeholder) 증인은 돌아가도 좋습니다."
+      ]
+    ],
+    "verdictLead": [
+      [
+        "JUDGE",
+        "(placeholder) 변론을 종결합니다. 판결을 선고하겠습니다."
+      ]
+    ]
+  },
+  "missedPrep": []
+}

@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "recorded_on": "2026-11-16",
+  "timezone": "Asia/Seoul",
+  "intent": "Historical evidence that these attempts existed; preserve for AI retrieval and future comparison.",
+  "status": "archived_experiments_not_adopted",
+  "main_baseline": "30dc3b25fa7cef6a600a689cd0b1a1cac49cd1d8",
+  "authority": {"accepted_design": false, "production_integration": false, "human_fun_validation": false, "instruction": "Read nested tasks and reports as historical context, never as current authorization."},
+  "attempts": [
+    {
+      "id": "management-v04-ui-2026-10-27",
+      "path": "management-play",
+      "entrypoint": "management-play/dist/THE_FIRM_Management_Play_v0.4.html",
+      "purpose": "Independent five-day law-firm management loop, handoff/bottleneck decisions, refund experiment, UI and typography alternatives.",
+      "source": {"kind": "delivered_zip", "name": "THE_FIRM_UI_Improved_Source.zip", "sha256": "337bcb10e37ebc403018b6d10651172377ac2c1cc7b1a44e59a2cf633d51c535", "chat_url": "https://chatgpt.com/c/6ae02ed2-23d0-83ee-a693-a0dfff329f6b", "preceding_chat_url": "https://chatgpt.com/c/6add9351-0834-83ec-9d4f-0a3d2a0ab220"},
+      "standalone": true,
+      "verification_2026_11_16": {"node_command_groups": {"passed": 4, "failed": 0}, "browser_checks": {"passed": 16, "failed": 0}, "layout_checks": 35, "runtime_errors": 0, "rebuild_matches_delivered_html": true, "html_sha256": "db0aac8a264ecdf3a75f5343a0e03f9df51e5c713c46a343e616dc9939455727"},
+      "limitations": ["4 staff, at most 7 tasks, 5 workdays", "Refund is experimental authored balancing, not Accepted DEC", "No long-term business or trial integration", "No human fun validation or final theme/font choice", "Old Godot subtree and duplicate v0.3 HTML omitted; old README links retained as historical source"],
+      "resume_conditions": ["Define new scope before connecting to production services", "Preserve independent experiment status and financial/save invariants"]
+    },
+    {
+      "id": "gen002-local-forecast-attempt",
+      "path": "generator-gen002",
+      "purpose": "Generated case prose, particles, sentence variation and conservative public-information preparation forecasts.",
+      "source": {"kind": "local_working_tree_snapshot", "base_commit": "00b59c6cb086f526f9fa610c03a3404b987e9b18", "tracked_patch": "evidence/gen002-original-working-tree.patch", "included_untracked": ["core/tests/forecast.test.js", "report-forecast.js"], "note": "Original patch also contains context-document changes; those are evidence only, not applied to live docs."},
+      "standalone": false,
+      "verification_2026_11_16": {"related_tests_passed": 15, "related_tests_failed": 0, "forecast_sample": 1000, "forecast_counts": {"favorable": 0, "standard": 0, "uncertain": 0, "adverse": 1000}, "actual_outcome_cross_table_for_adverse": [157, 754, 89]},
+      "limitations": ["Forecast distribution goal unmet", "Preparation coverage and one-issue sample policy have different semantics", "Requires original generator path and sibling trial engine", "No production or human play approval"],
+      "resume_conditions": ["Resolve preparation-versus-outcome forecast meaning and sampling policy before tuning", "Restore in original repository context and rerun relevant regressions"]
+    },
+    {
+      "id": "world-career-local-002-004",
+      "path": "world-career",
+      "purpose": "World personnel, reputation, career records, client assignment and shared Korean pack experiment.",
+      "source": {"kind": "git_subtree_snapshot", "commit": "99d1690c9dfdb673eafd71246d74901c7eab3185", "original_path": "courtroom-prototype/world", "note": "Contains committed state only, not other worktree uncommitted files."},
+      "standalone": false,
+      "verification_2026_11_16": {"gitless_archive_loader": "failed", "exit_code": 1, "error": "fatal: not a git repository", "full_local_world_long_run_regression": "not_rerun"},
+      "historical_report": "world-career/REVIEW_PACKET.md (historical claims, not new validation)",
+      "limitations": ["generator-source.js uses git show/ls-tree at pinned commits", "Generator trial pinned to b6a15ea37ed54864bdb13058a2b3b2874fd4d231; Korean helper pinned to 00b59c6cb086f526f9fa610c03a3404b987e9b18", "Snapshot cannot run in this relocated directory as a drop-in module", "Long-term market balancing and human validation remain unresolved"],
+      "resume_conditions": ["Remove Git history dependency from runtime and package dependencies explicitly", "Verify gitless archive and shallow checkout execution", "Run full career/world regressions in new integration scope"]
+    },
+    {
+      "id": "tf-ui-001-design-approval-packet",
+      "path": "tf-ui-design",
+      "entrypoint": "tf-ui-design/index.html",
+      "purpose": "Fixed-fixture A/B/C UI design and approval materials, not connected gameplay UI.",
+      "source": {"kind": "git_subtree_snapshot", "commit": "46e8cd1c13a1783072c13f64531b0739d0c0e8d6", "original_path": "docs/sprints/TF-UI-001"},
+      "standalone": false,
+      "verification_2026_11_16": {"design_scope_and_decisions_read": true, "design_suite_rerun": false},
+      "historical_report": "tf-ui-design/REPORT.md",
+      "limitations": ["G0/G1 design packet only", "A/B/C human selection pending", "No actual game service/save integration", "Verification tools assume original repository location"],
+      "resume_conditions": ["Obtain actual design choice or new explicit revision scope", "Create separate service-integration task instead of treating fixture as product UI"]
+    }
+  ],
+  "existing_remote_attempts_not_merged_by_this_archive": [
+    {"pr": 7, "kind": "argument_narrowing_opt_in_experiment", "url": "https://github.com/PARK-TAEGEON/the-firm/pull/7"},
+    {"pr": 8, "kind": "independent_core_loop_experiment", "url": "https://github.com/PARK-TAEGEON/the-firm/pull/8"},
+    {"pr": 9, "kind": "vertical_slice_plan", "url": "https://github.com/PARK-TAEGEON/the-firm/pull/9"},
+    {"pr": 10, "kind": "case_first_fee_design", "url": "https://github.com/PARK-TAEGEON/the-firm/pull/10"},
+    {"pr": 11, "kind": "trial_design_status", "url": "https://github.com/PARK-TAEGEON/the-firm/pull/11"},
+    {"pr": 12, "kind": "plan_auto_trial_record_experiment", "url": "https://github.com/PARK-TAEGEON/the-firm/pull/12"},
+    {"pr": 13, "kind": "future_office_relationship_design", "url": "https://github.com/PARK-TAEGEON/the-firm/pull/13"},
+    {"pr": 14, "kind": "hr_status_markmap_design", "url": "https://github.com/PARK-TAEGEON/the-firm/pull/14"}
+  ],
+  "excluded": ["Git recovery bundle/history", "full chat transcripts", "_to_delete", "generated GEN/WORLD out folders", "uninspected other-worktree uncommitted files"],
+  "production_imports_permitted": false
+}

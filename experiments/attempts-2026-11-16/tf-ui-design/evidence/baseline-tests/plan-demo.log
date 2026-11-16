@@ -1,0 +1,47 @@
+✔ definitions validate; the two prosecutor variants differ only in prosecutor behavior data (4.274ms)
+✔ rule 3: redirect recovery is 0 for the novice and +1 for the veteran (81.1616ms)
+✔ rule 3: a sustained veteran objection costs the player one question of time and yields nothing (33.5482ms)
+✔ rule 4 (§1.10): no-card questions never move the record; witness prep shows only in what is conceded after a card (0.3313ms)
+✔ outcome: every result is reachable — 무죄 / 공소기각 / 폭행 유죄 / 상해 유죄 + 벌금 / 상해 유죄 + 집행유예 (262.3336ms)
+✔ outcome labels and articles come from the ko pack (49.1463ms)
+✔ review: shaken-band conviction is explained; blocked / broke lists come from records (56.0831ms)
+✔ settlement: client autonomy — good advice can be refused, refusal leaves no waiver, trial continues (28.4622ms)
+✔ settlement: acceptance files the waiver before trial; settling does not end the trial (2.1292ms)
+✔ settlement and session commands are atomic (8.3678ms)
+✔ same record → same result (replay, re-run, and prosecutor label swap) (436.7342ms)
+✔ the waiver deadline is read from record order (24.0777ms)
+✔ veteran: no command sequence acquits, and the injury link breaks only through the layout rebuttal (24421.4111ms)
+✔ novice: acquittal and causation doubt are both reachable without the layout card (35863.4677ms)
+✔ DEC-032: demo services hold no Korean rule values, names or article numbers (3.7828ms)
+✔ review: acquittal and dismissal omit unrelated missed preparation (155.5389ms)
+✔ review: passed valid objections cite the actual record, not invalid or sustained objections (104.5607ms)
+✔ review: reinterviewed denial is a known contradiction, not missed preparation (82.5294ms)
+✔ review: one layout reminder prefers the concrete redirect record; held but unused is distinct (121.3568ms)
+✔ presentation: orders come from the pack and display records never rewrite raw records (343.2419ms)
+✔ presentation: Korean object particles handle both final-consonant and vowel card titles (3.2851ms)
+✔ presentation: personal circumstances and names never change raw records or five outcome types (589.8813ms)
+✔ procedure: opinions summon only disputed statement witnesses and record consent effects (111.1773ms)
+✔ procedure: document disputes lose credibility only; invalid/repeated opinions are atomic (4.8149ms)
+✔ procedure: unfiled question spends time without effects, points or neutralization (29.5761ms)
+✔ procedure: veteran prepares for early layout; late filing costs credibility; novice does not prepare (206.5895ms)
+✔ procedure: deferred filing finalizes at closure; closed changes and unknown filing fail atomically (35.5536ms)
+✔ procedure: final speeches never affect adjudication, six client statements and deterministic records (333.3909ms)
+✔ procedure: unfiled rebuttal consumes recorded time; early preparation cannot be undone by withdrawal (79.887ms)
+✔ record access: four prosecution exhibits are initially readable, investigations grant only preparation cards (3.7728ms)
+✔ page: approve default plan, inspect actual hearing, review record (58.0627ms)
+✔ page: toggle only the layout response and compare against default (90.7392ms)
+✔ first consultation reuses the original eight-line authored scene and continues to plan (8.0179ms)
+✔ consultation replay leaves a partially edited internal plan untouched (38.3526ms)
+✔ both internal plans execute the existing courtroom service through a verdict (82.9523ms)
+✔ partial change modifies only the planned layout response, not the common preparation and hearing (53.8887ms)
+✔ same plan and existing case data produce identical record and judgment (127.4971ms)
+✔ case data remains unchanged; no hidden truth or plan toggle becomes a judgment bonus (60.331ms)
+✔ page loads the existing case/engine and the new controller without modifying demo.html (0.5249ms)
+ℹ tests 39
+ℹ suites 0
+ℹ pass 39
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 63613.1767

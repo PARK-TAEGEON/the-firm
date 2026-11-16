@@ -1,0 +1,2 @@
+# Keep approval-artifact SHA-256 bytes stable across Windows checkouts.
+* -text

@@ -1,0 +1,5 @@
+"A","B","Conflicts"
+"task/demo-review-decisions-2026-10-08","task/hr-status-markmap-2026-10-14","CONFLICT (content): Merge conflict in ROADMAP.md | CONFLICT (content): Merge conflict in docs/CURRENT.md"
+"task/design-sync-001","task/hr-status-markmap-2026-10-14","CONFLICT (content): Merge conflict in docs/CURRENT.md"
+"task/design-sync-001","task/trial-vertical-slice-plan","CONFLICT (content): Merge conflict in docs/CURRENT.md"
+"task/hr-status-markmap-2026-10-14","task/trial-vertical-slice-plan","CONFLICT (content): Merge conflict in ROADMAP.md | CONFLICT (content): Merge conflict in docs/CURRENT.md"

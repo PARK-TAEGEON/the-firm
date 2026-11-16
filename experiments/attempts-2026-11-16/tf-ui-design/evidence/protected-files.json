@@ -1,0 +1,1218 @@
+{
+  "baseline": "d6fa4a303691f60eedf79b829780f443f915e245",
+  "algorithm": "SHA-256",
+  "files": [
+    {
+      "path": ".agent/plans/VS-003.md",
+      "sha256": "247233e3f215d738930259626a26263ed486cd20feaac9f37cb4276828975095"
+    },
+    {
+      "path": ".agent/prompts/design-closure-vs.md",
+      "sha256": "bd4436aa4f23a48f3ba269e50275ca706335430f5b583c0f8660bc0d01abb2ad"
+    },
+    {
+      "path": ".agent/prompts/implementer-vs.md",
+      "sha256": "c09558255887b5f0c67575806b991103e4cc9d0b0e77ab49a8337e164e283173"
+    },
+    {
+      "path": ".agent/prompts/planner-vs.md",
+      "sha256": "b806eef2dbe434eb26a007331d82acf150e65e3c530c9a286641a5bbbb230e84"
+    },
+    {
+      "path": ".agent/prompts/reviewer-vs.md",
+      "sha256": "1b97f6b468373047b3481788ffc3a548a82a98daa22d38c75752ac45683f971d"
+    },
+    {
+      "path": ".agent/reviews/DEMO-001.md",
+      "sha256": "74ea4b4f0295a4eee210bcdab56567a17f0f5a86db1fd84a35f4cde60c0daeec"
+    },
+    {
+      "path": ".agent/reviews/VS-002.md",
+      "sha256": "d948046879d81a3658c352074e106678999fc6b97c1167d59d295695e352b182"
+    },
+    {
+      "path": ".agent/reviews/VS-003.md",
+      "sha256": "f2e2f78c715642311a345d4b498307007758269852c249300200089e87de7d02"
+    },
+    {
+      "path": ".agent/reviews/VS-004-DESIGN-CLOSURE.md",
+      "sha256": "a8632b7a7af3de8874ab987ea8cb208fd4fd95137309b6172e450d2b83426cdf"
+    },
+    {
+      "path": ".agent/reviews/VS-004.md",
+      "sha256": "c1548133aaf71431785d98b51957e014b92008932221034c08bc005c2dd0a458"
+    },
+    {
+      "path": ".agent/reviews/VS-005.md",
+      "sha256": "a4c0fd76180d8aee2662750cbd8d7fc07a2c8b07e0f3d07b55e23c93abd3e285"
+    },
+    {
+      "path": ".agent/reviews/VS-006.md",
+      "sha256": "bb021129ebfb6e0c7d48399adaabea681d201b6231a2643cf2fb7ec864dc851e"
+    },
+    {
+      "path": ".agent/scripts/README.md",
+      "sha256": "ecdc8bb2a3cc3025a25f31905296f6439ceab9af9be14a0a0f9a9dcb4d266cd3"
+    },
+    {
+      "path": ".agent/scripts/REVIEW_PACKET.md",
+      "sha256": "ff70153b3a3e0675cb2ec6f46d77731b6b9569159018e4e125fa06378f5bd42a"
+    },
+    {
+      "path": ".agent/scripts/fixtures/vs006-legacy-implementer.json",
+      "sha256": "6d22167fcae1388b3b3937667570aa9a2171f77a16f69cd57a2ceffe95c94c6c"
+    },
+    {
+      "path": ".agent/scripts/git-scope-self-test.ps1",
+      "sha256": "98a7672355668e7812bd1067d2c57b81f2578a5fa7cf85e18558029d0110ad06"
+    },
+    {
+      "path": ".agent/scripts/legacy-blocker.ps1",
+      "sha256": "88fd7e2e6bdad3fcc3ea78167cb3c71dcdc1e6779ebeaf146d1f0243142c6201"
+    },
+    {
+      "path": ".agent/scripts/resume-vs.ps1",
+      "sha256": "54daa3e764148dbca0173c3a5522947cae50e434eb0591ac82a9418044e25c66"
+    },
+    {
+      "path": ".agent/scripts/role-artifacts-self-test.ps1",
+      "sha256": "65a6290c51c7f4c3afd5a4f0480fff8cdde5099bc8e90f3d1e21a875d5e1ff7b"
+    },
+    {
+      "path": ".agent/scripts/role-artifacts.ps1",
+      "sha256": "ab38839f8e80172a73e9aa838ac93a480905b9df5e84405608d978e3e6fd856d"
+    },
+    {
+      "path": ".agent/scripts/self-test.ps1",
+      "sha256": "28afd915a733d72fac29755368457001fcc01b474e6a5ac3069f6089e09a529c"
+    },
+    {
+      "path": ".agent/scripts/start-vs.ps1",
+      "sha256": "37185ca21f9c2221c43081905e27838ab36a25431564d2dc59aa33232c9b3db3"
+    },
+    {
+      "path": ".agent/scripts/test-results.log",
+      "sha256": "b5c99762cfcd4f6e0a7065fda693bd66335dd0b4b1613d9bd83e64b3c89525af"
+    },
+    {
+      "path": ".agent/scripts/test-vs.ps1",
+      "sha256": "640cbda6c797c646be24c6b60d00f7aea46a0db5e88526c6d0710e33fa72bfe9"
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-002.md",
+      "sha256": "d4fd79f07364025ab7e2ec9172672660e823d80efa1959a7bd493ae92fc59007"
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-003.md",
+      "sha256": "bf240e79698034e351febcb27609d05edaf55164abfa058813261175732b9e69"
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-005.md",
+      "sha256": "52fecbd1bd59bfa97afc073a10859e67e960705406038e472b39ce29d6187f4c"
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-006.md",
+      "sha256": "f5be8a4be844df97b37c79b136741ee47cb61f54c56be5da7e059eebdf65e696"
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-065.md",
+      "sha256": "a84b972b66a562dd52dc299a02aa7fb8bb3f5aaa7f59270fae7534d9f149aeb9"
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-070.md",
+      "sha256": "cb8a938e4b8a519dd20ad0f4e47a1a8ebe8f0e5b1c6e1396b4a180c3dc6a18d2"
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-071.md",
+      "sha256": "976636e8441ea492749459bc4528a88dae9df4cc80b2c80624598f904521f53e"
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-080.md",
+      "sha256": "7c9217396902da96ceb0afebc5a1194443aeda6d22a0be8bbc152c495fa1ced6"
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-081.md",
+      "sha256": "29e65a91ba3a4878625911724acc5d51408455224d2e8662bfb86c613ec04827"
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-090.md",
+      "sha256": "be3f0471d937e417a642828540b46e06fdbb194d47bf01762ef7876d2c8a5bf1"
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-091.md",
+      "sha256": "ac47b313a26cb909088a02250359ac6cb4afb5e5fd02a389b6ed33175bbc7c61"
+    },
+    {
+      "path": ".agent/tasks/COURTROOM-CORE-100.md",
+      "sha256": "528141c3b6fce6955ab2f253337be01ca69965829a603ba19d894389338ed250"
+    },
+    {
+      "path": ".agent/tasks/DEMO-001.md",
+      "sha256": "2704d084aa24e3dd873dbfb2e5d26df50a25a0a04fe6bffd523bc09e2df84914"
+    },
+    {
+      "path": ".agent/tasks/GEN-001.md",
+      "sha256": "b333e486f5391bbfd7e4c44b3c4cde993be4f78a514223d5efbab77a2f3fdeef"
+    },
+    {
+      "path": ".agent/tasks/PLAN-DEMO-001.md",
+      "sha256": "5bb6df47640cc2907e122274ca0aba6af3aeaea19826e989c9bec48fc1e3d921"
+    },
+    {
+      "path": ".agent/tasks/PLAYTEST-001.md",
+      "sha256": "9ed33b3fbab9673f623eb11fbe588eacc5fca1637c8c285439b4e7cebfc4b8ff"
+    },
+    {
+      "path": ".agent/tasks/SETTING-001.md",
+      "sha256": "810c8675ae0ab4de830f976922e9897b26e30b3e01f50ce34679a38f1000df4a"
+    },
+    {
+      "path": ".agent/tasks/VS-003.md",
+      "sha256": "aa0356d2ebe504fc74a75558e0e7232de91b5c6a5874f93a9d67585a410c03e8"
+    },
+    {
+      "path": ".agent/tasks/VS-004.md",
+      "sha256": "df7c4d7630d296e01ec7761b7d2b2fefe5ba667958d783b2f55ee84be95c8aff"
+    },
+    {
+      "path": ".agent/tasks/VS-005.md",
+      "sha256": "0744c0cbe302a1107c03a1eb59db68ced8f10ccd21b66e92d45bc1e30c2bcf78"
+    },
+    {
+      "path": ".agent/tasks/VS-006.md",
+      "sha256": "8d62a15a6d799c749a49626f91c34d6f514d546aa4601b3a631d719a7f336c4e"
+    },
+    {
+      "path": ".agent/tasks/WORLD-001.md",
+      "sha256": "4493583a88b7107daf6ead98f6155646575ee52738081b27e141b08f0c8b021f"
+    },
+    {
+      "path": ".agent/tasks/WORLD-002.md",
+      "sha256": "cddc94965a21121c13211219d129a698d0448ed5d782d7b66a95e0ac7e10f92e"
+    },
+    {
+      "path": ".gitattributes",
+      "sha256": "8d86365aa3c71c8c01916d9069d5a352d2b5b3ffcc2a09615d484d20996b7331"
+    },
+    {
+      "path": ".github/workflows/godot-tests.yml",
+      "sha256": "ae0d6c07cf363cf512758ad7f13c7e8026d835dcf0ca907e7060d7dc5628b20e"
+    },
+    {
+      "path": ".github/workflows/issue-trigger-smoke.yml",
+      "sha256": "5fa36e835076690494a9563eef071f0ad92f4ed25cdb94af1223cea671f03713"
+    },
+    {
+      "path": ".github/workflows/plan-demo-tests.yml",
+      "sha256": "41968856b362bedf960d41fa4c7cd55b5c28397a1d81a203d7e81a648fde37f4"
+    },
+    {
+      "path": ".github/workflows/self-hosted-smoke.yml",
+      "sha256": "cd4810e7b86b920ebcbc1c7b29216675d4db8caa248859062ce9f221b5e4bf57"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "283a8ae845ca9cb756c4f3927d563e85fb9a46671f7cb350a2adc8c7fa782e91"
+    },
+    {
+      "path": "00_GAME_CONSTITUTION.md",
+      "sha256": "64a83617440946da94509a72f5c52fb82e02ab6a9328c92c3c6fd006625c5aa8"
+    },
+    {
+      "path": "01_SYSTEM_MAP.md",
+      "sha256": "b6e5e264264ece5556f4979185e7df7a3f6977df27d5388f762698b8d71f6b63"
+    },
+    {
+      "path": "02_ARCHITECTURE_RULES.md",
+      "sha256": "1ec080c3b412cf4f866e1c080db04d1043dbf7e893a19d79ded3f3d5edcb7fad"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "c512897de9e8a3ba4ed5f6e65b43c6dd815e3d0833f7291295e337a05600edf8"
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "10993f7b78b50d138a776248669d395aa9911c4595092af55f82600ccbb55f1b"
+    },
+    {
+      "path": "DEC-LITIGATION-001.md",
+      "sha256": "294ecd21307bd6bbb53c7bccc95b817e827dc72d02a74703ce9d7eb644ebc68e"
+    },
+    {
+      "path": "DEC-LITIGATION-002.md",
+      "sha256": "d71875cad02e42ebe97cdcb096e8d79cf8d8e38306f976e5fbda109e68f93dca"
+    },
+    {
+      "path": "DEC-LITIGATION-003.md",
+      "sha256": "4fa9504159e995f7b134b51f7299f1494e962afc891b795dc1291af1c0a2ede6"
+    },
+    {
+      "path": "DEC-LITIGATION-004.md",
+      "sha256": "5839de2e710da23c2a3dfd5c8256fca2adc1db4ff94c5cd1554bc76570482782"
+    },
+    {
+      "path": "DEC-LITIGATION-005.md",
+      "sha256": "1072f07bf3755c7a9b025073d78250d2b2ae27864066b5ee666150b672460fb7"
+    },
+    {
+      "path": "DEC-LITIGATION-006_OPPONENT_MODEL.md",
+      "sha256": "152b03a1dae594e7d131b085fc8c2dea2de53940a97b5f7f5d2a5ef5f3730852"
+    },
+    {
+      "path": "DEC-LITIGATION-007_JUDGE_ACCEPTANCE.md",
+      "sha256": "f0cdc7675f3cd6be7ae84482a2c141aa49168240edf3aa43078e190e39345617"
+    },
+    {
+      "path": "DEC-LITIGATION-008_FINAL_ADJUDICATION.md",
+      "sha256": "1cce281918b9267c4f482047b762d66ab5201859d4921e6d545d852e4e2f9170"
+    },
+    {
+      "path": "DEC-LITIGATION-009_PROCEDURAL_FLOW.md",
+      "sha256": "5a037d4fdbf9787d8c757c816d81b9a70aa4738a05dfb1bda3019e0b7f830233"
+    },
+    {
+      "path": "DEC-LITIGATION-010_APPEAL_AND_COURT_LEVELS.md",
+      "sha256": "b515f5a716b5cbde2208e921f313bf0f6f252cbafee3d51e42884f2889ed52cc"
+    },
+    {
+      "path": "DEC-LITIGATION-011_MINIMUM_FACT_RECOGNITION_MODEL.md",
+      "sha256": "d0675869ce90d99ed42132cd79a7d7ff38a96b26b63bfdca088eee16a52d8121"
+    },
+    {
+      "path": "DEC-LITIGATION-012_RECOGNITION_CRITERION_AND_EVIDENCE_SUFFICIENCY.md",
+      "sha256": "b356659157f70e6bbdde096c94f2ab96de623c18f93f605f6bdc11bcee6f1811"
+    },
+    {
+      "path": "DEC-LITIGATION-013_JUDGE_INTERPRETATION_AND_JUDICIAL_PROFILE.md",
+      "sha256": "172833ebca223205871ce7dd2af3c825d57213babd6efbdd17fb7df37a799f5f"
+    },
+    {
+      "path": "DEC-LITIGATION-014_CRITERION_CHOICE_POINT_AUTHORING_AND_VALIDATION.md",
+      "sha256": "bef09100464dfc1ad330316f7c08bc2d6c3ab0f36b875e7665ca090c4ce1e7e4"
+    },
+    {
+      "path": "DEC-LITIGATION-015_JUDGE_GENERATION_CAREER_AND_LIFECYCLE.md",
+      "sha256": "a5d4cd06ea20b73a67568967142f09ce5c57c72aa6e6ab3f26de5343a64a5801"
+    },
+    {
+      "path": "DEC-LITIGATION-016_LEGAL_PROFESSIONAL_PROFILE_RELATIONSHIP_AND_INTERACTION.md",
+      "sha256": "eceb3c71a370cb0b193e1c890326a8febe4a176050a48d8d734d053aadac1844"
+    },
+    {
+      "path": "DEC-LITIGATION-017_LAWYER_CAPABILITY_AND_PRACTICE_PROFILE.md",
+      "sha256": "7a11b26fd5c1d2965513946bf1faf85ded5acdd32d3a097c23c4935ef91dab8c"
+    },
+    {
+      "path": "DEC-LITIGATION-018_LAWYER_TASK_AND_WORKPRODUCT_RESOLUTION.md",
+      "sha256": "0e2e1622222b5439cd33e53d6ad65b202e894127be9f921e0f8470a1a4a8d493"
+    },
+    {
+      "path": "DEC-LITIGATION-019_CASE_FILE_AND_MATTER_KNOWLEDGE_MODEL.md",
+      "sha256": "185dd7dd08267e41948225ba0579b93115776b1896fce5d7311768240884e7b5"
+    },
+    {
+      "path": "DEC-LITIGATION-020_EVIDENCE_REVIEW.md",
+      "sha256": "cbe00851ab280fc15adda93e93c10df85f085e22eb9576a061824ed56f2ee11a"
+    },
+    {
+      "path": "DEC-LITIGATION-021_INVESTIGATION_AND_EVIDENCE_ACQUISITION.md",
+      "sha256": "4793692ca258df5ff2cb519eb3a269328f7a8f6d91307cf4f8e82c85ab78c501"
+    },
+    {
+      "path": "DEC-LITIGATION-022_WITNESS_INTERVIEW_AND_STATEMENT_MODEL.md",
+      "sha256": "c475ff8119fa9b0877942133f64a852f1e0c3541149de0c966f868d6a360145e"
+    },
+    {
+      "path": "DEC-LITIGATION-023_LEGAL_RESEARCH_AND_ISSUE_ANALYSIS.md",
+      "sha256": "2f9b98896d5e6e1eb9b14cfc477c6181a39ff0dd3edb7ad4dd97b3981d669318"
+    },
+    {
+      "path": "DEC-LITIGATION-024_CASE_THEORY_AND_EVIDENCE_SYNTHESIS.md",
+      "sha256": "a1cd950608aedc6a74587c7db07b3b3bcc14fde5dc47df70564acd2696fd55f6"
+    },
+    {
+      "path": "DEC-LITIGATION-025_DRAFTING_PLEADING_AND_FILING.md",
+      "sha256": "303a10f2b0699aee6b1a7fe8c8746baa0a669fc6e11394a05705123b364a71ee"
+    },
+    {
+      "path": "DEC-LITIGATION-026_TASK_ASSIGNMENT_WORKLOAD_AND_TEAM_COORDINATION.md",
+      "sha256": "083a8532f65c08154c87662d3f44d4df935294fdadc9b32ff4bcfb1b889b7a66"
+    },
+    {
+      "path": "DEC-LITIGATION-027_CLIENT_INTERACTION_AND_ADVICE.md",
+      "sha256": "02037ec2d7dace2d5243df1df1b3bb97e90f70edd8f5564fb3c0c29c0b79239a"
+    },
+    {
+      "path": "DEC-LITIGATION-028_SETTLEMENT_AND_NEGOTIATION.md",
+      "sha256": "38e7ddaf772a18dc490a3e6b70d9ad6c4c5f4323a429ef4bb718b2b7bd2270c6"
+    },
+    {
+      "path": "DEC-LITIGATION-029_WITNESS_PREPARATION_AND_COURT_EXAMINATION.md",
+      "sha256": "92b6531a19153971559ebb180ada8515044ae2705cb165f75c2e0e95be8d5055"
+    },
+    {
+      "path": "DEC-LITIGATION-030_VS006_BOUNDED_COURT_FACT_FINDING.md",
+      "sha256": "4e3b44cf1fa6c888275e42cff630fd6c689c5aaff933f5aef4311623258a0f97"
+    },
+    {
+      "path": "DEC-LITIGATION-031_NUMERIC_ADJUDICATION_AND_PROPOSED_DEC_RESOLUTION.md",
+      "sha256": "98f87643bbfc33f476790d21ae4a777773a636619a12b46c0a5da0b37ea1cb95"
+    },
+    {
+      "path": "DEC-LITIGATION-032_LEGAL_SYSTEM_PACK.md",
+      "sha256": "59e3b8b963bd7804c9051b6f423c49fb8e93b4b98d52bd5667adc78b1d7acd75"
+    },
+    {
+      "path": "DESIGN.md",
+      "sha256": "b30b5131cecfdb46c92886129002579f07c9fa736bf6d719e1082ae915d41137"
+    },
+    {
+      "path": "REVIEW_REQUEST.md",
+      "sha256": "c80f591f3069ea04ebd5681720ab677e7a7879bdfa85dc4a0b5e401b1fd6dbcf"
+    },
+    {
+      "path": "ROADMAP.md",
+      "sha256": "1e5c5733a8b9fe5f84d6dbb25cd3fbb7c6d8dbd90011893d85357ac6c68dad28"
+    },
+    {
+      "path": "SYS-001_LITIGATION.md",
+      "sha256": "3b656bbfb3e1fbca8828dc1689c16d7310bb17c819010425d51b1f17b0d49611"
+    },
+    {
+      "path": "TEST-001_LITIGATION_WALKTHROUGH.md",
+      "sha256": "69958bbe41065cccaf921f3cf8c08adebd66798707ce3b0d0c6a6a69b444c5bf"
+    },
+    {
+      "path": "TEST-002_LITIGATION_WALKTHROUGH.md",
+      "sha256": "0677d13778185e7b5232babaf33f291b839682ced427952fa08bb54bea60078a"
+    },
+    {
+      "path": "TEST-003_LITIGATION_WORK_PRODUCT.md",
+      "sha256": "e9fb70e6b4242066ab85000734b22320f2f360b4054f148331aa159e66c637e3"
+    },
+    {
+      "path": "TEST-004_GENERATION_TRACE.json",
+      "sha256": "a5a21c26e414795b6f0debcfa6ac17265ff00b00ea8060f2796b1b4d7a1fbd4e"
+    },
+    {
+      "path": "TEST-004_LITIGATION_GENERATION.md",
+      "sha256": "14ec4d8919697c820899031a1b50f81a8d50f1a39e529f6881f270cdba2c5dc6"
+    },
+    {
+      "path": "TEST-005_OPPONENT_BEHAVIOR.md",
+      "sha256": "2ab0cb26d1481251f4f3e73575d8c4e77af20701bffcf09af46c8138e3681af7"
+    },
+    {
+      "path": "TEST-005_OPPONENT_TRACE.json",
+      "sha256": "1323fa0a5b90b2940c67e31e9c0f5d3bcfd615180696b1ff788b085dd480bf11"
+    },
+    {
+      "path": "TEST-006_JUDGE_ACCEPTANCE.md",
+      "sha256": "8922e64308cbd71cd472d8d5ad6718011504c3a11ad0dff83ccad0db0b339049"
+    },
+    {
+      "path": "TEST-006_JUDGE_TRACE.json",
+      "sha256": "84b4b7d306d7c4806e149e20f89740980abed78082957d8df2598bf274033b07"
+    },
+    {
+      "path": "TEST-007_FINAL_ADJUDICATION.md",
+      "sha256": "f5a157fee4de50b7648f33fa727720b1c1d217d9ca250f44fca71f458b9f6bfa"
+    },
+    {
+      "path": "TEST-008_MULTI_HEARING_CASE.md",
+      "sha256": "a00b67cb422e7bfba8a7e76eddd335b02f996d122c0a9c0694e3bc5717b32eeb"
+    },
+    {
+      "path": "TEST-009_APPEAL_AND_REMAND.md",
+      "sha256": "c431c7b6440960fe17e8a9e0d79bc1e11863c58883b3bd6f6d9bc53b914e94ed"
+    },
+    {
+      "path": "TEST-010_MINIMUM_FACT_RECOGNITION.md",
+      "sha256": "f1ef6e868a87d737572d268ce5ecc388c6f04355f09fc4a0234b01ea13289ef7"
+    },
+    {
+      "path": "TEST-011_RECOGNITION_CRITERION_AND_EVIDENCE_SUFFICIENCY.md",
+      "sha256": "005ffe67fc6bddb224b764646eb99c5c04d1ac56ee12ff98ced062791e4ca51c"
+    },
+    {
+      "path": "TEST-012_JUDGE_INTERPRETATION_AND_JUDICIAL_PROFILE.md",
+      "sha256": "129394d0b717dd3c948ea2a58fb02dac392608eedb28ecc1496bf0abd4c039d5"
+    },
+    {
+      "path": "TEST-013_CRITERION_CHOICE_POINT_AUTHORING_AND_VALIDATION.md",
+      "sha256": "e719be73a1fab0f5c620e31a3393f6d24800c40874f46f9e4a4427181e4b869b"
+    },
+    {
+      "path": "TEST-014_JUDGE_GENERATION_CAREER_AND_LIFECYCLE.md",
+      "sha256": "58a9a4a618d46d1740658f9b5246889d16a8aed7ac47533b2cf5c0a6ed0f90fd"
+    },
+    {
+      "path": "TEST-015_LEGAL_PROFESSIONAL_PROFILE_RELATIONSHIP_AND_INTERACTION.md",
+      "sha256": "c1362241e0d3a674c7e373b44bc2e01a2db684fa1c88b5efbf26338bb059f44a"
+    },
+    {
+      "path": "TEST-016_LAWYER_CAPABILITY_AND_PRACTICE_PROFILE.md",
+      "sha256": "816977ab2c6a593022bafb8ec9947942784fcef8eba68b14f3b1bcb2c2decf43"
+    },
+    {
+      "path": "TEST-017_LAWYER_TASK_AND_WORKPRODUCT_RESOLUTION.md",
+      "sha256": "60b1a8311a7c49b6807ba9f727065397f46f3d818e0b29b0db56e3f0926830c7"
+    },
+    {
+      "path": "TEST-018_CASE_FILE_AND_MATTER_KNOWLEDGE_MODEL.md",
+      "sha256": "c5f9535b6253641111fb6d076c252477ec5c79834f0128ddb77f4f9e7fb8e588"
+    },
+    {
+      "path": "TEST-019_EVIDENCE_REVIEW.md",
+      "sha256": "0c18e680f698294bb0a7574124878ebe7f338c9df7b1efda3540442782e7a233"
+    },
+    {
+      "path": "TEST-020_INVESTIGATION_AND_EVIDENCE_ACQUISITION.md",
+      "sha256": "9c2d3103ae054bd8872232a9741f28a2c063dbe59cab3aea00361406232ebd60"
+    },
+    {
+      "path": "TEST-021_WITNESS_INTERVIEW_AND_STATEMENT_MODEL.md",
+      "sha256": "688ce54ab36a0f0a7a818bec16f9e9c6b8e9ba04a524bd1ff3cf6463e0505ca1"
+    },
+    {
+      "path": "TEST-022_LEGAL_RESEARCH_AND_ISSUE_ANALYSIS.md",
+      "sha256": "561a881f1d4f5dfbabe5063e805d7853e155d292dd96aacb860480a00e63c0f2"
+    },
+    {
+      "path": "TEST-023_CASE_THEORY_AND_EVIDENCE_SYNTHESIS.md",
+      "sha256": "807f3f5166c841343b48cd3573c823efac0a1e7e42803717f67a04dd97562d7e"
+    },
+    {
+      "path": "TEST-024_DRAFTING_PLEADING_AND_FILING.md",
+      "sha256": "4fe525e69f2c0619c4a4606b9579005b3fd7454c6cbd9b6b42997adb5440a5e1"
+    },
+    {
+      "path": "TEST-025_TASK_ASSIGNMENT_WORKLOAD_AND_TEAM_COORDINATION.md",
+      "sha256": "f25025994bba4abb73031ce0054aa415cf0f07cf20bc13158fb7f4b5c7622ef5"
+    },
+    {
+      "path": "TEST-026_CLIENT_INTERACTION_AND_ADVICE.md",
+      "sha256": "95ff5915caa655cb058bef2fac006f3511167f1fc9cec0e32e6fc6afcffaae05"
+    },
+    {
+      "path": "TEST-027_SETTLEMENT_AND_NEGOTIATION.md",
+      "sha256": "32fd302af7f5b71acee452462396e91e1f970b592711225743f5d6e08487369a"
+    },
+    {
+      "path": "TEST-028_WITNESS_PREPARATION_AND_COURT_EXAMINATION.md",
+      "sha256": "3412f10f75d659d741bf56ff1d41f4cccdd820f7fe83386a0b6b8bdf09bc2ec2"
+    },
+    {
+      "path": "TEST-029_VS006_BOUNDED_COURT_FACT_FINDING.md",
+      "sha256": "c8dd76b808d28598dae7d16b4347511e92eb695754fc7d4cb43ab97b9ba37e46"
+    },
+    {
+      "path": "WORKFLOW.md",
+      "sha256": "03d6a99fbb7c4f864627cb955f5cb776a02462da98ffa21ec5610a34559dc17d"
+    },
+    {
+      "path": "courtroom-prototype/.gitignore",
+      "sha256": "0a9d96069387ae4bd6a07c1e7ff57581633c0eacfd44e709e2ca03b1f86506c6"
+    },
+    {
+      "path": "courtroom-prototype/EXPERIMENT_RULES.md",
+      "sha256": "231686da86701d717389b4f4cc979767466fde0f9fe668276a703f617c6b461f"
+    },
+    {
+      "path": "courtroom-prototype/README.md",
+      "sha256": "5779cdf091f3b9326679b87b67811f3587d6ae9932c8e7995e7aed569f702304"
+    },
+    {
+      "path": "courtroom-prototype/REVIEW_PACKET.md",
+      "sha256": "1cf817772a87b07d8edcfa711469b319b30dfee563112187c8982c200a867e1b"
+    },
+    {
+      "path": "courtroom-prototype/UI_TEXT_AUDIT.md",
+      "sha256": "f9ad69d58db5220afeda04f25d907b7959985dda7778d851d0be3ee880d66fff"
+    },
+    {
+      "path": "courtroom-prototype/assets/CREDITS.md",
+      "sha256": "e1be8c35cccd8831d25606bb35addc07895a449ba34af5282ca3026022e44bce"
+    },
+    {
+      "path": "courtroom-prototype/assets/locations/office_lounge.jpg",
+      "sha256": "ae2ee631d3d7967cba6fa0a3be5d8b90469bfa67d603f64ff0c404e376395649"
+    },
+    {
+      "path": "courtroom-prototype/assets/portraits/default.svg",
+      "sha256": "72de22df5952690fce63725ca0202a64e20f1ac65c1584c25b5494a22c8c5718"
+    },
+    {
+      "path": "courtroom-prototype/data/case.js",
+      "sha256": "dfa4f20f5173f45617591cd86a735df9b56030399a81428b661ca4c4f0940998"
+    },
+    {
+      "path": "courtroom-prototype/data/demo-daily-cases.js",
+      "sha256": "078e571ef9d7f23e846a62b5d3efedfe4cc627a5ecd192ef93bccfe187b86571"
+    },
+    {
+      "path": "courtroom-prototype/data/demo-ko-pack.js",
+      "sha256": "9abf44d93531f7e66a88cdfe7b8710210d38a34a6a613faf5e57433f87da1e17"
+    },
+    {
+      "path": "courtroom-prototype/data/demo-locations.js",
+      "sha256": "356264a938526e86b7bd923bf23ea7226bbed3e4ca1850920014a571d9cc3a54"
+    },
+    {
+      "path": "courtroom-prototype/data/demo-portraits.js",
+      "sha256": "069fb37ff5e8b642a85696855bd6a7eaa7fba19a2cc351f3a6f6ffeed1efa5fd"
+    },
+    {
+      "path": "courtroom-prototype/data/demo-profiles.js",
+      "sha256": "78ffdb2fe7f677b7389db31ee8e40442fdbb828bcd7b79d2bd590eb18ddc5322"
+    },
+    {
+      "path": "courtroom-prototype/data/demo-separated-moments.js",
+      "sha256": "63081af72cd26ef6c1c3addf04a2e84faa3a4fd0a800820d50d2af29ac3a17fb"
+    },
+    {
+      "path": "courtroom-prototype/data/trial-case.js",
+      "sha256": "8c2696aa69ed9f3b79e8263e8fbfa5a248bd56d091193896a212cd44e9f7691a"
+    },
+    {
+      "path": "courtroom-prototype/demo.html",
+      "sha256": "30ea69fb974647d613485eae8989d2c675488a29e254dc6b3b4dbb4a2c82cf7e"
+    },
+    {
+      "path": "courtroom-prototype/demo/REPORT.md",
+      "sha256": "b50926eb5daca2d03053a03758b5f3d0f52151faf598a817627de15c97c51190"
+    },
+    {
+      "path": "courtroom-prototype/demo/REVIEW_PACKET.md",
+      "sha256": "f7c3d50ba8befa12ca45ef7f89d28950d6fcbfa6a4815a0f55397c95600e0c6c"
+    },
+    {
+      "path": "courtroom-prototype/demo/RULES.md",
+      "sha256": "dddabaee118947c6fa5692fc5d943172208f089d369585e4a641367c148f53c5"
+    },
+    {
+      "path": "courtroom-prototype/demo/test-results.log",
+      "sha256": "c84c837d7f753307e672b83c4112fbe4fc3d3e2f8a5fcfd6360033f1545c45ef"
+    },
+    {
+      "path": "courtroom-prototype/engine/adjudication.js",
+      "sha256": "d2ce9935098523eef874304dd22588070f914d884149a4fd3fc4cdecd5456ff8"
+    },
+    {
+      "path": "courtroom-prototype/engine/closing.js",
+      "sha256": "737e4d48fb19d3945bb2325ede6b30548f9e7ae2a5b1600171cedb9b52757312"
+    },
+    {
+      "path": "courtroom-prototype/engine/core.js",
+      "sha256": "c1ebc5f8bdaa268d5099f4ae6fb7007fe52dcef0e7a4396921288485d6801ec1"
+    },
+    {
+      "path": "courtroom-prototype/engine/opening.js",
+      "sha256": "da1631c7fb90ae6f03feb1ab39bf14fca06f30f26c16a5e10f09d017a5eadf71"
+    },
+    {
+      "path": "courtroom-prototype/engine/procedure.js",
+      "sha256": "e047cfbb9fb3cd24c85f3d9363ee1e8bf4d01370ba95f4a6d96f660c812b2e0f"
+    },
+    {
+      "path": "courtroom-prototype/engine/trial.js",
+      "sha256": "19e36f206524fc46a4d5cbca89fe2642a1efc5e824577497a178d0ffeea0b760"
+    },
+    {
+      "path": "courtroom-prototype/generator/REPORT.md",
+      "sha256": "4d5fe60386633966d7f07538906e73e12d0e82ac5a5f74b6cd1cc1bb3b0d741e"
+    },
+    {
+      "path": "courtroom-prototype/generator/balance.js",
+      "sha256": "44c706a380f18f91464fae5efb70214c62d6076bcbff26847bbb10d95d87df41"
+    },
+    {
+      "path": "courtroom-prototype/generator/content/CATALOG.md",
+      "sha256": "1b5ff6b39500f75ac59f4ba4a17657ff9803dbf7434aaa154894315917cf69b0"
+    },
+    {
+      "path": "courtroom-prototype/generator/content/DEMO-DESIGN.md",
+      "sha256": "686e7c6eb344883a50a4ea1563076ee49f049b425d154f833b374e329714bf33"
+    },
+    {
+      "path": "courtroom-prototype/generator/content/REPORT.md",
+      "sha256": "6e02e2d88332a884a9fb21744306bfbd19c3cc577461478693f4378cd3962d08"
+    },
+    {
+      "path": "courtroom-prototype/generator/content/REVIEW_PACKET.md",
+      "sha256": "4a20e2d3de1d16041b844497dc10c2de343b4de08972b098703be2e91b9ec399"
+    },
+    {
+      "path": "courtroom-prototype/generator/content/RULES.md",
+      "sha256": "585460f1402ef4e671e14130f3cffeb23ca402be50cd4e3be04c2bc2067d3a68"
+    },
+    {
+      "path": "courtroom-prototype/generator/content/SIGNATURE.md",
+      "sha256": "9e32e3c4c4a4a89e2bdfa86901b22834ce721a19ea20b74969dbf49c154a24cb"
+    },
+    {
+      "path": "courtroom-prototype/generator/content/archetypes.js",
+      "sha256": "661d72766388c79f6292d9e2fed630040a10f89b8177a1c27529a5a760c0a558"
+    },
+    {
+      "path": "courtroom-prototype/generator/content/check-balance.js",
+      "sha256": "9df0592113879d0d084f396f9e4c63b7e7ea0db8a37a3fdd65d2d37b2d0e7c2c"
+    },
+    {
+      "path": "courtroom-prototype/generator/content/content.test.js",
+      "sha256": "63c1735651e2a5a8b210cf2b1fecdf903b114c20596cd604d0d3ecebc7004a0e"
+    },
+    {
+      "path": "courtroom-prototype/generator/content/copy.js",
+      "sha256": "cc1856775013183836d4cc94b331634e1fffa16ff9359ec80b6438870305b756"
+    },
+    {
+      "path": "courtroom-prototype/generator/content/hearing-copy.js",
+      "sha256": "bca410386d7577a86f0ac54ac11d098d5992e6e1e1a513436c7a7bbffa817118"
+    },
+    {
+      "path": "courtroom-prototype/generator/content/index.js",
+      "sha256": "74446b18598deef785dd60880d13c0b4022c3e9111bbb6714f823a98a3092d61"
+    },
+    {
+      "path": "courtroom-prototype/generator/content/test-results.log",
+      "sha256": "08813a74a086249da589fe1f5e8484d736ed433188e728a03c75be534fd7834b"
+    },
+    {
+      "path": "courtroom-prototype/generator/content/twists.js",
+      "sha256": "031ce1f5f9301906af9be3dd24518e8af915b7d3a811dc4b6190dfad2717e784"
+    },
+    {
+      "path": "courtroom-prototype/generator/core/archetype.criminal.example.js",
+      "sha256": "f44b2bdca48d892a4c0dc17bde61c20629c70d5d92d3f28021cfbea9458311be"
+    },
+    {
+      "path": "courtroom-prototype/generator/core/archetype.example.js",
+      "sha256": "ee4039c16e7acb184c19f6b8010b83f19c28958f6d1367395004c2325804887c"
+    },
+    {
+      "path": "courtroom-prototype/generator/core/contested.criminal.example.output.json",
+      "sha256": "834caa29ccf22848f0fe3a2f147ec503d4000a53a94565c5f2da6b79eee9a812"
+    },
+    {
+      "path": "courtroom-prototype/generator/core/contested.js",
+      "sha256": "0a94f183212fff9c29c8948dd9774a26dd22fd913910ea01a62613cec2b1dfd0"
+    },
+    {
+      "path": "courtroom-prototype/generator/core/format.js",
+      "sha256": "ddecf6198f883ce538982c31a37980335221a6da7171a88106cc1ed65565c385"
+    },
+    {
+      "path": "courtroom-prototype/generator/core/generate.js",
+      "sha256": "c193467b70a429236e6f1a2f72e739ac9100c7c3aa4819e36802a87fc97c7b8c"
+    },
+    {
+      "path": "courtroom-prototype/generator/core/playthrough.js",
+      "sha256": "e3b0213b5d1a27862e2241cf92c312cf11d55ec04870567e7c5e0058da0aa278"
+    },
+    {
+      "path": "courtroom-prototype/generator/core/rng.js",
+      "sha256": "c52d8e1f25b8ed86eaa7e455861e3be7254f8b33bed7350f7f975ef636134b50"
+    },
+    {
+      "path": "courtroom-prototype/generator/core/tests/contested.test.js",
+      "sha256": "02f0727814864998292531621ff088fe8f760b3f25664ced1dacf0b35dea85ad"
+    },
+    {
+      "path": "courtroom-prototype/generator/core/tests/core-revision.test.js",
+      "sha256": "85ea1881e687f64094eaba86fb4c5731678f1e548e5060adcac31873313000e4"
+    },
+    {
+      "path": "courtroom-prototype/generator/core/tests/criminal-template.test.js",
+      "sha256": "a2fe87bdf6583fb82391f5224e7c03f5b756f4499b64ba2bbc9d1825b807da54"
+    },
+    {
+      "path": "courtroom-prototype/generator/core/tests/generate.test.js",
+      "sha256": "3b2d13ecc2bce260cf521c8fa83027eedf57c7effcf384ecf5647f59d7cce42d"
+    },
+    {
+      "path": "courtroom-prototype/generator/core/twist.example.js",
+      "sha256": "159552a45d744f7edd8b08e35fe9cf8ea4b441df17e1ca8c7489ec5331cefb67"
+    },
+    {
+      "path": "courtroom-prototype/generator/core/validate.js",
+      "sha256": "198c1e2a269ec2ca42348dcaf764eefb3a8c83f795e883f50e61aa78970ed410"
+    },
+    {
+      "path": "courtroom-prototype/index.html",
+      "sha256": "efae597ee2a0d53148a7d9f5a0f249618a6e770cfe7e79c969f1ab9c9622c6a4"
+    },
+    {
+      "path": "courtroom-prototype/package.json",
+      "sha256": "85d9152779df85c3c4286c62f952eac797200e53d82305a4beeb2e8e5870f236"
+    },
+    {
+      "path": "courtroom-prototype/plan-demo.html",
+      "sha256": "4201f282057979c475f2eaaeec1b36b9dacd513ff4471e8bbbd38aa1cc55c0aa"
+    },
+    {
+      "path": "courtroom-prototype/plan-demo/README.md",
+      "sha256": "2be35afe187dfab0d57e6950dc74d1f78aaf24cad5d33c7a5d5b3b960b029985"
+    },
+    {
+      "path": "courtroom-prototype/plan-demo/REPORT.md",
+      "sha256": "88ed43f0236652ae8665df0288d73c517d06f521dbc45a58f343b2215bb08a09"
+    },
+    {
+      "path": "courtroom-prototype/plan-demo/REVIEW_PACKET.md",
+      "sha256": "049b6f3913ad8c16b85b8c30604031247456382361745ef9cad82215cf23b939"
+    },
+    {
+      "path": "courtroom-prototype/plan-demo/RULES.md",
+      "sha256": "ba3352bd7ae61a38aaddab9de2528f35a839fa90b06bf9cb2bb2fb39bb329550"
+    },
+    {
+      "path": "courtroom-prototype/plan-demo/test-results.log",
+      "sha256": "98307970b7ffc49a4c244802fec6a9460f130d82c6d6434c2c89a81586b15346"
+    },
+    {
+      "path": "courtroom-prototype/reference/original.html",
+      "sha256": "3c60347a093043605742da04d6ce385d16637d5a12e0e5c79472460cfedafb7d"
+    },
+    {
+      "path": "courtroom-prototype/serve.js",
+      "sha256": "810f3ca56206bed6431f19247e510048a959ce3838d5d337a99d390e4c1f5ac8"
+    },
+    {
+      "path": "courtroom-prototype/services/courtroom.js",
+      "sha256": "f665b0d02cb8ef96c82936ae46a0a0767ee7844aea0151605dbb905501667c83"
+    },
+    {
+      "path": "courtroom-prototype/services/demo-outcome.js",
+      "sha256": "91e95c19985e3195c51a182ff4f23b9d2a3090918609134dd75308edc89dc485"
+    },
+    {
+      "path": "courtroom-prototype/services/demo-profile-history.js",
+      "sha256": "6842983efb739d4012b5270d14287e553da63940913401c33e988e06f33ae834"
+    },
+    {
+      "path": "courtroom-prototype/services/demo-session.js",
+      "sha256": "a97564d516392b772e8ff31f65c5ffef9a37ddf7d6a24ce682f74e16cdf3ff75"
+    },
+    {
+      "path": "courtroom-prototype/services/demo-trial.js",
+      "sha256": "3d7565e44096e1c07c59b4de3e342d923e39e8681337e72f844f343b0561f20b"
+    },
+    {
+      "path": "courtroom-prototype/services/plan-demo.js",
+      "sha256": "5b9abf867476fcedb2f27cb183a7d41c3d7fc485eddaa62bf1a56884f6200055"
+    },
+    {
+      "path": "courtroom-prototype/services/trial.js",
+      "sha256": "373d7edf0262075262685ada2f2bdce0cfdfd7583926e5c3614df645c2378396"
+    },
+    {
+      "path": "courtroom-prototype/test-results.log",
+      "sha256": "621e0d2a65be6558d1db086a3ebf9ec7866c2328bac40aeb4419ea961af00654"
+    },
+    {
+      "path": "courtroom-prototype/tests/adjudication.test.js",
+      "sha256": "e33cb6b5ecd55db096d8404c54550b8daa5f5b2bd0407bfdfe81b4dc050d11e5"
+    },
+    {
+      "path": "courtroom-prototype/tests/alternate-verdict-fixture.js",
+      "sha256": "f894067ccfe3f51ba8de85ce043e32ad363e14134e1314953110d33a56a24c26"
+    },
+    {
+      "path": "courtroom-prototype/tests/browser-adjudication.test.js",
+      "sha256": "7e5fc7bb587b928e066c6a04a2b665ce358fe41a99f2bd03e631951f3f402ceb"
+    },
+    {
+      "path": "courtroom-prototype/tests/browser-closing-profile.test.js",
+      "sha256": "99b46b49882a95349ba7f5a112c0cc9d58cb54f000962caeedb0730b82ec8d00"
+    },
+    {
+      "path": "courtroom-prototype/tests/browser-closing.test.js",
+      "sha256": "59d1226802342401528a67fd74524d0918d871ed134d37e8323616b1ba2e7b3b"
+    },
+    {
+      "path": "courtroom-prototype/tests/browser-commitment-scope.test.js",
+      "sha256": "47404e70046106be7578f5fed1b0f9b32b7c82580743fdc118451c9f796f4da8"
+    },
+    {
+      "path": "courtroom-prototype/tests/browser-flow.test.js",
+      "sha256": "e78c80d9efd1a21e88a7791246a3c4eae37eaee7d0088167bb2d6e50b0d1d5c3"
+    },
+    {
+      "path": "courtroom-prototype/tests/browser-full-flow.test.js",
+      "sha256": "b23818a536a61ca751e19bebde15744964eb21f08c72b88f0c0ea3a1e6ca9d2b"
+    },
+    {
+      "path": "courtroom-prototype/tests/browser-opening.test.js",
+      "sha256": "5963b0938c51718fe646863c3292d24072d7b95176ff90a52f9a32d332102b74"
+    },
+    {
+      "path": "courtroom-prototype/tests/browser-tactics.test.js",
+      "sha256": "bc3d898012e475ed08e7c8cea2525876d231fb8829cc1c852f398cb26bdaf7ce"
+    },
+    {
+      "path": "courtroom-prototype/tests/browser-trial.test.js",
+      "sha256": "1707384be4f6eb174c3e7a39b431e5c822ca6361f15209b4e34262fa1da80a27"
+    },
+    {
+      "path": "courtroom-prototype/tests/browser.test.js",
+      "sha256": "4d0eadb815567a16d180963d7fe2cf9d66d0107cef86305b6d9f71eb33298d88"
+    },
+    {
+      "path": "courtroom-prototype/tests/case-v065.js",
+      "sha256": "f55a79c215f41eb691952b76ef0e1cb8fd9fb7620db9d0e6e5337260ab6da249"
+    },
+    {
+      "path": "courtroom-prototype/tests/closing-profile-fixture.js",
+      "sha256": "bf1f1534a6e49d385da4fe5403128310796f603861d96d33e1c2a10ec5b3fbe5"
+    },
+    {
+      "path": "courtroom-prototype/tests/closing-profile.test.js",
+      "sha256": "7d439762921353a963b4235f19f2f44817f6bd94785f96f2258bd87959b38f91"
+    },
+    {
+      "path": "courtroom-prototype/tests/closing.test.js",
+      "sha256": "a0bf841c8fd0c558c274e4c2cda9e1582fef20f98c7a13c33a5be5119461e501"
+    },
+    {
+      "path": "courtroom-prototype/tests/core.test.js",
+      "sha256": "289296fcfcd0b863eb35f20eda0f49c504a12ad597256d103bc3ae944dcc9c33"
+    },
+    {
+      "path": "courtroom-prototype/tests/demo-art-browser.test.js",
+      "sha256": "c9fd17574b8d1066adc9bc84620ba08b193ff7afdb984479029282e1fbb6c980"
+    },
+    {
+      "path": "courtroom-prototype/tests/demo-browser.test.js",
+      "sha256": "759b2169825d8082321f56abe2638e893478c5ce65711a03cf7eb72f2df6b910"
+    },
+    {
+      "path": "courtroom-prototype/tests/demo-cleanup-browser.test.js",
+      "sha256": "2f90b73f2f477268b0fa3149abd9a22482f0c9a8e371defbe1a59fb982ddf778"
+    },
+    {
+      "path": "courtroom-prototype/tests/demo-procedure-browser.test.js",
+      "sha256": "5f723057d0f89266a21f144b4a3ad533569b459ba070e59545fc61cc7b252906"
+    },
+    {
+      "path": "courtroom-prototype/tests/demo-profiles-browser.test.js",
+      "sha256": "9297eac0500e2243f5ab48ac2e0d5099c2f2abddae937b1b773082e752496e70"
+    },
+    {
+      "path": "courtroom-prototype/tests/demo-profiles.test.js",
+      "sha256": "aa0c5abe5139567201c491ffcc19df98be1254eafb59bb1185d73af9c574c1c7"
+    },
+    {
+      "path": "courtroom-prototype/tests/demo.test.js",
+      "sha256": "c7402743f41fc73762b1cdf2601f426b2cffe4684ae8502968909f8bec0529ba"
+    },
+    {
+      "path": "courtroom-prototype/tests/flow.test.js",
+      "sha256": "6b7fdb97407ea42cf399f0530ec0d8da2b62de76790fe78a8e319d165d746af7"
+    },
+    {
+      "path": "courtroom-prototype/tests/inference.test.js",
+      "sha256": "3a72a9dcf7e3afb2aecd3e9de4df40dae1f2f58cc2647c722805f6d320625d40"
+    },
+    {
+      "path": "courtroom-prototype/tests/opening.test.js",
+      "sha256": "4cd0f515007ffb02802ac85fba215eec2e746433fd0949b94b8cfe4a5906c456"
+    },
+    {
+      "path": "courtroom-prototype/tests/plan-demo-ui.test.js",
+      "sha256": "d3bbbe5677207bd41f1bf10501a84f63ace766228aaff62d63d25356880bdd6a"
+    },
+    {
+      "path": "courtroom-prototype/tests/plan-demo.test.js",
+      "sha256": "c8701bec4736c169204efc80e6e64b74204e833d1c862a6efed5624468a4eaa7"
+    },
+    {
+      "path": "courtroom-prototype/tests/procedure.test.js",
+      "sha256": "ae7f004628398fe0c9b4c96f80401dbfa49adfb02ac305a86b8a60ffab12b131"
+    },
+    {
+      "path": "courtroom-prototype/tests/settle-procedure.js",
+      "sha256": "83de252a0bb9d9d2d2ded4dd43aa84dbf2dbb4a0eca2760b5f191bf835858273"
+    },
+    {
+      "path": "courtroom-prototype/tests/strategy.test.js",
+      "sha256": "a86a7348f937270602e62ea0bfa6dd686f7e918b8c88b3e188c0019d8d606f4d"
+    },
+    {
+      "path": "courtroom-prototype/tests/tactics.test.js",
+      "sha256": "818baca3de01c9f6fc47960d3669fbc0805b07c763972bdd273e376e951d736f"
+    },
+    {
+      "path": "courtroom-prototype/tests/trial.test.js",
+      "sha256": "704e47846a437105e56de27023bcb4a9a7a575e9a315b6e600cfcc309b1d3467"
+    },
+    {
+      "path": "courtroom-prototype/tests/ui-budget-baseline.json",
+      "sha256": "c5b15f1c2e7c6036cd05c97e2206a6f706f537faaee1e14ecac709847aafa87f"
+    },
+    {
+      "path": "courtroom-prototype/tests/ui-budget.js",
+      "sha256": "ad07362f55472dde7b8beb2b8ec9e588cc4933213516647c948f059f208174dc"
+    },
+    {
+      "path": "courtroom-prototype/tests/ui-flow-baseline.json",
+      "sha256": "8ed701cd89c1f868e7d4b400f377c9ae40ef9de20260111ea17fc495a7b07624"
+    },
+    {
+      "path": "courtroom-prototype/tests/ui-flow-budget.js",
+      "sha256": "659917ff481fec991c8d0882ef6c6b49ababaaf93dbde1261d55d17210072b9a"
+    },
+    {
+      "path": "courtroom-prototype/trial.html",
+      "sha256": "77a77423654b68f74ab2679aab4e6282fe6345b5eb861ebc50bc674bd4d6da14"
+    },
+    {
+      "path": "courtroom-prototype/ui/app.js",
+      "sha256": "4574ed723e89ed03ec64619bf80013798012f694e6c602f98ddfc9318d5099f7"
+    },
+    {
+      "path": "courtroom-prototype/ui/courtroom.css",
+      "sha256": "0a1ada5f60d72c5ef3a8ce6272cf3b7b706329794edc337bb50a27871cc95e66"
+    },
+    {
+      "path": "courtroom-prototype/ui/fonts/Pretendard-LICENSE.txt",
+      "sha256": "3b8ac478fa32708ecd929cd7eae8cc32aba1710ca8ec95386d0db9db89ce57dd"
+    },
+    {
+      "path": "courtroom-prototype/ui/fonts/PretendardVariable.woff2",
+      "sha256": "9599f12fd42fc0bce1cd50b47a0c022e108d7aa64dd0d1bb0ed44f3282d900b4"
+    },
+    {
+      "path": "courtroom-prototype/ui/fonts/README.md",
+      "sha256": "1608a347f751c3f82bb6248dfd6f4fe33700d2e42dfb7d99e3201a996a85525b"
+    },
+    {
+      "path": "courtroom-prototype/ui/original.css",
+      "sha256": "f9abe5f206979e9005ff535dca32c907dac06a39607c3d273eb2daeab14755d7"
+    },
+    {
+      "path": "courtroom-prototype/ui/plan-demo-app.js",
+      "sha256": "0416cc8cdd6e122c14288768807cdb16a6e78f9bdae064df5168ffaef7302f75"
+    },
+    {
+      "path": "courtroom-prototype/ui/plan-demo.css",
+      "sha256": "8920997caa45c7038124f7e021c392d7a600deca7ac91d1806894cc27899de7d"
+    },
+    {
+      "path": "courtroom-prototype/ui/trial-app.js",
+      "sha256": "1a1372404f7feccf94de143faf3627a09b7d727a16ee45f787f3ad5fe94b4864"
+    },
+    {
+      "path": "courtroom-prototype/ui/trial-demo-app.js",
+      "sha256": "beba99d437426c581ab8fa075bfd008a8e5c62c0351edfc7cb85fa2c94f13bed"
+    },
+    {
+      "path": "courtroom-prototype/ui/trial-demo-consultation.js",
+      "sha256": "a361edcdee3d915c7752fcad4e07ab897b7593cb5138a19a87bc91118c23961a"
+    },
+    {
+      "path": "courtroom-prototype/ui/trial-demo-text.js",
+      "sha256": "cc878fe636dcb672bcdb73f613780e6db11459f838a28d790e3da927369ae50a"
+    },
+    {
+      "path": "courtroom-prototype/ui/trial-demo.css",
+      "sha256": "45a75ab142175a8ac31ec42074904804ecbb75141cb3fbf55b8c84fcdd51ab6e"
+    },
+    {
+      "path": "courtroom-prototype/ui/trial.css",
+      "sha256": "0da26e5f08aa9a867799e9107ad51bc131d3399dc2009d4ae608bc385dc77608"
+    },
+    {
+      "path": "docs/AUDIT-2026-09.md",
+      "sha256": "205404f85b60499ca921d4b51fd76d8de5cf4522cc812b4e2bb63e47aad704ce"
+    },
+    {
+      "path": "docs/CHANGELOG.md",
+      "sha256": "776f63d9940ff174645030fefb072df7a27559d085aa3fcfdbbd081c1407070f"
+    },
+    {
+      "path": "docs/CURRENT.md",
+      "sha256": "85bb8bf9dc187e8d65dcef4f830c614a8afc2feee6443d4441856f1c66c7abf1"
+    },
+    {
+      "path": "docs/DESIGN-NOTES-2026-09.md",
+      "sha256": "1570693b8d148a3260bd332345ee6ceb7cda89fbcbdf5910abe16a0435aea015"
+    },
+    {
+      "path": "docs/DESIGN.md",
+      "sha256": "fa5d7439347475671fba94af0e18a5faedad66b11e490bd1a4a385c61bc7e1d0"
+    },
+    {
+      "path": "docs/IMPLEMENT.md",
+      "sha256": "fad6aa07db8be2915caf00e014cb42a9646d39360e5a70994cbe628a100a56c4"
+    },
+    {
+      "path": "docs/REVIEW.md",
+      "sha256": "34188e57ba82c2269dc750a1596293871a60865757939fffba36d6b4dbffe3d6"
+    },
+    {
+      "path": "docs/playtest/DEMO-TEXT.md",
+      "sha256": "1466771e8d5d3d52b6eba71cc6b1364faec46a4d1ba2d5dd980285511ff9337e"
+    },
+    {
+      "path": "docs/playtest/PLAYTEST-KIT.md",
+      "sha256": "2e2e36e3d044de7fab63ff7c80d7443b37a45fb6aec3718eedae675cac4d46c3"
+    },
+    {
+      "path": "docs/reference/KO-COURT-STATS-2025.md",
+      "sha256": "0463a547738eca1330788c2c6625a271ca16d11ad79ed6298fb16702bbfab1d1"
+    },
+    {
+      "path": "docs/reference/KO-LAWYERS-FIRMS-2026.md",
+      "sha256": "6e6298db6b8ffa2410f674a29fb8fd833845357f907e7ce4f1ee3a527fb2ebfb"
+    },
+    {
+      "path": "litigation-skeleton/.gitignore",
+      "sha256": "531d0d253cec1addb97b2cb2d144b6589ff934513eb9c9b8cf882cb49e4c0c32"
+    },
+    {
+      "path": "litigation-skeleton/FEATURE_CONTRACT.md",
+      "sha256": "ef3820bad1a2cd1dcb6b69763794b0a5a723ab1cc0ba78c4fc270192e597ffd0"
+    },
+    {
+      "path": "litigation-skeleton/README.md",
+      "sha256": "273c2d70efff7ae74efff4899a848ad65825ac63e6c241d4539dbad24d080b57"
+    },
+    {
+      "path": "litigation-skeleton/REVIEW_PACKET.md",
+      "sha256": "7e6e55da23cb2152b1125293b397cc2efed550e1f2e362629a39fdfc3abb1c33"
+    },
+    {
+      "path": "litigation-skeleton/data/litigation_state.gd",
+      "sha256": "36a25daf413e082b48dfd970088ef93efab52b11adf4f215eb01b758b3d2b865"
+    },
+    {
+      "path": "litigation-skeleton/fixtures/test008.json",
+      "sha256": "71dd6c387da5c90fd7a741f9c72ca7f120bf8fd27366b931e0f9c09464049112"
+    },
+    {
+      "path": "litigation-skeleton/fixtures/test009.json",
+      "sha256": "847bee981a2e33d36169f51372268875d7bfab3b1f056fd107b6e1b26872bf3e"
+    },
+    {
+      "path": "litigation-skeleton/project.godot",
+      "sha256": "7821fdc67efd9a151f33d7172f530161dacf39cd147cc57447bcd57ebdf7edde"
+    },
+    {
+      "path": "litigation-skeleton/services/litigation_service.gd",
+      "sha256": "bf8b9f3e5465255464e172a455c3d0c55f4ae40b4d6b9d1a018779b96aefa69d"
+    },
+    {
+      "path": "litigation-skeleton/test-results.log",
+      "sha256": "c74d20fedba89087426ac7a257172ac09a448c5854554c86d984b2715d211157"
+    },
+    {
+      "path": "litigation-skeleton/tests/run_regressions.gd",
+      "sha256": "f2d8828644bb65994c47cd786879d61d49f9b018c1d2068b6fbb4de7300f29b0"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/content/locale_ko.json",
+      "sha256": "2b124c74680f1aa418380d61d92ecd290348d51eb755d581b2e0e1b0862204f6"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/content/slice_case.json",
+      "sha256": "50c0e80fe55f7332ca885335f1dde0835a550a57f2093d254c594a7b233c521b"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/data/slice_state.gd",
+      "sha256": "4fb3185e62679b63925f6ebf1566463bae286523bc6dea97255898dfee29160c"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/presentation/slice_localizer.gd",
+      "sha256": "be41c03ac0e870e47e5d31c42ff65e3d5a5b5cf55cc5d9cdfcc0896dacb70386"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/presentation/slice_presenter.gd",
+      "sha256": "b8f70864b2de4be22236e04e05b2687e87335eb57aa9668ab36977e47fb0d1e7"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/services/adjudication_service.gd",
+      "sha256": "50bd75ef49d5540c17f39e1cc90152cd64d8f5bd36ba0c4ac0cf066e3fb65522"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/services/content_loader.gd",
+      "sha256": "4b7094290bb0cba314221a37c10cf0b3409386dccef46b4a1ce7924089359e72"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/services/investigation_service.gd",
+      "sha256": "556d3c711b10ff480c250dfb16414d73e1ff77d9168570fd46b2e4c4c6803d16"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/services/legal_research_service.gd",
+      "sha256": "c0c79a2cf603340dca2c36f31cb61cb23f28a0a59b37329041d435330ed93bd0"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/services/slice_service.gd",
+      "sha256": "8bda6d8a22822aa0a2d64d818fbd55c13d53a73119677447e30e46a561be4c6d"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/services/submission_service.gd",
+      "sha256": "b41b8ed71f2a3e597db7f28d53ebc49e2bf3caef86f928b652ebf017fd7d6757"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/services/work_service.gd",
+      "sha256": "94851688d384c40cb3fbef5c299118b9c541d212f9940ef99e51651aa6cd4ed2"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/test-results.log",
+      "sha256": "da0924ebc9108667b41e527ad94b8384b68aaaec389e50eddc77afcb53c167c1"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/tests/run_slice_regressions.gd",
+      "sha256": "70502287dafa8f53d4b31101c25f72b9bacd80c9a4e3c58ac4462e11ccd72888"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/tests/run_vs002_regressions.gd",
+      "sha256": "08fb19d950cade4121e3e6781421fbad745c8b2f6e15b411a436bb444395b2ce"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/tests/run_vs003_regressions.gd",
+      "sha256": "fbc1d9a91606845359a33db09be63a8f989ca809bb9eaee9b032e584e4382eaa"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/tests/run_vs004_regressions.gd",
+      "sha256": "a50ede0e642749c720e2aa1a501ab5930a8591a77781c23133077591ea954e09"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/tests/run_vs005_regressions.gd",
+      "sha256": "c65c1fe9d9665701281598f3a451ff616f37e108cc6b73eea855ab7cb7a18012"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/tests/run_vs006_regressions.gd",
+      "sha256": "797fe604401a90539cde0cd759599d996912e93994e34805fab5ca529e7fecde"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/ui/main.gd",
+      "sha256": "33410a1471034f95508f97669834c735bda1c466e79bca9a522b727aca0d93d8"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/ui/main.tscn",
+      "sha256": "629a1714b1ada10dbc404e28ca610f5f8de432306bf9d12bae833aca682fbf10"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/vs002-test-results.log",
+      "sha256": "ba701c25d9dd3b7eba4e12ce0012735372b2a2e4e1bf11387dba5bed723a3e7d"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/vs003-test-results.log",
+      "sha256": "f10aef3ca8a32d65e66451510dc831e996b7a1cd8c9be05416a8cbce0e0d1e66"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/vs004-test-results.log",
+      "sha256": "3970a57a0af846301073f575be090d8dda0a0ea027c6158866a91835f2e2e7e6"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/vs005-test-results.log",
+      "sha256": "11cedb9fdb220fb0f25582bb74ba49704d3e7827f0d3d95b35f19cc58f62114a"
+    },
+    {
+      "path": "litigation-skeleton/vertical_slice/vs006-test-results.log",
+      "sha256": "4c1cbd22cb6f489412e06ad716fe1d246e6ab33c6e43d2553bc1eb9f4f0968b5"
+    }
+  ]
+}

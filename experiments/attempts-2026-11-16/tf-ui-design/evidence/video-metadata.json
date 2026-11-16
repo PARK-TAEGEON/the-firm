@@ -1,0 +1,16 @@
+{
+  "durationSeconds": 72.56,
+  "playback": {
+    "duration": 72.56,
+    "currentTime": 0.625272,
+    "readyState": 4,
+    "videoWidth": 1280,
+    "videoHeight": 720,
+    "error": null
+  },
+  "comparisonWidths": [
+    1440,
+    1280,
+    390
+  ]
+}

@@ -1,0 +1,3 @@
+TF-UI-001 / baseline d6fa4a303691f60eedf79b829780f443f915e245
+Command: node tools/verify.cjs --video
+{"checks":526,"failures":0,"exitCode":0}

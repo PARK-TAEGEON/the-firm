@@ -1,0 +1,10 @@
+AssertionError [ERR_ASSERTION]: Record sheet returns focus to rebuilt opener
+    at check (C:\Users\Admin\Documents\Codex\2026-11-16\new-chat-7\work\main-baseline\courtroom-prototype\tests\browser-full-flow.test.js:6:29)
+    at run (C:\Users\Admin\Documents\Codex\2026-11-16\new-chat-7\work\main-baseline\courtroom-prototype\tests\browser-full-flow.test.js:20:652) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}

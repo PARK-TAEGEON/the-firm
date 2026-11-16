@@ -1,0 +1,48 @@
+
+> the-firm-courtroom-experiment@0.10.0 test:trial
+> node --test tests/trial.test.js && node tests/browser-trial.test.js
+
+✔ definition validates and service does not mutate input (10.8969ms)
+✔ validation rejects broken references (1.0043ms)
+✔ prep budget is enforced atomically and investigations are irreversible (1.6054ms)
+✔ prosecution exhibits stay sealed until records are inspected; client reinterview adds a statement (0.6212ms)
+✔ phase gates: commands out of phase fail without state change (2.5323ms)
+✔ objection window blocks progress until decided (1.0678ms)
+✔ bait objection is overruled and costs judge credibility (3.7703ms)
+✔ approaches require prepared cards; time is limited per opening focus (2.8375ms)
+✔ no preparation leads to conviction (3.2996ms)
+✔ identity-focused preparation can win; knife-focused preparation can win (7.437ms)
+✔ limited press succeeds only with enough grounds; overreach always backfires (12.7487ms)
+✔ sign-light redirect: rebuttal card neutralizes it, absence is reported as missed prep (8.6647ms)
+✔ initial-statement contrast neutralizes the familiarity redirect (5.5294ms)
+✔ opening denial is attacked by the prosecutor; client reinterview reveals the trap (12.9976ms)
+✔ low credibility shortens the next cross-examination (3.2609ms)
+✔ determinism and record-only replay (6.5452ms)
+✔ records are append-only across commands and reset starts clean (1.184ms)
+✔ projection exposes no numeric win probability or issue strength to the UI text (3.6958ms)
+✔ engine and service do not inspect case-specific ids (1.2612ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 180.5376
+npm.cmd : AssertionError [ERR_ASSERTION]: desktop/acquit: no page errors Failed to load resource: the server responded
+with a status of 404 (Not Found)
+At C:\Users\Admin\.codex\worktrees\tf-ui-001\The Firm\docs\sprints\TF-UI-001\tools\run-regressions.ps1:12 char:2
++  & $taskExe @taskArgs *> (Join-Path $taskOut ($taskCheck.name+'.log') ...
++  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (AssertionError ...404 (Not Found):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+    at check (C:\Users\Admin\.codex\worktrees\tf-ui-001\The Firm\courtroom-prototype\tests\browser-trial.test.js:19:57)
+    at run (C:\Users\Admin\.codex\worktrees\tf-ui-001\The Firm\courtroom-prototype\tests\browser-trial.test.js:96:7) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}

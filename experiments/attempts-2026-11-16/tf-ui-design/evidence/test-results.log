@@ -1,0 +1,35 @@
+TF-UI-001 / G0-G1 design approval packet / 2026-10-13 Asia/Seoul
+Runtime baseline: d6fa4a303691f60eedf79b829780f443f915e245
+Design reference only: 6888997ed3c49c8e11cd419389cb6f0982712598
+Environment: Windows / Node24.19.0 / npm11.17.0 / Edge142.0.3595.94
+
+REQUIRED EXISTING (courtroom-prototype)
+npm test: before247/pass247/fail0/exit0 -> after247/pass247/fail0/exit0
+node --test tests/demo.test.js tests/plan-demo.test.js tests/plan-demo-ui.test.js:
+before39/pass39/fail0/exit0 -> after39/pass39/fail0/exit0
+Required total286 / failures0 / exit0
+
+G1 DESIGN (repo)
+node docs/sprints/TF-UI-001/tools/verify.cjs --video
+526 checks / failures0 / exit0. Includes303 protected SHA256 comparisons.
+Actual Edge: three variants x four stages x three viewports (36 screenshots).
+Components: three variants x three viewports, long Korean/long speech/error/unavailable.
+Fixture provenance, included/excluded outcomes, cancel/save/revisit, keyboard/focus,
+initial desktop primary action, overflow, pageerror/console error all pass.
+Mandatory plus design reported checks812 / failures0. Not 812 unique gameplay tests.
+Video playback:72.56sec /1280x720 / error:null. Comparison overflow checked three widths.
+
+EXISTING OPTIONAL (same environment, expectations unchanged)
+test:browser: before/after591 reported checks then same focus assertion, failures1/exit1.
+test:trial: before/after19 Node pass then same console404 assertion, failures1/exit1.
+test:budget: first baseline262 pass/exit0; post14 pass then focus failure/exit1;
+unchanged baseline repeat14 pass then identical focus failure/exit1.
+Failed suites aborted; full totals unknown. Not all legacy suites pass.
+No game source changes. Existing timing-sensitive focus defect and favicon404 left untouched.
+
+BASELINE BROWSER (original plan-demo, actual Edge)
+36 checks /failures0 /exit0, separate from Node VM smoke.
+Godot local not rerun: no Godot/CI changes. At baseline SHA existing remote CI
+Godot Tests38350752663 success; PLAN-DEMO-00138350752670 success.
+
+G3/G4 not started. No live service implementation, human playtest, legal audit, merge or push.

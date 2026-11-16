@@ -1,0 +1,11 @@
+Baseline SHA: d6fa4a303691f60eedf79b829780f443f915e245
+Date: 2026-10-13 Asia/Seoul
+Node 24.19.0 / npm 11.17.0 / Windows / Edge 142.0.3595.94
+npm test: 247 tests, 0 failures, exit 0
+node --test tests/demo.test.js tests/plan-demo.test.js tests/plan-demo-ui.test.js: 39 tests, 0 failures, exit 0
+Required Node aggregate: 286 tests, 0 failures
+npm run test:browser: 591 checks reported before incomplete full-flow suite; 1 assertion failure, exit 1. Record sheet returns focus to rebuilt opener.
+npm run test:trial: Node 19 tests pass; browser fails console 404 for /favicon.ico before total output. 1 assertion failure, exit 1.
+npm run test:budget: 14 + 187 + 61 = 262 checks, 0 failures, exit 0.
+Additional actual plan-demo browser: 36 checks, 0 failures, exit 0. 1440x900 / 1280x720 / 390x844.
+Tracked source diff empty. Existing ignored tests/artifacts remain. No production modification.

@@ -1,0 +1,12 @@
+??positive final cash cannot conceal a temporary forecast deficit (39.3993ms)
+??current negative cash is visible even if future receipts recover it (3.5492ms)
+??valid imported capacities determine A/C/people total capacity (4.1702ms)
+??default state retains original 14h and has no cash warning (1.722ms)
+??tests 4
+??suites 0
+??pass 4
+??fail 0
+??cancelled 0
+??skipped 0
+??todo 0
+??duration_ms 55.6207

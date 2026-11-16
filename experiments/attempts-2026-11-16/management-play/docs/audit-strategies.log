@@ -1,0 +1,3 @@
+PASS: 70 strategy/scenario runs + 70 deterministic reruns; 12699 assertions; 0 failures
+Engine SHA-256: a288d83b8981dfe5b61b0f95dc700617d84ef0a7082d94e6dbe0c9b4f6019abb
+PASS: all 70 rows, action traces and daily reports equal baseline 7f3402c767aaa2bb53f6de7da5e3b69b220c671753c07b0d5ef2d2bafffbc1a6

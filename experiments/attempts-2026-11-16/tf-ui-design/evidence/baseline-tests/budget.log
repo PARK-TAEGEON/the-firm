@@ -1,0 +1,8 @@
+
+> the-firm-courtroom-experiment@0.10.0 test:budget
+> node tests/ui-budget.js && node tests/ui-flow-budget.js
+
+[{"viewport":"1440x1080","mode":"normal","visibleCharacters":191,"documentHeight":1080,"examinationHeight":187,"laneBottom":null,"horizontalOverflow":false},{"viewport":"1440x1080","mode":"argument","visibleCharacters":214,"documentHeight":1080,"examinationHeight":213,"laneBottom":960,"horizontalOverflow":false},{"viewport":"390x844","mode":"normal","visibleCharacters":183,"documentHeight":1233,"examinationHeight":183,"laneBottom":null,"horizontalOverflow":false},{"viewport":"390x844","mode":"argument","visibleCharacters":213,"documentHeight":1293,"examinationHeight":243,"laneBottom":796,"horizontalOverflow":false}]
+UI budget: 14 checks, 0 failures, exit 0
+Full-flow browser: 187 checks, 0 failures, exit 0
+Full-flow UI budget: 61 checks, 0 failures, exit 0

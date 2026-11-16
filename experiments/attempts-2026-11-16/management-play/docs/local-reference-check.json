@@ -1,0 +1,13 @@
+{
+  "checked_at": "2026-10-27",
+  "mode": "read-only",
+  "previous_project": "C:/Users/Admin/Documents/Codex/2026-10-25/new-chat/work/firm-audit/the-firm-management-slice",
+  "previous_runtime": "C:/Users/Admin/Documents/Codex/2026-10-25/new-chat/outputs/play-v04/THE_FIRM_Management_Play_v0.4.html",
+  "previous_runtime_sha256": "3456c530eae62bbc4d1f2929078b1d73b5be46597e6704b5dc0815154d93b1e9",
+  "matches_handoff_baseline": true,
+  "engine_sha256": "a288d83b8981dfe5b61b0f95dc700617d84ef0a7082d94e6dbe0c9b4f6019abb",
+  "matched_documents": ["TASK.md", "RULES.md", "PLAY_REPORT.md", "UI reference brief", "UI improvement task", "original prototype", "original font candidates"],
+  "local_source_has_git": false,
+  "original_source_modified": false,
+  "scope_note": "Bounded relevant October 20/23/25 task folders were reviewed. No original Git repository was present in those locations. This is not a claim about all drives."
+}

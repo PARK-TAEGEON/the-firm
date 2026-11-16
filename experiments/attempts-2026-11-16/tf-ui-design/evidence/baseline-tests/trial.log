@@ -1,0 +1,41 @@
+
+> the-firm-courtroom-experiment@0.10.0 test:trial
+> node --test tests/trial.test.js && node tests/browser-trial.test.js
+
+✔ definition validates and service does not mutate input (12.7934ms)
+✔ validation rejects broken references (1.1369ms)
+✔ prep budget is enforced atomically and investigations are irreversible (1.6441ms)
+✔ prosecution exhibits stay sealed until records are inspected; client reinterview adds a statement (0.7131ms)
+✔ phase gates: commands out of phase fail without state change (2.7635ms)
+✔ objection window blocks progress until decided (1.2143ms)
+✔ bait objection is overruled and costs judge credibility (4.737ms)
+✔ approaches require prepared cards; time is limited per opening focus (3.988ms)
+✔ no preparation leads to conviction (5.4359ms)
+✔ identity-focused preparation can win; knife-focused preparation can win (9.7116ms)
+✔ limited press succeeds only with enough grounds; overreach always backfires (11.8062ms)
+✔ sign-light redirect: rebuttal card neutralizes it, absence is reported as missed prep (12.3679ms)
+✔ initial-statement contrast neutralizes the familiarity redirect (7.4498ms)
+✔ opening denial is attacked by the prosecutor; client reinterview reveals the trap (15.725ms)
+✔ low credibility shortens the next cross-examination (4.7523ms)
+✔ determinism and record-only replay (10.4009ms)
+✔ records are append-only across commands and reset starts clean (2.0131ms)
+✔ projection exposes no numeric win probability or issue strength to the UI text (7.1316ms)
+✔ engine and service do not inspect case-specific ids (1.6448ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 227.454
+AssertionError [ERR_ASSERTION]: desktop/acquit: no page errors Failed to load resource: the server responded with a status of 404 (Not Found)
+    at check (C:\Users\Admin\.codex\worktrees\tf-ui-001-audit\The Firm\courtroom-prototype\tests\browser-trial.test.js:19:57)
+    at run (C:\Users\Admin\.codex\worktrees\tf-ui-001-audit\The Firm\courtroom-prototype\tests\browser-trial.test.js:96:7) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}

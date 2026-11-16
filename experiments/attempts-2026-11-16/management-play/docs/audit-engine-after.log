@@ -1,0 +1,18 @@
+✔ AUDIT-01 import completion day must equal the day actual recorded hours first reach the requirement (7.3072ms)
+✔ AUDIT-02 upfront invoice must use configured contract amount, next-day timing, and the correct case (1.0973ms)
+✔ AUDIT-03 canonical receipt-trigger task identity cannot be lost during import (0.4714ms)
+✔ AUDIT-04 processed due-day invoices cannot be restored as unpaid after deleting and reconciling their receipt (0.9398ms)
+✔ AUDIT-05 balance invoice keeps the receipt-trigger case identity (3.7208ms)
+✔ AUDIT-06 valid imported event IDs cannot collide with the next generated event (0.833ms)
+✔ AUDIT-07 valid snapshots resume identically on every day and cannot advance after the fifth day (8.0376ms)
+✔ AUDIT-08 separate initial balance fixtures remain supported without modifying default economics (2.1769ms)
+✔ AUDIT-09 action history limit rejects extra edits atomically but reserves all mandatory week events (3240.3695ms)
+✔ AUDIT-10 default economic state and normal command outcomes remain byte-equivalent to original engine (34.2104ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3309.0973

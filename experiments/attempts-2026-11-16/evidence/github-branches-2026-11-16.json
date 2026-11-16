@@ -1,0 +1,114 @@
+[
+  {
+    "name": "archive/dec-030-034-drafts",
+    "commit": {
+      "sha": "5b47626c8cb6dd656e27950fe38065e081d20f75",
+      "url": "https://api.github.com/repos/PARK-TAEGEON/the-firm/commits/5b47626c8cb6dd656e27950fe38065e081d20f75"
+    },
+    "protected": false
+  },
+  {
+    "name": "main",
+    "commit": {
+      "sha": "30dc3b25fa7cef6a600a689cd0b1a1cac49cd1d8",
+      "url": "https://api.github.com/repos/PARK-TAEGEON/the-firm/commits/30dc3b25fa7cef6a600a689cd0b1a1cac49cd1d8"
+    },
+    "protected": false
+  },
+  {
+    "name": "task/argument-narrowing-001",
+    "commit": {
+      "sha": "ab57527592ec6879936f53785c346393a121bf58",
+      "url": "https://api.github.com/repos/PARK-TAEGEON/the-firm/commits/ab57527592ec6879936f53785c346393a121bf58"
+    },
+    "protected": false
+  },
+  {
+    "name": "task/courtroom-core-loop-lab",
+    "commit": {
+      "sha": "61666f7f55ff4532995609e7e6e9048169de4279",
+      "url": "https://api.github.com/repos/PARK-TAEGEON/the-firm/commits/61666f7f55ff4532995609e7e6e9048169de4279"
+    },
+    "protected": false
+  },
+  {
+    "name": "task/demo-001",
+    "commit": {
+      "sha": "288e1e7276a56887f42f7b5f02146c74b583d50d",
+      "url": "https://api.github.com/repos/PARK-TAEGEON/the-firm/commits/288e1e7276a56887f42f7b5f02146c74b583d50d"
+    },
+    "protected": false
+  },
+  {
+    "name": "task/demo-review-decisions-2026-10-08",
+    "commit": {
+      "sha": "7f2923310e1a2003b09329b7e1f5fb6e1e6b7f1d",
+      "url": "https://api.github.com/repos/PARK-TAEGEON/the-firm/commits/7f2923310e1a2003b09329b7e1f5fb6e1e6b7f1d"
+    },
+    "protected": false
+  },
+  {
+    "name": "task/design-sync-001",
+    "commit": {
+      "sha": "6888997ed3c49c8e11cd419389cb6f0982712598",
+      "url": "https://api.github.com/repos/PARK-TAEGEON/the-firm/commits/6888997ed3c49c8e11cd419389cb6f0982712598"
+    },
+    "protected": false
+  },
+  {
+    "name": "task/future-office-relations-2026-10-14",
+    "commit": {
+      "sha": "5ee9e1e3c2ce82ba0d5fb6fd6edcc042b70a500b",
+      "url": "https://api.github.com/repos/PARK-TAEGEON/the-firm/commits/5ee9e1e3c2ce82ba0d5fb6fd6edcc042b70a500b"
+    },
+    "protected": false
+  },
+  {
+    "name": "task/gen-001",
+    "commit": {
+      "sha": "00b59c6cb086f526f9fa610c03a3404b987e9b18",
+      "url": "https://api.github.com/repos/PARK-TAEGEON/the-firm/commits/00b59c6cb086f526f9fa610c03a3404b987e9b18"
+    },
+    "protected": false
+  },
+  {
+    "name": "task/hr-status-markmap-2026-10-14",
+    "commit": {
+      "sha": "113aec9b3780adc43603d648dff411d73b4ed8a0",
+      "url": "https://api.github.com/repos/PARK-TAEGEON/the-firm/commits/113aec9b3780adc43603d648dff411d73b4ed8a0"
+    },
+    "protected": false
+  },
+  {
+    "name": "task/plan-demo-001",
+    "commit": {
+      "sha": "d6fa4a303691f60eedf79b829780f443f915e245",
+      "url": "https://api.github.com/repos/PARK-TAEGEON/the-firm/commits/d6fa4a303691f60eedf79b829780f443f915e245"
+    },
+    "protected": false
+  },
+  {
+    "name": "task/sys-004",
+    "commit": {
+      "sha": "b11e80038cdc0aa969c4b00725d77608423619ad",
+      "url": "https://api.github.com/repos/PARK-TAEGEON/the-firm/commits/b11e80038cdc0aa969c4b00725d77608423619ad"
+    },
+    "protected": false
+  },
+  {
+    "name": "task/trial-vertical-slice-plan",
+    "commit": {
+      "sha": "7e3ce8c10e9b07593fd0f4ea05bd60715e9a98bf",
+      "url": "https://api.github.com/repos/PARK-TAEGEON/the-firm/commits/7e3ce8c10e9b07593fd0f4ea05bd60715e9a98bf"
+    },
+    "protected": false
+  },
+  {
+    "name": "task/world-001",
+    "commit": {
+      "sha": "97f2b60d687ea463cd8e97132c66d46db0e01ddf",
+      "url": "https://api.github.com/repos/PARK-TAEGEON/the-firm/commits/97f2b60d687ea463cd8e97132c66d46db0e01ddf"
+    },
+    "protected": false
+  }
+]
