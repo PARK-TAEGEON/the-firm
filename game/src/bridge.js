@@ -1,6 +1,6 @@
 (function (root) {
 'use strict';
-// PORTFOLIO-001 bridge: 사무소 한 주(경영 엔진)와 공판(재판 엔진)을 잇는 순수 함수.
+// PORTFOLIO-001/002 bridge: 사무소 한 주(경영 엔진)와 공판(재판 엔진)을 잇는 순수 함수.
 // 두 엔진은 vendor/ 아래 원본 그대로이며 서로를 모른다. 이 파일만 양쪽 상태를 읽는다.
 // 여기의 수치는 실험용 authored 규칙이다(RULES.md). Accepted DEC가 아니다. 무작위 없음.
 
@@ -8,11 +8,12 @@ const CASE_ID = 'jung';
 const REVIEW_TASK = 'jung-review';
 const ORGANIZE_TASK = 'jung-organize';
 
-// 공판 준비 횟수: 사무소가 정민호 기록 검토를 언제 마쳤는가로 정한다.
+// 변론 계획서 초안의 확인 항목 기본값: 사무소가 정민호 기록 검토를 언제 마쳤는가로 정한다(PORTFOLIO-002 P2).
+// budget = 초안이 확인해 오는 항목 수의 기본값. 담당 변호사의 기록 분석이 높으면 1개 더한다(plan.js).
 const PREP_TIERS = Object.freeze([
-  { id: 'on_time', budget: 4, label: '기록 검토를 기한 안에 마쳤습니다', detail: '검토 메모가 제때 책상에 올라와 공판 전 반나절 4번을 모두 쓸 수 있습니다.' },
-  { id: 'late', budget: 3, label: '기록 검토가 기한을 넘겼습니다', detail: '검토 메모가 하루 늦어 공판 전 반나절이 4번에서 3번으로 줄었습니다.' },
-  { id: 'unfinished', budget: 2, label: '기록 검토를 마치지 못했습니다', detail: '기록을 직접 다시 읽어야 해 공판 전 반나절이 2번만 남았습니다.' }
+  { id: 'on_time', budget: 3, label: '기록 검토를 기한 안에 마쳤습니다', detail: '검토 메모가 제때 올라와, 변론 계획서 초안이 확인 항목 3개를 채워 옵니다.' },
+  { id: 'late', budget: 2, label: '기록 검토가 기한을 넘겼습니다', detail: '검토 메모가 하루 늦어, 초안이 확인해 오는 항목이 3개에서 2개로 줄었습니다.' },
+  { id: 'unfinished', budget: 1, label: '기록 검토를 마치지 못했습니다', detail: '기록을 다 읽지 못해, 초안이 확인해 온 항목이 1개뿐입니다.' }
 ]);
 
 // 성공보수: 판결 종류별 고정액(원). 착수금은 주간 시작 전에 받은 것으로 본다.

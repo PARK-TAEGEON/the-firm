@@ -4,7 +4,7 @@
 
 ## Playable Slice · 2026-11-16
 
-[`game/`](../game/README.md): 사무소의 한 주 → 공판 → 결산을 잇는 한 판(PORTFOLIO-001, 실험 lane). 기존 두 엔진의 사본을 연결했으며 `courtroom-prototype/`와 Accepted DEC는 바꾸지 않았다. 사람 플레이테스트 전이다. 규칙 `game/RULES.md`, 점검 `game/REPORT.md`.
+[`game/`](../game/README.md): 사무소의 한 주 → 변론 계획서 → 자동 공판 → 결산을 잇는 한 판(PORTFOLIO-001 → 002, 실험 lane). 기존 두 엔진의 사본을 연결했으며 `courtroom-prototype/`와 Accepted DEC는 바꾸지 않았다. 사람 플레이테스트 전이다. 규칙 `game/RULES.md`, 점검 `game/REPORT.md`.
 
 ## Current Version
 
