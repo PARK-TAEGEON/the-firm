@@ -56,12 +56,17 @@ const t = s => esc(s);
 // ---------- 공통 틀 ----------
 const STEPS = [['intro', '상담'], ['office', '사무소'], ['plan', '계획서'], ['court', '공판'], ['result', '결산']];
 function stepIndex(scene) { return scene === 'weekend' ? 1 : scene === 'result' && ui.watching ? 3 : STEPS.findIndex(s => s[0] === scene); }
+// 매트 위 빛: 월요일 오후의 창빛에서 금요일 밤 스탠드 불빛으로. 남은 날을 분위기로도 보여 준다.
+function dayClass(v) {
+  if (v.scene === 'office' && v.firm) return ' day-' + Math.min(v.firm.dayIndex, 4);
+  return v.scene === 'weekend' || v.scene === 'plan' ? ' day-5' : '';
+}
 function frame(v, body, right) {
   const at = stepIndex(v.scene);
   return '<header class="top"><button class="brand" data-act="title" aria-label="처음 화면으로">THE FIRM</button>' +
     '<ol class="rail">' + STEPS.map((s, i) => '<li class="' + (i < at ? 'done' : i === at ? 'now' : '') + '">' + s[1] + '</li>').join('') + '</ol>' +
     '<div class="top-right">' + (right || '') + '<button class="icon" data-act="theme"' + tip('색 시안', [document.documentElement.dataset.theme === 'cool' ? '지금: 차가운 남색' : '지금: 따뜻한 기록철']) + ' aria-label="색 시안 바꾸기">◐</button><button class="icon" data-act="mute" aria-label="' + (Audio.isMuted() ? '소리 켜기' : '소리 끄기') + '">' + (Audio.isMuted() ? '♪̸' : '♪') + '</button></div></header>' +
-    '<main class="scene scene-' + (v.scene === 'result' && ui.watching ? 'court' : v.scene) + (ui.entering ? ' enter' : '') + '">' + body + '</main>';
+    '<main class="scene scene-' + (v.scene === 'result' && ui.watching ? 'court' : v.scene) + dayClass(v) + (ui.entering ? ' enter' : '') + '">' + body + '</main>';
 }
 const portrait = (id, cls) => '<span class="face ' + (cls || '') + '" style="background-image:url(assets/art/' + (['lee', 'kim', 'park', 'han'].includes(id) ? 'staff-' + id + '.jpg' : 'silhouette.svg') + ')"></span>';
 
