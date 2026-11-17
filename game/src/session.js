@@ -137,11 +137,11 @@ function createGame(saved) {
       draft: (() => { const d0 = Plan.draft(tierId, p.lawyerId); return { stance: d0.stance, focus: d0.focus, advice: d0.advice, checks: d0.checks }; })(),
       checks: SHEET.checks.map(c => ({ ...c, on: p.checks.includes(c.id) })),
       threats: Plan.threats(p),
-      stances: def.opening.stance.map(s => ({ id: s.id, title: s.title, short: SHEET.stances[s.id].short })),
-      focus: def.opening.focus.map(f => ({ id: f.id, title: f.title, short: SHEET.focus[f.id].short,
+      stances: def.opening.stance.map(s => ({ id: s.id, title: s.title, word: SHEET.stances[s.id].word, short: SHEET.stances[s.id].short })),
+      focus: def.opening.focus.map(f => ({ id: f.id, title: f.title, word: SHEET.focus[f.id].word, short: SHEET.focus[f.id].short,
         time: Object.fromEntries(Object.entries(f.time).map(([w, n]) => [w, n + (Plan.LAWYERS[p.lawyerId].stats.examine >= Plan.T.examineBonus ? 1 : 0)])) })),
       witnesses: def.witnesses.map(w => ({ id: w.id, name: Case.presentation.witnesses[w.id].name, role: Case.presentation.witnesses[w.id].role, goal: SHEET.witnessGoal[w.id] })),
-      advice: Case.settlement.advice.map(a => ({ id: a.id, title: a.title, short: SHEET.advice[a.id] })),
+      advice: Case.settlement.advice.map(a => ({ id: a.id, title: a.title, word: SHEET.adviceWord[a.id], short: SHEET.advice[a.id] })),
       offer: clone(Case.settlement.offer), settles: p.checks.includes('INV_SIG_SETTLE'),
       asks: Plan.expectedAsks(p), fee: Plan.courtFee(g.firm, p.lawyerId)
     };
@@ -150,7 +150,7 @@ function createGame(saved) {
   function view() {
     const v = { scene: g.scene, runs: g.runs, firm: null, forecast: null, summary: null, outlook: null, prep: null, plan: null,
       court: null, ask: null, settlement: null,
-      caseInfo: { id: Case.id, presentation: clone(Case.presentation), prosecutors: clone(Case.prosecutors), nextTry: clone(Case.nextTry || []), prosecutorId: SHEET.prosecutorId } };
+      caseInfo: { id: Case.id, memoWords: SHEET.memoWords.slice(), presentation: clone(Case.presentation), prosecutors: clone(Case.prosecutors), nextTry: clone(Case.nextTry || []), prosecutorId: SHEET.prosecutorId } };
     if (g.firm) {
       v.firm = clone(g.firm);
       v.forecast = Firm.forecast(g.firm);

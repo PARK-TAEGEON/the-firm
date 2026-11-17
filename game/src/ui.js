@@ -43,14 +43,22 @@ function run(action, payload, sound) {
 }
 const court = (action, payload, sound) => run('court', { action: 'trial', payload: { action, payload: payload || {} } }, sound);
 
+// ---------- 툴팁: 화면에는 단어만, 자세한 건 올리거나 누르면 ----------
+// tip(제목, 줄들) → data-tip 속성. 줄은 이미 escape된 HTML이어야 한다.
+function tip(head, lines) {
+  const body = '<b>' + esc(head) + '</b>' + (lines || []).filter(Boolean).map(l => '<span>' + l + '</span>').join('');
+  return ' data-tip="' + esc(body) + '" tabindex="0"';
+}
+const t = s => esc(s);
+
 // ---------- 공통 틀 ----------
-const STEPS = [['intro', '상담'], ['office', '사무소의 한 주'], ['plan', '변론 계획'], ['court', '공판'], ['result', '결산']];
+const STEPS = [['intro', '상담'], ['office', '사무소'], ['plan', '계획서'], ['court', '공판'], ['result', '결산']];
 function stepIndex(scene) { return scene === 'weekend' ? 1 : scene === 'result' && ui.watching ? 3 : STEPS.findIndex(s => s[0] === scene); }
 function frame(v, body, right) {
   const at = stepIndex(v.scene);
-  return '<header class="top"><button class="brand" data-act="title" aria-label="처음 화면으로">THE FIRM<small>법률사무소</small></button>' +
-    '<ol class="rail">' + STEPS.map((s, i) => '<li class="' + (i < at ? 'done' : i === at ? 'now' : '') + '"><i>0' + (i + 1) + '</i>' + s[1] + '</li>').join('') + '</ol>' +
-    '<div class="top-right">' + (right || '') + '<button class="icon" data-act="mute" aria-label="소리 켜기/끄기">' + (Audio.isMuted() ? '소리 꺼짐' : '소리 켜짐') + '</button></div></header>' +
+  return '<header class="top"><button class="brand" data-act="title" aria-label="처음 화면으로">THE FIRM</button>' +
+    '<ol class="rail">' + STEPS.map((s, i) => '<li class="' + (i < at ? 'done' : i === at ? 'now' : '') + '">' + s[1] + '</li>').join('') + '</ol>' +
+    '<div class="top-right">' + (right || '') + '<button class="icon" data-act="mute" aria-label="' + (Audio.isMuted() ? '소리 켜기' : '소리 끄기') + '">' + (Audio.isMuted() ? '♪̸' : '♪') + '</button></div></header>' +
     '<main class="scene scene-' + (v.scene === 'result' && ui.watching ? 'court' : v.scene) + (ui.entering ? ' enter' : '') + '">' + body + '</main>';
 }
 const portrait = (id, cls) => '<span class="face ' + (cls || '') + '" style="background-image:url(assets/art/' + (['lee', 'kim', 'park', 'han'].includes(id) ? 'staff-' + id + '.jpg' : 'silhouette.svg') + ')"></span>';
@@ -58,201 +66,189 @@ const portrait = (id, cls) => '<span class="face ' + (cls || '') + '" style="bac
 // ---------- 타이틀 ----------
 function title(v) {
   const saved = readSave(), canResume = v.scene !== 'title' || (saved && saved.scene !== 'title');
-  return '<main class="title' + (ui.entering ? ' enter' : '') + '"><div class="title-card"><p class="kicker">변호사 시뮬레이션 · 플레이 10~15분</p><h1>THE FIRM</h1>' +
-    '<p class="lead">작은 법률사무소의 한 주, 그리고 한 번의 재판.<br>누구에게 무엇을 맡겼는지가 법정에 들고 갈 계획서를 정합니다.</p>' +
-    '<div class="title-actions">' + (canResume ? '<button class="btn primary" data-act="resume" data-primary>이어서 하기</button><button class="btn" data-act="new">처음부터</button>' : '<button class="btn primary" data-act="new" data-primary>시작하기</button>') + '</div>' +
-    '<ul class="title-points"><li><b>맡긴다</b>네 사람의 시간을 사건에 나눕니다</li><li><b>고친다</b>변호사가 쓴 변론 계획서를 펜으로 고치고 날인합니다</li><li><b>지켜본다</b>공판은 계획대로 흐르고, 결정적인 순간에만 당신을 부릅니다</li></ul>' +
-    '<p class="fine">한국을 닮은 가상의 법 세계입니다. 절차와 형량은 게임을 위해 단순화했으며 법률 조언이 아닙니다.' + (v.runs ? ' · 완주 ' + v.runs + '회' : '') + ' <button class="link" data-act="mute">' + (Audio.isMuted() ? '소리 켜기' : '소리 끄기') + '</button></p></div></main>';
+  return '<main class="title' + (ui.entering ? ' enter' : '') + '"><div class="title-card"><h1>THE FIRM</h1><p class="lead">한 주, 그리고 한 번의 재판</p>' +
+    '<div class="title-actions">' + (canResume ? '<button class="btn primary" data-act="resume" data-primary>이어서</button><button class="btn" data-act="new">처음부터</button>' : '<button class="btn primary" data-act="new" data-primary>시작</button>') + '</div>' +
+    '<ul class="title-points"><li' + tip('맡긴다', ['네 사람의 시간을 사건에 나눈다']) + '>맡긴다</li><li' + tip('고친다', ['변호사가 쓴 변론 계획서를 펜으로 고치고 날인한다']) + '>고친다</li><li' + tip('지켜본다', ['공판은 계획대로 흐르고, 결정적인 순간에만 부른다']) + '>지켜본다</li></ul>' +
+    '<p class="fine"><span' + tip('가상의 법 세계', ['한국을 닮았지만 절차와 형량은 게임을 위해 단순화했다', '법률 조언이 아니다']) + '>가상의 법 세계</span>' + (v.runs ? ' · 완주 ' + v.runs + '회' : '') + '</p></div></main>';
 }
 
 // ---------- 상담 ----------
 function intro(v) {
   const c = v.caseInfo.presentation.consultation, memo = v.caseInfo.presentation.memo;
   if (ui.memo) {
-    return frame(v, '<section class="memo paper"><p class="kicker">사건 메모 · 정민호</p><h2>상해 사건을 맡았습니다</h2>' +
-      '<div class="memo-grid"><div><h3>무슨 일인가</h3><ul>' + memo.background.map(x => '<li>' + gloss(x) + '</li>').join('') + '</ul></div>' +
-      '<div><h3>검찰의 주장</h3><p>' + gloss(memo.prosecution) + '</p><h3>의뢰인의 말</h3><p class="quote">“' + esc(memo.client) + '”</p></div></div>' +
-      '<div class="memo-next"><h3>이번 주 사무소가 할 일</h3><p>공판은 다음 주입니다. 그 전에 <b>자료 정리 → 기록 검토</b>를 끝내야 합니다. 기록 검토가 제때 끝나야 담당 변호사가 쓰는 변론 계획서에 확인한 자료가 많이 채워집니다. 사무소에는 다른 사건도 있습니다.</p></div>' +
-      '<div class="actions"><button class="btn primary" data-act="finishIntro" data-primary>사무소로 간다</button></div></section>');
+    const facts = v.caseInfo.memoWords.map((w, i) => '<li' + tip(w, [esc(memo.background[i])]) + '>' + esc(w) + '</li>').join('');
+    const people = memo.people.slice(0, 4).map(p => { const name = p.split(/[(:]/)[0].trim(); return '<li' + tip(name, [esc(p)]) + '>' + esc(name) + '</li>'; }).join('');
+    return frame(v, '<section class="memo paper"><p class="kicker">사건 메모</p><h2>정민호 · 상해</h2>' +
+      '<div class="memo-rows"><div><small>사건</small><ul class="words">' + facts + '</ul></div><div><small>사람</small><ul class="words">' + people + '</ul></div>' +
+      '<div><small>검찰</small><ul class="words"><li' + tip('검찰의 주장', [gloss(memo.prosecution)]) + '>밀침 → 상해</li></ul></div><div><small>의뢰인</small><p class="quote">“' + esc(memo.client) + '”</p></div>' +
+      '<div><small>이번 주</small><ul class="words"><li' + tip('자료 정리', ['기록 검토를 시작하려면 먼저 끝나야 한다']) + '>자료 정리</li><li class="arrow">→</li><li' + tip('기록 검토', ['제때 끝날수록 변론 계획서에 확인 항목이 많이 채워진다', '기한 6/17 수']) + '>기록 검토</li><li class="arrow">→</li><li' + tip('공판', ['다음 주 월요일']) + '>공판</li></ul></div></div>' +
+      '<div class="actions"><button class="btn primary" data-act="finishIntro" data-primary>사무소로</button></div></section>');
   }
   const line = c.lines[ui.intro], sp = c.speakers.find(s => s.id === line.speaker), mine = line.speaker === 'DEFENSE';
-  return frame(v, '<section class="stage-photo" style="background-image:url(assets/art/office_lounge.jpg)"><div class="place"><small>사무실 회의실</small>첫 상담</div>' +
-    '<div class="dialogue ' + (mine ? 'mine' : '') + '">' + portrait(null) + '<div class="say"><b>' + esc(sp.name) + '</b><small>' + esc(sp.detail) + '</small><p key="' + ui.intro + '">' + gloss(line.text) + '</p></div>' +
+  return frame(v, '<section class="stage-photo" style="background-image:url(assets/art/office_lounge.jpg)"><div class="place">첫 상담</div>' +
+    '<div class="dialogue ' + (mine ? 'mine' : '') + '">' + portrait(null) + '<div class="say"><b' + tip(sp.name, [esc(sp.detail)]) + '>' + esc(sp.name) + '</b><p key="' + ui.intro + '">' + gloss(line.text) + '</p></div>' +
     '<div class="dialogue-foot"><span>' + (ui.intro + 1) + ' / ' + c.lines.length + '</span><button class="link" data-act="skipIntro">건너뛰기</button><button class="btn primary" data-act="nextIntro" data-primary>계속</button></div></div></section>');
 }
 
 // ---------- 사무소 ----------
-const STATUS = { completed: ['끝', 'ok'], on_time: ['기한 안', 'ok'], late: ['기한 넘김', 'bad'], beyond_horizon: ['이번 주 안에 못 끝냄', 'bad'] };
+const STATUS = { completed: ['끝', 'ok'], on_time: ['기한 안', 'ok'], late: ['넘김', 'bad'], beyond_horizon: ['못 끝냄', 'bad'] };
 const lateCount = f => f.tasks.filter(t => t.status === 'late' || t.status === 'beyond_horizon').length;
-const OUTLOOK_TEXT = { on_time: '지금 배정이면 기록 검토가 기한 안에 끝납니다', late: '지금 배정이면 기록 검토가 기한을 넘깁니다', unfinished: '지금 배정이면 이번 주 안에 기록 검토를 못 끝냅니다' };
-const CHECKS = n => '기본 확인 항목 <b>' + n + '</b>개';
+const TIER_WORD = { on_time: '기한 안', late: '기한 넘김', unfinished: '못 끝냄' };
 function outlookCard(v) {
-  const o = v.outlook, firm = v.firm, org = firm.tasks.find(t => t.id === 'jung-organize'), rev = firm.tasks.find(t => t.id === 'jung-review');
-  const f = id => v.forecast.tasks.find(t => t.taskId === id), name = id => (firm.staff.find(s => s.id === id) || { name: '미배정' }).name;
-  const link = t => '<div class="chain-item ' + STATUS[f(t.id).status][1] + '"><small>' + esc(t.title.split(' · ')[1]) + ' · ' + esc(name(t.assignee)) + '</small><b>' + (t.completedDay !== null ? dayLabel(firm, t.completedDay) + ' 완료' : dayLabel(firm, f(t.id).predictedCompletionDay) + ' 예상') + '</b><span>기한 ' + dayLabel(firm, t.dueDay) + '</span></div>';
-  return '<section class="card outlook tier-' + o.tierId + '"><div><p class="kicker">정민호 변론 계획서 전망</p><p class="big">' + CHECKS(o.budget) + '</p><p class="muted">' + esc(o.settled ? o.label : OUTLOOK_TEXT[o.tierId]) + '</p></div>' +
-    '<div class="chain">' + link(org) + '<i>→</i>' + link(rev) + '<i>→</i><div class="chain-item goal"><small>다음 주</small><b>제1회 공판</b><span>기본 확인 ' + o.budget + '개</span></div></div></section>';
+  const o = v.outlook, firm = v.firm, org = firm.tasks.find(x => x.id === 'jung-organize'), rev = firm.tasks.find(x => x.id === 'jung-review');
+  const f = id => v.forecast.tasks.find(x => x.taskId === id), name = id => (firm.staff.find(s => s.id === id) || { name: '미배정' }).name;
+  const link = k => { const st = STATUS[f(k.id).status], when = k.completedDay !== null ? dayLabel(firm, k.completedDay) : dayLabel(firm, f(k.id).predictedCompletionDay);
+    return '<div class="chain-item ' + st[1] + '"' + tip(k.title, ['담당 ' + esc(name(k.assignee)), (k.completedDay !== null ? '완료 ' : '예상 ') + esc(when), '기한 ' + esc(dayLabel(firm, k.dueDay))]) + '><small>' + esc(k.title.split(' · ')[1]) + '</small><b>' + esc(when) + '</b></div>'; };
+  return '<section class="card outlook tier-' + o.tierId + '"><div class="ol-head"><small>정민호</small><b' + tip('확인 항목 ' + o.budget + '개', ['기록 검토가 ' + TIER_WORD[o.tierId] + ' → 변론 계획서 초안이 확인해 오는 자료 수', '기한 안 3 · 넘김 2 · 못 끝냄 1', '담당 변호사의 기록 분석이 14 이상이면 +1']) + '>확인 ' + o.budget + '</b><span class="chip ' + (o.tierId === 'on_time' ? 'ok' : 'bad') + '">' + TIER_WORD[o.tierId] + '</span></div>' +
+    '<div class="chain">' + link(org) + '<i>→</i>' + link(rev) + '<i>→</i><div class="chain-item goal"><small>공판</small><b>6/22 월</b></div></div></section>';
 }
 function intakeCard(v) {
   const it = v.firm.intake; if (it.status !== 'pending') return '';
   const a = game.previewFirm({ type: 'ACCEPT_INTAKE' }), d = game.previewFirm({ type: 'DECLINE_INTAKE' });
-  const opt = (p, act, label, extra) => '<button class="choice" data-act="' + act + '"><b>' + label + '</b><span>' + extra + '</span><span>주말 예상 현금 ' + won(p.forecast.projectedCash) + '</span><span class="' + (lateCount(p.forecast) ? 'warn' : '') + '">기한 넘길 업무 ' + lateCount(p.forecast) + '건</span><span>기본 확인 항목 ' + p.outlook.budget + '개</span></button>';
-  return '<section class="card decision"><p class="kicker">오늘 결정할 일 · 새 의뢰</p><h2>윤지훈 씨가 사건을 맡아 달라고 합니다</h2>' +
-    '<p>' + gloss('준비 업무 16시간이 더해집니다. 착수금 ' + won(it.upfront) + ', 준비 보고를 내면 잔금 ' + won(it.balance) + '. 준비 보고가 ' + dayLabel(v.firm, it.dueDay) + '까지 나오지 않으면 착수금의 절반을 돌려줍니다.') + '</p>' +
-    '<div class="choices two">' + opt(a, 'accept', '맡는다', '업무 3개 · 16시간 추가') + opt(d, 'decline', '거절한다', '기존 사건에 집중') + '</div><p class="fine">수임 여부를 정해야 하루를 진행할 수 있습니다. 예상은 지금 배정을 유지했을 때의 값입니다.</p></section>';
+  const opt = (p, act, label) => '<button class="choice" data-act="' + act + '"' + tip(label, ['주말 현금 ' + won(p.forecast.projectedCash), '기한 넘길 업무 ' + lateCount(p.forecast) + '건', '정민호 확인 항목 ' + p.outlook.budget + '개']) + '><b>' + label + '</b><span class="nums"><em>' + won(p.forecast.projectedCash) + '</em><em class="' + (lateCount(p.forecast) ? 'warn' : '') + '">넘김 ' + lateCount(p.forecast) + '</em><em>확인 ' + p.outlook.budget + '</em></span></button>';
+  return '<section class="card decision"><div class="card-head"><h2' + tip('윤지훈 · 새 의뢰', ['준비 업무 16시간 추가', '착수금 ' + won(it.upfront) + ' · 잔금 ' + won(it.balance), esc(dayLabel(v.firm, it.dueDay)) + '까지 준비 보고를 못 내면 착수금 절반 환급']) + '>새 의뢰 · 윤지훈</h2></div>' +
+    '<div class="choices two">' + opt(a, 'accept', '맡는다') + opt(d, 'decline', '거절') + '</div></section>';
 }
 function office(v) {
   const firm = v.firm, fc = v.forecast, pending = firm.intake.status === 'pending';
   const staff = id => firm.staff.find(s => s.id === id);
-  const rows = firm.tasks.map(t => {
-    const f = fc.tasks.find(x => x.taskId === t.id), st = STATUS[f.status], waits = t.completedDay === null && t.requires.some(r => firm.tasks.find(x => x.id === r).completedDay === null);
-    return '<tr class="r-' + st[1] + '"><td><b>' + esc(t.title) + '</b>' + (waits ? '<small>앞 업무가 끝나야 시작</small>' : '') + '</td><td>' + (t.assignee ? portrait(t.assignee, 'sm') + esc(staff(t.assignee).name) : '미배정') + '</td><td class="num">' + (t.requiredHours - t.doneHours) + '시간</td><td>' + dayLabel(firm, t.dueDay) + '</td><td>' + (t.completedDay !== null ? dayLabel(firm, t.completedDay) : dayLabel(firm, f.predictedCompletionDay)) + '</td><td><span class="chip ' + st[1] + '">' + st[0] + '</span></td><td>' + (t.completedDay === null ? '<button class="btn sm" data-act="assign" data-id="' + t.id + '">담당 조정</button>' : '') + '</td></tr>';
+  const rows = firm.tasks.map(k => {
+    const f = fc.tasks.find(x => x.taskId === k.id), st = STATUS[f.status], waits = k.completedDay === null && k.requires.some(r => firm.tasks.find(x => x.id === r).completedDay === null);
+    const when = k.completedDay !== null ? dayLabel(firm, k.completedDay) : dayLabel(firm, f.predictedCompletionDay);
+    return '<tr class="r-' + st[1] + '"><td><b' + tip(k.title, ['남은 ' + (k.requiredHours - k.doneHours) + '시간 · 기한 ' + esc(dayLabel(firm, k.dueDay)), waits ? '앞 업무가 끝나야 시작' : '']) + '>' + esc(k.title) + '</b>' + (waits ? '<span class="chip">대기</span>' : '') + '</td>' +
+      '<td>' + (k.completedDay === null ? '<button class="who-btn" data-act="assign" data-id="' + k.id + '"' + tip('담당 바꾸기', ['누구에게 맡길지 결과를 비교한다']) + '>' + (k.assignee ? portrait(k.assignee, 'sm') + esc(staff(k.assignee).name) : '미배정') + '</button>' : (k.assignee ? portrait(k.assignee, 'sm') + esc(staff(k.assignee).name) : '')) + '</td>' +
+      '<td>' + esc(dayLabel(firm, k.dueDay)) + '</td><td>' + esc(when) + '</td><td><span class="chip ' + st[1] + '">' + st[0] + '</span></td></tr>';
   }).join('');
   const people = firm.staff.map(s => {
     const today = fc.today.find(x => x.staffId === s.id), pct = Math.round(100 * today.scheduledHours / s.capacity);
-    return '<li>' + portrait(s.id) + '<div><b>' + esc(s.name) + '</b><small>' + (s.role === 'lawyer' ? '변호사' : '사무직원') + ' · ' + esc(s.specialty) + '</small><div class="bar"><i style="width:' + pct + '%"></i></div><small>오늘 ' + today.scheduledHours + ' / ' + s.capacity + '시간 · 맡은 일 ' + today.assignedRemainingHours + '시간' + (today.scheduledHours < s.capacity && today.assignedRemainingHours > today.scheduledHours ? ' · <em>앞 업무 대기</em>' : today.scheduledHours < s.capacity ? ' · <em>손이 빔</em>' : '') + '</small></div></li>';
+    const idle = today.scheduledHours < s.capacity && today.assignedRemainingHours > today.scheduledHours ? '대기' : today.scheduledHours < s.capacity ? '빔' : '';
+    return '<li' + tip(s.name, [(s.role === 'lawyer' ? '변호사' : '사무직원') + ' · ' + esc(s.specialty), '오늘 ' + today.scheduledHours + ' / ' + s.capacity + '시간', '맡은 일 ' + today.assignedRemainingHours + '시간', '시간당 ' + won(s.hourlyCost), idle === '대기' ? '앞 업무를 기다리는 중' : idle === '빔' ? '오늘 손이 빈다' : '']) + '>' + portrait(s.id) + '<div><b>' + esc(s.name) + '</b><div class="bar"><i style="width:' + pct + '%"></i></div></div><span class="hrs">' + today.scheduledHours + '/' + s.capacity + (idle ? '<em>' + idle + '</em>' : '') + '</span></li>';
   }).join('');
   const last = firm.reports[firm.reports.length - 1];
-  const right = '<div class="stat"><small>' + dayLabel(firm, firm.dayIndex) + ' · 업무 ' + (firm.dayIndex + 1) + ' / 5일</small><b>' + won(firm.cash) + '</b></div><button class="btn primary" data-act="advance" data-primary ' + (pending ? 'disabled title="새 의뢰를 먼저 결정하세요"' : '') + '>하루 진행</button>';
+  const right = '<div class="stat"><small>' + dayLabel(firm, firm.dayIndex) + ' · ' + (firm.dayIndex + 1) + '/5</small><b>' + won(firm.cash) + '</b></div><button class="btn primary" data-act="advance" data-primary ' + (pending ? 'disabled' + tip('하루 진행', ['새 의뢰를 먼저 정한다']) : '') + '>다음 날</button>';
   return frame(v, '<div class="office-grid"><div class="col">' + intakeCard(v) + outlookCard(v) +
-    '<section class="card"><div class="card-head"><h2>이번 주 업무</h2><span class="muted">담당을 바꾸면 다른 업무의 완료일도 달라집니다</span></div><div class="table-wrap"><table class="tasks"><thead><tr><th>업무</th><th>담당</th><th>남은 양</th><th>기한</th><th>완료 예상</th><th>상태</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div></section></div>' +
-    '<aside class="col side"><section class="card"><div class="card-head"><h2>오늘의 사람과 시간</h2></div><ul class="people">' + people + '</ul></section>' +
-    (last ? '<section class="card"><div class="card-head"><h2>어제 보고</h2><button class="link" data-act="report">자세히</button></div><p class="muted">' + esc(reportLine(firm, last)) + '</p></section>' : '<section class="card hint"><p>' + gloss('한도윤에게 자료 정리를 맡기면 비용은 적게 들지만 하루 3시간씩만 진행됩니다. 변호사에게 맡기면 빨라지는 대신 그 변호사의 다른 사건이 밀립니다.') + '</p></section>') + '</aside></div>', right);
+    '<section class="card"><div class="card-head"><h2>업무</h2></div><div class="table-wrap"><table class="tasks"><thead><tr><th>업무</th><th>담당</th><th>기한</th><th>예상</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div></section></div>' +
+    '<aside class="col side"><section class="card"><div class="card-head"><h2>오늘</h2></div><ul class="people">' + people + '</ul></section>' +
+    (last ? '<section class="card"><div class="card-head"><h2>어제</h2><button class="link" data-act="report">보고</button></div><p class="nums-line"' + tip(reportLine(firm, last), []) + '><em>' + last.work.reduce((n, w) => n + w.hours, 0) + '시간</em><em>완료 ' + last.completed.length + '</em><em>' + signed(last.cashAfter - last.cashBefore) + '</em></p></section>' : '') + '</aside></div>', right);
 }
 function reportLine(firm, r) {
   const hours = r.work.reduce((a, w) => a + w.hours, 0);
-  return dayLabel(firm, r.day) + ' · ' + hours + '시간 수행, ' + r.completed.length + '건 완료' + (r.lateTasks.length ? ', 기한 넘긴 업무 ' + r.lateTasks.length + '건' : '') + ' · 현금 ' + signed(r.cashAfter - r.cashBefore);
+  return dayLabel(firm, r.day) + ' · ' + hours + '시간 · ' + r.completed.length + '건 완료' + (r.lateTasks.length ? ' · 넘김 ' + r.lateTasks.length + '건' : '') + ' · ' + signed(r.cashAfter - r.cashBefore);
 }
 function reportModal(v) {
-  const firm = v.firm, r = firm.reports[firm.reports.length - 1], name = id => firm.staff.find(s => s.id === id).name, task = id => firm.tasks.find(t => t.id === id).title;
+  const firm = v.firm, r = firm.reports[firm.reports.length - 1], name = id => firm.staff.find(s => s.id === id).name, task = id => firm.tasks.find(x => x.id === id).title;
   return '<div class="sheet"><p class="kicker">업무 보고</p><h2>' + dayLabel(firm, r.day) + '</h2><ul class="report">' +
-    r.work.map(w => '<li><span>' + esc(name(w.staffId)) + ' — ' + esc(task(w.taskId)) + '</span><b>' + w.hours + '시간</b></li>').join('') + '</ul>' +
-    (r.completed.length ? '<p class="good">끝난 업무: ' + r.completed.map(id => esc(task(id))).join(', ') + '</p>' : '') +
-    (r.lateTasks.length ? '<p class="bad">기한을 넘긴 업무: ' + r.lateTasks.map(id => esc(task(id))).join(', ') + '</p>' : '') +
-    '<div class="money"><span>입금 ' + won(r.income) + '</span><span>지출 ' + won(r.expenses) + '</span><b>마감 현금 ' + won(r.cashAfter) + '</b></div>' +
-    '<div class="actions"><button class="btn primary" data-act="closeModal" data-primary>' + (firm.completed ? '한 주를 마친다' : '다음 날로') + '</button></div></div>';
+    r.work.map(w => '<li><span>' + esc(name(w.staffId)) + ' · ' + esc(task(w.taskId)) + '</span><b>' + w.hours + '시간</b></li>').join('') + '</ul>' +
+    (r.completed.length ? '<p class="good">완료 · ' + r.completed.map(id => esc(task(id))).join(', ') + '</p>' : '') +
+    (r.lateTasks.length ? '<p class="bad">넘김 · ' + r.lateTasks.map(id => esc(task(id))).join(', ') + '</p>' : '') +
+    '<div class="money"><span>입금 ' + won(r.income) + '</span><span>지출 ' + won(r.expenses) + '</span><b>' + won(r.cashAfter) + '</b></div>' +
+    '<div class="actions"><button class="btn primary" data-act="closeModal" data-primary>' + (firm.completed ? '한 주 마감' : '다음 날로') + '</button></div></div>';
 }
 function assignModal(v, taskId) {
-  const firm = v.firm, t = firm.tasks.find(x => x.id === taskId), base = v.forecast;
-  const rows = firm.staff.filter(s => t.roles.includes(s.role)).map(s => {
-    const cur = s.id === t.assignee, p = cur ? { ok: true, forecast: base, outlook: v.outlook } : game.previewFirm({ type: 'ASSIGN_TASK', taskId, staffId: s.id });
+  const firm = v.firm, k = firm.tasks.find(x => x.id === taskId), base = v.forecast;
+  const rows = firm.staff.filter(s => k.roles.includes(s.role)).map(s => {
+    const cur = s.id === k.assignee, p = cur ? { ok: true, forecast: base, outlook: v.outlook } : game.previewFirm({ type: 'ASSIGN_TASK', taskId, staffId: s.id });
     const f = p.forecast.tasks.find(x => x.taskId === taskId), st = STATUS[f.status], dl = lateCount(p.forecast) - lateCount(base), db = p.outlook.budget - v.outlook.budget;
-    return '<button class="cand ' + (cur ? 'current' : '') + '" data-act="doAssign" data-task="' + taskId + '" data-staff="' + s.id + '" ' + (cur ? 'disabled' : '') + '>' + portrait(s.id) + '<span class="who"><b>' + esc(s.name) + (cur ? ' · 지금 담당' : '') + '</b><small>하루 ' + s.capacity + '시간 · 시간당 ' + won(s.hourlyCost) + '</small></span>' +
-      '<span class="fx"><small>이 업무</small><b class="' + st[1] + '">' + dayLabel(firm, f.predictedCompletionDay) + '</b></span>' +
-      '<span class="fx"><small>기한 넘길 업무</small><b class="' + (dl > 0 ? 'bad' : dl < 0 ? 'ok' : '') + '">' + lateCount(p.forecast) + '건' + (dl ? ' (' + (dl > 0 ? '+' : '') + dl + ')' : '') + '</b></span>' +
-      '<span class="fx"><small>주말 현금</small><b>' + won(p.forecast.projectedCash) + '</b></span>' +
-      '<span class="fx"><small>확인 항목</small><b class="' + (db > 0 ? 'ok' : db < 0 ? 'bad' : '') + '">' + p.outlook.budget + '개</b></span></button>';
+    return '<button class="cand ' + (cur ? 'current' : '') + '" data-act="doAssign" data-task="' + taskId + '" data-staff="' + s.id + '" ' + (cur ? 'disabled' : '') + tip(s.name, ['하루 ' + s.capacity + '시간 · 시간당 ' + won(s.hourlyCost), '주말 현금 ' + won(p.forecast.projectedCash)]) + '>' + portrait(s.id) + '<span class="who"><b>' + esc(s.name) + '</b>' + (cur ? '<small>지금</small>' : '') + '</span>' +
+      '<span class="fx"><small>완료</small><b class="' + st[1] + '">' + dayLabel(firm, f.predictedCompletionDay) + '</b></span>' +
+      '<span class="fx"><small>넘김</small><b class="' + (dl > 0 ? 'bad' : dl < 0 ? 'ok' : '') + '">' + lateCount(p.forecast) + (dl ? (dl > 0 ? ' ▲' : ' ▼') : '') + '</b></span>' +
+      '<span class="fx"><small>확인</small><b class="' + (db > 0 ? 'ok' : db < 0 ? 'bad' : '') + '">' + p.outlook.budget + (db ? (db > 0 ? ' ▲' : ' ▼') : '') + '</b></span></button>';
   }).join('');
-  const pr = [1, 2, 3].map(n => '<button class="seg ' + (t.priority === n ? 'on' : '') + '" data-act="priority" data-task="' + taskId + '" data-n="' + n + '">' + ['먼저', '보통', '나중'][n - 1] + '</button>').join('');
-  return '<div class="sheet wide"><p class="kicker">담당 조정</p><h2>' + esc(t.title) + '</h2><p class="muted">남은 양 ' + (t.requiredHours - t.doneHours) + '시간 · 기한 ' + dayLabel(firm, t.dueDay) + (t.roles.includes('admin') ? '' : ' · 변호사만 할 수 있는 업무') + '. 맡기기 전에 결과를 비교하세요.</p>' +
-    '<div class="cands">' + rows + '</div><div class="prio"><span>같은 사람이 여러 일을 맡았을 때의 순서</span><div class="segs">' + pr + '</div></div>' +
+  const pr = [1, 2, 3].map(n => '<button class="seg ' + (k.priority === n ? 'on' : '') + '" data-act="priority" data-task="' + taskId + '" data-n="' + n + '">' + ['먼저', '보통', '나중'][n - 1] + '</button>').join('');
+  return '<div class="sheet wide"><p class="kicker">담당</p><h2' + tip(k.title, ['남은 ' + (k.requiredHours - k.doneHours) + '시간 · 기한 ' + esc(dayLabel(firm, k.dueDay)), k.roles.includes('admin') ? '' : '변호사만 할 수 있다']) + '>' + esc(k.title) + '</h2>' +
+    '<div class="cands">' + rows + '</div><div class="prio"><span' + tip('순서', ['같은 사람이 여러 일을 맡았을 때 무엇을 먼저 할지']) + '>순서</span><div class="segs">' + pr + '</div></div>' +
     '<div class="actions"><button class="btn" data-act="closeModal">닫기</button></div></div>';
 }
 
 // ---------- 한 주 마감 ----------
 function weekend(v) {
-  const s = v.summary, firm = v.firm, p = v.prep, kept = firm.tasks.filter(t => t.completedDay !== null && t.completedDay <= t.dueDay).length;
-  return frame(v, '<section class="weekend"><p class="kicker">6/19 금 · 한 주 마감</p><h1>사무소의 한 주가 끝났습니다</h1>' +
-    '<div class="tiles"><div><small>현금</small><b>' + won(s.cash) + '</b><span>' + signed(s.cash - firm.openingCash) + '</span></div><div><small>기한 안에 끝낸 업무</small><b>' + kept + ' / ' + firm.tasks.length + '</b><span>' + (s.refundPaid ? '윤지훈 환급 ' + won(s.refundPaid) : firm.intake.status === 'accepted' ? '윤지훈 약속 지킴' : '윤지훈 사건 거절') + '</span></div>' +
-    '<div class="tier-' + p.tierId + '"><small>정민호 기록 검토</small><b>' + esc(p.label.replace('기록 검토를 ', '').replace('기록 검토가 ', '')) + '</b><span>계획서 확인 항목 기본 ' + p.budget + '개</span></div></div>' +
-    '<p class="because">' + esc(p.detail) + ' 주말 동안 김현우 변호사가 정민호 사건의 변론 계획서 초안을 씁니다. 공판은 월요일입니다.</p>' +
-    '<div class="actions"><button class="btn primary" data-act="beginPlan" data-primary>초안을 받아 본다</button></div></section>');
+  const s = v.summary, firm = v.firm, p = v.prep, kept = firm.tasks.filter(k => k.completedDay !== null && k.completedDay <= k.dueDay).length;
+  return frame(v, '<section class="weekend"><p class="kicker">6/19 금</p><h1>한 주 마감</h1>' +
+    '<div class="tiles"><div' + tip('현금', ['한 주 변화 ' + signed(s.cash - firm.openingCash)]) + '><small>현금</small><b>' + won(s.cash) + '</b></div><div' + tip('기한 안에 끝낸 업무', [s.refundPaid ? '윤지훈 환급 ' + won(s.refundPaid) : firm.intake.status === 'accepted' ? '윤지훈 약속 지킴' : '윤지훈 사건 거절']) + '><small>기한 지킴</small><b>' + kept + ' / ' + firm.tasks.length + '</b></div>' +
+    '<div class="tier-' + p.tierId + '"' + tip('정민호 기록 검토', [esc(p.detail)]) + '><small>기록 검토</small><b>' + TIER_WORD[p.tierId] + '</b></div></div>' +
+    '<div class="actions"><button class="btn primary" data-act="beginPlan" data-primary>초안 받기</button></div></section>');
 }
 
-// ---------- 변론 계획서 ----------
-const STANCE_MARK = { S_SIG_CONTACT: ['밀침은 인정한다.', '다쳤다는 연결을 다툰다.'], S_SIG_RESERVE: ['접촉 경위는', '기록으로 확인하게 한다.'], S_SIG_DENY: ['밀친 적이', '없다고 다툰다.'] };
+// ---------- 변론 계획서: 단어 칩, 자세한 건 툴팁 ----------
 const img = id => 'assets/art/staff-' + id + '.jpg';
-function statRow(stats) { return '<div class="stats">' + stats.map(x => '<div class="stat-i ' + x.tier + '" title="' + esc(x.use) + '"><small>' + esc(x.label) + '</small><b>' + x.value + '</b></div>').join('') + '</div>'; }
+const STAT_FX = { analysis: v => v >= 14 ? '확인 항목 +1' : '보너스 없음 (14 이상 +1)', examine: v => v >= 15 ? '증인마다 질문 +1' : '보너스 없음 (15 이상 +1)', court: v => v >= 13 ? '유도신문에 스스로 이의' : '유도신문 때 당신에게 묻는다 (13 이상이면 스스로)', negotiate: v => v >= 13 ? '초안에 합의 상담을 넣는다' : '합의 상담을 넣지 않는다 (13 이상이면 넣음)' };
+function statRow(stats) { return '<div class="stats">' + stats.map(x => '<div class="stat-i ' + x.tier + '"' + tip(x.label + ' ' + x.value, [esc(x.use), esc(STAT_FX[x.id](x.value))]) + '><small>' + esc(x.label) + '</small><b>' + x.value + '</b></div>').join('') + '</div>'; }
+function chip(on, act, id, word, tipHtml, extra) { return '<button class="wchip ' + (on ? 'on' : '') + (extra || '') + '" data-act="' + act + '" data-id="' + id + '" aria-pressed="' + on + '"' + tipHtml + '>' + esc(word) + '</button>'; }
 function planBoard(v) {
-  const P = v.plan, plan = P.plan, L = P.lawyers.find(l => l.id === plan.lawyerId), stat = id => L.stats.find(x => x.id === id).value;
-  const used = plan.checks.length, edited = f => plan.edited.includes(f);
-  const stance = STANCE_MARK[plan.stance], focus = P.focus.find(f => f.id === plan.focus);
-  const wname = id => P.witnesses.find(w => w.id === id).name;
-  const changed = (f, cur) => edited(f) && P.draft[f] !== cur;
-  const policy = '<button class="policy" data-act="choose" data-k="stance"><span class="ps-label">방침' + (changed('stance', plan.stance) ? ' <span class="pen">내가 고침</span>' : '') + '</span><h1>' + esc(stance[0]) + '<br><mark>' + esc(stance[1]) + '</mark></h1></button>' +
-    '<div class="policy-sub"><span>주력 쟁점 <b>' + esc(focus.short) + '</b>' + (changed('focus', plan.focus) ? ' <span class="pen">고침</span>' : '') + '</span><span>' + Object.entries(focus.time).map(([w, n]) => esc(wname(w)) + ' 질문 ' + n).join(' · ') + '</span><button class="link" data-act="choose" data-k="focus" style="color:var(--pen-600)">주력 바꾸기</button></div>';
-  const full = used >= plan.slots;
+  const P = v.plan, plan = P.plan, L = P.lawyers.find(l => l.id === plan.lawyerId), edited = f => plan.edited.includes(f) && P.draft[f] !== plan[f];
+  const focus = P.focus.find(f => f.id === plan.focus), wname = id => P.witnesses.find(w => w.id === id).name;
+  const used = plan.checks.length, full = used >= plan.slots;
+  const stance = P.stances.map(s => chip(plan.stance === s.id, 'setStance', s.id, s.word, tip(s.word, [esc(s.short)]))).join('');
+  const foci = P.focus.map(f => chip(plan.focus === f.id, 'setFocus', f.id, f.word, tip(f.word, [esc(f.short), Object.entries(f.time).map(([w, n]) => esc(wname(w)) + ' ' + n).join(' · ')]))).join('');
   const checks = P.checks.map(c => {
     const drafted = P.draft.checks.includes(c.id), mine = c.on && !drafted, dropped = !c.on && drafted;
-    const why = mine ? '<span class="pen">직접 넣음</span>' : dropped ? '<span class="pen">뺌</span>' : c.on ? '' : full ? '<span class="why">칸이 가득 참</span>' : '<span class="why">넣을 수 있음</span>';
-    return '<button class="check ' + (c.on ? 'on' : 'off') + (mine ? ' mine' : '') + '" data-act="toggleCheck" data-id="' + c.id + '" ' + (!c.on && full ? 'aria-disabled="true"' : '') + ' aria-pressed="' + c.on + '"><span class="box"></span><span><b class="' + (dropped ? 'struck' : '') + '">' + gloss(c.label) + '</b><span class="l">' + esc(c.line) + '</span></span>' + why + '</button>';
+    return chip(c.on, 'toggleCheck', c.id, c.word, tip(c.label, [esc(c.line), mine ? '당신이 넣음' : dropped ? '당신이 뺌' : c.on ? L.name + '이(가) 확인함' : full ? '칸이 가득 참' : '넣을 수 있음']), (mine ? ' mine' : '') + (dropped ? ' dropped' : '') + (!c.on && full ? ' full' : ''));
   }).join('');
-  const wits = P.witnesses.map(w => '<div class="wit"><div><b>' + esc(w.name) + '</b><small>' + esc(w.role) + '</small></div><div>' + esc(w.goal) + '</div><div class="q">질문<b>' + focus.time[w.id] + '</b></div></div>').join('');
-  const advice = P.settles
-    ? '<div class="advice">' + P.advice.map(a => '<button class="adv ' + (plan.advice === a.id ? 'on' : '') + '" data-act="advice" data-id="' + a.id + '"><span class="box"></span>' + esc(a.short) + (plan.advice === a.id && changed('advice', a.id) ? ' <span class="pen">내 조언</span>' : '') + '</button>').join('') + '</div>'
-    : '<p class="paper-muted" style="margin-top:10px">합의 상담을 하지 않습니다. 하려면 위 확인 항목에 <b>합의 상담</b>을 넣으세요(칸 하나를 씁니다).</p>';
-  const threats = P.threats.map(t => '<div class="threat">' + (t.ready ? '<span class="mk">대비함</span>' : '<span class="stamp-mini">미확인</span>') + '<q>' + esc(t.text) + '</q><span class="ans">' + (t.ready ? esc(t.answer) : esc(t.counterLabel) + '을(를) 확인하지 않아 받아칠 자료가 없다') + '</span></div>').join('');
-  const ready = P.threats.filter(t => t.ready).length;
-  const sign = '이 초안은 ' + esc(L.name) + '의 <b>기록 분석 ' + stat('analysis') + '</b>에서 나왔습니다. ' + (stat('analysis') >= 14 ? '기록을 꼼꼼히 읽어 확인 칸을 하나 더 채웠습니다. ' : '') + '사무소의 기록 검토가 ' + (P.tierId === 'on_time' ? '제때 끝나' : P.tierId === 'late' ? '하루 늦어' : '끝나지 않아') + ' 기본 ' + P.prep.budget + '칸입니다.';
-  const asksTxt = P.asks ? '공판 중 당신에게 물을 순간 <b>' + P.asks + '번</b> 예상<br>' + esc(L.name) + ' 법정 대응 ' + stat('court') : '<b>' + esc(L.name) + '이(가) 끝까지 진행</b><br>법정 대응 ' + stat('court') + ' · 묻지 않습니다';
-  return frame(v, '<section class="desk plan"><div class="desk-note"><h1>변론 계획서에 날인하면 공판이 시작됩니다</h1><span>' + gloss('공판은 계획대로 흐릅니다. 날인 전에 펜으로 고치세요.') + '</span></div>' +
-    '<article class="sheet-paper plan-sheet">' +
-    '<header class="ps-head"><span>변론 계획서 · 초안 · 2026고단1182 정민호(상해)</span><span>작성 ' + esc(L.name) + ' · 6/20 토 · 제1회 공판 6/22 월</span></header>' +
-    '<div class="ps-body"><div class="ps-main">' +
-      '<div class="ps-author"><div class="clip"><img src="' + img(L.id) + '" alt="' + esc(L.name) + ' 변호사"></div><div><div class="author-name">' + esc(L.name) + '<small>' + L.years + '년차 · ' + esc(L.specialty) + '</small></div>' + statRow(L.stats) + '<p class="author-note">' + esc(L.note) + ' 출정 비용 ' + won(L.fee) + '</p></div><button class="paper-btn" data-act="lawyers">담당 바꾸기</button></div>' +
-      '<div>' + policy + '</div>' +
-      '<div><div class="ps-label">' + gloss('확인 항목') + ' <span class="count">' + used + ' / ' + plan.slots + '</span>' + (used < plan.slots ? '<span class="pen">' + (plan.slots - used) + '칸 비었음</span>' : '') + '</div><div class="checks">' + checks + '</div></div>' +
-      '<div><div class="ps-label">증인에게 확인할 것</div>' + wits + '</div>' +
-      '<div><div class="ps-label">' + gloss('합의') + ' · ' + esc(P.offer.from) + ' ' + esc(P.offer.amount) + '</div><p class="offer">' + esc(P.offer.text) + '</p>' + advice + '</div>' +
-    '</div><aside class="ps-margin" aria-label="검사의 예고"><div class="ps-label">검사 윤가람이 할 말 <span class="count">' + ready + ' / ' + P.threats.length + '</span></div>' + threats +
-      '<p class="paper-muted" style="font-size:12.5px">검사는 1년차입니다. 예고한 말은 공판에서 그대로 나옵니다.</p></aside></div>' +
-    '<footer class="ps-foot"><p class="signature">' + sign + '</p><div class="seal-wrap"><p class="txt">' + asksTxt + '</p><button class="seal" data-act="seal" aria-label="이 계획서에 날인하고 공판에 들어간다">날인</button></div></footer>' +
-    '</article></section>');
+  const dots = Array.from({ length: plan.slots }, (_, i) => '<i class="' + (i < used ? 'on' : '') + '"></i>').join('');
+  const wits = P.witnesses.map(w => '<li' + tip(w.name + ' · ' + w.role, [esc(w.goal)]) + '><b>' + esc(w.name) + '</b><em>' + focus.time[w.id] + '</em></li>').join('');
+  const advice = P.settles ? P.advice.map(a => chip(plan.advice === a.id, 'advice', a.id, a.word, tip(a.word, [esc(a.short)]), plan.advice === a.id && edited('advice') ? ' mine' : '')).join('') : '<span class="off-note"' + tip('합의 상담 안 함', ['확인 항목에 합의를 넣어야 상담한다 · 칸 하나']) + '>상담 안 함</span>';
+  const threats = P.threats.map(x => '<li class="' + (x.ready ? 'ready' : 'open') + '"' + tip(x.ready ? '대비함' : '미확인', ['“' + esc(x.text) + '”', x.ready ? esc(x.answer) : esc(x.counterLabel) + ' 확인 필요']) + '>' + esc(x.word) + '<i>' + (x.ready ? '✓' : '!') + '</i></li>').join('');
+  const row = (label, body, tipHtml) => '<div class="prow"><span class="plabel"' + (tipHtml || '') + '>' + label + '</span><div class="pbody">' + body + '</div></div>';
+  return frame(v, '<section class="desk plan2"><div class="plan-grid">' +
+    '<aside class="lawyer-card"><div class="clip"><img src="' + img(L.id) + '" alt="' + esc(L.name) + '"></div><div class="lname"' + tip(L.name, [L.years + '년차 · ' + esc(L.specialty), esc(L.note), '출정 비용 ' + won(L.fee)]) + '>' + esc(L.name) + '</div>' + statRow(L.stats) +
+      '<button class="paper-btn sm" data-act="lawyers">교체</button></aside>' +
+    '<article class="sheet-paper plan-card"><header class="ps-head"><span>변론 계획서</span><span>' + esc(L.name) + (plan.edited.length ? ' · <em class="pen">고침</em>' : '') + '</span></header>' +
+      row('방침', stance, tip('방침', ['모두진술에서 밝히는 입장', '공판 중에는 바꿀 수 없다'])) +
+      row('주력', foci, tip('주력 쟁점', ['증인별 질문 수가 바뀐다'])) +
+      row('증인', '<ul class="wits">' + wits + '</ul>', tip('증인 · 질문 수', ['숫자 = 반대신문 질문 수'])) +
+      row('확인 <span class="dots">' + dots + '</span>', checks, tip('확인 항목 ' + used + ' / ' + plan.slots, ['기록 검토 ' + TIER_WORD[P.tierId] + ' → 기본 ' + P.prep.budget, L.stats.find(x => x.id === 'analysis').value >= 14 ? '기록 분석 ' + L.stats.find(x => x.id === 'analysis').value + ' → +1' : '', '눌러서 넣고 뺀다'])) +
+      row('합의', advice, tip('합의 · ' + esc(P.offer.from) + ' ' + esc(P.offer.amount), [esc(P.offer.text)])) +
+    '</article>' +
+    '<aside class="foe-card"><div class="foe-head"' + tip('윤가람 검사', ['1년차', '예고한 말은 공판에서 그대로 나온다']) + '><span class="mono">윤</span><b>검사 예고</b></div><ul class="threats">' + threats + '</ul>' +
+      '<div class="seal-box"><span class="asks"' + tip(P.asks ? '개입 ' + P.asks + '번' : '개입 없음', [P.asks ? '법정 대응 ' + L.stats.find(x => x.id === 'court').value + ' · 유도신문 때 당신에게 묻는다' : L.name + '이(가) 끝까지 진행']) + '>개입 <b>' + P.asks + '</b></span><button class="seal" data-act="seal" aria-label="날인하고 공판에 들어간다">날인</button></div></aside>' +
+    '</div></section>');
 }
 function lawyersModal(v) {
   const P = v.plan, cur = P.plan.lawyerId;
-  const rows = P.lawyers.map(l => '<button class="lp" data-act="pickLawyer" data-id="' + l.id + '" ' + (l.id === cur ? 'disabled' : '') + '><img src="' + img(l.id) + '" alt=""><span class="who"><b>' + esc(l.name) + (l.id === cur ? ' · 지금 담당' : '') + '</b><span>' + esc(l.note) + '</span><span class="lp-stats">' + l.stats.map(x => '<span class="' + x.tier + '">' + esc(x.label) + ' ' + x.value + '</span>').join('') + '</span></span>' +
-    '<span class="fx"><small>확인 항목</small><b>' + l.slots + '</b></span><span class="fx"><small>당신에게 물음</small><b>' + l.asks + '번</b></span><span class="fx"><small>출정 비용</small><b style="font-size:16px">' + won(l.fee) + '</b></span></button>').join('');
-  return '<div class="sheet wide"><p class="kicker">담당 바꾸기</p><h2>누구를 법정에 세울까요</h2><p class="muted">담당을 바꾸면 그 변호사가 초안을 처음부터 다시 씁니다. 고친 내용은 사라집니다.</p><div class="lawyer-pick">' + rows + '</div>' +
-    '<p class="fine">기록 분석 14 이상: 확인 항목 +1 · 신문 15 이상: 증인마다 질문 +1 · 법정 대응 13 이상: 유도신문에 스스로 이의 · 협상 13 이상: 합의 상담을 초안에 넣음</p><div class="actions"><button class="btn" data-act="closeModal">닫기</button></div></div>';
-}
-function chooseModal(v, k) {
-  const P = v.plan, plan = P.plan;
-  const list = k === 'stance' ? P.stances.map(x => ({ id: x.id, title: x.short, sub: x.id === 'S_SIG_DENY' ? '의뢰인은 “몸은 건드리지 않았다”고 했습니다. 영상과 맞지 않으면 신뢰를 잃습니다.' : x.id === 'S_SIG_RESERVE' ? '입장을 밝히지 않고 검찰의 입증을 지켜봅니다.' : '밀침은 다투지 않고 상해와의 연결만 다툽니다.' }))
-    : P.focus.map(x => ({ id: x.id, title: x.short, sub: Object.entries(x.time).map(([w, n]) => P.witnesses.find(y => y.id === w).name + ' 질문 ' + n).join(' · ') }));
-  return '<div class="sheet"><p class="kicker">' + (k === 'stance' ? gloss('모두진술') + ' · 방침' : '주력 쟁점') + '</p><h2>' + (k === 'stance' ? '법정에서 무엇을 다툴까요' : '누구에게 더 오래 물을까요') + '</h2><div class="opt-list">' +
-    list.map(o => '<button class="choice ' + (plan[k] === o.id ? 'on' : '') + '" data-act="setPlan" data-k="' + k + '" data-id="' + o.id + '"><b>' + esc(o.title) + '</b><span>' + esc(o.sub) + '</span></button>').join('') + '</div><div class="actions"><button class="btn" data-act="closeModal">닫기</button></div></div>';
+  const rows = P.lawyers.map(l => '<button class="lp" data-act="pickLawyer" data-id="' + l.id + '" ' + (l.id === cur ? 'disabled' : '') + tip(l.name, [esc(l.note), l.stats.map(x => esc(x.label) + ' ' + x.value).join(' · ')]) + '><img src="' + img(l.id) + '" alt=""><span class="who"><b>' + esc(l.name) + '</b>' + (l.id === cur ? '<small>지금</small>' : '') + '<span class="lp-stats">' + l.stats.map(x => '<span class="' + x.tier + '">' + x.value + '</span>').join('') + '</span></span>' +
+    '<span class="fx"><small>확인</small><b>' + l.slots + '</b></span><span class="fx"><small>개입</small><b>' + l.asks + '</b></span><span class="fx"><small>비용</small><b class="sm">' + won(l.fee) + '</b></span></button>').join('');
+  return '<div class="sheet wide"><p class="kicker">담당 교체</p><h2' + tip('담당 교체', ['새 담당이 초안을 처음부터 다시 쓴다', '고친 내용은 사라진다']) + '>누구를 세울까</h2><div class="lp-head"><span></span><span>기록 · 신문 · 법정 · 협상</span><span>확인</span><span>개입</span><span>비용</span></div><div class="lawyer-pick">' + rows + '</div>' +
+    '<div class="actions"><button class="btn" data-act="closeModal">닫기</button></div></div>';
 }
 
-// ---------- 공판: 계획대로 흐르고, 결정적인 순간에만 묻는다 ----------
+// ---------- 공판 ----------
 function speakerOf(v, id) {
-  const t = v.court.trial, pr = v.caseInfo.presentation, w = t.definition.witnesses.find(x => x.id === id);
+  const tr = v.court.trial, pr = v.caseInfo.presentation, w = tr.definition.witnesses.find(x => x.id === id);
   if (w) return { name: w.name, role: w.role.split(' · ')[0], cls: 'witness' };
   const L = v.plan.lawyers.find(l => l.id === v.plan.plan.lawyerId);
   return ({ JUDGE: { name: '재판장', role: '', cls: 'judge' }, PROSECUTOR: { name: pr.prosecutors[v.caseInfo.prosecutorId].name, role: '검사', cls: 'pros' }, DEFENSE: { name: L.name, role: '변호인', cls: 'def' }, CLIENT: { name: pr.client.name, role: '피고인', cls: 'client' }, VICTIM: { name: pr.victim.name, role: '피해자', cls: 'witness' } })[id] || { name: id, role: '', cls: '' };
 }
-function credWords(n) { return n >= 3 ? ['믿고 지켜보는 중', 'ok'] : n === 2 ? ['조금 지켜보는 중', 'warn'] : ['신뢰가 낮음 — 다음 반대신문 질문 1번 감소', 'bad']; }
+function credDots(n) { return '<span class="cred-dots" ' + tip('재판장의 신뢰 ' + n + ' / 3', [n >= 3 ? '믿고 지켜보는 중' : n === 2 ? '조금 지켜보는 중' : '낮음 · 다음 반대신문 질문 1번 감소']) + '>' + [1, 2, 3].map(i => '<i class="' + (i <= n ? 'on' : '') + '"></i>').join('') + '</span>'; }
 function courtRecords(v) {
   const recs = v.court.trial.displayRecords.filter(r => r.lines && r.lines.length), from = recs.findIndex(r => r.kind === 'trial_open');
   return recs.slice(Math.max(0, from));
 }
 function recordHtml(v, r, fresh) {
-  const lines = r.lines.map(l => { const s = speakerOf(v, l.speaker); return '<div class="line ' + s.cls + '"><span class="spk">' + esc(s.name) + (s.role ? '<small>' + esc(s.role) + '</small>' : '') + '</span><p>' + gloss(l.text) + '</p></div>'; }).join('');
-  const marks = (r.memo ? '<span class="note ' + (r.tone || 'neutral') + '">재판장 메모 · ' + esc(r.memo) + '</span>' : '') + (r.credibility < 0 ? '<span class="note bad">재판장의 신뢰가 낮아졌습니다</span>' : '') + (r.kind === 'objection' && r.source === 'defense' ? '<span class="note ' + (r.ruling === 'sustained' ? 'defense' : 'bad') + '">이의 ' + (r.ruling === 'sustained' ? '인용' : '기각') + '</span>' : '') + (r.missed ? '<span class="note bad">놓친 것 · ' + esc(r.missed) + '</span>' : '');
+  const lines = r.lines.map(l => { const s = speakerOf(v, l.speaker); return '<div class="line ' + s.cls + '"><span class="spk"' + (s.role ? tip(s.name, [esc(s.role)]) : '') + '>' + esc(s.name) + '</span><p>' + gloss(l.text) + '</p></div>'; }).join('');
+  const marks = (r.memo ? '<span class="note ' + (r.tone || 'neutral') + '"' + tip('재판장 메모', [esc(r.memo)]) + '>메모</span>' : '') + (r.credibility < 0 ? '<span class="note bad">신뢰 ▼</span>' : '') + (r.kind === 'objection' && r.source === 'defense' ? '<span class="note ' + (r.ruling === 'sustained' ? 'defense' : 'bad') + '">' + (r.ruling === 'sustained' ? '인용' : '기각') + '</span>' : '') + (r.missed ? '<span class="note bad"' + tip('놓친 것', [esc(r.missed)]) + '>놓침</span>' : '');
   return '<div class="rec k-' + r.kind + (fresh ? ' fresh' : '') + '">' + lines + (marks ? '<div class="marks">' + marks + '</div>' : '') + '</div>';
 }
 function askPanel(v) {
   const a = v.ask, L = v.plan.lawyers.find(l => l.id === v.plan.plan.lawyerId), w = v.court.trial.definition.witnesses.find(x => x.id === a.witnessId);
-  return '<div class="ask-panel"><img src="' + img(L.id) + '" alt="' + esc(L.name) + '"><div><p class="who"><b>' + esc(L.name) + '</b>법정 대응 ' + L.stats.find(x => x.id === 'court').value + ' · 판단을 넘깁니다</p>' +
-    '<p class="hand">검사님 질문, 이거 그냥 둬도 될까요?</p><blockquote>“' + esc(a.question[1] || a.question) + '”</blockquote>' +
-    '<p class="muted" style="margin-bottom:12px">' + gloss('증인 ' + w.name + ' 씨가 직접 보거나 맡은 범위 밖의 결론을 "네" 한마디로 받아 내려는 질문이면 유도신문입니다. 맞는 이의는 불리한 답변을 막고, 빗나간 이의는 재판장의 신뢰를 깎습니다.') + '</p>' +
-    '<div class="row"><button class="btn primary" data-act="decide" data-v="1" data-primary>이의 있습니다</button><button class="btn" data-act="decide" data-v="0">그냥 둡니다</button></div></div></div>';
+  return '<div class="ask-panel"><img src="' + img(L.id) + '" alt="' + esc(L.name) + '"><div><p class="hand">이 질문, 그냥 둘까요?</p><blockquote>“' + esc(a.question[1] || a.question) + '”</blockquote>' +
+    '<div class="row"><button class="btn primary" data-act="decide" data-v="1" data-primary' + tip('이의', ['맞는 이의는 불리한 답을 막는다', '빗나간 이의는 재판장의 신뢰를 깎는다']) + '>이의</button><button class="btn" data-act="decide" data-v="0"' + tip('넘어감', [esc(w.name) + ' 씨가 답한다']) + '>넘어감</button>' +
+    '<span class="why"' + tip('왜 묻나', [esc(L.name) + ' 법정 대응 ' + L.stats.find(x => x.id === 'court').value, '증인이 직접 보거나 맡은 범위 밖의 결론을 “네” 한마디로 받아 내려는 질문이면 ' + '유도신문이다']) + '>?</span></div></div></div>';
 }
 function sidePanel(v) {
-  const t = v.court.trial, p = t.projection, w = t.witness, cred = credWords(p.credibility), P = v.plan, L = P.lawyers.find(l => l.id === P.plan.lawyerId);
-  const who = w ? '<section class="card witness-card">' + portrait(null, 'lg') + '<h3>' + esc(w.name) + '</h3><p class="muted">' + esc(w.role) + '</p></section>' : '';
-  const issues = p.issues.map(i => '<div class="issue band-' + i.band + '"><div><b>' + esc(i.title) + '</b><span class="chip band-' + i.band + '">' + esc(v.court.bandLabels[i.band] || i.band) + '</span></div><ul>' + i.notes.slice(-2).map(n => '<li class="' + n.tone + '">' + esc(n.text) + '</li>').join('') + '</ul></div>').join('');
-  return who + '<section class="card"><div class="card-head"><h2>재판장 메모</h2></div>' + issues + '<p class="cred ' + cred[1] + '">' + gloss('재판장의 신뢰') + ' · ' + cred[0] + '</p></section>' +
-    '<section class="card plan-pin"><small>날인한 계획 · ' + esc(L.name) + '</small><b>' + esc(STANCE_MARK[P.plan.stance].join(' ')) + '</b><span>확인 ' + P.plan.checks.length + '개 · 대비한 예고 ' + P.threats.filter(x => x.ready).length + ' / ' + P.threats.length + '</span></section>';
+  const tr = v.court.trial, p = tr.projection, w = tr.witness, P = v.plan, L = P.lawyers.find(l => l.id === P.plan.lawyerId);
+  const who = w ? '<section class="card witness-card"' + tip(w.name, [esc(w.role)]) + '>' + portrait(null, 'lg') + '<h3>' + esc(w.name) + '</h3></section>' : '';
+  const issues = p.issues.map(i => '<div class="issue band-' + i.band + '"' + tip(i.title, i.notes.slice(-3).map(n => esc(n.text))) + '><b>' + esc(i.title) + '</b><span class="chip band-' + i.band + '">' + esc(v.court.bandLabels[i.band] || i.band) + '</span></div>').join('');
+  return who + '<section class="card"><div class="card-head"><h2>판세</h2>' + credDots(p.credibility) + '</div>' + issues + '</section>' +
+    '<section class="card plan-pin"' + tip('날인한 계획', [esc(P.stances.find(s => s.id === P.plan.stance).short), '확인 ' + P.plan.checks.length + '개 · 대비한 예고 ' + P.threats.filter(x => x.ready).length + ' / ' + P.threats.length]) + '><small>' + esc(L.name) + '</small><b>' + esc(P.stances.find(s => s.id === P.plan.stance).word) + ' · ' + esc(P.focus.find(f => f.id === P.plan.focus).word) + '</b></section>';
 }
 function courtScene(v) {
   const recs = courtRecords(v), shown = Math.min(ui.shown, recs.length), done = shown >= recs.length;
   const body = recs.slice(0, shown).map((r, i) => recordHtml(v, r, i >= ui.seenShown)).join('');
   ui.seenShown = shown;
   const finished = v.scene === 'result';
-  const bar = !done ? '<div class="waiting"><i></i>공판이 진행 중입니다 · ' + shown + ' / ' + recs.length + '<button class="link" data-act="skipAhead" style="margin-left:auto">' + (v.ask ? '결정할 순간까지 넘기기' : '선고 직전까지 넘기기') + '</button></div>'
-    : v.ask ? askPanel(v) : finished ? '<div class="ask center"><p>' + esc(v.court.trial.legalProcedure.sentencingDate) + '</p><button class="btn primary big" data-act="toResult" data-primary>판결과 결산을 본다</button></div>' : '';
-  const head = '<div class="court-head"><p><b>제1회 공판</b>계획대로 진행합니다. 결정적인 순간에만 멈춥니다.</p><div class="speed" role="group" aria-label="진행 속도"><button class="' + (ui.speed === 'normal' ? 'on' : '') + '" data-act="speed" data-v="normal">보통</button><button class="' + (ui.speed === 'fast' ? 'on' : '') + '" data-act="speed" data-v="fast">빠르게</button></div></div>';
+  const bar = !done ? '<div class="waiting"><i></i>' + shown + ' / ' + recs.length + '<button class="link" data-act="skipAhead" style="margin-left:auto">' + (v.ask ? '결정까지' : '끝까지') + ' ▸▸</button></div>'
+    : v.ask ? askPanel(v) : finished ? '<div class="ask center"><button class="btn primary big" data-act="toResult" data-primary>선고</button></div>' : '';
+  const head = '<div class="court-head"><b>제1회 공판</b><div class="speed" role="group" aria-label="진행 속도"><button class="' + (ui.speed === 'normal' ? 'on' : '') + '" data-act="speed" data-v="normal">▸</button><button class="' + (ui.speed === 'fast' ? 'on' : '') + '" data-act="speed" data-v="fast">▸▸</button></div></div>';
   return frame(v, '<div class="court-grid"><div class="col stage auto">' + head + '<div class="scroll" id="scroll">' + body + '</div><div class="bar-wrap">' + bar + '</div></div><aside class="col side">' + sidePanel(v) + '</aside></div>');
 }
 let playTimer = null;
@@ -260,22 +256,24 @@ function schedulePlay() {
   clearTimeout(playTimer);
   const v = game.view();
   if (!v.court || !(v.scene === 'court' || (v.scene === 'result' && ui.watching)) || ui.showTitle || ui.modal) return;
-  const total = courtRecords(v).length;
-  if (ui.shown >= total) return;
-  playTimer = setTimeout(() => { ui.shown += 1; Audio.play('tick'); render(); }, ui.speed === 'fast' ? 420 : 1150);
+  if (ui.shown >= courtRecords(v).length) return;
+  playTimer = setTimeout(() => { ui.shown += 1; render(); }, ui.speed === 'fast' ? 420 : 1150);
 }
 
 // ---------- 판결과 결산 ----------
 function result(v) {
-  const o = v.court.outcome, s = v.settlement, pr = v.caseInfo.presentation, list = (title, items, cls) => items && items.length ? '<div class="rev ' + cls + '"><h3>' + title + '</h3><ul>' + items.map(x => '<li>' + gloss(x.text) + '</li>').join('') + '</ul></div>' : '';
-  const next = v.caseInfo.nextTry.find(n => n.when.outcome === o.key);
-  return frame(v, '<section class="verdict rank-' + s.rank + '"><p class="kicker">판결 선고</p><h1>' + gloss(o.headline) + '</h1><p class="pron">' + esc(o.pronouncement || '') + '</p><p class="lead">' + gloss(o.text) + '</p>' +
-    '<p class="stakes">' + esc(o.convicted ? pr.stakes.convicted : pr.stakes.cleared) + '</p>' +
-    '<div class="issues">' + o.issues.map(i => '<div class="issue band-' + i.band + '"><div><b>' + esc(i.title) + '</b><span class="chip band-' + i.band + '">' + esc(i.bandLabel) + '</span></div><p class="muted">' + esc(i.memo) + '</p></div>').join('') + '</div>' + (o.shaken || []).map(x => '<p class="because left">' + gloss(x) + '</p>').join('') + '</section>' +
-    '<section class="review"><h2>왜 이렇게 됐는가</h2><p class="muted">' + gloss(o.reviewText || '') + '</p><div class="rev-grid">' + list('통한 것', o.broke, 'ok') + list('막지 못한 것', o.passed, 'bad') + list('역효과', o.backfired, 'bad') + list('막힌 것', o.blocked, 'bad') + list('놓친 준비', o.missed, 'warn') + '</div>' +
-    '<p class="fine">' + esc(o.closingReview || '') + '</p><p class="because">' + esc((next && next.text) || o.next || '') + '</p></section>' +
-    '<section class="ledger"><h2>사무소 결산</h2><div class="tiles"><div><small>한 주 현금 변화</small><b>' + signed(s.weekDelta) + '</b><span>마감 ' + won(s.weekCash) + '</span></div><div><small>' + gloss('성공보수') + '</small><b>' + signed(s.successFee) + '</b><span>' + esc(o.headline) + '</span></div><div><small>출정 비용</small><b>' + signed(-s.courtFee) + '</b><span>' + esc(v.plan.lawyers.find(l => l.id === v.plan.plan.lawyerId).name) + ' 하루</span></div><div><small>최종 현금</small><b>' + won(s.finalCash) + '</b><span>기한 지킨 업무 ' + s.promisesKept + ' / ' + s.promisesTotal + '</span></div><div class="tier-' + v.prep.tierId + '"><small>계획서 확인 항목</small><b>' + v.plan.plan.checks.length + ' / ' + v.plan.plan.slots + '개</b><span>' + esc(v.prep.label) + '</span></div></div>' +
-    '<div class="actions"><button class="btn" data-act="records">공판 기록 전체</button><button class="btn" data-act="retry">계획서를 고쳐 다시</button><button class="btn primary" data-act="new" data-primary>새 한 주를 시작한다</button></div><p class="fine">' + esc(v.court.pack.disclaimer) + '</p></section>');
+  const o = v.court.outcome, s = v.settlement, list = (title, items, cls) => items && items.length ? '<div class="rev ' + cls + '"><h3>' + title + '</h3><ul>' + items.map(x => '<li>' + gloss(x.text) + '</li>').join('') + '</ul></div>' : '';
+  const next = v.caseInfo.nextTry.find(n => n.when.outcome === o.key), L = v.plan.lawyers.find(l => l.id === v.plan.plan.lawyerId);
+  return frame(v, '<section class="verdict rank-' + s.rank + '"><p class="kicker">선고</p><h1' + tip(o.headline, [esc(o.pronouncement || ''), gloss(o.text)]) + '>' + esc(o.headline) + '</h1>' +
+    '<div class="issues">' + o.issues.map(i => '<div class="issue band-' + i.band + '"' + tip(i.title, [esc(i.memo)]) + '><b>' + esc(i.title) + '</b><span class="chip band-' + i.band + '">' + esc(i.bandLabel) + '</span></div>').join('') + '</div>' +
+    (next ? '<p class="next-try"' + tip('다음엔', [esc(next.text)]) + '>다음엔 <b>?</b></p>' : '') + '</section>' +
+    '<section class="ledger"><div class="tiles">' +
+      '<div' + tip('성공보수', ['무죄·공소기각 300만 · 폭행 150만 · 상해 0']) + '><small>성공보수</small><b>' + signed(s.successFee) + '</b></div>' +
+      '<div' + tip('출정 비용', [esc(L.name) + ' 하루 8시간']) + '><small>출정</small><b>' + signed(-s.courtFee) + '</b></div>' +
+      '<div' + tip('한 주 현금 변화', ['마감 ' + won(s.weekCash)]) + '><small>한 주</small><b>' + signed(s.weekDelta) + '</b></div>' +
+      '<div' + tip('최종 현금', ['기한 지킨 업무 ' + s.promisesKept + ' / ' + s.promisesTotal]) + '><small>최종</small><b>' + won(s.finalCash) + '</b></div></div>' +
+    '<details class="why-box"><summary>판결 이유</summary><p class="muted">' + gloss(o.reviewText || '') + '</p><div class="rev-grid">' + list('통한 것', o.broke, 'ok') + list('막지 못한 것', o.passed, 'bad') + list('역효과', o.backfired, 'bad') + list('막힌 것', o.blocked, 'bad') + list('놓친 준비', o.missed, 'warn') + '</div></details>' +
+    '<div class="actions"><button class="btn" data-act="records">기록</button><button class="btn" data-act="retry">계획서 다시</button><button class="btn primary" data-act="new" data-primary>새 한 주</button></div></section>');
 }
 
 // ---------- 그리기 ----------
@@ -285,11 +283,11 @@ function modalHtml(v) {
   if (m.type === 'report') return reportModal(v);
   if (m.type === 'assign') return assignModal(v, m.id);
   if (m.type === 'lawyers') return lawyersModal(v);
-  if (m.type === 'choose') return chooseModal(v, m.id);
-  if (m.type === 'records') return '<div class="sheet wide"><p class="kicker">공판 기록</p><h2>말과 답변, 순서대로</h2><div class="scroll plain">' + courtRecords(v).map(r => recordHtml(v, r, false)).join('') + '</div><div class="actions"><button class="btn primary" data-act="closeModal" data-primary>닫기</button></div></div>';
+  if (m.type === 'records') return '<div class="sheet wide"><p class="kicker">공판 기록</p><h2>전체</h2><div class="scroll plain">' + courtRecords(v).map(r => recordHtml(v, r, false)).join('') + '</div><div class="actions"><button class="btn primary" data-act="closeModal" data-primary>닫기</button></div></div>';
   return '';
 }
 function render() {
+  hideTip();
   const v = game.view();
   const watchingCourt = v.scene === 'court' || (v.scene === 'result' && ui.watching);
   const sceneKey = ui.showTitle ? 'title' : watchingCourt ? 'court' : v.scene + (v.scene === 'intro' && ui.memo ? ':memo' : '');
@@ -302,9 +300,9 @@ function render() {
   if (v.court && watchingCourt) {
     const recs = courtRecords(v).slice(0, ui.shown), p = v.court.trial.projection, last = recs[recs.length - 1];
     if (last && last.seq > ui.seenSeq) {
-      if (last.credibility < 0) { toast('재판장의 신뢰가 낮아졌습니다' + (last.memo ? ' — ' + last.memo : ''), 'bad'); Audio.play('alert'); }
+      if (last.credibility < 0) { toast('신뢰 −1', 'bad'); Audio.play('alert'); }
       else if (last.tone === 'defense') Audio.play('gain');
-      if (last.kind === 'cross_start' && last.warned) toast('신뢰가 낮아 이번 반대신문 질문이 1번 줄었습니다', 'bad');
+      if (last.kind === 'cross_start' && last.warned) toast('질문 −1', 'bad');
       ui.seenSeq = last.seq;
     }
     ui.lastCred = p.credibility;
@@ -336,6 +334,32 @@ document.addEventListener('mouseover', e => {
   if (pops.length) { clearTimeout(popTimer); popTimer = setTimeout(() => closePops(), 260); }
 });
 
+// ---------- 툴팁 런타임: 올리거나(마우스), 포커스하거나(키보드), 누르면(터치) ----------
+let tipEl = null, tipFor = null, tipTimer = null;
+function hideTip() { clearTimeout(tipTimer); if (tipEl) { tipEl.remove(); tipEl = null; tipFor = null; } }
+function showTip(el) {
+  if (tipFor === el) return; hideTip();
+  tipEl = document.createElement('div'); tipEl.className = 'tip'; tipEl.setAttribute('role', 'tooltip'); tipEl.innerHTML = el.dataset.tip; tipFor = el;
+  popRoot.appendChild(tipEl);
+  const r = el.getBoundingClientRect(), w = tipEl.offsetWidth, h = tipEl.offsetHeight;
+  const left = Math.max(10, Math.min(window.innerWidth - w - 10, r.left + r.width / 2 - w / 2));
+  const top = r.top - h - 8 < 8 ? r.bottom + 8 : r.top - h - 8;
+  tipEl.style.left = left + 'px'; tipEl.style.top = top + 'px';
+}
+document.addEventListener('pointerover', e => {
+  if (e.pointerType === 'touch') return;
+  const el = e.target.closest && e.target.closest('[data-tip]');
+  clearTimeout(tipTimer);
+  if (el) tipTimer = setTimeout(() => showTip(el), 140); else if (tipEl) tipTimer = setTimeout(hideTip, 80);
+});
+document.addEventListener('focusin', e => { const el = e.target.closest && e.target.closest('[data-tip]'); if (el && el.matches(':focus-visible')) showTip(el); });
+document.addEventListener('focusout', () => hideTip());
+document.addEventListener('pointerdown', e => {
+  const el = e.target.closest && e.target.closest('[data-tip]');
+  if (e.pointerType === 'touch' && el) { showTip(el); clearTimeout(tipTimer); tipTimer = setTimeout(hideTip, 2600); } else if (!el) hideTip();
+});
+window.addEventListener('scroll', hideTip, true);
+
 // ---------- 입력 ----------
 const acts = {
   title() { ui.modal = null; ui.showTitle = true; closePops(); render(); },
@@ -356,14 +380,14 @@ const acts = {
   report() { ui.modal = { type: 'report' }; render(); },
   records() { ui.modal = { type: 'records' }; render(); },
   assign(d) { ui.modal = { type: 'assign', id: d.id }; render(); },
-  doAssign(d) { ui.modal = null; if (run('firm', { action: { type: 'ASSIGN_TASK', taskId: d.task, staffId: d.staff } }, 'tick')) toast('담당을 바꿨습니다. 전망을 다시 계산했습니다.'); },
+  doAssign(d) { ui.modal = null; if (run('firm', { action: { type: 'ASSIGN_TASK', taskId: d.task, staffId: d.staff } }, 'tick')) toast('담당 변경'); },
   priority(d) { run('firm', { action: { type: 'SET_PRIORITY', taskId: d.task, priority: Number(d.n) } }, 'tick'); },
   closeModal() { ui.modal = null; Audio.play('tick'); render(); },
   beginPlan() { run('beginPlan', {}, 'page'); },
   lawyers() { ui.modal = { type: 'lawyers' }; render(); },
-  pickLawyer(d) { ui.modal = null; if (run('editPlan', { field: 'lawyer', value: d.id }, 'page')) toast('담당을 바꿨습니다. 새 담당이 초안을 다시 썼습니다.'); },
-  choose(d) { ui.modal = { type: 'choose', id: d.k }; render(); },
-  setPlan(d) { const cur = game.view().plan.plan[d.k]; ui.modal = null; if (cur === d.id) { render(); return; } run('editPlan', { field: d.k, value: d.id }, 'tick'); },
+  pickLawyer(d) { ui.modal = null; if (run('editPlan', { field: 'lawyer', value: d.id }, 'page')) toast('담당 변경 · 새 초안'); },
+  setStance(d) { if (game.view().plan.plan.stance !== d.id) run('editPlan', { field: 'stance', value: d.id }, 'tick'); },
+  setFocus(d) { if (game.view().plan.plan.focus !== d.id) run('editPlan', { field: 'focus', value: d.id }, 'tick'); },
   toggleCheck(d) { run('editPlan', { field: 'check', value: d.id }, 'tick'); },
   advice(d) { if (game.view().plan.plan.advice === d.id) return; run('editPlan', { field: 'advice', value: d.id }, 'tick'); },
   seal() { ui.shown = 0; ui.seenShown = 0; ui.seenSeq = 0; ui.watching = true; run('sealPlan', {}, 'gavel'); },
@@ -380,7 +404,7 @@ document.addEventListener('click', e => {
   const fn = acts[el.dataset.act]; if (fn) fn(el.dataset);
 });
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { if (pops.length) closePops(); else if (ui.modal) acts.closeModal(); return; }
+  if (e.key === 'Escape') { if (tipEl) hideTip(); else if (pops.length) closePops(); else if (ui.modal) acts.closeModal(); return; }
   if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('term')) { e.preventDefault(); openPop(e.target); }
 });
 
