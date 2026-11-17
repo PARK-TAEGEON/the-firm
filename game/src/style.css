@@ -546,3 +546,26 @@ body { background: var(--page-bg); }
     linear-gradient(rgb(5 2 1 / calc(var(--dusk) * .55)), rgb(5 2 1 / calc(var(--dusk) * .55)));
   transition: opacity .6s ease;
 }
+
+/* ===== 확률 판정(P8)과 간결한 계획서(나안) ===== */
+.odds { display: flex; gap: 10px; flex-wrap: wrap; }
+.odds li { display: grid; min-width: 96px; padding: 6px 12px 7px; border: 1px solid var(--paper-line); border-radius: 3px; background: #fffdf6; line-height: 1.25; }
+.odds small { font-size: 12px; color: var(--ink-400); } .odds b { font: 26px/1.1 var(--voice-official); color: var(--ink-900); font-variant-numeric: tabular-nums; }
+.pmore { border-top: 1px solid var(--paper-line); }
+.pmore-btn { display: flex; align-items: center; gap: 12px; width: 100%; background: transparent; border: 0; padding: 12px 26px; text-align: left; color: var(--ink-600); min-height: 46px; }
+.pmore-btn .pm-l { font: 15px var(--voice-official); color: var(--ink-900); } .pmore-btn .pm-s { flex: 1; font-size: 13px; color: var(--ink-400); } .pmore-btn i { font-style: normal; }
+.pmore-btn:hover { background: #0000000a; }
+.pmore.open .prow:first-of-type { border-top: 1px solid var(--paper-line); }
+/* 공판 판정 도장 */
+.roll { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; align-items: center; gap: 12px; margin: 10px 0; padding: 9px 14px; border-radius: 4px; background: var(--layer-3); border: 1px solid var(--desk-line); font-size: 13.5px; }
+.roll .rs { color: var(--text-faint); font-size: 12.5px; white-space: nowrap; } .roll b { font: 20px/1 var(--voice-official); color: var(--text-strong); font-variant-numeric: tabular-nums; }
+.roll .rl { color: var(--text-body); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.roll em { font-style: normal; font-weight: 800; letter-spacing: .08em; padding: 3px 10px; border-radius: 3px; font-size: 13px; }
+.roll.ok em { color: var(--ink-900); background: var(--brass-300); } .roll.ok { border-left: 3px solid var(--brass-300); }
+.roll.fail em { color: #fff; background: var(--seal-600); } .roll.fail { border-left: 3px solid var(--seal-400); }
+.roll.fresh em { animation: stamp .42s cubic-bezier(.2, 1.6, .4, 1) both; }
+@keyframes stamp { 0% { transform: scale(2.2) rotate(-8deg); opacity: 0; } 70% { transform: scale(.94) rotate(-2deg); opacity: 1; } 100% { transform: scale(1) rotate(-2deg); } }
+@media (prefers-reduced-motion: reduce) { .roll.fresh em { animation: none; } }
+.ask-panel .missed { font-size: 13px; color: var(--text-faint); margin: 0 0 2px; } .ask-panel .missed b { color: var(--seal-400); }
+/* 계획서 종이는 스탠드 불빛 아래에서도 밝게: 빛 덮개 위로 올린다 */
+:root:not([data-theme="cool"]) .scene-plan .sheet-paper { position: relative; z-index: 6; }

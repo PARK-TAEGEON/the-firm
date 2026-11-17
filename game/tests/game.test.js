@@ -11,8 +11,8 @@ const Game = require('../src/session.js');
 
 function must(res) { assert.equal(res.ok, true, res.error); }
 
-function playWeek(g, { accept = false, assign = {} } = {}) {
-  must(g.command('newGame')); must(g.command('finishIntro'));
+function playWeek(g, { accept = false, assign = {}, seed = 2 } = {}) {
+  must(g.command('newGame', { seed })); must(g.command('finishIntro'));
   must(g.command('firm', { action: { type: accept ? 'ACCEPT_INTAKE' : 'DECLINE_INTAKE' } }));
   for (const [taskId, staffId] of Object.entries(assign)) must(g.command('firm', { action: { type: 'ASSIGN_TASK', taskId, staffId } }));
   while (g.view().scene === 'office') must(g.command('firm', { action: { type: 'ADVANCE_DAY' } }));
@@ -70,20 +70,37 @@ test('사건 정의 원본은 바뀌지 않고, 신문 능력치만 사본의 �
   assert.equal(JSON.stringify(Case), before);
 });
 
-test('개입: 법정 대응이 낮은 변호사만 유도신문에서 플레이어에게 묻는다', () => {
-  for (const [lawyerId, expected] of [['kim', 2], ['lee', 0], ['park', 2]]) {
-    const g = Game.createGame(); playWeek(g);
-    if (lawyerId !== 'kim') must(g.command('editPlan', { field: 'lawyer', value: lawyerId }));
-    assert.equal(g.view().plan.asks, expected);
-    assert.equal(playTrial(g), expected, lawyerId);
-  }
+test('확률 판정: 능력치가 확률을 정하고, 같은 시드는 같은 굴림을 만든다', () => {
+  assert.equal(Plan.chance(10), 55); assert.equal(Plan.chance(15), 85); assert.equal(Plan.chance(30), 92); assert.equal(Plan.chance(0), 15);
+  assert.equal(Plan.rollValue(7, 'ap:x'), Plan.rollValue(7, 'ap:x'));
+  const counts = Array(10).fill(0); for (let i = 0; i < 5000; i++) counts[Math.floor(Plan.rollValue(i, 'k') / 10)] += 1;
+  counts.forEach(n => assert.ok(n > 400 && n < 600, '굴림 값이 고르게 퍼진다 ' + counts));
+  assert.notEqual(Plan.nextSeed(2), 2);
 });
 
-test('한 판 전체: 기본 초안은 폭행 유죄, 합의 상담을 넣고 문구를 고치면 공소기각', () => {
+test('개입: 변호사가 유도신문 이의 굴림에 실패했을 때만 플레이어에게 묻는다', () => {
+  let total = { kim: 0, lee: 0 };
+  for (const lawyerId of ['kim', 'lee']) for (let seed = 1; seed <= 12; seed++) {
+    const g = Game.createGame(); playWeek(g, { seed });
+    if (lawyerId !== 'kim') must(g.command('editPlan', { field: 'lawyer', value: lawyerId }));
+    assert.equal(g.view().plan.asks, 2);
+    const asks = playTrial(g), rolls = g.view().rolls;
+    assert.equal(asks, rolls.filter(r => r.key.startsWith('obj:') && !r.ok).length, lawyerId + ' ' + seed);
+    rolls.forEach(r => assert.ok(Number.isInteger(r.at) && r.pct >= 15 && r.pct <= 92));
+    total[lawyerId] += asks;
+  }
+  const court = id => Plan.LAWYERS[id].stats.court;
+  if (court('lee') > court('kim')) assert.ok(total.lee <= total.kim, JSON.stringify(total));
+});
+
+test('한 판 전체(시드 2): 기본 초안은 폭행 유죄, 합의 상담을 넣고 문구를 고쳐 다시 하면 공소기각', () => {
   const g = Game.createGame(); playWeek(g);
   playTrial(g);
   assert.equal(g.view().court.outcome.key, 'assault');
+  const seedBefore = g.exportSave().seed;
   must(g.command('retryTrial'));
+  assert.notEqual(g.exportSave().seed, seedBefore);
+  assert.deepEqual(g.exportSave().rolls, []);
   must(g.command('editPlan', { field: 'check', value: 'INV_SIG_STATEMENT' }));
   must(g.command('editPlan', { field: 'check', value: 'INV_SIG_SETTLE' }));
   must(g.command('editPlan', { field: 'advice', value: 'ADV_SIG_REVISE' }));
@@ -95,17 +112,20 @@ test('한 판 전체: 기본 초안은 폭행 유죄, 합의 상담을 넣고 �
   assert.equal(v.runs, 2);
 });
 
-test('개입의 답이 판결을 바꾼다: 유도신문을 그냥 두면 상해 유죄', () => {
+test('개입의 답이 판결을 바꾼다(시드 2): 유도신문을 그냥 두면 상해 유죄', () => {
   const g = Game.createGame(); playWeek(g);
-  playTrial(g, { object: false });
+  assert.ok(playTrial(g, { object: false }) > 0);
   assert.equal(g.view().court.outcome.key, 'injury');
 });
 
-test('결정성: 같은 선택은 같은 기록과 같은 판결을 만든다', () => {
-  const run = () => { const g = Game.createGame(); playWeek(g, { accept: true, assign: ON_TIME }); must(g.command('editPlan', { field: 'lawyer', value: 'park' })); playTrial(g); return g.view(); };
-  const a = run(), b = run();
+test('결정성과 확률: 같은 시드는 같은 판결, 시드가 다르면 결과가 갈릴 수 있다', () => {
+  const run = seed => { const g = Game.createGame(); playWeek(g, { accept: true, assign: ON_TIME, seed }); must(g.command('editPlan', { field: 'lawyer', value: 'park' })); playTrial(g); return g.view(); };
+  const a = run(5), b = run(5);
   assert.deepEqual(a.court.trial.records, b.court.trial.records);
+  assert.deepEqual(a.rolls, b.rolls);
   assert.deepEqual(a.settlement, b.settlement);
+  const keys = new Set([1, 2, 3, 4, 5, 6, 7, 8].map(s => run(s).court.outcome.key));
+  assert.ok(keys.size >= 2, [...keys].join());
 });
 
 test('원자성: 실패한 명령은 상태와 저장 기록을 바꾸지 않는다', () => {

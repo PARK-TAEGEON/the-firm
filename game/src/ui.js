@@ -11,7 +11,7 @@ let game = Game.createGame();
 const THEME_KEY = 'thefirm.theme';
 try { const th = localStorage.getItem(THEME_KEY); if (th) document.documentElement.dataset.theme = th; } catch (e) { /* 저장소 없음 */ }
 let ui = freshUi();
-function freshUi() { return { read: new Set(), sel: null, inboxTab: 'all', ctrl: {}, intro: 0, memo: false, modal: null, seenSeq: 0, shown: 0, seenShown: 0, speed: 'normal', watching: false, lastCred: null, lastScene: null, showTitle: false }; }
+function freshUi() { return { planMore: false, read: new Set(), sel: null, inboxTab: 'all', ctrl: {}, intro: 0, memo: false, modal: null, seenSeq: 0, shown: 0, seenShown: 0, speed: 'normal', watching: false, lastCred: null, lastScene: null, showTitle: false }; }
 
 // ---------- 작은 도구 ----------
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -246,9 +246,15 @@ function weekend(v) {
 
 // ---------- 변론 계획서: 단어 칩, 자세한 건 툴팁 ----------
 const img = id => 'assets/art/staff-' + id + '.jpg';
-const STAT_FX = { analysis: v => v >= 14 ? '확인 항목 +1' : '보너스 없음 (14 이상 +1)', examine: v => v >= 15 ? '증인마다 질문 +1' : '보너스 없음 (15 이상 +1)', court: v => v >= 13 ? '유도신문에 스스로 이의' : '유도신문 때 당신에게 묻는다 (13 이상이면 스스로)', negotiate: v => v >= 13 ? '초안에 합의 상담을 넣는다' : '합의 상담을 넣지 않는다 (13 이상이면 넣음)' };
-function statRow(stats) { return '<div class="stats">' + stats.map(x => '<div class="stat-i ' + x.tier + '"' + tip(x.label + ' ' + x.value, [esc(x.use), esc(STAT_FX[x.id](x.value))]) + '><small>' + esc(x.label) + '</small><b>' + x.value + '</b></div>').join('') + '</div>'; }
+const STAT_FX = {
+  analysis: x => (x.value >= 14 ? '확인 항목 +1 · ' : '확인 항목 보너스 없음 (14 이상 +1) · ') + '재반대신문 ' + x.pct + '%',
+  examine: x => (x.value >= 15 ? '증인마다 질문 +1 · ' : '') + '반대신문 ' + x.pct + '% (실패하면 한 번 더)',
+  court: x => '유도신문 이의 ' + x.pct + '% · 놓치면 당신에게 묻는다',
+  negotiate: x => x.value >= 13 ? '초안에 합의 상담을 넣는다' : '합의 상담을 넣지 않는다 (13 이상이면 넣음)'
+};
+function statRow(stats) { return '<div class="stats">' + stats.map(x => '<div class="stat-i ' + x.tier + '"' + tip(x.label + ' ' + x.value, [esc(STAT_FX[x.id](x))]) + '><small>' + esc(x.label) + '</small><b>' + x.value + '</b></div>').join('') + '</div>'; }
 function chip(on, act, id, word, tipHtml, extra) { return '<button class="wchip ' + (on ? 'on' : '') + (extra || '') + '" data-act="' + act + '" data-id="' + id + '" aria-pressed="' + on + '"' + tipHtml + '>' + esc(word) + '</button>'; }
+const ODDS = { examine: ['반대신문', '준비한 질문을 꺼낼 확률 · 실패하면 한 번 더'], court: ['이의', '유도신문을 알아챌 확률 · 놓치면 당신에게 묻는다'], analysis: ['재반대', '검사의 수습을 되받아칠 확률'] };
 function planBoard(v) {
   const P = v.plan, plan = P.plan, L = P.lawyers.find(l => l.id === plan.lawyerId), edited = f => plan.edited.includes(f) && P.draft[f] !== plan[f];
   const focus = P.focus.find(f => f.id === plan.focus), wname = id => P.witnesses.find(w => w.id === id).name;
@@ -273,16 +279,19 @@ function planBoard(v) {
     '<aside class="lawyer-card"><div class="clip"><img src="' + img(L.id) + '" alt="' + esc(L.name) + '"></div><div class="lname"' + tip(L.name, [L.years + '년차 · ' + esc(L.specialty), esc(L.note), '출정 비용 ' + won(L.fee)]) + '>' + esc(L.name) + '</div>' + statRow(L.stats) +
       '<button class="paper-btn sm" data-act="lawyers">교체</button></aside>' +
     '<article class="sheet-paper plan-card"><header class="ps-head"><span>변론 계획서</span><span>' + esc(L.name) + (plan.edited.length ? ' · <em class="pen">고침</em>' : '') + '</span></header>' +
-      row('방침', stance, tip('방침', ['모두진술에서 밝히는 입장', '공판 중에는 바꿀 수 없다']), 'stance') +
-      row('주력', foci, tip('주력 쟁점', ['증인별 질문 수가 바뀐다']), 'focus') +
-      row('증인', '<ul class="wits">' + wits + '</ul>', tip('증인 · 질문 수', ['숫자 = 반대신문 질문 수'])) +
+      row('확률', '<ul class="odds">' + P.odds.map(o => '<li' + tip(ODDS[o.stat][0], [esc(L.name) + ' · ' + o.label + ' ' + o.value + ' → ' + o.pct + '%', ODDS[o.stat][1]]) + '><small>' + ODDS[o.stat][0] + '</small><b>' + o.pct + '%</b></li>').join('') + '</ul>', tip('공판 판정 확률', ['결정적인 순간마다 변호사 능력치로 굴린다', '변호사를 바꾸면 달라진다'])) +
       row('확인 <span class="dots">' + dots + '</span>', checks, tip('확인 항목 ' + used + ' / ' + plan.slots, ['기록 검토 ' + TIER_WORD[P.tierId] + ' → 기본 ' + P.prep.budget, L.stats.find(x => x.id === 'analysis').value >= 14 ? '기록 분석 ' + L.stats.find(x => x.id === 'analysis').value + ' → +1' : '', '조정에서 눌러 넣고 뺀다']), 'checks') +
-      row('합의', advice, tip('합의 · ' + esc(P.offer.from) + ' ' + esc(P.offer.amount), [esc(P.offer.text)]), P.settles ? 'advice' : null) +
+      '<div class="pmore' + (ui.planMore ? ' open' : '') + '"><button class="pmore-btn" data-act="planMore" aria-expanded="' + !!ui.planMore + '"><span class="pm-l">자세히</span><span class="pm-s">' + esc(P.stances.find(x => x.id === plan.stance).word) + ' · ' + esc(focus.word) + (P.settles ? ' · 합의 ' + esc(P.advice.find(a => a.id === plan.advice).word) : '') + '</span><i aria-hidden="true">' + (ui.planMore ? '▴' : '▾') + '</i></button>' + (ui.planMore ? '' +
+        row('방침', stance, tip('방침', ['모두진술에서 밝히는 입장', '공판 중에는 바꿀 수 없다']), 'stance') +
+        row('주력', foci, tip('주력 쟁점', ['증인별 질문 수가 바뀐다']), 'focus') +
+        row('증인', '<ul class="wits">' + wits + '</ul>', tip('증인 · 질문 수', ['숫자 = 반대신문 질문 수'])) +
+        row('합의', advice, tip('합의 · ' + esc(P.offer.from) + ' ' + esc(P.offer.amount), [esc(P.offer.text)]), P.settles ? 'advice' : null) : '') +
+      '</div>' +
       '<footer class="pfoot"><button class="pbtn" data-act="undoPlan" ' + (P.canUndo ? '' : 'disabled') + '>↶ 되돌리기</button><span></span>' +
         '<button class="pbtn" data-act="delegateAll" ' + (anyCtrl ? '' : 'disabled') + tip('모두 맡김', [esc(L.name) + '의 초안으로 전부 되돌린다']) + '>모두 맡김</button><button class="pbtn" data-act="controlAll"' + tip('모두 조정', ['모든 줄을 직접 고친다']) + '>모두 조정</button></footer>' +
     '</article>' +
     '<aside class="foe-card"><div class="foe-head"' + tip('윤가람 검사', ['1년차', '예고한 말은 공판에서 그대로 나온다']) + '><span class="mono">윤</span><b>검사 예고</b></div><ul class="threats">' + threats + '</ul>' +
-      '<div class="seal-box"><span class="asks"' + tip(P.asks ? '개입 ' + P.asks + '번' : '개입 없음', [P.asks ? '법정 대응 ' + L.stats.find(x => x.id === 'court').value + ' · 유도신문 때 당신에게 묻는다' : L.name + '이(가) 끝까지 진행']) + '>개입 <b>' + P.asks + '</b></span><button class="seal" data-act="seal" aria-label="날인하고 공판에 들어간다">날인</button></div></aside>' +
+      '<div class="seal-box"><span class="asks"' + tip('개입 최대 ' + P.asks + '번', ['유도신문 ' + P.asks + '번', esc(L.name) + '이(가) 놓칠 때만 당신에게 묻는다 · 이의 ' + P.odds.find(o => o.stat === 'court').pct + '%']) + '>개입 <b>≤' + P.asks + '</b></span><button class="seal" data-act="seal" aria-label="날인하고 공판에 들어간다">날인</button></div></aside>' +
     '</div></section>');
 }
 function lawyersModal(v) {
@@ -302,17 +311,27 @@ function speakerOf(v, id) {
 }
 function credDots(n) { return '<span class="cred-dots" ' + tip('재판장의 신뢰 ' + n + ' / 3', [n >= 3 ? '믿고 지켜보는 중' : n === 2 ? '조금 지켜보는 중' : '낮음 · 다음 반대신문 질문 1번 감소']) + '>' + [1, 2, 3].map(i => '<i class="' + (i <= n ? 'on' : '') + '"></i>').join('') + '</span>'; }
 function courtRecords(v) {
-  const recs = v.court.trial.displayRecords.filter(r => r.lines && r.lines.length), from = recs.findIndex(r => r.kind === 'trial_open');
-  return recs.slice(Math.max(0, from));
+  const recs = v.court.trial.displayRecords.filter(r => r.lines && r.lines.length), rolls = v.rolls || [], out = [];
+  rolls.filter(x => x.at === 0).forEach(x => out.push({ kind: 'roll', roll: x }));
+  recs.forEach((r, i) => { out.push(r); rolls.filter(x => x.at === i + 1).forEach(x => out.push({ kind: 'roll', roll: x })); });
+  const from = out.findIndex(r => r.kind === 'trial_open');
+  return out.slice(Math.max(0, from));
+}
+// 판정 도장: 디스코 엘리시움처럼 능력치 · 확률 → 결과 한 줄.
+function rollHtml(v, x, fresh) {
+  const L = v.plan.lawyers.find(l => l.id === v.plan.plan.lawyerId), isObj = x.key.startsWith('obj:');
+  const res = x.ok ? (isObj ? '이의' : '성공') : (isObj ? '놓침' : '실패');
+  return '<div class="roll ' + (x.ok ? 'ok' : 'fail') + (fresh ? ' fresh' : '') + '"' + tip(x.label, [esc(L.name) + ' · ' + x.statLabel + ' ' + x.value + ' → ' + x.pct + '%', x.ok ? '' : isObj ? '당신에게 묻는다' : x.key.startsWith('ap2:') ? '이 질문은 꺼내지 못했다' : '다른 질문 뒤에 한 번 더']) + '><span class="rs">' + esc(x.statLabel) + ' ' + x.value + '</span><b>' + x.pct + '%</b><span class="rl">' + esc(x.label) + '</span><em>' + res + '</em></div>';
 }
 function recordHtml(v, r, fresh) {
+  if (r.kind === 'roll') return rollHtml(v, r.roll, fresh);
   const lines = r.lines.map(l => { const s = speakerOf(v, l.speaker); return '<div class="line ' + s.cls + '"><span class="spk"' + (s.role ? tip(s.name, [esc(s.role)]) : '') + '>' + esc(s.name) + '</span><p>' + gloss(l.text) + '</p></div>'; }).join('');
   const marks = (r.memo ? '<span class="note ' + (r.tone || 'neutral') + '"' + tip('재판장 메모', [esc(r.memo)]) + '>메모</span>' : '') + (r.credibility < 0 ? '<span class="note bad">신뢰 ▼</span>' : '') + (r.kind === 'objection' && r.source === 'defense' ? '<span class="note ' + (r.ruling === 'sustained' ? 'defense' : 'bad') + '">' + (r.ruling === 'sustained' ? '인용' : '기각') + '</span>' : '') + (r.missed ? '<span class="note bad"' + tip('놓친 것', [esc(r.missed)]) + '>놓침</span>' : '');
   return '<div class="rec k-' + r.kind + (fresh ? ' fresh' : '') + '">' + lines + (marks ? '<div class="marks">' + marks + '</div>' : '') + '</div>';
 }
 function askPanel(v) {
   const a = v.ask, L = v.plan.lawyers.find(l => l.id === v.plan.plan.lawyerId), w = v.court.trial.definition.witnesses.find(x => x.id === a.witnessId);
-  return '<div class="ask-panel"><img src="' + img(L.id) + '" alt="' + esc(L.name) + '"><div><p class="hand">이 질문, 그냥 둘까요?</p><blockquote>“' + esc(a.question[1] || a.question) + '”</blockquote>' +
+  return '<div class="ask-panel"><img src="' + img(L.id) + '" alt="' + esc(L.name) + '"><div><p class="missed">' + esc(L.name) + ' · 법정 대응 ' + L.stats.find(x => x.id === 'court').value + ' → <b>놓침</b></p><p class="hand">이 질문, 그냥 둘까요?</p><blockquote>“' + esc(a.question[1] || a.question) + '”</blockquote>' +
     '<div class="row"><button class="btn primary" data-act="decide" data-v="1" data-primary' + tip('이의', ['맞는 이의는 불리한 답을 막는다', '빗나간 이의는 재판장의 신뢰를 깎는다']) + '>이의</button><button class="btn" data-act="decide" data-v="0"' + tip('넘어감', [esc(w.name) + ' 씨가 답한다']) + '>넘어감</button>' +
     '<span class="why"' + tip('왜 묻나', [esc(L.name) + ' 법정 대응 ' + L.stats.find(x => x.id === 'court').value, '증인이 직접 보거나 맡은 범위 밖의 결론을 “네” 한마디로 받아 내려는 질문이면 ' + '유도신문이다']) + '>?</span></div></div></div>';
 }
@@ -447,7 +466,7 @@ const acts = {
   title() { ui.modal = null; ui.showTitle = true; closePops(); render(); },
   mute() { Audio.toggle(); render(); },
   theme() { const next = document.documentElement.dataset.theme === 'cool' ? 'warm' : 'cool'; document.documentElement.dataset.theme = next; try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* 이번 창에서만 */ } render(); },
-  new() { ui = freshUi(); run('newGame', {}, 'page'); },
+  new() { ui = freshUi(); const q = Number(new URLSearchParams(location.search).get('seed')); run('newGame', Number.isInteger(q) && q > 0 ? { seed: q } : {}, 'page'); },
   resume() {
     if (game.view().scene !== 'title') { ui.showTitle = false; Audio.play('page'); render(); return; }
     const res = game.load(readSave());
@@ -480,6 +499,7 @@ const acts = {
   controlAll() { ['stance', 'focus', 'checks', 'advice'].forEach(f => { ui.ctrl[f] = true; }); Audio.play('tick'); render(); },
   delegateAll() { ui.ctrl = {}; if (game.view().plan.plan.edited.length) run('editPlan', { field: 'reset', value: 'all' }, 'page'); else render(); },
   undoPlan() { run('undoPlan', {}, 'tick'); },
+  planMore() { ui.planMore = !ui.planMore; render(); },
   seal() { ui.shown = 0; ui.seenShown = 0; ui.seenSeq = 0; ui.watching = true; run('sealPlan', {}, 'gavel'); },
   decide(d) { ui.watching = true; run('decide', { object: d.v === '1' }, 'tick'); },
   speed(d) { ui.speed = d.v; render(); },

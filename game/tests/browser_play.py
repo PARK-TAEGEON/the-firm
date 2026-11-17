@@ -6,7 +6,7 @@ import asyncio, os, sys, pathlib
 from playwright.async_api import async_playwright
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-URL = (ROOT / 'index.html').as_uri()
+URL = (ROOT / 'index.html').as_uri() + '?seed=2'  # 확률 판정을 고정해 같은 판을 재현한다
 SHOTS = pathlib.Path(sys.argv[sys.argv.index('--shots') + 1]) if '--shots' in sys.argv else None
 checks = fails = 0
 
@@ -75,6 +75,10 @@ async def play(page, tag, width, improve):
         await page.locator('[data-act="control"][data-f="checks"]').click()
         await page.locator('[data-act="toggleCheck"][data-id="INV_SIG_STATEMENT"]').click()
         await page.locator('[data-act="toggleCheck"][data-id="INV_SIG_SETTLE"]').click()
+        check(await page.locator('[data-act="setStance"], .prow .wits').count() == 0, tag + ' stance/focus/witness rows folded by default')
+        check(await page.locator('.odds li').count() == 3, tag + ' plan shows 3 roll chances')
+        await act(page, 'planMore')
+        check(await page.locator('.pmore.open .prow').count() >= 4, tag + ' details unfold')
         await page.locator('[data-act="control"][data-f="advice"]').click()
         await page.locator('[data-act="advice"][data-id="ADV_SIG_REVISE"]').click()
         await act(page, 'undoPlan')
@@ -109,7 +113,8 @@ async def play(page, tag, width, improve):
         if await page.locator('[data-act="skipAhead"]').count():
             await act(page, 'skipAhead'); continue
         await page.wait_for_timeout(300)
-    check(asks == 2, tag + ' kim asks twice (got %d)' % asks)
+    check(asks == 2, tag + ' seed 2: kim misses both leading questions (got %d)' % asks)
+    check(await page.locator('.roll').count() >= 4, tag + ' roll stamps appear in the transcript')
     check(await page.locator('[data-act="toResult"]').count() == 1, tag + ' trial plays to the end')
     await act(page, 'toResult')
     check(await scene(page) == 'result', tag + ' result reached')

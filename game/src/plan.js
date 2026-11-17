@@ -10,9 +10,9 @@ const Bridge = isNode ? require('./bridge.js') : root.FirmBridge;
 
 // P1. 변호사 능력치(1~20). 종합 점수는 없다. 넷 모두 공판에서 실제로 쓰인다.
 const STATS = Object.freeze([
-  { id: 'analysis', label: '기록 분석', use: '초안이 확인해 오는 항목 수' },
-  { id: 'examine', label: '신문', use: '증인 한 명에게 쓸 수 있는 질문 수' },
-  { id: 'court', label: '법정 대응', use: '유도신문에 스스로 이의를 내는지' },
+  { id: 'analysis', label: '기록 분석', use: '확인 항목 수 · 재반대신문 성공 확률' },
+  { id: 'examine', label: '신문', use: '증인 질문 수 · 반대신문 성공 확률' },
+  { id: 'court', label: '법정 대응', use: '유도신문에 스스로 이의를 낼 확률' },
   { id: 'negotiate', label: '협상', use: '초안의 합의 조언' }
 ]);
 const LAWYERS = Object.freeze({
@@ -129,17 +129,44 @@ function objectionStep(witnessId, stepId) {
 // 자동 공판의 다음 한 수. { cmd } | { ask } | { done }.
 // P4. 법정 대응 13 이상이면 이의를 스스로 판단한다. 낮으면 유도신문(이의가 맞는 질문)에서 플레이어에게 묻는다.
 // 정당한 질문에는 누구든 이의하지 않는다. 재반대신문 기회는 자료가 있으면 쓴다.
-function nextMove(trial, plan) {
+// P8. 확률 판정. 공판의 결정적 순간 몇 번만 능력치로 굴린다.
+// 확률 = 55% + (능력치 − 10) × 6%p, 15~92%. 반대신문은 실패하면 한 번 더 묻는다. 굴림 값은 (시드, 순간)으로 정해져 같은 판은 다시 실행해도 같다.
+const ROLL_STATS = Object.freeze({ examine: '신문', court: '법정 대응', analysis: '기록 분석' });
+function chance(value) { return Math.round(Math.max(0.15, Math.min(0.92, 0.55 + (value - 10) * 0.06)) * 100); }
+function rollValue(seed, key) {
+  let h = 2166136261 ^ (seed >>> 0);
+  for (let i = 0; i < key.length; i++) { h ^= key.charCodeAt(i); h = Math.imul(h, 16777619); }
+  h ^= h >>> 15; h = Math.imul(h, 2246822507); h ^= h >>> 13; h = Math.imul(h, 3266489909); h ^= h >>> 16;
+  return (h >>> 0) % 100;
+}
+function roll(seed, plan, key, statId, label) {
+  const value = lawyer(plan.lawyerId).stats[statId], pct = chance(value), r = rollValue(seed, key);
+  return { key, stat: statId, statLabel: ROLL_STATS[statId], value, pct, ok: r < pct, label };
+}
+function nextSeed(seed) { return (rollValue(seed, 'next') * 1000003 + (seed >>> 0) % 1000003 + 1) % 2147483647 || 1; }
+function odds(plan) { const L = lawyer(plan.lawyerId); return Object.keys(ROLL_STATS).map(id => ({ stat: id, label: ROLL_STATS[id], value: L.stats[id], pct: chance(L.stats[id]) })); }
+
+function nextMove(trial, plan, seed) {
+  const rolls = [], out = m => Object.assign(m, { rolls });
+  const res = nextMoveInner(trial, plan, seed === undefined ? 1 : seed, rolls);
+  return out(res);
+}
+function nextMoveInner(trial, plan, seed, rolls) {
   const st = trial.state, a = trial.actions, L = lawyer(plan.lawyerId);
   const t = (action, payload) => ({ cmd: { action: 'trial', payload: { action, payload: payload || {} } } });
   if (st.phase === 'verdict') return { done: true };
   if (st.pending && st.pending.type === 'objection') {
     const step = objectionStep(st.pending.witnessId, st.pending.stepId);
     if (!step.proper) return t('objection', { object: false });
-    if (L.stats.court >= T.courtSelf) return t('objection', { object: true });
+    // 변호사가 유도신문을 알아채면 스스로 이의, 놓치면 당신에게 묻는다(개입).
+    const r = roll(seed, plan, 'obj:' + st.pending.stepId, 'court', '유도신문 이의'); rolls.push(r);
+    if (r.ok) return t('objection', { object: true });
     return { ask: { type: 'objection', witnessId: st.pending.witnessId, stepId: st.pending.stepId } };
   }
-  if (st.pending && st.pending.type === 'rebuttal') return t('rebut', { use: true });
+  if (st.pending && st.pending.type === 'rebuttal') {
+    const r = roll(seed, plan, 'reb:' + st.pending.redirectId, 'analysis', '재반대신문 · ' + st.pending.title); rolls.push(r);
+    return t('rebut', { use: r.ok });
+  }
   if (a.evidence) {
     const opinions = Object.fromEntries(trial.exhibits.map(x => [x.id, x.witnessId ? 'disagree' : 'agree']));
     return t('evidenceOpinions', { opinions });
@@ -147,8 +174,16 @@ function nextMove(trial, plan) {
   if (a.closing) return t('closingArgument', { id: SHEET.stances[plan.stance].closing });
   if (a.verdict) return t('verdict');
   if (st.cursor && st.cursor.part === 'cross') {
-    const ap = a.approaches.find(x => x.available && x.cards.length);
-    if (ap) return t('approach', { id: ap.id });
+    // 준비한 질문마다 굴린다. 실패한 질문은 꺼내지 못하고 지나간다.
+    const ready = a.approaches.filter(x => x.available && x.cards.length);
+    for (const ap of ready) {
+      const r = roll(seed, plan, 'ap:' + ap.id, 'examine', '반대신문 · ' + ap.title); rolls.push(r);
+      if (r.ok) return t('approach', { id: ap.id });
+    }
+    for (const ap of ready) {
+      const r = roll(seed, plan, 'ap2:' + ap.id, 'examine', '다시 묻기 · ' + ap.title); rolls.push(r);
+      if (r.ok) return t('approach', { id: ap.id });
+    }
     const pr = a.presses.find(x => x.available && x.kind === 'limited');
     if (pr) return t('press', { id: pr.id });
     return t('endCross');
@@ -162,9 +197,8 @@ function threats(plan) {
   return SHEET.threats.map(x => ({ ...x, ready: plan.checks.includes(x.counter), counterLabel: SHEET.checks.find(c => c.id === x.counter).label }));
 }
 
-// 예상 개입 횟수(공판에 실제로 나올 유도신문 수 기준, 법정 대응이 낮을 때만).
-function expectedAsks(plan) {
-  if (lawyer(plan.lawyerId).stats.court >= T.courtSelf) return 0;
+// 개입이 생길 수 있는 최대 횟수(맞는 유도신문 수). 실제 횟수는 법정 대응 굴림에 달렸다.
+function expectedAsks() {
   return Case.variants[SHEET.prosecutorId].witnesses.reduce((n, w) => n + w.direct.filter(s => s.type === 'objection' && s.proper).length, 0);
 }
 
@@ -175,6 +209,6 @@ function courtFee(firmState, lawyerId) {
   return person.hourlyCost * COURT_DAY_HOURS;
 }
 
-const api = { STATS, LAWYERS, LAWYER_ORDER, T, BASE_CHECKS, tier, checkSlots, draft, validate, edit, trialCase, setupCommands, nextMove, threats, expectedAsks, courtFee, objectionStep };
+const api = { chance, rollValue, nextSeed, odds, ROLL_STATS, STATS, LAWYERS, LAWYER_ORDER, T, BASE_CHECKS, tier, checkSlots, draft, validate, edit, trialCase, setupCommands, nextMove, threats, expectedAsks, courtFee, objectionStep };
 if (isNode) module.exports = api; else root.FirmPlan = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

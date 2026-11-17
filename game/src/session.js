@@ -21,7 +21,7 @@ function createGame(saved) {
   let g, court = null;
 
   function fresh() {
-    return { v: SAVE_VERSION, scene: 'title', firm: null, plan: null, courtLog: [], runs: 0 };
+    return { v: SAVE_VERSION, scene: 'title', firm: null, plan: null, courtLog: [], runs: 0, seed: 1, rolls: [] };
   }
   const tierOf = d => Bridge.prepFromFirm(d.firm).tierId;
 
@@ -40,7 +40,9 @@ function createGame(saved) {
   // 자동 진행: 플레이어에게 물어야 할 순간이나 선고까지 계획대로 둔다. 둔 수는 모두 기록에 남는다.
   function autoRun(d, c) {
     for (let i = 0; i < AUTO_LIMIT; i++) {
-      const m = Plan.nextMove(c.projection().trial, d.plan);
+      const tr = c.projection().trial, m = Plan.nextMove(tr, d.plan, d.seed);
+      const at = tr.displayRecords.filter(r => r.lines && r.lines.length).length;
+      m.rolls.forEach(r => { if (!d.rolls.some(x => x.key === r.key)) d.rolls.push({ ...r, at }); });
       if (m.done) { d.scene = 'result'; d.runs += 1; return; }
       if (m.ask) { d.scene = 'court'; return; }
       apply(c, m.cmd); d.courtLog.push(clone(m.cmd));
@@ -49,23 +51,28 @@ function createGame(saved) {
   }
   function pendingAsk() {
     if (!court || g.scene !== 'court') return null;
-    const m = Plan.nextMove(court.projection().trial, g.plan);
+    const m = Plan.nextMove(court.projection().trial, g.plan, g.seed);
     return m.ask || null;
   }
 
   function load(data) {
     if (!data || data.v !== SAVE_VERSION || !SCENES.includes(data.scene)) throw new Error('읽을 수 없는 저장 데이터입니다.');
     const next = clone(data);
+    if (next.seed === undefined) next.seed = 1;
+    if (!Number.isInteger(next.seed) || next.seed < 1) throw new Error('저장된 시드가 올바르지 않습니다.');
+    if (!Array.isArray(next.rolls)) next.rolls = [];
     if (next.firm) { const ok = Firm.validateState(next.firm); if (!ok.ok) throw new Error(ok.error); }
     if (next.plan) Plan.validate(next.plan, Bridge.prepFromFirm(next.firm).tierId);
     const nextCourt = ['court', 'result'].includes(next.scene) ? buildCourt(next.plan, next.courtLog) : null;
-    if (next.scene === 'court' && !Plan.nextMove(nextCourt.projection().trial, next.plan).ask) throw new Error('저장된 공판이 결정 대기 상태가 아닙니다.');
+    if (next.scene === 'court' && !Plan.nextMove(nextCourt.projection().trial, next.plan, next.seed).ask) throw new Error('저장된 공판이 결정 대기 상태가 아닙니다.');
     if (next.scene === 'result' && nextCourt.projection().trial.state.phase !== 'verdict') throw new Error('저장된 공판이 끝나지 않았습니다.');
     g = next; court = nextCourt;
   }
 
   const handlers = {
-    newGame(d) { const runs = d.runs; Object.assign(d, fresh(), { scene: 'intro', runs }); d.firm = Firm.createInitialState({ experiment: 'commitment-v1' }); return null; },
+    newGame(d, payload) {
+      const runs = d.runs, seed = payload && Number.isInteger(payload.seed) && payload.seed > 0 ? payload.seed : (Date.now() % 2147483646) + 1;
+      Object.assign(d, fresh(), { scene: 'intro', runs, seed }); d.firm = Firm.createInitialState({ experiment: 'commitment-v1' }); return null; },
     finishIntro(d) { if (d.scene !== 'intro') throw new Error('상담 장면이 아닙니다.'); d.scene = 'office'; return null; },
     firm(d, { action }) {
       if (d.scene !== 'office') throw new Error('사무소 업무 시간이 아닙니다.');
@@ -90,14 +97,14 @@ function createGame(saved) {
     sealPlan(d) {
       if (d.scene !== 'plan') throw new Error('날인할 계획이 없습니다.');
       Plan.validate(d.plan, tierOf(d));
-      d.courtLog = Plan.setupCommands(d.plan);
+      d.courtLog = Plan.setupCommands(d.plan); d.rolls = [];
       const c = buildCourt(d.plan, d.courtLog);
       autoRun(d, c);
       return c;
     },
     decide(d, { object }, c) {
       if (d.scene !== 'court' || !c) throw new Error('결정할 순간이 아닙니다.');
-      const ask = Plan.nextMove(c.projection().trial, d.plan).ask;
+      const ask = Plan.nextMove(c.projection().trial, d.plan, d.seed).ask;
       if (!ask) throw new Error('결정할 순간이 아닙니다.');
       if (typeof object !== 'boolean') throw new Error('이의 여부를 고르십시오.');
       const cmd = { action: 'trial', payload: { action: 'objection', payload: { object } } };
@@ -106,7 +113,7 @@ function createGame(saved) {
       return c;
     },
     // 같은 한 주의 결과를 두고 계획부터 다시. 확인 항목 수는 그대로다.
-    retryTrial(d) { if (d.scene !== 'result') throw new Error('결산 화면이 아닙니다.'); d.scene = 'plan'; d.courtLog = []; return null; }
+    retryTrial(d) { if (d.scene !== 'result') throw new Error('결산 화면이 아닙니다.'); d.scene = 'plan'; d.courtLog = []; d.rolls = []; d.seed = Plan.nextSeed(d.seed); return null; }
   };
 
   // 계획서 되돌리기: 화면이 아닌 서비스가 직전 계획을 기억한다(저장하지 않음, 계획 장면에서만).
@@ -144,7 +151,7 @@ function createGame(saved) {
       plan: clone(p), tierId, prep: Bridge.prepFromFirm(g.firm),
       lawyers: Plan.LAWYER_ORDER.map(id => {
         const L = Plan.LAWYERS[id], s = staff(id);
-        return { id, name: s.name, specialty: s.specialty, years: L.years, note: L.note, stats: Plan.STATS.map(x => ({ ...x, value: L.stats[x.id], tier: Plan.tier(L.stats[x.id]) })),
+        return { id, name: s.name, specialty: s.specialty, years: L.years, note: L.note, stats: Plan.STATS.map(x => ({ ...x, value: L.stats[x.id], tier: Plan.tier(L.stats[x.id]), pct: Plan.ROLL_STATS[x.id] ? Plan.chance(L.stats[x.id]) : null })),
           slots: Plan.checkSlots(tierId, id), fee: Plan.courtFee(g.firm, id), asks: Plan.expectedAsks({ lawyerId: id }) };
       }),
       draft: (() => { const d0 = Plan.draft(tierId, p.lawyerId); return { stance: d0.stance, focus: d0.focus, advice: d0.advice, checks: d0.checks }; })(),
@@ -156,7 +163,7 @@ function createGame(saved) {
       witnesses: def.witnesses.map(w => ({ id: w.id, name: Case.presentation.witnesses[w.id].name, role: Case.presentation.witnesses[w.id].role, goal: SHEET.witnessGoal[w.id] })),
       advice: Case.settlement.advice.map(a => ({ id: a.id, title: a.title, word: SHEET.adviceWord[a.id], short: SHEET.advice[a.id] })),
       offer: clone(Case.settlement.offer), settles: p.checks.includes('INV_SIG_SETTLE'),
-      asks: Plan.expectedAsks(p), fee: Plan.courtFee(g.firm, p.lawyerId), canUndo: undo.length > 0
+      asks: Plan.expectedAsks(p), odds: Plan.odds(p), fee: Plan.courtFee(g.firm, p.lawyerId), canUndo: undo.length > 0
     };
   }
 
@@ -187,6 +194,7 @@ function createGame(saved) {
     if (g.plan) v.plan = planView();
     if (court) {
       v.court = court.projection();
+      v.rolls = clone(g.rolls);
       v.ask = pendingAsk();
       if (v.ask) v.ask.question = Plan.objectionStep(v.ask.witnessId, v.ask.stepId).question;
       if (v.court.outcome) {
