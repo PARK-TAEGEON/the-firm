@@ -45,16 +45,23 @@ async def play(page, tag, width, improve):
     await shot(page, tag + '-03-memo'); await act(page, 'finishIntro')
     check(await scene(page) == 'office', tag + ' office'); await shot(page, tag + '-04-office'); await no_overflow(page, tag + ' office')
     check(await page.locator('[data-act="advance"]').is_disabled(), tag + ' advance blocked until intake decided')
+    check(await page.locator('.msg.sel.must').count() == 1, tag + ' must-respond message opens first')
+    check(await page.locator('.strip .cell').count() == 5, tag + ' summary strip has 5 cells')
+    check(await page.locator('.wk .wk-p').count() == 4, tag + ' week grid has 4 people')
+    if tag == 'desk':
+        await act(page, 'theme'); await shot(page, tag + '-04b-office-cool'); await act(page, 'theme')
     await act(page, 'decline')
+    check(await page.locator('[data-act="advance"]').is_enabled(), tag + ' advance enabled after intake decided')
     if improve:
         await page.locator('[data-act="assign"][data-id="jung-organize"]').click()
         await shot(page, tag + '-05-assign')
         await page.locator('[data-act="doAssign"][data-staff="park"]').click()
-        check('3' in await page.locator('.outlook .ol-head b').inner_text(), tag + ' outlook shows 3 after reassignment')
+        check('3' in await page.locator('.strip [data-cell="budget"] b').inner_text(), tag + ' strip shows 3 checks after reassignment')
     for day in range(5):
         await act(page, 'advance')
-        if day == 0: await shot(page, tag + '-06-report')
-        await act(page, 'closeModal')
+        if day == 0:
+            check('업무 보고' in await page.locator('.msg.sel').inner_text(), tag + ' new report lands in the inbox')
+            await shot(page, tag + '-06-report')
     check(await scene(page) == 'weekend', tag + ' weekend'); await shot(page, tag + '-07-weekend')
     await act(page, 'beginPlan')
     check(await scene(page) == 'plan', tag + ' plan board')
@@ -64,11 +71,19 @@ async def play(page, tag, width, improve):
     await act(page, 'resume'); check(await scene(page) == 'plan', tag + ' resume restores plan')
     if improve:
         # 펜으로 고친다: 목격자 최초 진술을 빼고 합의 상담을 넣고, 문구를 고치는 조건을 붙인다.
+        check(await page.locator('[data-act="toggleCheck"]').count() == 0, tag + ' delegated rows are read-only')
+        await page.locator('[data-act="control"][data-f="checks"]').click()
         await page.locator('[data-act="toggleCheck"][data-id="INV_SIG_STATEMENT"]').click()
         await page.locator('[data-act="toggleCheck"][data-id="INV_SIG_SETTLE"]').click()
+        await page.locator('[data-act="control"][data-f="advice"]').click()
+        await page.locator('[data-act="advice"][data-id="ADV_SIG_REVISE"]').click()
+        await act(page, 'undoPlan')
+        check(await page.locator('.wchip.on[data-id="ADV_SIG_REVISE"]').count() == 0, tag + ' undo reverts the last edit')
         await page.locator('[data-act="advice"][data-id="ADV_SIG_REVISE"]').click()
         check(await page.locator('.wchip.mine').count() >= 1, tag + ' player edit shown in pen')
         await shot(page, tag + '-09-plan-edited')
+        if tag == 'desk':
+            await act(page, 'theme'); await shot(page, tag + '-09c-plan-cool'); await act(page, 'theme')
         await act(page, 'lawyers'); check(await page.locator('.lp').count() == 3, tag + ' lawyer compare opens')
         await shot(page, tag + '-10-lawyers'); await act(page, 'closeModal')
     if width > 700:

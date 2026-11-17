@@ -147,3 +147,34 @@ test('경계: 엔진 원본과 UI에 판정 로직이 섞이지 않는다', () =
   for (const banned of ['FirmEngine', 'FirmDemoSession', 'FirmTrial', 'FirmPlan', 'Math.random']) assert.equal(ui.includes(banned), false, 'ui.js must not use ' + banned);
   for (const f of ['src/bridge.js', 'src/session.js', 'src/plan.js', 'src/case-sheet.js']) assert.equal(src(f).includes('Math.random'), false, f);
 });
+
+test('위임/조정: 줄을 맡기면 초안으로 돌아가고, 되돌리기는 직전 계획을 복원한다', () => {
+  const g = Game.createGame(); playWeek(g);
+  const draft = g.view().plan.plan;
+  must(g.command('editPlan', { field: 'stance', value: 'S_SIG_DENY' === draft.stance ? 'S_SIG_ADMIT' : g.view().plan.stances.find(s => s.id !== draft.stance).id }));
+  must(g.command('editPlan', { field: 'check', value: g.view().plan.plan.checks[0] }));
+  assert.ok(g.view().plan.canUndo);
+  must(g.command('undoPlan'));
+  assert.deepEqual(g.view().plan.plan.checks, draft.checks);
+  assert.notEqual(g.view().plan.plan.stance, draft.stance);
+  must(g.command('editPlan', { field: 'reset', value: 'stance' }));
+  assert.equal(g.view().plan.plan.stance, draft.stance);
+  assert.ok(!g.view().plan.plan.edited.includes('stance'));
+  must(g.command('editPlan', { field: 'check', value: g.view().plan.plan.checks[0] }));
+  must(g.command('editPlan', { field: 'reset', value: 'all' }));
+  assert.deepEqual(g.view().plan.plan, draft);
+  assert.equal(g.command('editPlan', { field: 'reset', value: 'lawyerId' }).ok, false);
+  must(g.command('sealPlan'));
+  assert.equal(g.command('undoPlan').ok, false);
+});
+
+test('받은 편지함: 새 의뢰는 결정 전까지 응답 필요, 하루가 지나면 보고가 맨 위에 온다', () => {
+  const g = Game.createGame(); must(g.command('newGame')); must(g.command('finishIntro'));
+  let box = g.view().inbox;
+  assert.equal(box.filter(m => m.must).length, 1);
+  must(g.command('firm', { action: { type: 'DECLINE_INTAKE' } }));
+  must(g.command('firm', { action: { type: 'ADVANCE_DAY' } }));
+  box = g.view().inbox;
+  assert.equal(box.filter(m => m.must).length, 0);
+  assert.equal(box[0].tag, 'report'); assert.equal(box[0].id, 'report-0');
+});

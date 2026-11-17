@@ -109,7 +109,20 @@ function createGame(saved) {
     retryTrial(d) { if (d.scene !== 'result') throw new Error('결산 화면이 아닙니다.'); d.scene = 'plan'; d.courtLog = []; return null; }
   };
 
+  // 계획서 되돌리기: 화면이 아닌 서비스가 직전 계획을 기억한다(저장하지 않음, 계획 장면에서만).
+  let undo = [];
   function command(action, payload) {
+    if (action === 'undoPlan') {
+      if (g.scene !== 'plan' || !undo.length) return { ok: false, error: '되돌릴 것이 없습니다.' };
+      g = { ...clone(g), plan: undo.pop() };
+      return { ok: true };
+    }
+    const before = action === 'editPlan' ? clone(g.plan) : null;
+    const res = run(action, payload);
+    if (res.ok) { if (before) { undo.push(before); if (undo.length > 30) undo.shift(); } else undo = []; }
+    return res;
+  }
+  function run(action, payload) {
     const h = handlers[action];
     if (!h) return { ok: false, error: '알 수 없는 명령: ' + action };
     const draft = clone(g);
@@ -143,8 +156,20 @@ function createGame(saved) {
       witnesses: def.witnesses.map(w => ({ id: w.id, name: Case.presentation.witnesses[w.id].name, role: Case.presentation.witnesses[w.id].role, goal: SHEET.witnessGoal[w.id] })),
       advice: Case.settlement.advice.map(a => ({ id: a.id, title: a.title, word: SHEET.adviceWord[a.id], short: SHEET.advice[a.id] })),
       offer: clone(Case.settlement.offer), settles: p.checks.includes('INV_SIG_SETTLE'),
-      asks: Plan.expectedAsks(p), fee: Plan.courtFee(g.firm, p.lawyerId)
+      asks: Plan.expectedAsks(p), fee: Plan.courtFee(g.firm, p.lawyerId), canUndo: undo.length > 0
     };
+  }
+
+  // 받은 편지함: 사무소 상태에서 만든 메시지 목록(최신이 위). 내용은 화면이 상태에서 그린다.
+  function inboxView(firm) {
+    const admin = firm.staff.find(s => s.role === 'admin');
+    const list = [
+      { id: 'case-jung', day: 0, from: '정민호', tag: 'case', title: '사건 의뢰' },
+      { id: 'court-notice', day: 0, from: '법원', tag: 'court', title: '공판 기일' },
+      { id: 'intake-yoon', day: 0, from: firm.intake.client, tag: 'intake', title: '새 의뢰', must: firm.intake.status === 'pending', status: firm.intake.status }
+    ];
+    firm.reports.forEach((r, i) => list.push({ id: 'report-' + r.day, day: r.day, from: admin.name, fromId: admin.id, tag: 'report', title: '업무 보고', report: i, late: r.lateTasks.length }));
+    return list.reverse();
   }
 
   function view() {
@@ -157,6 +182,7 @@ function createGame(saved) {
       v.summary = Firm.summarize(g.firm);
       v.outlook = Bridge.prepOutlook(g.firm, v.forecast);
       if (g.firm.completed) v.prep = Bridge.prepFromFirm(g.firm);
+      v.inbox = inboxView(g.firm);
     }
     if (g.plan) v.plan = planView();
     if (court) {

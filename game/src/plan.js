@@ -80,6 +80,17 @@ function edit(plan, tierId, change) {
       next.checks = SHEET.checks.map(c => c.id).filter(id => next.checks.includes(id));
       mark('checks'); break;
     }
+    // 위임으로 되돌린다: 그 줄(또는 전부)을 담당 변호사의 초안대로 돌려놓는다.
+    case 'reset': {
+      const d0 = draft(tierId, plan.lawyerId), all = ['stance', 'focus', 'advice', 'checks'];
+      const fields = change.value === 'all' ? all : [change.value];
+      fields.forEach(f => {
+        if (!all.includes(f)) throw new Error('되돌릴 항목을 알 수 없습니다.');
+        next[f] = JSON.parse(JSON.stringify(d0[f]));
+        next.edited = next.edited.filter(x => x !== f);
+      });
+      break;
+    }
     default: throw new Error('고칠 항목을 알 수 없습니다.');
   }
   validate(next, tierId);
