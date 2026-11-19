@@ -1,7 +1,9 @@
 'use strict';
-// 데모 사건 24건. 스키마, 난이도 10/8/6, 글자 수, 능력치 4종. node --test tests/cases.test.js
+// 데모 사건 24건. 스키마, 난이도 10/8/6, 12주 상한, 의뢰인 이름. node --test tests/cases.test.js
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('fs');
+const path = require('path');
 const cases = require('../data/cases.json');
 
 const KEY_STATS = ['분석', '변론', '협상', '영업'];
@@ -13,9 +15,40 @@ const ARCHETYPES = [
   'ARCH_BUSINESS_EMBEZZLEMENT', 'ARCH_ONLINE_DEFAMATION', 'ARCH_TRAFFIC_INJURY',
   'ARCH_RESIDENTIAL_INTRUSION', 'ARCH_FALSE_REPORT', 'ARCH_OBSTRUCTION_THREAT'
 ];
+const ROLE_NAMES = new Set(['의뢰인', '재판장', '변호인', '목격자', '피고인', '검사', '피해자']);
+const COMPOUND_SURNAMES = ['남궁', '선우', '제갈', '사공', '독고', '황보'];
 
 function chars(value) {
   return Array.from(value).length;
+}
+
+function walk(dir, acc) {
+  for (const name of fs.readdirSync(dir)) {
+    const full = path.join(dir, name);
+    if (fs.statSync(full).isDirectory()) walk(full, acc);
+    else if (/\.(js|json)$/.test(name)) acc.push(full);
+  }
+  return acc;
+}
+
+// 직원·기존 의뢰인·법정 인물. engine.js와 court data의 name/client만 본다.
+function reservedNames() {
+  const files = walk(path.join(__dirname, '../vendor/court/data'), [
+    path.join(__dirname, '../vendor/firm/engine.js')
+  ]);
+  const names = new Set();
+  for (const file of files) {
+    const text = fs.readFileSync(file, 'utf8');
+    for (const match of text.matchAll(/(?:name|client):\s*['"]([가-힣]{2,4})['"]/g)) {
+      if (!ROLE_NAMES.has(match[1])) names.add(match[1]);
+    }
+  }
+  return names;
+}
+
+function surnameOf(name) {
+  const compound = COMPOUND_SURNAMES.find(item => name.startsWith(item) && name.length > item.length);
+  return compound || Array.from(name)[0];
 }
 
 // CASES.md 난이도 규칙과 같다. 실험용 authored 규칙, DEC 아님.
@@ -53,7 +86,7 @@ test('스키마, 수임료 정액, 글자 수, 원형 10종×2를 지킨다', ()
     assert.ok(KEY_STATS.includes(entry.keyStat), entry.id);
     assert.equal(entry.fee % 10000, 0, entry.id);
     assert.ok(entry.fee > 0, entry.id);
-    assert.ok(Number.isInteger(entry.durationWeeks) && entry.durationWeeks >= 1, entry.id);
+    assert.ok(Number.isInteger(entry.durationWeeks) && entry.durationWeeks >= 1 && entry.durationWeeks <= 12, entry.id);
     assert.ok(Number.isFinite(entry.issueStrength) && entry.issueStrength > 0, entry.id);
     assert.ok(Number.isInteger(entry.activeTwists) && entry.activeTwists >= 0, entry.id);
     assert.ok(entry.client.name.trim().length > 0, entry.id);
@@ -100,4 +133,22 @@ test('스키마, 수임료 정액, 글자 수, 원형 10종×2를 지킨다', ()
     assert.notEqual(pair[0].activeTwists, pair[1].activeTwists, id);
     assert.notEqual(pair[0].source, pair[1].source, id);
   }
+});
+
+test('의뢰인 이름은 고유하고, 게임 인물과 겹치지 않으며, 같은 성은 3번까지다', () => {
+  const reserved = reservedNames();
+  for (const required of ['정민호', '고은아', '윤지훈', '한도윤', '이정우', '김현우', '박서윤']) {
+    assert.equal(reserved.has(required), true, required);
+  }
+  const names = cases.map(entry => entry.client.name);
+  assert.equal(new Set(names).size, 24);
+  const surnames = {};
+  for (const entry of cases) {
+    assert.match(entry.client.name, /^[가-힣]{2,4}$/, entry.id);
+    assert.equal(reserved.has(entry.client.name), false, entry.client.name);
+    assert.match(entry.comment, new RegExp('이름:.*' + entry.client.name));
+    const surname = surnameOf(entry.client.name);
+    surnames[surname] = (surnames[surname] || 0) + 1;
+  }
+  for (const [surname, count] of Object.entries(surnames)) assert.ok(count <= 3, surname + ' ' + count);
 });
