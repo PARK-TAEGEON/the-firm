@@ -287,13 +287,13 @@ test('명성이 등급 기준 아래면 한 단계만 강등되고, 다음 주 �
 test('T3는 매출이 기준 이상이고 명성만 부족하면 T2로 한 단계 강등된다', () => {
   const run = Loop.createRun({ seed: 1, cases: [] });
   run.state.tier = 3;
-  run.state.reputation = Loop.T3_REPUTATION - 1;
-  run.state.revenue = Loop.T3_REVENUE;
+  run.state.reputation = 34;
+  run.state.revenue = 40000000;
   run.state.cash = 100000000;
   Loop.advanceWeek(run);
   assert.equal(run.state.tier, 2);
-  assert.equal(run.state.reputation, Loop.T3_REPUTATION - 1);
-  assert.equal(run.state.revenue, Loop.T3_REVENUE);
+  assert.equal(run.state.reputation, 34);
+  assert.equal(run.state.revenue, 40000000);
   assert.equal(run.state.lastWeek.rent, Loop.RENT[3]);
   assert.equal(run.state.ending, null);
 });
@@ -314,13 +314,13 @@ test('T1은 명성이 낮아도 1 아래로 내려가지 않는다', () => {
 test('강등된 뒤 등급 조건을 다시 채우면 재승급된다', () => {
   const run = Loop.createRun({ seed: 1, cases: [] });
   run.state.tier = 3;
-  run.state.reputation = Loop.T3_REPUTATION - 1;
-  run.state.revenue = Loop.T3_REVENUE;
+  run.state.reputation = 34;
+  run.state.revenue = 40000000;
   run.state.cash = 100000000;
   Loop.advanceWeek(run);
   assert.equal(run.state.tier, 2);
-  run.state.reputation = Loop.T3_REPUTATION;
-  run.state.revenue = Loop.T3_REVENUE;
+  run.state.reputation = 35;
+  run.state.revenue = 40000000;
   Loop.advanceWeek(run);
   assert.equal(run.state.tier, 3);
   assert.equal(run.state.lastWeek.rent, Loop.RENT[2]);

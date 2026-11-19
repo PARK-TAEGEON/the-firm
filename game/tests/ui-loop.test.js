@@ -2,8 +2,6 @@
 // UI-LOOP-001: 화면 핸들러로 12주를 끝내고, 같은 시드의 엔진 엔딩과 비교한다.
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const path = require('node:path');
 const cases = require('../data/cases.json');
 const Loop = require('../src/loop.js');
 const Desk = require('../src/ui.js');
@@ -157,7 +155,7 @@ test('합이 20이 아니면 시작되지 않고, 다른 능력치도 같은 시
   assert.deepEqual(desk.state(), Loop.runSeason({ seed: 1, cases: cases, stats: stats }));
 });
 
-test('등급·명성 툴팁은 엔진 상수를 보여 주고 설계서 임대료는 없다', () => {
+test('강등된 주의 결산·엔딩 임대료 툴팁은 그 주에 빠진 금액과 같다', () => {
   function shown(n) {
     if (!n) return '0';
     const sign = n < 0 ? '−' : '';
@@ -179,30 +177,57 @@ test('등급·명성 툴팁은 엔진 상수를 보여 주고 설계서 임대�
       .replace(/&quot;/g, '"')
       .replace(/&#39;/g, "'");
   }
-  const src = fs.readFileSync(path.join(__dirname, '../src/ui.js'), 'utf8');
-  assert.equal(src.includes('80만'), false);
-  assert.equal(src.includes('120만'), false);
-  assert.equal(src.includes('200만'), false);
-  assert.equal(src.includes('T2 15'), false);
-  assert.equal(src.includes('T3 35'), false);
-  assert.match(src, /Loop\.RENT/);
-  assert.match(src, /Loop\.T2_REPUTATION/);
-  assert.match(src, /Loop\.T3_REPUTATION/);
+  function openAtTier3(doc, desk) {
+    clickRendered(doc, 'start');
+    const first = desk.state();
+    first.offers = [];
+    first.reputation = 35;
+    first.revenue = 40000000;
+    first.cash = 100000000;
+    clickRendered(doc, 'endWeek');
+    assert.equal(desk.state().tier, 3);
+    clickRendered(doc, 'next');
+    assert.equal(desk.screen(), 'office');
+    assert.equal(desk.state().tier, 3);
+  }
+  function assertPaidRent(html, paid, later) {
+    const paidText = '임대 ' + shown(paid);
+    const laterText = '임대 ' + shown(later);
+    for (const label of ['현금', '등급']) {
+      const text = tipOf(html, label);
+      assert.ok(text.includes(paidText), label);
+      assert.equal(text.includes(laterText), false, label);
+    }
+  }
 
-  const { doc, desk } = mounted(SEED);
-  doc.click('start');
-  const html = doc.nodes.app.innerHTML;
-  const tier = tipOf(html, '등급');
-  assert.ok(tier.includes('T1 ' + shown(Loop.RENT[1])));
-  assert.ok(tier.includes('T2 ' + shown(Loop.RENT[2])));
-  assert.ok(tier.includes('T3 ' + shown(Loop.RENT[3])));
-  assert.equal(/80만|120만|200만/.test(tier), false);
-  const reputation = tipOf(html, '명성');
-  assert.ok(reputation.includes('T2 ' + Loop.T2_REPUTATION));
-  assert.ok(reputation.includes('T3 ' + Loop.T3_REPUTATION));
-  assert.ok(reputation.includes(String(Loop.GREAT_REPUTATION)));
-  assert.ok(tipOf(html, '매출').includes(shown(Loop.GREAT_REVENUE)));
-  assert.ok(tipOf(html, '현금').includes('임대 ' + shown(Loop.RENT[desk.state().tier])));
+  const result = mounted(1);
+  openAtTier3(result.doc, result.desk);
+  const mid = result.desk.state();
+  mid.offers = [];
+  mid.reputation = 34;
+  mid.revenue = 40000000;
+  mid.cash = 100000000;
+  clickRendered(result.doc, 'endWeek');
+  assert.equal(result.desk.screen(), 'result');
+  assert.equal(result.desk.state().tier, 2);
+  const paid = result.desk.state().lastWeek.rent;
+  assert.equal(paid, Loop.RENT[3]);
+  assertPaidRent(result.doc.nodes.app.innerHTML, paid, Loop.RENT[2]);
+
+  const ending = mounted(1);
+  openAtTier3(ending.doc, ending.desk);
+  const last = ending.desk.state();
+  last.offers = [];
+  last.reputation = 34;
+  last.revenue = 40000000;
+  last.cash = 100000000;
+  last.week = 12;
+  clickRendered(ending.doc, 'endWeek');
+  assert.equal(ending.desk.screen(), 'ending');
+  assert.equal(ending.desk.state().tier, 2);
+  const endingPaid = ending.desk.state().lastWeek.rent;
+  assert.equal(endingPaid, Loop.RENT[3]);
+  assertPaidRent(ending.doc.nodes.app.innerHTML, endingPaid, Loop.RENT[2]);
 });
 
 test('11주에 폐업해도 엔딩 화면으로 간다', () => {

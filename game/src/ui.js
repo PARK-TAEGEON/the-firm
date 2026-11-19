@@ -43,9 +43,6 @@
 
   function createDesk(options) {
     var Loop = options.loop;
-    function rentLines() {
-      return [1, 2, 3].map(function (tier) { return 'T' + tier + ' ' + eok(Loop.RENT[tier]); });
-    }
     var cases = options.cases;
     var seed = options.seed;
     var stats = {};
@@ -222,16 +219,17 @@
       return '';
     }
 
-    function strip(extra) {
+    function strip(extra, paidRent) {
       var state = run.state;
       var tierName = (Loop.TIER_NAME[state.tier] || '').replace(/^T\d\s*/, '');
       var cashClass = state.cash < 0 ? ' bad' : '';
+      var rent = paidRent == null ? Loop.RENT[state.tier] : paidRent;
       return '<div class="strip desk-strip">' +
         '<div class="cell"' + tip('주', [state.weeksPlayed + '/' + Loop.WEEKS]) + '><small>주</small><b>' + (extra || state.week) + '<span>/' + Loop.WEEKS + '</span></b></div>' +
-        '<div class="cell' + cashClass + '"' + tip('현금', [won(state.cash), '임대 ' + eok(Loop.RENT[state.tier]), '급여 ' + eok(salary())]) + '><small>현금</small><b>' + eok(state.cash) + '</b></div>' +
+        '<div class="cell' + cashClass + '"' + tip('현금', [won(state.cash), '임대 ' + eok(rent), '급여 ' + eok(salary())]) + '><small>현금</small><b>' + eok(state.cash) + '</b></div>' +
         '<div class="cell"' + tip('매출', [won(state.revenue), eok(Loop.GREAT_REVENUE)]) + '><small>매출</small><b>' + eok(state.revenue) + '</b></div>' +
-        '<div class="cell"' + tip('명성', [String(state.reputation), 'T2 ' + Loop.T2_REPUTATION, 'T3 ' + Loop.T3_REPUTATION, String(Loop.GREAT_REPUTATION)]) + '><small>명성</small><b>' + state.reputation + '</b></div>' +
-        '<div class="cell"' + tip(Loop.TIER_NAME[state.tier] || '', rentLines()) + '><small>등급</small><b>T' + state.tier + '</b><em>' + esc(tierName) + '</em></div>' +
+        '<div class="cell"' + tip('명성', [String(state.reputation), 'T2 15', 'T3 35', String(Loop.GREAT_REPUTATION)]) + '><small>명성</small><b>' + state.reputation + '</b></div>' +
+        '<div class="cell"' + tip(Loop.TIER_NAME[state.tier] || '', ['임대 ' + eok(rent)]) + '><small>등급</small><b>T' + state.tier + '</b><em>' + esc(tierName) + '</em></div>' +
         '</div>';
     }
 
@@ -382,7 +380,7 @@
 
     function resultHtml() {
       var week = run.state.lastWeek;
-      return frame('result', resultNotes(week) + resultTables(week) + strip(week.week),
+      return frame('result', resultNotes(week) + resultTables(week) + strip(week.week, week.rent),
         button('next', '다음', true),
         ' data-week="' + week.week + '"');
     }
@@ -395,7 +393,7 @@
       return frame('ending',
         '<h1 class="end-word ' + kind + '"' + tip(word, [esc(ending.label), '명성 ' + run.state.reputation, eok(run.state.revenue)]) + '>' + esc(word) + '</h1>' +
         '<p class="end-sub">' + esc(ending.label) + '</p>' +
-        (week ? resultNotes(week) + resultTables(week) : '') + strip(run.state.weeksPlayed),
+        (week ? resultNotes(week) + resultTables(week) : '') + strip(run.state.weeksPlayed, week ? week.rent : null),
         button('again', '다시', true),
         ' data-ending="' + esc(ending.kind) + '" data-week="' + run.state.weeksPlayed + '"');
     }
