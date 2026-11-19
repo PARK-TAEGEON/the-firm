@@ -167,12 +167,12 @@ test('현금이 2주 연속 마이너스면 12주 전에 폐업한다', () => {
   assert.equal(state.tier, 1);
 });
 
-test('12주에 명성 45·누적 매출 1억 2,000만이면 위대한 로펌, 매출이 모자라면 탈락이다', () => {
-  assert.equal(Loop.GREAT_REPUTATION, 45);
+test('12주에 명성 40·누적 매출 1억 2,000만이면 위대한 로펌, 명성 39이거나 매출이 모자라면 탈락이다', () => {
+  assert.equal(Loop.GREAT_REPUTATION, 40);
   assert.equal(Loop.GREAT_REVENUE, 120000000);
-  assert.equal(Loop.isGreatFirm(45, 120000000), true);
-  assert.equal(Loop.isGreatFirm(44, 120000000), false);
-  assert.equal(Loop.isGreatFirm(45, 119999999), false);
+  assert.equal(Loop.isGreatFirm(40, 120000000), true);
+  assert.equal(Loop.isGreatFirm(39, 120000000), false);
+  assert.equal(Loop.isGreatFirm(40, 119999999), false);
 
   function atWeek12(reputation, revenue) {
     const run = Loop.createRun({ seed: 1, cases: [] });
@@ -183,14 +183,16 @@ test('12주에 명성 45·누적 매출 1억 2,000만이면 위대한 로펌, �
     Loop.advanceWeek(run);
     return run.state;
   }
-  const under = atWeek12(45, 119999999);
+  const lowRep = atWeek12(39, 120000000);
+  assert.equal(lowRep.ending.kind, 'tier');
+  assert.equal(lowRep.reputation, 39);
+  const under = atWeek12(40, 119999999);
   assert.equal(under.ending.kind, 'tier');
-  assert.equal(under.reputation, 45);
+  assert.equal(under.reputation, 40);
   assert.equal(under.revenue, 119999999);
-  const exact = atWeek12(45, 120000000);
+  const exact = atWeek12(40, 120000000);
   assert.equal(exact.ending.kind, 'great');
   assert.equal(exact.ending.label, '위대한 로펌');
-  assert.equal(atWeek12(44, 120000000).ending.kind, 'tier');
 
   const wins = (n, fee, id) => Array.from({ length: n }, (_, i) => matter(id + i, { fee: fee, durationWeeks: 4 }));
   const great = Loop.runSeason({ seed: 1, cases: wins(15, 8000000, 'g'), policy: takeAll, next: function () { return 0; } });
@@ -202,11 +204,11 @@ test('12주에 명성 45·누적 매출 1억 2,000만이면 위대한 로펌, �
   assert.equal(great.tier, 3);
   assert.ok(great.cash >= 0);
 
-  const lowRep = Loop.runSeason({ seed: 1, cases: wins(14, 8000000, 'r'), policy: takeAll, next: function () { return 0; } });
-  assert.equal(lowRep.reputation, 42);
-  assert.equal(lowRep.revenue, 224000000);
-  assert.equal(lowRep.ending.kind, 'tier');
-  assert.ok(lowRep.cash >= 0);
+  const shortRep = Loop.runSeason({ seed: 1, cases: wins(13, 8000000, 'r'), policy: takeAll, next: function () { return 0; } });
+  assert.equal(shortRep.reputation, 39);
+  assert.equal(shortRep.revenue, 208000000);
+  assert.equal(shortRep.ending.kind, 'tier');
+  assert.ok(shortRep.cash >= 0);
 
   const few = [];
   for (let i = 0; i < 4; i++) few.push(matter('t' + i, { fee: 10000000, durationWeeks: 4 }));

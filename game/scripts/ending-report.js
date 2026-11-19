@@ -1,5 +1,5 @@
 'use strict';
-// 시드 1..300 자동 정책 엔딩 분포. 위대한 로펌은 12주차 명성 45 · 누적 매출 1억 2,000만.
+// 시드 1..300 자동 정책 엔딩 분포. 위대한 로펌은 12주차 명성 40 · 누적 매출 1억 2,000만.
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
@@ -67,7 +67,7 @@ try {
 const lines = [];
 lines.push('# LOOP-001 엔딩 분포');
 lines.push('');
-lines.push('위대한 로펌은 12주차 명성 45 · 누적 매출 1억 2,000만 원이다. 성공보수는 승소 `fee`, 조정 절반, 패소 0이다. 주간 임대료는 설계값의 6.25배다.');
+lines.push('위대한 로펌은 12주차 명성 40 · 누적 매출 1억 2,000만 원이다. 성공보수는 승소 `fee`, 조정 절반, 패소 0이다. 주간 임대료는 설계값의 6.25배다. 이번 변경은 명성 문턱뿐이고 다른 숫자는 그대로다.');
 lines.push('');
 lines.push('## 최종 숫자');
 lines.push('');
@@ -83,7 +83,7 @@ lines.push('| 주급 | 사무원 70만, 보조원 100만 | 같음 |');
 lines.push('| T1 주간 운영비 (주급+임대료) | 250만 원 | ' + man(1700000 + Loop.RENT[1]) + ' 원 |');
 lines.push('| T2 주간 운영비 (주급+임대료) | 290만 원 | ' + man(1700000 + Loop.RENT[2]) + ' 원 |');
 lines.push('| T3 주간 운영비 (주급+임대료) | 370만 원 | ' + man(1700000 + Loop.RENT[3]) + ' 원 |');
-lines.push('| 위대한 로펌 | 12주차 명성 45 · 누적 매출 1억 2,000만 | 같음 |');
+lines.push('| 위대한 로펌 | 직전: 12주차 명성 45 · 누적 매출 1억 2,000만 | 12주차 명성 ' + GREAT_REPUTATION + ' · 누적 매출 1억 2,000만 |');
 lines.push('| 강등 | 없음 | 주 종료 때 현재 등급 기준 미달이면 한 단계 |');
 lines.push('');
 lines.push('강등은 정산 뒤다. T3는 명성 35 미만이거나 누적 매출 4,000만 미만이면 T2, T2는 명성 15 미만이면 T1이다. 한 주에 두 단계는 내리지 않는다. 이번 주 임대료는 주 시작 등급이고, 다음 주 임대료와 난이도 해금이 강등된 등급을 따른다. 이미 맡은 사건은 유지한다. 승급은 기존처럼 한 주에 T3까지 갈 수 있다.');
@@ -118,14 +118,18 @@ lines.push('| 보통 · T2 동네 법률사무소 | ' + pct(counts.T2) + ' |');
 lines.push('| 보통 · T3 중견 로펌 | ' + pct(counts.T3) + ' |');
 lines.push('| 폐업 | ' + pct(counts.bankrupt) + ' |');
 lines.push('');
-lines.push('시드 평균 명성 ' + (base.repSum / SEEDS).toFixed(1) + ', 평균 누적 매출 ' + man(base.revenueSum / SEEDS) + ' 원. 최대 명성 ' + base.maxRep + ' (' + base.repAt + '시드가 45 이상), 최대 누적 매출 ' + man(base.maxRevenue) + ' 원 (' + base.revenueAt + '시드가 1억 2,000만 이상).');
+lines.push('시드 평균 명성 ' + (base.repSum / SEEDS).toFixed(1) + ', 평균 누적 매출 ' + man(base.revenueSum / SEEDS) + ' 원. 최대 명성 ' + base.maxRep + ' (' + base.repAt + '시드가 ' + GREAT_REPUTATION + ' 이상), 최대 누적 매출 ' + man(base.maxRevenue) + ' 원 (' + base.revenueAt + '시드가 1억 2,000만 이상).');
 lines.push('');
-lines.push('매출 미달 탈락: 12주를 마친 뒤 명성 45 이상이고 누적 매출이 1억 2,000만 미만이라 위대한 로펌이 아닌 판은 ' + counts.revMiss + '건이다.');
+lines.push('명성 ' + GREAT_REPUTATION + ' 이상인 판과, 그중 12주를 마쳤는데 누적 매출이 1억 2,000만 미만이라 위대한 로펌이 아닌 판이다.');
+lines.push('');
+lines.push('| 능력치 (분석·변론·협상·영업) | 명성 ' + GREAT_REPUTATION + ' 이상 | 그중 매출 미달 탈락 |');
+lines.push('| --- | ---: | ---: |');
+rows.forEach(function (row) {
+  lines.push('| ' + row.build.name + ' | ' + row.result.repAt + ' | ' + row.result.counts.revMiss + ' |');
+});
 lines.push('');
 const seed7 = Loop.runSeason({ seed: 7, cases: cases });
 lines.push('시드 7: ' + seed7.ending.label + ', ' + seed7.weeksPlayed + '주, 명성 ' + seed7.reputation + ', 누적 매출 ' + man(seed7.revenue) + ' 원, 현금 ' + man(seed7.cash) + ' 원, 등급 ' + seed7.tier + '.');
-lines.push('');
-lines.push('위대한 로펌 10~20%는 맞추지 못했다. 임대료를 설계값(1배)으로 내려도 명성 45와 매출 1억 2,000만을 같이 넘는 시드는 10개(3.3%)다. 임대료는 그 10개를 줄이지 않으면서 폐업이 5~10%에 들어오는 6.25배로 뒀다.');
 lines.push('');
 lines.push('수임에서 뺀 사건: ' + (base.excluded.length ? base.excluded.map(function (row) { return row.id + ' (' + row.reason + ')'; }).join(', ') : '없음') + '.');
 lines.push('');
