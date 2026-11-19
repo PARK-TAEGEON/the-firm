@@ -43,6 +43,9 @@
 
   function createDesk(options) {
     var Loop = options.loop;
+    function rentLines() {
+      return [1, 2, 3].map(function (tier) { return 'T' + tier + ' ' + eok(Loop.RENT[tier]); });
+    }
     var cases = options.cases;
     var seed = options.seed;
     var stats = {};
@@ -227,8 +230,8 @@
         '<div class="cell"' + tip('주', [state.weeksPlayed + '/' + Loop.WEEKS]) + '><small>주</small><b>' + (extra || state.week) + '<span>/' + Loop.WEEKS + '</span></b></div>' +
         '<div class="cell' + cashClass + '"' + tip('현금', [won(state.cash), '임대 ' + eok(Loop.RENT[state.tier]), '급여 ' + eok(salary())]) + '><small>현금</small><b>' + eok(state.cash) + '</b></div>' +
         '<div class="cell"' + tip('매출', [won(state.revenue), eok(Loop.GREAT_REVENUE)]) + '><small>매출</small><b>' + eok(state.revenue) + '</b></div>' +
-        '<div class="cell"' + tip('명성', [String(state.reputation), 'T2 15', 'T3 35', String(Loop.GREAT_REPUTATION)]) + '><small>명성</small><b>' + state.reputation + '</b></div>' +
-        '<div class="cell"' + tip(Loop.TIER_NAME[state.tier] || '', ['임대 ' + eok(Loop.RENT[state.tier])]) + '><small>등급</small><b>T' + state.tier + '</b><em>' + esc(tierName) + '</em></div>' +
+        '<div class="cell"' + tip('명성', [String(state.reputation), 'T2 ' + Loop.T2_REPUTATION, 'T3 ' + Loop.T3_REPUTATION, String(Loop.GREAT_REPUTATION)]) + '><small>명성</small><b>' + state.reputation + '</b></div>' +
+        '<div class="cell"' + tip(Loop.TIER_NAME[state.tier] || '', rentLines()) + '><small>등급</small><b>T' + state.tier + '</b><em>' + esc(tierName) + '</em></div>' +
         '</div>';
     }
 

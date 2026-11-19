@@ -2,6 +2,8 @@
 // UI-LOOP-001: 화면 핸들러로 12주를 끝내고, 같은 시드의 엔진 엔딩과 비교한다.
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const cases = require('../data/cases.json');
 const Loop = require('../src/loop.js');
 const Desk = require('../src/ui.js');
@@ -153,6 +155,54 @@ test('합이 20이 아니면 시작되지 않고, 다른 능력치도 같은 시
     else desk.handle('next');
   }
   assert.deepEqual(desk.state(), Loop.runSeason({ seed: 1, cases: cases, stats: stats }));
+});
+
+test('등급·명성 툴팁은 엔진 상수를 보여 주고 설계서 임대료는 없다', () => {
+  function shown(n) {
+    if (!n) return '0';
+    const sign = n < 0 ? '−' : '';
+    const v = Math.abs(Math.round(n));
+    if (v >= 100000000) {
+      const e = Math.floor(v / 100000000);
+      const rest = Math.round((v % 100000000) / 10000);
+      return sign + e.toLocaleString('ko-KR') + '억' + (rest ? ' ' + rest.toLocaleString('ko-KR') + '만' : '');
+    }
+    return sign + Math.round(v / 10000).toLocaleString('ko-KR') + '만';
+  }
+  function tipOf(html, label) {
+    const matched = html.match(new RegExp('data-tip="([^"]*)"[^>]*>\\s*<small>' + label));
+    assert.ok(matched, label);
+    return matched[1]
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
+  }
+  const src = fs.readFileSync(path.join(__dirname, '../src/ui.js'), 'utf8');
+  assert.equal(src.includes('80만'), false);
+  assert.equal(src.includes('120만'), false);
+  assert.equal(src.includes('200만'), false);
+  assert.equal(src.includes('T2 15'), false);
+  assert.equal(src.includes('T3 35'), false);
+  assert.match(src, /Loop\.RENT/);
+  assert.match(src, /Loop\.T2_REPUTATION/);
+  assert.match(src, /Loop\.T3_REPUTATION/);
+
+  const { doc, desk } = mounted(SEED);
+  doc.click('start');
+  const html = doc.nodes.app.innerHTML;
+  const tier = tipOf(html, '등급');
+  assert.ok(tier.includes('T1 ' + shown(Loop.RENT[1])));
+  assert.ok(tier.includes('T2 ' + shown(Loop.RENT[2])));
+  assert.ok(tier.includes('T3 ' + shown(Loop.RENT[3])));
+  assert.equal(/80만|120만|200만/.test(tier), false);
+  const reputation = tipOf(html, '명성');
+  assert.ok(reputation.includes('T2 ' + Loop.T2_REPUTATION));
+  assert.ok(reputation.includes('T3 ' + Loop.T3_REPUTATION));
+  assert.ok(reputation.includes(String(Loop.GREAT_REPUTATION)));
+  assert.ok(tipOf(html, '매출').includes(shown(Loop.GREAT_REVENUE)));
+  assert.ok(tipOf(html, '현금').includes('임대 ' + shown(Loop.RENT[desk.state().tier])));
 });
 
 test('11주에 폐업해도 엔딩 화면으로 간다', () => {
