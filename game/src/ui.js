@@ -2,7 +2,7 @@
 'use strict';
 // PORTFOLIO-001/002 화면. 상태는 session 서비스가 소유하고, 여기서는 view를 그리고 명령을 보낼 뿐이다.
 // 판정·경제 계산을 하지 않는다. 화면 전용 상태(ui)는 저장하지 않는다.
-const Game = root.FirmGame, Audio = root.FirmAudio, Gloss = root.FirmGlossary;
+const Game = root.FirmGame, Audio = root.FirmAudio, Gloss = root.FirmGlossary, Loop = root.FirmLoop;
 const SAVE_KEY = 'thefirm.portfolio.v2';
 const $ = sel => document.querySelector(sel);
 const app = $('#app'), modalRoot = $('#modal'), popRoot = $('#pops'), toastRoot = $('#toasts');
@@ -199,12 +199,33 @@ function taskPanel(v) {
   }).join('');
   return '<section class="panel tasks2"><div class="phead"><h2 class="ptitle">업무</h2></div><ul>' + rows + '</ul></section>';
 }
+function man(n) {
+  const sign = n < 0 ? '−' : '';
+  return sign + Math.abs(Math.round(n / 10000)).toLocaleString('ko-KR') + '만';
+}
+function loopStrip() {
+  if (!loopRun) return '';
+  const s = loopRun.state, ended = s.ending;
+  const names = { 1: '개인 사무소', 2: '동네 법률사무소', 3: '중견 로펌' };
+  const news = (s.headlines && s.headlines[0]) || '수임 · 배정 · 정산';
+  return '<div class="strip loop-strip">' +
+    stripCell('lweek', '주차', (ended ? s.weeksPlayed : s.week) + '주', ended ? '종료' : '/ 12', tip('12주', [esc(news), ended ? esc(ended.label) : '주 종료로 한 주'])) +
+    stripCell('lcash', '현금', man(s.cash), '매출 ' + man(s.revenue), tip('현금', ['시작 1,000만', '주급 사무원 70만 · 보조원 100만', '임대료는 그 주 시작 등급'])) +
+    stripCell('lrep', '명성', String(s.reputation), 'T2 15 · T3 35', tip('명성', ['T2는 15', 'T3는 35이고 누적 매출 4,000만', '12주에 60이고 누적 매출 1억이면 위대한 로펌'])) +
+    stripCell('ltier', '등급', 'T' + s.tier, names[s.tier], tip('등급', ['T1 임대료 80만', 'T2 120만 · 난이도 2', 'T3 200만 · 난이도 3'])) +
+    '</div>';
+}
+function loopButton() {
+  if (!loopRun) return '';
+  if (loopRun.state.ending) return '<span class="when"><b>' + esc(loopRun.state.ending.label) + '</b><small>12주</small></span>';
+  return '<button class="btn" data-act="endWeek"' + tip('주 종료', ['수임과 배정은 자동', '미배정 업무는 남지 않은 칸']) + '>주 종료</button>';
+}
 function office(v) {
   const firm = v.firm, pending = firm.intake.status === 'pending';
   if (!ui.sel || !v.inbox.some(m => m.id === ui.sel)) ui.sel = (v.inbox.find(m => m.must) || v.inbox[0]).id;
   ui.read.add(ui.sel);
-  const right = '<div class="when"><b>' + dayLabel(firm, firm.dayIndex) + '</b><small>' + (firm.dayIndex + 1) + ' / 5일</small></div><button class="btn continue" data-act="advance" data-primary ' + (pending ? 'disabled' + tip('다음 날', ['응답 필요 먼저']) : '') + '>다음 날 <span aria-hidden="true">»</span></button>';
-  return frame(v, officeStrip(v) + '<div class="office2">' + inboxList(v) + '<div class="col">' + readPane(v) + weekGrid(v) + '</div>' + taskPanel(v) + '</div>', right);
+  const right = loopButton() + '<div class="when"><b>' + dayLabel(firm, firm.dayIndex) + '</b><small>' + (firm.dayIndex + 1) + ' / 5일</small></div><button class="btn continue" data-act="advance" data-primary ' + (pending ? 'disabled' + tip('다음 날', ['응답 필요 먼저']) : '') + '>다음 날 <span aria-hidden="true">»</span></button>';
+  return frame(v, loopStrip() + officeStrip(v) + '<div class="office2">' + inboxList(v) + '<div class="col">' + readPane(v) + weekGrid(v) + '</div>' + taskPanel(v) + '</div>', right);
 }
 function reportLine(firm, r) {
   const hours = r.work.reduce((a, w) => a + w.hours, 0);
@@ -466,7 +487,7 @@ const acts = {
   title() { ui.modal = null; ui.showTitle = true; closePops(); render(); },
   mute() { Audio.toggle(); render(); },
   theme() { const next = document.documentElement.dataset.theme === 'cool' ? 'warm' : 'cool'; document.documentElement.dataset.theme = next; try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* 이번 창에서만 */ } render(); },
-  new() { ui = freshUi(); const q = Number(new URLSearchParams(location.search).get('seed')); run('newGame', Number.isInteger(q) && q > 0 ? { seed: q } : {}, 'page'); },
+  new() { ui = freshUi(); const q = Number(new URLSearchParams(location.search).get('seed')); bootLoop(Number.isInteger(q) && q > 0 ? q : 1); run('newGame', Number.isInteger(q) && q > 0 ? { seed: q } : {}, 'page'); },
   resume() {
     if (game.view().scene !== 'title') { ui.showTitle = false; Audio.play('page'); render(); return; }
     const res = game.load(readSave());
@@ -479,6 +500,12 @@ const acts = {
   accept() { run('firm', { action: { type: 'ACCEPT_INTAKE' } }, 'tick'); },
   decline() { run('firm', { action: { type: 'DECLINE_INTAKE' } }, 'tick'); },
   advance() { const day = game.view().firm.dayIndex; ui.sel = 'report-' + day; if (!run('firm', { action: { type: 'ADVANCE_DAY' } }, 'day')) ui.sel = null; },
+  endWeek() {
+    if (!loopRun || loopRun.state.ending) return;
+    try { Loop.advanceWeek(loopRun); Audio.play('day'); }
+    catch (e) { toast(e.message, 'bad'); }
+    render();
+  },
   openMsg(d) { ui.sel = d.id; Audio.play('tick'); render(); },
   inboxTab(d) { ui.inboxTab = d.v; render(); },
   report() { ui.modal = { type: 'report' }; render(); },
@@ -517,6 +544,20 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { if (tipEl) hideTip(); else if (pops.length) closePops(); else if (ui.modal) acts.closeModal(); return; }
   if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('term')) { e.preventDefault(); openPop(e.target); }
 });
+
+let loopCases = null, loopRun = null;
+function bootLoop(seed) {
+  if (!Loop || !loopCases) return;
+  loopRun = Loop.createRun({ seed: Number.isInteger(seed) && seed > 0 ? seed : 1, cases: loopCases });
+}
+if (Loop && typeof fetch === 'function') {
+  fetch('data/cases.json').then(function (res) { return res.json(); }).then(function (data) {
+    loopCases = data;
+    const q = Number(new URLSearchParams(location.search).get('seed'));
+    bootLoop(Number.isInteger(q) && q > 0 ? q : 1);
+    render();
+  }).catch(function () { /* 파일을 직접 열면 루프 막대 없이 기존 사무소만 보인다 */ });
+}
 
 render();
 })(typeof globalThis !== 'undefined' ? globalThis : this);
