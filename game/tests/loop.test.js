@@ -122,16 +122,25 @@ test('현금이 2주 연속 마이너스면 12주 전에 폐업한다', () => {
   assert.equal(state.tier, 1);
 });
 
-test('12주에 명성 60·누적 매출 1억이면 위대한 로펌, 못 채우면 도달 등급이다', () => {
-  const many = [];
-  for (let i = 0; i < 20; i++) many.push(matter('g' + i, { fee: 5000000, durationWeeks: 4 }));
-  const great = Loop.runSeason({ seed: 1, cases: many, policy: takeAll, next: function () { return 0; } });
+test('12주에 명성 45·누적 매출 7,000만이면 위대한 로펌, 하나라도 못 채우면 도달 등급이다', () => {
+  const wins = (n, fee, id) => Array.from({ length: n }, (_, i) => matter(id + i, { fee: fee, durationWeeks: 4 }));
+  const great = Loop.runSeason({ seed: 1, cases: wins(15, 5000000, 'g'), policy: takeAll, next: function () { return 0; } });
   assert.equal(great.ending.kind, 'great');
   assert.equal(great.ending.label, '위대한 로펌');
   assert.equal(great.weeksPlayed, 12);
-  assert.ok(great.reputation >= 60);
-  assert.ok(great.revenue >= 100000000);
+  assert.equal(great.reputation, 45);
+  assert.equal(great.revenue, 75000000);
   assert.equal(great.tier, 3);
+
+  const lowRep = Loop.runSeason({ seed: 1, cases: wins(14, 5000000, 'r'), policy: takeAll, next: function () { return 0; } });
+  assert.equal(lowRep.reputation, 42);
+  assert.equal(lowRep.revenue, 70000000);
+  assert.equal(lowRep.ending.kind, 'tier');
+
+  const lowRevenue = Loop.runSeason({ seed: 1, cases: wins(15, 4600000, 'v'), policy: takeAll, next: function () { return 0; } });
+  assert.equal(lowRevenue.reputation, 45);
+  assert.equal(lowRevenue.revenue, 69000000);
+  assert.equal(lowRevenue.ending.kind, 'tier');
 
   const few = [];
   for (let i = 0; i < 4; i++) few.push(matter('t' + i, { fee: 10000000, durationWeeks: 4 }));

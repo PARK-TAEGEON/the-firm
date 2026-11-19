@@ -6,7 +6,8 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 
-  // 12주 위임 루프. 숫자는 승인된 데모 설계 그대로다. DEC가 아니다.
+  // 12주 위임 루프. DEC가 아니다.
+  // 위대한 로펌만 후속 결정으로 12주차 명성 45 · 누적 매출 7,000만이다. 그 외 숫자는 설계 그대로.
   // 해석(데이터에 필드가 없어 설계와 맞춘 것):
   // - cases.json의 fee(원)는 착수금. 성공보수 필드가 없고 CASES.md가 정액 위에 성공보수를
   //   더하지 말라고 하므로 카탈로그 성공보수는 0. fee.success 또는 success가 있으면 그 금액을 쓴다.
@@ -23,8 +24,8 @@
 
   var WEEKS = 12;
   var OPENING_CASH = 10000000;
-  var GREAT_REPUTATION = 60;
-  var GREAT_REVENUE = 100000000;
+  var GREAT_REPUTATION = 45;
+  var GREAT_REVENUE = 70000000;
   var T2_REPUTATION = 15;
   var T3_REPUTATION = 35;
   var T3_REVENUE = 40000000;

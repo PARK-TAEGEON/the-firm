@@ -211,7 +211,7 @@ function loopStrip() {
   return '<div class="strip loop-strip">' +
     stripCell('lweek', '주차', (ended ? s.weeksPlayed : s.week) + '주', ended ? '종료' : '/ 12', tip('12주', [esc(news), ended ? esc(ended.label) : '주 종료로 한 주'])) +
     stripCell('lcash', '현금', man(s.cash), '매출 ' + man(s.revenue), tip('현금', ['시작 1,000만', '주급 사무원 70만 · 보조원 100만', '임대료는 그 주 시작 등급'])) +
-    stripCell('lrep', '명성', String(s.reputation), 'T2 15 · T3 35', tip('명성', ['T2는 15', 'T3는 35이고 누적 매출 4,000만', '12주에 60이고 누적 매출 1억이면 위대한 로펌'])) +
+    stripCell('lrep', '명성', String(s.reputation), 'T2 15 · T3 35', tip('명성', ['T2는 15', 'T3는 35이고 누적 매출 4,000만', '12주에 45이고 누적 매출 7,000만이면 위대한 로펌'])) +
     stripCell('ltier', '등급', 'T' + s.tier, names[s.tier], tip('등급', ['T1 임대료 80만', 'T2 120만 · 난이도 2', 'T3 200만 · 난이도 3'])) +
     '</div>';
 }
