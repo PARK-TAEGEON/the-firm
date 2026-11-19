@@ -7,10 +7,12 @@
   'use strict';
 
   // 12주 위임 루프. DEC가 아니다.
-  // 위대한 로펌만 후속 결정으로 12주차 명성 45 · 누적 매출 7,000만이다. 그 외 숫자는 설계 그대로.
+  // 위대한 로펌은 12주차 명성 45 · 누적 매출 7,000만.
+  // 수임료는 착수금이다. 판결 성공보수는 승소면 fee, 조정이면 fee의 절반, 패소면 0.
+  // 주간 임대료는 설계(80만·120만·200만)의 6.4배다. 확률·능력·등급 명성 조건은 설계 그대로.
   // 해석(데이터에 필드가 없어 설계와 맞춘 것):
-  // - cases.json의 fee(원)는 착수금. 성공보수 필드가 없고 CASES.md가 정액 위에 성공보수를
-  //   더하지 말라고 하므로 카탈로그 성공보수는 0. fee.success 또는 success가 있으면 그 금액을 쓴다.
+  // - cases.json의 fee(원)는 수임 시 착수금이다. 영업 보정은 착수금에만 곱한다.
+  //   판결 성공보수는 승소면 fee, 조정이면 fee의 절반, 패소면 0. fee.success가 있으면 그 금액을 기준으로 한다.
   // - 대표 보정은 설계의 업무표와 같다. 데이터 업무명 대신 (역할, 능력)으로 고른다.
   //   응대 → 협상×2, 보조원+정확 → 분석×2, 그 밖(속도, 사무원+정확) → 0.
   // - 판결 능력은 사건의 keyStat. 데이터에는 영업도 있다.
@@ -32,7 +34,8 @@
   var STAT_KEYS = ['분석', '변론', '협상', '영업'];
   var TASK_STATS = ['정확', '속도', '응대'];
   var ROLES = ['사무원', '보조원'];
-  var RENT = { 1: 800000, 2: 1200000, 3: 2000000 };
+  // 설계 임대료 80만·120만·200만의 6.4배. 성공보수를 더한 뒤에도 폐업이 나오게 올린 주간 운영비다.
+  var RENT = { 1: 5120000, 2: 7680000, 3: 12800000 };
   var TIER_NAME = { 1: 'T1 개인 사무소', 2: 'T2 동네 법률사무소', 3: 'T3 중견 로펌' };
 
   function clone(value) { return JSON.parse(JSON.stringify(value)); }
@@ -71,6 +74,10 @@
     return next;
   }
 
+  function isGreatFirm(reputation, revenue) {
+    return reputation >= GREAT_REPUTATION && revenue >= GREAT_REVENUE;
+  }
+
   function offerCount(sales) { return 2 + Math.floor(sales / 4); }
 
   function scaleRetainer(fee, sales) {
@@ -101,14 +108,15 @@
 
   function moneyOf(entry) {
     if (entry.fee && typeof entry.fee === 'object') {
+      var retainer = entry.fee.retainer;
       return {
-        retainer: entry.fee.retainer,
-        success: entry.fee.success == null ? 0 : entry.fee.success
+        retainer: retainer,
+        success: entry.fee.success == null ? retainer : entry.fee.success
       };
     }
     return {
       retainer: entry.fee,
-      success: Object.prototype.hasOwnProperty.call(entry, 'success') ? entry.success : 0
+      success: Object.prototype.hasOwnProperty.call(entry, 'success') ? entry.success : entry.fee
     };
   }
 
@@ -510,7 +518,7 @@
       var ending = null;
       if (negative && state.negativeStreak >= 1) ending = makeEnding('bankrupt', state.tier);
       else if (week >= WEEKS) {
-        ending = state.reputation >= GREAT_REPUTATION && state.revenue >= GREAT_REVENUE
+        ending = isGreatFirm(state.reputation, state.revenue)
           ? makeEnding('great', state.tier)
           : makeEnding('tier', state.tier);
       }
@@ -542,7 +550,10 @@
   return {
     WEEKS: WEEKS,
     OPENING_CASH: OPENING_CASH,
+    GREAT_REPUTATION: GREAT_REPUTATION,
+    GREAT_REVENUE: GREAT_REVENUE,
     RENT: RENT,
+    isGreatFirm: isGreatFirm,
     TIER_NAME: TIER_NAME,
     offerCount: offerCount,
     scaleRetainer: scaleRetainer,

@@ -50,7 +50,51 @@ test('업무 성공률 P와 판결 확률 V는 설계 예시와 클램프를 따
   assert.equal(Loop.scaleRetainer(2500000, 10), 2875000);
 });
 
-test('성공보수가 있는 사건은 승소 시 전액, 준비도 공식으로 판결한다', () => {
+test('카탈로그 fee는 착수금이고, 판결 성공보수는 승소 전액·조정 절반·패소 0이다', () => {
+  function season(roll) {
+    return Loop.createRun({
+      seed: 1,
+      cases: [matter('pay')],
+      policy: takeAll,
+      next: function () { return roll.shift(); }
+    });
+  }
+  const win = season([0, 0]);
+  Loop.advanceWeek(win);
+  assert.equal(win.state.lastWeek.verdicts[0].outcome, 'win');
+  assert.equal(win.state.lastWeek.verdicts[0].successFee, 3000000);
+  assert.equal(win.state.lastWeek.accepted[0].retainer, 3000000);
+  assert.equal(win.state.revenue, 6000000);
+  assert.equal(win.state.reputation, 3);
+
+  const partial = season([0, 0.5]);
+  Loop.advanceWeek(partial);
+  assert.equal(partial.state.lastWeek.verdicts[0].outcome, 'partial');
+  assert.equal(partial.state.lastWeek.verdicts[0].roll, 50);
+  assert.equal(partial.state.lastWeek.verdicts[0].successFee, 1500000);
+  assert.equal(partial.state.revenue, 4500000);
+  assert.equal(partial.state.reputation, 1);
+
+  const lose = season([0, 0.9]);
+  Loop.advanceWeek(lose);
+  assert.equal(lose.state.lastWeek.verdicts[0].outcome, 'lose');
+  assert.equal(lose.state.lastWeek.verdicts[0].roll, 90);
+  assert.equal(lose.state.lastWeek.verdicts[0].successFee, 0);
+  assert.equal(lose.state.revenue, 3000000);
+  assert.equal(lose.state.reputation, -2);
+
+  const oddRolls = [0, 0.5];
+  const odd = Loop.createRun({
+    seed: 1,
+    cases: [matter('odd', { fee: 3000001 })],
+    policy: takeAll,
+    next: function () { return oddRolls.shift(); }
+  });
+  Loop.advanceWeek(odd);
+  assert.equal(odd.state.lastWeek.verdicts[0].successFee, 1500001);
+});
+
+test('fee.success를 적으면 그 금액이 성공보수 기준이다', () => {
   const run = Loop.createRun({
     seed: 1,
     cases: [matter('fee-case', { fee: { retainer: 2500000, success: 3000000 }, durationWeeks: 2, tasks: [
@@ -117,30 +161,34 @@ test('현금이 2주 연속 마이너스면 12주 전에 폐업한다', () => {
   const state = Loop.runSeason({ seed: 1, cases: [] });
   assert.equal(state.ending.kind, 'bankrupt');
   assert.equal(state.ending.label, '폐업');
-  assert.equal(state.weeksPlayed, 6);
-  assert.equal(state.cash, -5000000);
+  assert.equal(state.weeksPlayed, 3);
+  assert.equal(state.cash, -10460000);
+  assert.equal(state.lastWeek.rent, 5120000);
   assert.equal(state.tier, 1);
 });
 
 test('12주에 명성 45·누적 매출 7,000만이면 위대한 로펌, 하나라도 못 채우면 도달 등급이다', () => {
+  assert.equal(Loop.GREAT_REPUTATION, 45);
+  assert.equal(Loop.GREAT_REVENUE, 70000000);
+  assert.equal(Loop.isGreatFirm(45, 70000000), true);
+  assert.equal(Loop.isGreatFirm(44, 70000000), false);
+  assert.equal(Loop.isGreatFirm(45, 69999999), false);
+
   const wins = (n, fee, id) => Array.from({ length: n }, (_, i) => matter(id + i, { fee: fee, durationWeeks: 4 }));
-  const great = Loop.runSeason({ seed: 1, cases: wins(15, 5000000, 'g'), policy: takeAll, next: function () { return 0; } });
+  const great = Loop.runSeason({ seed: 1, cases: wins(15, 8000000, 'g'), policy: takeAll, next: function () { return 0; } });
   assert.equal(great.ending.kind, 'great');
   assert.equal(great.ending.label, '위대한 로펌');
   assert.equal(great.weeksPlayed, 12);
   assert.equal(great.reputation, 45);
-  assert.equal(great.revenue, 75000000);
+  assert.equal(great.revenue, 240000000);
   assert.equal(great.tier, 3);
+  assert.ok(great.cash >= 0);
 
-  const lowRep = Loop.runSeason({ seed: 1, cases: wins(14, 5000000, 'r'), policy: takeAll, next: function () { return 0; } });
+  const lowRep = Loop.runSeason({ seed: 1, cases: wins(14, 8000000, 'r'), policy: takeAll, next: function () { return 0; } });
   assert.equal(lowRep.reputation, 42);
-  assert.equal(lowRep.revenue, 70000000);
+  assert.equal(lowRep.revenue, 224000000);
   assert.equal(lowRep.ending.kind, 'tier');
-
-  const lowRevenue = Loop.runSeason({ seed: 1, cases: wins(15, 4600000, 'v'), policy: takeAll, next: function () { return 0; } });
-  assert.equal(lowRevenue.reputation, 45);
-  assert.equal(lowRevenue.revenue, 69000000);
-  assert.equal(lowRevenue.ending.kind, 'tier');
+  assert.ok(lowRep.cash >= 0);
 
   const few = [];
   for (let i = 0; i < 4; i++) few.push(matter('t' + i, { fee: 10000000, durationWeeks: 4 }));
