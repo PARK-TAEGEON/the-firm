@@ -162,17 +162,35 @@ test('현금이 2주 연속 마이너스면 12주 전에 폐업한다', () => {
   assert.equal(state.ending.kind, 'bankrupt');
   assert.equal(state.ending.label, '폐업');
   assert.equal(state.weeksPlayed, 3);
-  assert.equal(state.cash, -10460000);
-  assert.equal(state.lastWeek.rent, 5120000);
+  assert.equal(state.cash, -10100000);
+  assert.equal(state.lastWeek.rent, 5000000);
   assert.equal(state.tier, 1);
 });
 
-test('12주에 명성 45·누적 매출 7,000만이면 위대한 로펌, 하나라도 못 채우면 도달 등급이다', () => {
+test('12주에 명성 45·누적 매출 1억 2,000만이면 위대한 로펌, 매출이 모자라면 탈락이다', () => {
   assert.equal(Loop.GREAT_REPUTATION, 45);
-  assert.equal(Loop.GREAT_REVENUE, 70000000);
-  assert.equal(Loop.isGreatFirm(45, 70000000), true);
-  assert.equal(Loop.isGreatFirm(44, 70000000), false);
-  assert.equal(Loop.isGreatFirm(45, 69999999), false);
+  assert.equal(Loop.GREAT_REVENUE, 120000000);
+  assert.equal(Loop.isGreatFirm(45, 120000000), true);
+  assert.equal(Loop.isGreatFirm(44, 120000000), false);
+  assert.equal(Loop.isGreatFirm(45, 119999999), false);
+
+  function atWeek12(reputation, revenue) {
+    const run = Loop.createRun({ seed: 1, cases: [] });
+    run.state.week = 12;
+    run.state.reputation = reputation;
+    run.state.revenue = revenue;
+    run.state.cash = 50000000;
+    Loop.advanceWeek(run);
+    return run.state;
+  }
+  const under = atWeek12(45, 119999999);
+  assert.equal(under.ending.kind, 'tier');
+  assert.equal(under.reputation, 45);
+  assert.equal(under.revenue, 119999999);
+  const exact = atWeek12(45, 120000000);
+  assert.equal(exact.ending.kind, 'great');
+  assert.equal(exact.ending.label, '위대한 로펌');
+  assert.equal(atWeek12(44, 120000000).ending.kind, 'tier');
 
   const wins = (n, fee, id) => Array.from({ length: n }, (_, i) => matter(id + i, { fee: fee, durationWeeks: 4 }));
   const great = Loop.runSeason({ seed: 1, cases: wins(15, 8000000, 'g'), policy: takeAll, next: function () { return 0; } });
@@ -198,6 +216,70 @@ test('12주에 명성 45·누적 매출 7,000만이면 위대한 로펌, 하나�
   assert.equal(tier.ending.label, 'T1 개인 사무소');
   assert.equal(tier.weeksPlayed, 12);
   assert.ok(tier.cash >= 0);
+});
+
+test('T2와 T3 임대료는 그 주 시작 등급으로 걷는다', () => {
+  assert.equal(Loop.RENT[1], 5000000);
+  assert.equal(Loop.RENT[2], 7500000);
+  assert.equal(Loop.RENT[3], 12500000);
+
+  const t2 = Loop.createRun({ seed: 1, cases: [] });
+  t2.state.tier = 2;
+  t2.state.reputation = 20;
+  Loop.advanceWeek(t2);
+  assert.equal(t2.state.lastWeek.rent, 7500000);
+  assert.equal(t2.state.tier, 2);
+
+  const t3 = Loop.createRun({ seed: 1, cases: [] });
+  t3.state.tier = 3;
+  t3.state.reputation = 40;
+  t3.state.revenue = 40000000;
+  Loop.advanceWeek(t3);
+  assert.equal(t3.state.lastWeek.rent, 12500000);
+  assert.equal(t3.state.tier, 3);
+});
+
+test('명성이 등급 기준 아래면 한 단계만 강등되고, 다음 주 임대료와 해금이 따라간다', () => {
+  const drop = Loop.createRun({ seed: 1, cases: [] });
+  drop.state.tier = 3;
+  drop.state.reputation = 10;
+  drop.state.revenue = 0;
+  Loop.advanceWeek(drop);
+  assert.equal(drop.state.lastWeek.rent, 12500000);
+  assert.equal(drop.state.tier, 2);
+  Loop.advanceWeek(drop);
+  assert.equal(drop.state.lastWeek.rent, 7500000);
+  assert.equal(drop.state.tier, 1);
+
+  const short = Loop.createRun({ seed: 1, cases: [] });
+  short.state.tier = 3;
+  short.state.reputation = 40;
+  short.state.revenue = 39999999;
+  Loop.advanceWeek(short);
+  assert.equal(short.state.tier, 2);
+
+  const seen = [];
+  const unlock = Loop.createRun({
+    seed: 1,
+    cases: [matter('hard', { difficulty: 2 }), matter('easy', { difficulty: 1 })],
+    policy: {
+      chooseAccepts: function (state) {
+        seen.push(state.offers.map(function (offer) { return offer.id; }));
+        return [];
+      },
+      chooseAssignments: function () { return []; }
+    }
+  });
+  unlock.state.tier = 2;
+  unlock.state.reputation = 13;
+  Loop.advanceWeek(unlock);
+  assert.equal(unlock.state.tier, 1);
+  assert.equal(unlock.state.lastWeek.rent, 7500000);
+  Loop.advanceWeek(unlock);
+  assert.equal(unlock.state.lastWeek.rent, 5000000);
+  assert.ok(seen[0].indexOf('hard') >= 0);
+  assert.equal(seen[1].indexOf('hard'), -1);
+  assert.ok(seen[1].indexOf('easy') >= 0);
 });
 
 test('12주를 넘는 사건은 수임되지 않고, 사건 원본은 그대로다', () => {

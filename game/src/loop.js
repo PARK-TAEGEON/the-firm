@@ -7,9 +7,10 @@
   'use strict';
 
   // 12주 위임 루프. DEC가 아니다.
-  // 위대한 로펌은 12주차 명성 45 · 누적 매출 7,000만.
+  // 위대한 로펌은 12주차 명성 45 · 누적 매출 1억 2,000만.
   // 수임료는 착수금이다. 판결 성공보수는 승소면 fee, 조정이면 fee의 절반, 패소면 0.
-  // 주간 임대료는 설계(80만·120만·200만)의 6.4배다. 확률·능력·등급 명성 조건은 설계 그대로.
+  // 주간 임대료는 설계(80만·120만·200만)의 6.25배다. 직전 6.4배보다 낮다.
+  // 확률·능력·등급 명성 조건은 설계 그대로. 주 종료 때 기준 미달이면 한 단계만 강등한다.
   // 해석(데이터에 필드가 없어 설계와 맞춘 것):
   // - cases.json의 fee(원)는 수임 시 착수금이다. 영업 보정은 착수금에만 곱한다.
   //   판결 성공보수는 승소면 fee, 조정이면 fee의 절반, 패소면 0. fee.success가 있으면 그 금액을 기준으로 한다.
@@ -19,7 +20,9 @@
   // - 피로/5는 내림. 응대 업무 실패는 의뢰인 응대 실패로 명성 −1.
   // - 경험치는 그 업무의 핵심 능력에 쌓이고, 6마다 그 능력 +1(최대 10).
   // - 수임한 주도 1주다. 기한+2주가 차도 업무가 안 끝나면 철회.
-  // - 임대료는 그 주 시작 등급. 승급은 정산 뒤. 강등은 없다.
+  // - 임대료는 그 주 시작 등급. 승급·강등은 정산 뒤라 다음 주 임대료와 수임 해금에 반영된다.
+  //   이미 맡은 사건은 유지한다. 승급은 한 주에 T3까지 갈 수 있고, 강등은 한 단계만이다.
+  //   T3는 명성 35 미만이거나 누적 매출 4,000만 미만이면 T2. T2는 명성 15 미만이면 T1.
   // - 12주를 넘는 사건(durationWeeks > 12)은 수임 후보에서 뺀다.
   // - 자동 정책은 채용·교육·휴가·광고를 넘긴다. T2의 3번째 슬롯은 비어 있다.
   // - 명성 하한은 없다. 현금 0은 마이너스가 아니다.
@@ -27,15 +30,15 @@
   var WEEKS = 12;
   var OPENING_CASH = 10000000;
   var GREAT_REPUTATION = 45;
-  var GREAT_REVENUE = 70000000;
+  var GREAT_REVENUE = 120000000;
   var T2_REPUTATION = 15;
   var T3_REPUTATION = 35;
   var T3_REVENUE = 40000000;
   var STAT_KEYS = ['분석', '변론', '협상', '영업'];
   var TASK_STATS = ['정확', '속도', '응대'];
   var ROLES = ['사무원', '보조원'];
-  // 설계 임대료 80만·120만·200만의 6.4배. 성공보수를 더한 뒤에도 폐업이 나오게 올린 주간 운영비다.
-  var RENT = { 1: 5120000, 2: 7680000, 3: 12800000 };
+  // 설계 임대료 80만·120만·200만의 6.25배. 6.4배보다 낮추고도 폐업이 나오게 둔 주간 운영비다.
+  var RENT = { 1: 5000000, 2: 7500000, 3: 12500000 };
   var TIER_NAME = { 1: 'T1 개인 사무소', 2: 'T2 동네 법률사무소', 3: 'T3 중견 로펌' };
 
   function clone(value) { return JSON.parse(JSON.stringify(value)); }
@@ -329,8 +332,10 @@
     return { kind: 'tier', tier: tier, label: TIER_NAME[tier] };
   }
 
-  function promote(state) {
-    if (state.reputation >= T3_REPUTATION && state.revenue >= T3_REVENUE) state.tier = Math.max(state.tier, 3);
+  function adjustTier(state) {
+    if (state.tier >= 3 && (state.reputation < T3_REPUTATION || state.revenue < T3_REVENUE)) state.tier -= 1;
+    else if (state.tier === 2 && state.reputation < T2_REPUTATION) state.tier -= 1;
+    else if (state.reputation >= T3_REPUTATION && state.revenue >= T3_REVENUE) state.tier = 3;
     else if (state.reputation >= T2_REPUTATION) state.tier = Math.max(state.tier, 2);
     return state.tier;
   }
@@ -513,7 +518,7 @@
       for (var pay = 0; pay < state.staff.length; pay++) salary += state.staff[pay].pay;
       var rent = RENT[tierAtStart];
       state.cash -= salary + rent;
-      var tier = promote(state);
+      var tier = adjustTier(state);
       var negative = state.cash < 0;
       var ending = null;
       if (negative && state.negativeStreak >= 1) ending = makeEnding('bankrupt', state.tier);
