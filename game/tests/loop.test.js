@@ -167,12 +167,12 @@ test('현금이 2주 연속 마이너스면 12주 전에 폐업한다', () => {
   assert.equal(state.tier, 1);
 });
 
-test('12주에 명성 40·누적 매출 1억 2,000만이면 위대한 로펌, 명성 39이거나 매출이 모자라면 탈락이다', () => {
-  assert.equal(Loop.GREAT_REPUTATION, 40);
-  assert.equal(Loop.GREAT_REVENUE, 120000000);
-  assert.equal(Loop.isGreatFirm(40, 120000000), true);
-  assert.equal(Loop.isGreatFirm(39, 120000000), false);
-  assert.equal(Loop.isGreatFirm(40, 119999999), false);
+test('12주에 명성 42·누적 매출 1억 1,000만이면 위대한 로펌, 명성 41이거나 매출이 모자라면 탈락이다', () => {
+  assert.equal(Loop.GREAT_REPUTATION, 42);
+  assert.equal(Loop.GREAT_REVENUE, 110000000);
+  assert.equal(Loop.isGreatFirm(42, 110000000), true);
+  assert.equal(Loop.isGreatFirm(41, 110000000), false);
+  assert.equal(Loop.isGreatFirm(42, 109999999), false);
 
   function atWeek12(reputation, revenue) {
     const run = Loop.createRun({ seed: 1, cases: [] });
@@ -183,14 +183,14 @@ test('12주에 명성 40·누적 매출 1억 2,000만이면 위대한 로펌, �
     Loop.advanceWeek(run);
     return run.state;
   }
-  const lowRep = atWeek12(39, 120000000);
+  const lowRep = atWeek12(41, 110000000);
   assert.equal(lowRep.ending.kind, 'tier');
-  assert.equal(lowRep.reputation, 39);
-  const under = atWeek12(40, 119999999);
+  assert.equal(lowRep.reputation, 41);
+  const under = atWeek12(42, 109999999);
   assert.equal(under.ending.kind, 'tier');
-  assert.equal(under.reputation, 40);
-  assert.equal(under.revenue, 119999999);
-  const exact = atWeek12(40, 120000000);
+  assert.equal(under.reputation, 42);
+  assert.equal(under.revenue, 109999999);
+  const exact = atWeek12(42, 110000000);
   assert.equal(exact.ending.kind, 'great');
   assert.equal(exact.ending.label, '위대한 로펌');
 
