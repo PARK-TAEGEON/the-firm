@@ -389,24 +389,84 @@
     };
   }
 
-  function advanceWeek(run) {
+  // 화면용 조회·입력. 판정 순서와 수식은 advanceWeek와 같다.
+  // openWeek는 피로를 쉬게 하고 수임 후보를 뽑는다(셔플 난수 1회). 이미 열렸으면 다시 뽑지 않는다.
+  // settleWeek는 수임·배정을 확정하고 굴린다. choices를 생략하면 정책 그대로다.
+  // 명시 목록을 주면 그 입력을 쓰고, 검증·슬롯·굴림 순서는 정책 경로와 같다.
+  function openWeek(run) {
     if (run.state.ending) return run.state;
-    var backup = clone(run.state);
-    var rngBackup = run.rng.state;
-    try {
-      var state = run.state;
-      var week = state.week;
-      var tierAtStart = state.tier;
-      for (var s = 0; s < state.staff.length; s++) {
-        var staff = state.staff[s];
-        staff.fatigue = Math.max(0, staff.fatigue - 20);
-        staff.slots = staff.fatigue >= 80 ? 1 : 2;
-      }
-      var eligible = state.pool.filter(function (id) { return run.catalog[id].difficulty <= tierAtStart; });
-      var offeredIds = shuffle(eligible, run.rng).slice(0, offerCount(state.stats.영업));
-      state.offers = offeredIds.map(function (id) { return presentOffer(run.catalog[id], state.stats.영업); });
+    if (run.opened) return run.state;
+    var state = run.state;
+    var tierAtStart = state.tier;
+    for (var s = 0; s < state.staff.length; s++) {
+      var staff = state.staff[s];
+      staff.fatigue = Math.max(0, staff.fatigue - 20);
+      staff.slots = staff.fatigue >= 80 ? 1 : 2;
+    }
+    var eligible = state.pool.filter(function (id) { return run.catalog[id].difficulty <= tierAtStart; });
+    var offeredIds = shuffle(eligible, run.rng).slice(0, offerCount(state.stats.영업));
+    state.offers = offeredIds.map(function (id) { return presentOffer(run.catalog[id], state.stats.영업); });
+    run.opened = { tierAtStart: tierAtStart, offeredIds: offeredIds };
+    return state;
+  }
 
-      var acceptIds = run.policy.chooseAccepts(state) || [];
+  function copyOpened(opened) {
+    if (!opened) return null;
+    return { tierAtStart: opened.tierAtStart, offeredIds: opened.offeredIds.slice() };
+  }
+
+  function previewAccepts(run) {
+    if (!run.opened) return [];
+    return (run.policy.chooseAccepts(run.state) || []).slice();
+  }
+
+  function previewAssignments(run, acceptIds) {
+    if (!run.opened) return [];
+    var state = clone(run.state);
+    var ids = acceptIds || [];
+    var offered = run.opened.offeredIds;
+    for (var a = 0; a < ids.length; a++) {
+      var acceptId = ids[a];
+      if (offered.indexOf(acceptId) < 0 || state.pool.indexOf(acceptId) < 0) continue;
+      if (state.matters.some(function (row) { return row.id === acceptId; })) continue;
+      state.matters.push(createMatter(run.catalog[acceptId]));
+    }
+    return (run.policy.chooseAssignments(state) || []).map(function (row) {
+      return { caseId: row.caseId, taskIndex: row.taskIndex, staffId: row.staffId };
+    });
+  }
+
+  function lookupMatter(run, caseId) {
+    for (var i = 0; i < run.state.matters.length; i++) {
+      if (run.state.matters[i].id === caseId) return run.state.matters[i];
+    }
+    return run.catalog[caseId] || null;
+  }
+
+  function previewRate(run, caseId, taskIndex, staffId) {
+    var matter = lookupMatter(run, caseId);
+    if (!matter || !matter.tasks || !matter.tasks[taskIndex]) return null;
+    var task = matter.tasks[taskIndex];
+    var staff = null;
+    for (var s = 0; s < run.state.staff.length; s++) {
+      if (run.state.staff[s].id === staffId) staff = run.state.staff[s];
+    }
+    if (!staff) return null;
+    return taskRate({
+      core: staff.stats[task.staffStat],
+      fit: staff.role === task.role,
+      partnerBonus: partnerBonus(task, run.state.stats),
+      difficulty: matter.difficulty,
+      fatigue: staff.fatigue
+    });
+  }
+
+  function applyWeek(run, choices) {
+    var state = run.state;
+    var week = state.week;
+    var tierAtStart = run.opened.tierAtStart;
+    var offeredIds = run.opened.offeredIds;
+    var acceptIds = choices && Array.isArray(choices.acceptIds) ? choices.acceptIds : (run.policy.chooseAccepts(state) || []);
       var accepted = [];
       for (var a = 0; a < acceptIds.length; a++) {
         var acceptId = acceptIds[a];
@@ -421,7 +481,7 @@
         accepted.push({ id: acceptId, retainer: retainer });
       }
 
-      var planned = run.policy.chooseAssignments(state) || [];
+      var planned = choices && Array.isArray(choices.assignments) ? choices.assignments : (run.policy.chooseAssignments(state) || []);
       var used = {};
       var applied = [];
       for (var p = 0; p < planned.length; p++) {
@@ -538,12 +598,29 @@
       };
       state.weekLog.push(state.lastWeek);
       state.offers = [];
+      run.opened = null;
       return state;
+  }
+
+  function settleWeek(run, choices) {
+    if (run.state.ending) return run.state;
+    var backup = clone(run.state);
+    var rngBackup = run.rng.state;
+    var openedBackup = copyOpened(run.opened);
+    try {
+      if (!run.opened) openWeek(run);
+      return applyWeek(run, choices || null);
     } catch (error) {
       run.state = backup;
       run.rng.state = rngBackup;
+      run.opened = openedBackup;
       throw error;
     }
+  }
+
+  function advanceWeek(run) {
+    if (run.state.ending) return run.state;
+    return settleWeek(run, null);
   }
 
   function runSeason(options) {
@@ -565,8 +642,14 @@
     partnerBonus: partnerBonus,
     taskRate: taskRate,
     verdictRate: verdictRate,
+    STAT_KEYS: STAT_KEYS,
     autoPolicy: autoPolicy,
     createRun: createRun,
+    openWeek: openWeek,
+    previewAccepts: previewAccepts,
+    previewAssignments: previewAssignments,
+    previewRate: previewRate,
+    settleWeek: settleWeek,
     advanceWeek: advanceWeek,
     runSeason: runSeason
   };
