@@ -10,6 +10,10 @@ const SEEDS = 300;
 const counts = { great: 0, bankrupt: 0, T1: 0, T2: 0, T3: 0 };
 let repSum = 0;
 let revenueSum = 0;
+let maxRep = 0;
+let maxRevenue = 0;
+let rep60 = 0;
+let revenue100m = 0;
 let excluded = [];
 
 for (let seed = 1; seed <= SEEDS; seed++) {
@@ -17,6 +21,10 @@ for (let seed = 1; seed <= SEEDS; seed++) {
   if (seed === 1) excluded = state.excluded;
   repSum += state.reputation;
   revenueSum += state.revenue;
+  if (state.reputation > maxRep) maxRep = state.reputation;
+  if (state.revenue > maxRevenue) maxRevenue = state.revenue;
+  if (state.reputation >= 60) rep60 += 1;
+  if (state.revenue >= 100000000) revenue100m += 1;
   if (state.ending.kind === 'great') counts.great += 1;
   else if (state.ending.kind === 'bankrupt') counts.bankrupt += 1;
   else if (state.ending.tier === 1) counts.T1 += 1;
@@ -59,10 +67,10 @@ lines.push('| 보통 · T2 동네 법률사무소 | ' + pct(counts.T2) + ' |');
 lines.push('| 보통 · T3 중견 로펌 | ' + pct(counts.T3) + ' |');
 lines.push('| 폐업 | ' + pct(counts.bankrupt) + ' |');
 lines.push('');
-lines.push('시드 평균 명성 ' + (repSum / SEEDS).toFixed(1) + ', 평균 누적 매출 ' + Math.round(revenueSum / SEEDS / 10000).toLocaleString('ko-KR') + '만 원.');
+lines.push('시드 평균 명성 ' + (repSum / SEEDS).toFixed(1) + ', 평균 누적 매출 ' + Math.round(revenueSum / SEEDS / 10000).toLocaleString('ko-KR') + '만 원. 최대 명성 ' + maxRep + ' (' + rep60 + '시드가 60 이상), 최대 누적 매출 ' + Math.round(maxRevenue / 10000).toLocaleString('ko-KR') + '만 원 (' + revenue100m + '시드가 1억 이상).');
 lines.push('');
 if (counts.great === 0 || counts.bankrupt / SEEDS >= 0.9) {
-  lines.push('분포가 한쪽으로 몰린다. 설계 숫자는 바꾸지 않았다. 위대한 로펌 ' + counts.great + '건, 폐업 ' + counts.bankrupt + '건.');
+  lines.push('관찰: 위대한 로펌 ' + pct(counts.great) + ', 폐업 ' + pct(counts.bankrupt) + '. 설계의 등급·엔딩 숫자는 바꾸지 않았다.');
   lines.push('');
 }
 lines.push('수임에서 뺀 사건: ' + (excluded.length ? excluded.map(function (row) { return row.id + ' (' + row.reason + ')'; }).join(', ') : '없음') + '.');
