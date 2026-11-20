@@ -35,7 +35,7 @@
     var stats = {};
     Loop.STAT_KEYS.forEach(function (key) { stats[key] = 5; });
     var screen = 'setup';
-    var partnerName = '';
+    var partnerName = DEFAULT_NAME;
     var officePanel = '';
     var run = null;
     var acceptsDirty = false;
@@ -145,7 +145,7 @@
       if (act === 'again') {
         screen = 'setup';
         run = null;
-        partnerName = '';
+        partnerName = DEFAULT_NAME;
         Loop.STAT_KEYS.forEach(function (name) { stats[name] = 5; });
         acceptsDirty = false;
         assignsDirty = false;
@@ -233,7 +233,7 @@
         '<div class="cell"' + tip('시즌 진행', '완료 ' + format(state.weeksPlayed, 'duration') + ' · 전체 ' + format(Loop.WEEKS, 'duration')) + '><small>주차</small><b>' + week + '</b></div>' +
         '<div class="cell' + cashClass + '"' + tip('운영 자금', '잔액 ' + cash, rentLabel + ' · 급여 ' + format(salary(), 'money')) + '><small>현금</small><b>' + cash + '</b></div>' +
         '<div class="cell"' + tip('누적 매출', '현재 ' + revenue, '위대한 로펌 기준 ' + format(Loop.GREAT_REVENUE, 'money')) + '><small>매출</small><b>' + revenue + '</b></div>' +
-        '<div class="cell"' + tip('등급별 명성 기준', 'T2 ' + format(15) + ' · T3 ' + format(35), '위대한 로펌 ' + format(Loop.GREAT_REPUTATION)) + '><small>명성</small><b>' + format(state.reputation) + '</b></div>' +
+        '<div class="cell"' + tip('등급별 명성 기준', 'T2 ' + format(Loop.T2_REPUTATION) + ' · T3 ' + format(Loop.T3_REPUTATION), '위대한 로펌 ' + format(Loop.GREAT_REPUTATION)) + '><small>명성</small><b>' + format(state.reputation) + '</b></div>' +
         '<div class="cell"' + tip(Loop.TIER_NAME[state.tier] || '', rentLabel) + '><small>등급</small><b>T' + format(state.tier) + '</b><em>' + esc(tierName) + '</em></div>' +
         '</div>';
     }
@@ -276,16 +276,14 @@
     function offerRows() {
       return run.state.offers.map(function (offer) {
         var on = acceptSet.has(offer.id);
-        var spec = run.catalog[offer.id];
-        var note = spec && spec.client && spec.client.oneLine;
-        var tasks = (offer.tasks || []).map(function (task) { return task.name + ' · ' + task.role + ' · ' + task.staffStat; });
+        var tasks = (offer.tasks || []).map(function (task) { return task.name; });
         var difficulty = format(offer.difficulty);
         var duration = format(offer.durationWeeks, 'duration');
         var retainer = format(offer.pay, 'money');
         var successFee = format(offer.success, 'money');
         return '<tr class="' + (on ? 'on' : '') + '"><td class="chk"><label><input type="checkbox" data-act="toggle" data-id="' + esc(offer.id) + '"' + ' id="offer-' + esc(offer.id) + '" aria-label="' + esc(offer.title + ' 수임') + '"' + (on ? ' checked' : '') + '></label></td>' +
           '<td>' + esc(offer.client) + '</td>' +
-          '<td class="name"' + tip(offer.title, '난이도 ' + difficulty + ' · 예상 기간 ' + duration, '업무 ' + format(tasks.length) + '건 · ' + [note, spec && spec.hook].concat(tasks).filter(Boolean).join(' / ')) + '>' + esc(offer.title) + '</td>' +
+          '<td class="name"' + tip(offer.title, '난이도 ' + difficulty + ' · 예상 기간 ' + duration, '업무 ' + format(tasks.length) + '건 · ' + tasks.join(' / ')) + '>' + esc(offer.title) + '</td>' +
           '<td class="num">' + difficulty + '</td>' +
           '<td class="num">' + duration + '</td>' +
           '<td>' + esc(offer.keyStat) + '</td>' +
@@ -404,7 +402,8 @@
           ['주간 임대료', format(Loop.RENT[state.tier], 'money')], ['주간 급여', format(salary(), 'money')]
         ])) +
         officeDetail('rep', facts([
-          ['사무소 등급', Loop.TIER_NAME[state.tier]], ['등급별 명성', 'T2 · 15 / T3 · 35'],
+          ['사무소 등급', Loop.TIER_NAME[state.tier]],
+          ['등급별 명성', 'T2 · ' + format(Loop.T2_REPUTATION) + ' / T3 · ' + format(Loop.T3_REPUTATION)],
           ['위대한 로펌', '명성 ' + format(Loop.GREAT_REPUTATION) + ' · 누적 매출 ' + format(Loop.GREAT_REVENUE, 'money')]
         ]) + officeTable('소식', ['헤드라인'], newsRows())) +
         officeDetail('cases',

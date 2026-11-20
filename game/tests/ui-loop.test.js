@@ -40,9 +40,9 @@ function fakeDoc() {
   };
 }
 
-function mounted(seed) {
+function mounted(seed, loop = Loop) {
   const doc = fakeDoc();
-  const desk = Desk.create({ loop: Loop, cases: cases, seed: seed });
+  const desk = Desk.create({ loop: loop, cases: cases, seed: seed });
   Desk.attach(doc, desk);
   return { doc: doc, desk: desk };
 }
@@ -251,7 +251,7 @@ test('11주에 폐업해도 엔딩 화면으로 간다', () => {
 });
 
 test('대표·사무소·결산·엔딩의 표시와 수치 툴팁 형식이 같다', () => {
-  const { doc } = mounted(SEED);
+  const { doc, desk } = mounted(SEED);
   const html = () => doc.nodes.app.innerHTML;
 
   function assertTips() {
@@ -269,6 +269,9 @@ test('대표·사무소·결산·엔딩의 표시와 수치 툴팁 형식이 같
   assert.match(html(), /<span>자금<\/span><strong>1,000만<\/strong>/);
   assert.match(html(), /<dt>누적 매출<\/dt><dd>0만<\/dd>/);
   assert.match(html(), /<dt>위대한 로펌<\/dt><dd>명성 42 · 누적 매출 1억 1,000만<\/dd>/);
+  const offerTipTasks = [...html().matchAll(/&lt;span&gt;(업무 \d+건 · [^&]+)&lt;\/span&gt;/g)].map(([, line]) => line);
+  assert.deepEqual(offerTipTasks, desk.state().offers.map(({ tasks }) =>
+    '업무 ' + tasks.length + '건 · ' + tasks.map(task => task.name).join(' / ')));
   assert.match(html(), /성공 \d+% · 부분 성공 \d+% · 실패 \d+%/);
   assert.match(html(), />\d+%<\/td>/);
   assertTips();
@@ -286,6 +289,20 @@ test('대표·사무소·결산·엔딩의 표시와 수치 툴팁 형식이 같
   }
   assert.match(html(), /종료 12주차/);
   assert.match(html(), /<small>주차<\/small><b>12주차<\/b>/);
+});
+
+test('등급 기준이 바뀌면 사무실 상세와 상단 표시줄에 함께 반영된다', () => {
+  assert.ok(Number.isInteger(Loop.T2_REPUTATION));
+  assert.ok(Number.isInteger(Loop.T3_REPUTATION));
+  const { doc } = mounted(SEED, { ...Loop, T2_REPUTATION: 1017, T3_REPUTATION: 2039 });
+  const html = () => doc.nodes.app.innerHTML;
+
+  clickRendered(doc, 'start');
+  clickRendered(doc, 'panel', { id: 'rep' });
+  assert.match(html(), /<dt>등급별 명성<\/dt><dd>T2 · 1,017 \/ T3 · 2,039<\/dd>/);
+
+  clickRendered(doc, 'endWeek');
+  assert.match(html(), /등급별 명성 기준&lt;\/b&gt;&lt;span&gt;T2 1,017 · T3 2,039&lt;\/span&gt;/);
 });
 
 test('등록 막대는 기본 5칸이고 1~10만 허용하며 남은 점수가 0일 때 개업한다', () => {
@@ -311,9 +328,10 @@ test('등록 막대는 기본 5칸이고 1~10만 허용하며 남은 점수가 0
   assert.deepEqual(desk.state().stats, { 분석: 1, 변론: 4, 협상: 10, 영업: 5 });
 });
 
-test('대표 이름은 재배분 뒤에도 남고 빈 이름은 기본 이름으로 개업한다', () => {
+test('대표 이름은 한서진으로 시작하고 재배분 뒤에도 남으며 빈 이름은 기본 이름으로 개업한다', () => {
   for (const [input, expected] of [['  서하  ', '서하'], ['   ', '한서진'], ['', '한서진'], ['<대표>', '&lt;대표&gt;']]) {
     const { desk } = mounted(SEED);
+    assert.match(desk.html(), /id="partner-name"[^>]*value="한서진"/);
     desk.handle('name', {}, input);
     desk.handle('stat', { key: '분석', dir: -1 });
     desk.handle('stat', { key: '변론', dir: 1 });
@@ -323,6 +341,6 @@ test('대표 이름은 재배분 뒤에도 남고 빈 이름은 기본 이름으
     assert.ok(desk.handle('endWeek'));
     assert.ok(desk.html().includes(expected + ' 대표</span>'));
     desk.handle('again');
-    assert.match(desk.html(), /id="partner-name"[^>]*value=""/);
+    assert.match(desk.html(), /id="partner-name"[^>]*value="한서진"/);
   }
 });

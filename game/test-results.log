@@ -1,4 +1,0 @@
-Command: cd game && node --test tests/*.test.js
-Baseline task/ui-loop-001: 36 passed, 0 failed, exit code 0
-task/ui-copy-format: 42 passed, 0 failed, 0 cancelled, 0 skipped, 0 todo, exit code 0
-task/ui-merge-001: 45 passed, 0 failed, exit code 0
