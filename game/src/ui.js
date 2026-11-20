@@ -48,6 +48,7 @@
     var stats = {};
     Loop.STAT_KEYS.forEach(function (key) { stats[key] = 5; });
     var screen = 'setup';
+    var officePanel = '';
     var run = null;
     var acceptsDirty = false;
     var assignsDirty = false;
@@ -70,6 +71,7 @@
       assignsDirty = false;
       overrides = {};
       acceptSet = new Set(Loop.previewAccepts(run));
+      officePanel = '';
       screen = 'office';
     }
 
@@ -109,6 +111,10 @@
         try { run = Loop.createRun({ seed: seed, cases: cases, stats: copyStats() }); }
         catch (error) { return false; }
         bootWeek();
+        return true;
+      }
+      if (act === 'panel' && screen === 'office') {
+        officePanel = officePanel === data.id ? '' : data.id;
         return true;
       }
       if (act === 'toggle') {
@@ -234,8 +240,8 @@
     }
 
     function frame(name, body, action, attrs) {
-      return '<header class="top desk-top"><span class="brand">THE FIRM</span><div class="top-right">' +
-        (action || '') + '<span class="seed"' + tip('시드', [String(seed)]) + '>시드 ' + seed + '</span></div></header>' +
+      return '<header class="top desk-top' + (name === 'office' ? ' office-top' : '') + '"><span class="brand">THE FIRM</span><div class="top-right">' +
+        (action || '') + (name === 'office' ? '' : '<span class="seed"' + tip('시드', [String(seed)]) + '>시드 ' + seed + '</span>') + '</div></header>' +
         '<main class="scene scene-desk" data-screen="' + name + '" data-seed="' + seed + '"' + (attrs || '') + '>' + body + '</main>';
     }
 
@@ -263,7 +269,7 @@
         var on = acceptSet.has(offer.id);
         var note = spec && spec.client && spec.client.oneLine ? '<em class="pen">' + esc(spec.client.oneLine) + '</em>' : '';
         var tasks = (offer.tasks || []).map(function (task) { return esc(task.name + ' · ' + task.role + ' · ' + task.staffStat); });
-        return '<tr class="' + (on ? 'on' : '') + '"><td class="chk"><label><input type="checkbox" data-act="toggle" data-id="' + esc(offer.id) + '"' + (on ? ' checked' : '') + '></label></td>' +
+        return '<tr class="' + (on ? 'on' : '') + '"><td class="chk"><label><input type="checkbox" data-act="toggle" data-id="' + esc(offer.id) + '" id="offer-' + esc(offer.id) + '" aria-label="' + esc(offer.title + ' 수임') + '"' + (on ? ' checked' : '') + '></label></td>' +
           '<td>' + esc(offer.client) + '</td>' +
           '<td class="name"' + tip(offer.title, [note, esc(spec && spec.hook || '')].concat(tasks)) + '>' + esc(offer.title) + '</td>' +
           '<td class="num">' + offer.difficulty + '</td>' +
@@ -290,13 +296,13 @@
         ]) : '';
         return '<tr><td class="name"' + tip(row.title, [esc(row.task.name), '난이도 ' + row.difficulty, (row.duration + 2 - row.weeksOpen) + '주']) + '>' + esc(row.title) + '</td>' +
           '<td>' + esc(row.task.name) + '</td><td>' + esc(row.task.role) + '</td><td>' + esc(row.task.staffStat) + '</td>' +
-          '<td><select data-act="assign" data-id="' + esc(row.key) + '" aria-label="' + esc(row.task.name) + '">' + options + '</select></td>' +
+          '<td><select data-act="assign" data-id="' + esc(row.key) + '" id="assign-' + esc(row.key) + '" aria-label="' + esc(row.task.name) + '">' + options + '</select></td>' +
           '<td class="num"' + rateTip + '>' + (rate ? rate.p : '') + '</td></tr>';
       }).join('');
     }
 
-    function matterRows() {
-      return run.state.matters.filter(function (matter) { return matter.status === 'active'; }).map(function (matter) {
+    function matterRows(active) {
+      return active.map(function (matter) {
         var open = matter.tasks.filter(function (task) { return !task.result; }).length;
         return '<tr><td class="name"' + tip(matter.title, [matter.keyStat + ' ' + matter.difficulty, '철회 ' + (matter.durationWeeks + 2)]) + '>' + esc(matter.title) + '</td>' +
           '<td class="num">' + matter.weeksOpen + '/' + matter.durationWeeks + '</td>' +
@@ -304,9 +310,7 @@
       }).join('');
     }
 
-    function staffRows(rows) {
-      var load = {};
-      rows.forEach(function (row) { if (row.staffId) load[row.staffId] = (load[row.staffId] || 0) + 1; });
+    function staffRows(load) {
       return run.state.staff.map(function (staff) {
         var used = load[staff.id] || 0;
         var over = used > staff.slots;
@@ -328,23 +332,72 @@
       }).join('');
     }
 
+    function officeMetric(id, label, value, warning) {
+      return '<button class="office-metric" type="button" data-act="panel" data-id="' + id +
+        '" id="metric-' + id + '" aria-expanded="' + (officePanel === id) + '" aria-controls="detail-' + id + '">' +
+        '<span>' + label + '</span><strong' + (warning ? ' class="bad"' : '') + '>' + esc(value) + '</strong></button>';
+    }
+
+    function officeDetail(id, body) {
+      return '<section class="office-detail" id="detail-' + id + '" aria-labelledby="metric-' + id + '"' +
+        (officePanel === id ? '' : ' hidden') + '>' + body + '</section>';
+    }
+
+    function facts(entries) {
+      return '<dl class="office-facts">' + entries.map(function (entry) {
+        return '<div><dt>' + esc(entry[0]) + '</dt><dd>' + esc(entry[1]) + '</dd></div>';
+      }).join('') + '</dl>';
+    }
+
+    function officeTable(label, headings, body) {
+      var columns = headings.map(function (heading) { return '<th scope="col">' + heading + '</th>'; }).join('');
+      return '<div class="office-scroll"><table class="fm"><caption>' + label + '</caption><thead><tr>' +
+        columns + '</tr></thead><tbody>' + (body || '<tr><td colspan="' + headings.length + '">없음</td></tr>') +
+        '</tbody></table></div>';
+    }
+
     function officeHtml() {
+      var state = run.state;
       var rows = taskRows();
-      var offers = offerRows();
-      var matters = matterRows();
-      var news = newsRows();
-      return frame('office', strip() +
-        '<table class="fm"><caption>수임</caption><thead><tr><th></th><th>의뢰인</th><th>사건</th><th>난이도</th><th>주</th><th>능력</th><th>착수</th><th>성공</th></tr></thead><tbody>' +
-        (offers || '<tr><td colspan="8"></td></tr>') + '</tbody></table>' +
-        '<table class="fm"><caption>배정</caption><thead><tr><th>사건</th><th>업무</th><th>역할</th><th>능력</th><th>직원</th><th>확률</th></tr></thead><tbody>' +
-        (assignRows(rows) || '<tr><td colspan="6"></td></tr>') + '</tbody></table>' +
-        '<div class="desk-split"><table class="fm"><caption>진행</caption><thead><tr><th>사건</th><th>경과</th><th>준비</th><th>남음</th></tr></thead><tbody>' +
-        (matters || '<tr><td colspan="4"></td></tr>') + '</tbody></table>' +
-        '<table class="fm"><caption>직원</caption><thead><tr><th>이름</th><th>직</th><th>정확</th><th>속도</th><th>응대</th><th>피로</th><th>칸</th><th>주급</th></tr></thead><tbody>' +
-        staffRows(rows) + '</tbody></table></div>' +
-        (news ? '<table class="fm"><caption>소식</caption><tbody>' + news + '</tbody></table>' : ''),
-        button('endWeek', '주 종료', true),
-        ' data-week="' + run.state.week + '"');
+      var active = state.matters.filter(function (matter) { return matter.status === 'active'; });
+      var load = {};
+      rows.forEach(function (row) { if (row.staffId) load[row.staffId] = (load[row.staffId] || 0) + 1; });
+      var free = 0;
+      var excess = 0;
+      var tired = 0;
+      state.staff.forEach(function (staff) {
+        var left = staff.slots - (load[staff.id] || 0);
+        free += Math.max(0, left);
+        excess += Math.max(0, -left);
+        if (staff.fatigue >= 80) tired++;
+      });
+      var staffStatus = '여유 ' + free + '칸';
+      if (tired) staffStatus = '피로 ' + tired + '명';
+      if (excess) staffStatus = '초과 ' + excess + '칸';
+
+      var title = '<div class="office-cover"><div class="office-week"' +
+        tip('주차', ['완료 ' + state.weeksPlayed + '주', '시드 ' + seed]) + '>' +
+        state.week + '주차 <span>/ ' + Loop.WEEKS + '주</span></div><h1>주간 사무실</h1></div>';
+      var metrics = '<div class="office-metrics">' +
+        officeMetric('cash', '자금', eok(state.cash) + ' 원', state.cash < 0) +
+        officeMetric('rep', '명성', state.reputation) +
+        officeMetric('cases', '이번 주 사건', (active.length + acceptSet.size) + '건') +
+        officeMetric('staff', '직원 상태', staffStatus, tired || excess) + '</div>';
+      return frame('office', title + metrics +
+        officeDetail('cash', facts([
+          ['보유 자금', won(state.cash) + '원'], ['누적 매출', won(state.revenue) + '원'],
+          ['주간 임대료', won(Loop.RENT[state.tier]) + '원'], ['주간 급여', won(salary()) + '원']
+        ])) +
+        officeDetail('rep', facts([
+          ['사무소 등급', Loop.TIER_NAME[state.tier]], ['등급별 명성', 'T2 · 15 / T3 · 35'],
+          ['위대한 로펌', '명성 ' + Loop.GREAT_REPUTATION + ' · 누적 매출 ' + eok(Loop.GREAT_REVENUE) + ' 원']
+        ]) + officeTable('소식', ['헤드라인'], newsRows())) +
+        officeDetail('cases',
+          officeTable('수임 · 선택 ' + acceptSet.size + '건', ['선택', '의뢰인', '사건', '난이도', '주', '능력', '착수', '성공'], offerRows()) +
+          officeTable('배정', ['사건', '업무', '역할', '능력', '직원', '확률'], assignRows(rows)) +
+          officeTable('진행 · ' + active.length + '건', ['사건', '경과', '준비', '남음'], matterRows(active))) +
+        officeDetail('staff', officeTable('직원', ['이름', '직', '정확', '속도', '응대', '피로', '칸', '주급'], staffRows(load))),
+        button('endWeek', '주 종료', true), ' data-week="' + state.week + '"');
     }
 
     function resultNotes(week) {
@@ -468,10 +521,12 @@
 
   function attach(doc, desk) {
     var app = doc.getElementById('app');
-    function draw() {
+    function draw(focusId) {
       var view = doc.defaultView;
       var y = view && view.scrollY || 0;
       app.innerHTML = desk.html();
+      var control = focusId && doc.getElementById(focusId);
+      if (control) control.focus({ preventScroll: true });
       if (view && view.scrollTo) view.scrollTo(0, y);
     }
     doc.addEventListener('click', function (event) {
@@ -479,7 +534,7 @@
       if (!el || el.disabled) return;
       var act = el.dataset.act;
       if (act === 'toggle' || act === 'assign') return;
-      if (desk.handle(act, el.dataset)) draw();
+      if (desk.handle(act, el.dataset)) draw(el.id);
     });
     doc.addEventListener('change', function (event) {
       var el = event.target && event.target.closest && event.target.closest('[data-act]');
@@ -487,7 +542,7 @@
       var changed = false;
       if (el.dataset.act === 'toggle') changed = desk.handle('toggle', el.dataset);
       else if (el.dataset.act === 'assign') changed = desk.handle('assign', el.dataset, el.value);
-      if (changed) draw();
+      if (changed) draw(el.id);
     });
     bindTips(doc, doc.getElementById('pops'));
     draw();

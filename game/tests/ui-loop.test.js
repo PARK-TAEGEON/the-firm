@@ -110,9 +110,17 @@ test('같은 클릭은 같은 결과를 만들고, 수임을 바꾸면 그 입�
     const { doc, desk } = mounted(SEED);
     clickRendered(doc, 'start');
     const id = desk.state().offers[0].id;
+    assert.match(doc.nodes.app.innerHTML, /id="detail-cases"[^>]* hidden>/);
     if (toggle) {
+      clickRendered(doc, 'panel', { id: 'cases' });
+      assert.match(doc.nodes.app.innerHTML, /aria-expanded="true" aria-controls="detail-cases"/);
       assert.match(doc.nodes.app.innerHTML, new RegExp('data-act="toggle" data-id="' + id + '"'));
       doc.change('toggle', { id: id });
+      assert.match(doc.nodes.app.innerHTML, /id="detail-cases" aria-labelledby="metric-cases">/);
+      clickRendered(doc, 'panel', { id: 'staff' });
+      assert.match(doc.nodes.app.innerHTML, /id="detail-cases"[^>]* hidden>/);
+      clickRendered(doc, 'panel', { id: 'staff' });
+      assert.match(doc.nodes.app.innerHTML, /id="detail-staff"[^>]* hidden>/);
     }
     clickRendered(doc, 'endWeek');
     return { desk: desk, id: id };
