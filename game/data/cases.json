@@ -468,7 +468,7 @@
     "durationWeeks": 10,
     "issueStrength": 3.5,
     "activeTwists": 1,
-    "keyStat": "영업",
+    "keyStat": "변론",
     "client": {
       "name": "하린서",
       "oneLine": "독서모임 총무. 물소리 낭독회의 실명 없는 정산 글이 한 사람을 가리켰다."
@@ -512,7 +512,7 @@
     "durationWeeks": 8,
     "issueStrength": 4.5,
     "activeTwists": 2,
-    "keyStat": "영업",
+    "keyStat": "변론",
     "client": {
       "name": "곽채원",
       "oneLine": "독서모임 총무. 별이든 책방에서 읽은 화면과 나중에 받은 원장이 달랐다."
@@ -1069,7 +1069,7 @@
     "durationWeeks": 10,
     "issueStrength": 4.5,
     "activeTwists": 2,
-    "keyStat": "영업",
+    "keyStat": "협상",
     "client": {
       "name": "배도윤",
       "oneLine": "새벽코드 공동창업자. 나간 동료가 저장소를 투자자에게 들고 갔다."
