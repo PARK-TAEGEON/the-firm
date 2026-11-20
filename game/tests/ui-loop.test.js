@@ -110,9 +110,17 @@ test('같은 클릭은 같은 결과를 만들고, 수임을 바꾸면 그 입�
     const { doc, desk } = mounted(SEED);
     clickRendered(doc, 'start');
     const id = desk.state().offers[0].id;
+    assert.match(doc.nodes.app.innerHTML, /id="detail-cases"[^>]* hidden>/);
     if (toggle) {
+      clickRendered(doc, 'panel', { id: 'cases' });
+      assert.match(doc.nodes.app.innerHTML, /aria-expanded="true" aria-controls="detail-cases"/);
       assert.match(doc.nodes.app.innerHTML, new RegExp('data-act="toggle" data-id="' + id + '"'));
       doc.change('toggle', { id: id });
+      assert.match(doc.nodes.app.innerHTML, /id="detail-cases" aria-labelledby="metric-cases">/);
+      clickRendered(doc, 'panel', { id: 'staff' });
+      assert.match(doc.nodes.app.innerHTML, /id="detail-cases"[^>]* hidden>/);
+      clickRendered(doc, 'panel', { id: 'staff' });
+      assert.match(doc.nodes.app.innerHTML, /id="detail-staff"[^>]* hidden>/);
     }
     clickRendered(doc, 'endWeek');
     return { desk: desk, id: id };
@@ -257,10 +265,10 @@ test('대표·사무소·결산·엔딩의 표시와 수치 툴팁 형식이 같
 
   assertTips();
   clickRendered(doc, 'start');
-  assert.match(html(), /<small>주차<\/small><b>1주차<\/b>/);
-  assert.match(html(), /<small>현금<\/small><b>1,000만<\/b>/);
-  assert.match(html(), /<small>매출<\/small><b>0만<\/b>/);
-  assert.match(html(), /위대한 로펌 기준 1억 1,000만/);
+  assert.match(html(), /1주차 <span>\/ 12주<\/span>/);
+  assert.match(html(), /<span>자금<\/span><strong>1,000만<\/strong>/);
+  assert.match(html(), /<dt>누적 매출<\/dt><dd>0만<\/dd>/);
+  assert.match(html(), /<dt>위대한 로펌<\/dt><dd>명성 42 · 누적 매출 1억 1,000만<\/dd>/);
   assert.match(html(), /성공 \d+% · 부분 성공 \d+% · 실패 \d+%/);
   assert.match(html(), />\d+%<\/td>/);
   assertTips();
@@ -296,7 +304,7 @@ test('등록 막대는 기본 5칸이고 1~10만 허용하며 남은 점수가 0
   assert.equal(desk.handle('start'), false);
   for (let i = 0; i < 5; i++) assert.ok(desk.handle('stat', { key: '협상', dir: 1 }));
   assert.equal(desk.handle('stat', { key: '협상', dir: 1 }), false);
-  assert.match(desk.html(), /남은 점수 <b>-1\/20/);
+  assert.match(desk.html(), /남은 점수 <b>−1\/20/);
   assert.equal(desk.handle('start'), false);
   desk.handle('stat', { key: '변론', dir: -1 });
   assert.ok(desk.handle('start'));
