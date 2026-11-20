@@ -16,7 +16,7 @@
   //   판결 성공보수는 승소면 fee, 조정이면 fee의 절반, 패소면 0. fee.success가 있으면 그 금액을 기준으로 한다.
   // - 대표 보정은 설계의 업무표와 같다. 데이터 업무명 대신 (역할, 능력)으로 고른다.
   //   응대 → 협상×2, 보조원+정확 → 분석×2, 그 밖(속도, 사무원+정확) → 0.
-  // - 판결 능력은 사건의 keyStat. 데이터에는 영업도 있다.
+  // - 사건의 keyStat은 분석·변론·협상 중 하나다. 영업은 의뢰 수와 착수금에만 쓴다.
   // - 피로/5는 내림. 응대 업무 실패는 의뢰인 응대 실패로 명성 −1.
   // - 경험치는 그 업무의 핵심 능력에 쌓이고, 6마다 그 능력 +1(최대 10).
   // - 수임한 주도 1주다. 기한+2주가 차도 업무가 안 끝나면 철회.
@@ -34,7 +34,8 @@
   var T2_REPUTATION = 15;
   var T3_REPUTATION = 35;
   var T3_REVENUE = 40000000;
-  var STAT_KEYS = ['분석', '변론', '협상', '영업'];
+  var VERDICT_STATS = ['분석', '변론', '협상'];
+  var STAT_KEYS = VERDICT_STATS.concat('영업');
   var TASK_STATS = ['정확', '속도', '응대'];
   var ROLES = ['사무원', '보조원'];
   // 설계 임대료 80만·120만·200만의 6.25배. 6.4배보다 낮추고도 폐업이 나오게 둔 주간 운영비다.
@@ -133,7 +134,7 @@
     if (!Number.isInteger(entry.durationWeeks) || entry.durationWeeks < 1) return { ok: false, id: entry.id, reason: 'duration' };
     if (!Number.isInteger(money.retainer) || money.retainer <= 0) return { ok: false, id: entry.id, reason: 'fee' };
     if (!Number.isInteger(money.success) || money.success < 0) return { ok: false, id: entry.id, reason: 'success' };
-    if (STAT_KEYS.indexOf(entry.keyStat) < 0) return { ok: false, id: entry.id, reason: 'keyStat' };
+    if (VERDICT_STATS.indexOf(entry.keyStat) < 0) return { ok: false, id: entry.id, reason: 'keyStat' };
     if (!Array.isArray(entry.tasks) || entry.tasks.length < 1) return { ok: false, id: entry.id, reason: 'tasks' };
     var tasks = [];
     for (var i = 0; i < entry.tasks.length; i++) {
@@ -389,24 +390,84 @@
     };
   }
 
-  function advanceWeek(run) {
+  // 화면용 조회·입력. 판정 순서와 수식은 advanceWeek와 같다.
+  // openWeek는 피로를 쉬게 하고 수임 후보를 뽑는다(셔플 난수 1회). 이미 열렸으면 다시 뽑지 않는다.
+  // settleWeek는 수임·배정을 확정하고 굴린다. choices를 생략하면 정책 그대로다.
+  // 명시 목록을 주면 그 입력을 쓰고, 검증·슬롯·굴림 순서는 정책 경로와 같다.
+  function openWeek(run) {
     if (run.state.ending) return run.state;
-    var backup = clone(run.state);
-    var rngBackup = run.rng.state;
-    try {
-      var state = run.state;
-      var week = state.week;
-      var tierAtStart = state.tier;
-      for (var s = 0; s < state.staff.length; s++) {
-        var staff = state.staff[s];
-        staff.fatigue = Math.max(0, staff.fatigue - 20);
-        staff.slots = staff.fatigue >= 80 ? 1 : 2;
-      }
-      var eligible = state.pool.filter(function (id) { return run.catalog[id].difficulty <= tierAtStart; });
-      var offeredIds = shuffle(eligible, run.rng).slice(0, offerCount(state.stats.영업));
-      state.offers = offeredIds.map(function (id) { return presentOffer(run.catalog[id], state.stats.영업); });
+    if (run.opened) return run.state;
+    var state = run.state;
+    var tierAtStart = state.tier;
+    for (var s = 0; s < state.staff.length; s++) {
+      var staff = state.staff[s];
+      staff.fatigue = Math.max(0, staff.fatigue - 20);
+      staff.slots = staff.fatigue >= 80 ? 1 : 2;
+    }
+    var eligible = state.pool.filter(function (id) { return run.catalog[id].difficulty <= tierAtStart; });
+    var offeredIds = shuffle(eligible, run.rng).slice(0, offerCount(state.stats.영업));
+    state.offers = offeredIds.map(function (id) { return presentOffer(run.catalog[id], state.stats.영업); });
+    run.opened = { tierAtStart: tierAtStart, offeredIds: offeredIds };
+    return state;
+  }
 
-      var acceptIds = run.policy.chooseAccepts(state) || [];
+  function copyOpened(opened) {
+    if (!opened) return null;
+    return { tierAtStart: opened.tierAtStart, offeredIds: opened.offeredIds.slice() };
+  }
+
+  function previewAccepts(run) {
+    if (!run.opened) return [];
+    return (run.policy.chooseAccepts(run.state) || []).slice();
+  }
+
+  function previewAssignments(run, acceptIds) {
+    if (!run.opened) return [];
+    var state = clone(run.state);
+    var ids = acceptIds || [];
+    var offered = run.opened.offeredIds;
+    for (var a = 0; a < ids.length; a++) {
+      var acceptId = ids[a];
+      if (offered.indexOf(acceptId) < 0 || state.pool.indexOf(acceptId) < 0) continue;
+      if (state.matters.some(function (row) { return row.id === acceptId; })) continue;
+      state.matters.push(createMatter(run.catalog[acceptId]));
+    }
+    return (run.policy.chooseAssignments(state) || []).map(function (row) {
+      return { caseId: row.caseId, taskIndex: row.taskIndex, staffId: row.staffId };
+    });
+  }
+
+  function lookupMatter(run, caseId) {
+    for (var i = 0; i < run.state.matters.length; i++) {
+      if (run.state.matters[i].id === caseId) return run.state.matters[i];
+    }
+    return run.catalog[caseId] || null;
+  }
+
+  function previewRate(run, caseId, taskIndex, staffId) {
+    var matter = lookupMatter(run, caseId);
+    if (!matter || !matter.tasks || !matter.tasks[taskIndex]) return null;
+    var task = matter.tasks[taskIndex];
+    var staff = null;
+    for (var s = 0; s < run.state.staff.length; s++) {
+      if (run.state.staff[s].id === staffId) staff = run.state.staff[s];
+    }
+    if (!staff) return null;
+    return taskRate({
+      core: staff.stats[task.staffStat],
+      fit: staff.role === task.role,
+      partnerBonus: partnerBonus(task, run.state.stats),
+      difficulty: matter.difficulty,
+      fatigue: staff.fatigue
+    });
+  }
+
+  function applyWeek(run, choices) {
+    var state = run.state;
+    var week = state.week;
+    var tierAtStart = run.opened.tierAtStart;
+    var offeredIds = run.opened.offeredIds;
+    var acceptIds = choices && Array.isArray(choices.acceptIds) ? choices.acceptIds : (run.policy.chooseAccepts(state) || []);
       var accepted = [];
       for (var a = 0; a < acceptIds.length; a++) {
         var acceptId = acceptIds[a];
@@ -421,7 +482,7 @@
         accepted.push({ id: acceptId, retainer: retainer });
       }
 
-      var planned = run.policy.chooseAssignments(state) || [];
+      var planned = choices && Array.isArray(choices.assignments) ? choices.assignments : (run.policy.chooseAssignments(state) || []);
       var used = {};
       var applied = [];
       for (var p = 0; p < planned.length; p++) {
@@ -538,12 +599,29 @@
       };
       state.weekLog.push(state.lastWeek);
       state.offers = [];
+      run.opened = null;
       return state;
+  }
+
+  function settleWeek(run, choices) {
+    if (run.state.ending) return run.state;
+    var backup = clone(run.state);
+    var rngBackup = run.rng.state;
+    var openedBackup = copyOpened(run.opened);
+    try {
+      if (!run.opened) openWeek(run);
+      return applyWeek(run, choices || null);
     } catch (error) {
       run.state = backup;
       run.rng.state = rngBackup;
+      run.opened = openedBackup;
       throw error;
     }
+  }
+
+  function advanceWeek(run) {
+    if (run.state.ending) return run.state;
+    return settleWeek(run, null);
   }
 
   function runSeason(options) {
@@ -557,6 +635,8 @@
     OPENING_CASH: OPENING_CASH,
     GREAT_REPUTATION: GREAT_REPUTATION,
     GREAT_REVENUE: GREAT_REVENUE,
+    T2_REPUTATION: T2_REPUTATION,
+    T3_REPUTATION: T3_REPUTATION,
     RENT: RENT,
     isGreatFirm: isGreatFirm,
     TIER_NAME: TIER_NAME,
@@ -565,8 +645,14 @@
     partnerBonus: partnerBonus,
     taskRate: taskRate,
     verdictRate: verdictRate,
+    STAT_KEYS: STAT_KEYS,
     autoPolicy: autoPolicy,
     createRun: createRun,
+    openWeek: openWeek,
+    previewAccepts: previewAccepts,
+    previewAssignments: previewAssignments,
+    previewRate: previewRate,
+    settleWeek: settleWeek,
     advanceWeek: advanceWeek,
     runSeason: runSeason
   };

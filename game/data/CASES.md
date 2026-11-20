@@ -1,6 +1,6 @@
 # 데모 사건 24
 
-실험용 데이터다. DEC가 아니다. 게임 로직과 UI는 이 목록을 아직 읽지 않는다. 생성기는 `task/gen-001`의 `00b59c6`을 읽기만 했고 합치지 않았다.
+실험용 데이터다. DEC가 아니다. `src/loop.js`와 사무소 화면이 이 목록을 읽는다. 생성기는 `task/gen-001`의 `00b59c6`을 읽기만 했고 합치지 않았다.
 
 플레이어가 보는 문장은 한국어다. 수치는 데모 제안이며 플레이테스트 전에 바꿀 수 있다.
 
@@ -18,8 +18,8 @@
 | gen-fraud-2 | 별꽃 사진 동호회 미배송 | 형사 | 2 | 협상 | 5,740,000 | gen-001:ARCH_RESALE_FRAUD:2 |
 | gen-embezzle-21 | 솔결 가구공방 운영비 | 형사 | 1 | 분석 | 4,680,000 | gen-001:ARCH_BUSINESS_EMBEZZLEMENT:21 |
 | gen-embezzle-6 | 푸른실 봉제공방 횡령 | 형사 | 2 | 분석 | 8,580,000 | gen-001:ARCH_BUSINESS_EMBEZZLEMENT:6 |
-| gen-defame-14 | 물소리 낭독회 게시글 | 형사 | 1 | 영업 | 3,700,000 | gen-001:ARCH_ONLINE_DEFAMATION:14 |
-| gen-defame-4 | 별이든 책방 모임 글 | 형사 | 2 | 영업 | 4,350,000 | gen-001:ARCH_ONLINE_DEFAMATION:4 |
+| gen-defame-14 | 물소리 낭독회 게시글 | 형사 | 1 | 변론 | 3,700,000 | gen-001:ARCH_ONLINE_DEFAMATION:14 |
+| gen-defame-4 | 별이든 책방 모임 글 | 형사 | 2 | 변론 | 4,350,000 | gen-001:ARCH_ONLINE_DEFAMATION:4 |
 | gen-traffic-4 | 느티골 시장길 접촉 | 형사 | 1 | 협상 | 3,380,000 | gen-001:ARCH_TRAFFIC_INJURY:4 |
 | gen-traffic-5 | 가온뜰 골목 접촉 | 형사 | 2 | 협상 | 4,090,000 | gen-001:ARCH_TRAFFIC_INJURY:5 |
 | gen-intrusion-12 | 연두빌라 현관 | 형사 | 1 | 변론 | 2,830,000 | gen-001:ARCH_RESIDENTIAL_INTRUSION:12 |
@@ -31,7 +31,7 @@
 | auth-contract | 달무리 잔금 | 민사 | 2 | 협상 | 4,200,000 | authored |
 | auth-dismissal | 은방울 해고 | 민사 | 3 | 협상 | 7,800,000 | authored |
 | auth-inheritance | 보리울 공장 유언 | 민사 | 3 | 변론 | 9,600,000 | authored |
-| auth-ip | 새벽코드 저장소 | 자문 | 3 | 영업 | 6,400,000 | authored |
+| auth-ip | 새벽코드 저장소 | 자문 | 3 | 협상 | 6,400,000 | authored |
 
 난이도 합계는 1이 10건, 2가 8건, 3이 6건이다. 유형은 형사 20, 민사 3, 자문 1이다.
 
@@ -144,12 +144,11 @@
 
 ## 주력 능력치
 
-사건이 주로 요구하는 주임 변호사 능력이다. 분석 8, 변론 7, 협상 6, 영업 3. 네 가지가 모두 있다.
+판결에 쓰는 대표 능력은 분석 8건, 변론 9건, 협상 7건이다. 영업은 의뢰 수와 착수금에만 반영한다.
 
 - 분석: 측정·장부·조서·영상처럼 기록을 맞춰야 하는 사건
 - 변론: 법정에서 행위와 말을 다투는 사건
 - 협상: 치료비·환불·잔금·화해처럼 금액을 가르는 사건
-- 영업: 모임 평판, 스타트업 투자 미팅처럼 거래 관계가 본론인 사건
 
 ## 확인 필요
 

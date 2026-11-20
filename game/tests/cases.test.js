@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const cases = require('../data/cases.json');
 
-const KEY_STATS = ['분석', '변론', '협상', '영업'];
+const VERDICT_STATS = ['분석', '변론', '협상'];
 const TYPES = ['형사', '민사', '자문'];
 const ROLES = ['사무원', '보조원'];
 const STAFF_STATS = ['정확', '속도', '응대'];
@@ -67,14 +67,23 @@ function sentenceCount(text) {
   return (text.match(/[.?!]/g) || []).length;
 }
 
-test('24건이고 id는 고유하며 난이도는 10/8/6, 능력치 4종이 모두 있다', () => {
+test('24건이고 id는 고유하며 난이도는 10/8/6, 판결 능력 3종이 모두 있다', () => {
   assert.equal(cases.length, 24);
   assert.equal(new Set(cases.map(entry => entry.id)).size, 24);
   assert.equal(new Set(cases.map(entry => entry.title)).size, 24);
   const counts = { 1: 0, 2: 0, 3: 0 };
   for (const entry of cases) counts[entry.difficulty] += 1;
   assert.deepEqual(counts, { 1: 10, 2: 8, 3: 6 });
-  for (const stat of KEY_STATS) assert.equal(cases.some(entry => entry.keyStat === stat), true);
+  for (const stat of VERDICT_STATS) assert.equal(cases.some(entry => entry.keyStat === stat), true);
+});
+
+test('모든 사건의 판결 능력은 분석·변론·협상 중 하나이며, 영업 사건은 엔진이 제외한다', () => {
+  for (const entry of cases) assert.ok(VERDICT_STATS.includes(entry.keyStat), entry.id);
+  const Loop = require('../src/loop.js');
+  const invalid = { ...cases[0], id: 'invalid-verdict-stat', keyStat: '영업' };
+  const run = Loop.createRun({ seed: 7, cases: cases.concat(invalid) });
+  assert.equal(run.state.pool.length, cases.length);
+  assert.deepEqual(run.state.excluded, [{ id: invalid.id, reason: 'keyStat' }]);
 });
 
 test('스키마, 수임료 정액, 글자 수, 원형 10종×2를 지킨다', () => {
@@ -83,7 +92,6 @@ test('스키마, 수임료 정액, 글자 수, 원형 10종×2를 지킨다', ()
   for (const entry of cases) {
     assert.equal(entry.difficulty, difficultyOf(entry), entry.id);
     assert.ok(TYPES.includes(entry.type), entry.id);
-    assert.ok(KEY_STATS.includes(entry.keyStat), entry.id);
     assert.equal(entry.fee % 10000, 0, entry.id);
     assert.ok(entry.fee > 0, entry.id);
     assert.ok(Number.isInteger(entry.durationWeeks) && entry.durationWeeks >= 1 && entry.durationWeeks <= 12, entry.id);
