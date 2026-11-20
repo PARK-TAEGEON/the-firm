@@ -16,7 +16,7 @@
   //   판결 성공보수는 승소면 fee, 조정이면 fee의 절반, 패소면 0. fee.success가 있으면 그 금액을 기준으로 한다.
   // - 대표 보정은 설계의 업무표와 같다. 데이터 업무명 대신 (역할, 능력)으로 고른다.
   //   응대 → 협상×2, 보조원+정확 → 분석×2, 그 밖(속도, 사무원+정확) → 0.
-  // - 판결 능력은 사건의 keyStat. 데이터에는 영업도 있다.
+  // - 사건의 keyStat은 분석·변론·협상 중 하나다. 영업은 의뢰 수와 착수금에만 쓴다.
   // - 피로/5는 내림. 응대 업무 실패는 의뢰인 응대 실패로 명성 −1.
   // - 경험치는 그 업무의 핵심 능력에 쌓이고, 6마다 그 능력 +1(최대 10).
   // - 수임한 주도 1주다. 기한+2주가 차도 업무가 안 끝나면 철회.
@@ -34,7 +34,8 @@
   var T2_REPUTATION = 15;
   var T3_REPUTATION = 35;
   var T3_REVENUE = 40000000;
-  var STAT_KEYS = ['분석', '변론', '협상', '영업'];
+  var VERDICT_STATS = ['분석', '변론', '협상'];
+  var STAT_KEYS = VERDICT_STATS.concat('영업');
   var TASK_STATS = ['정확', '속도', '응대'];
   var ROLES = ['사무원', '보조원'];
   // 설계 임대료 80만·120만·200만의 6.25배. 6.4배보다 낮추고도 폐업이 나오게 둔 주간 운영비다.
@@ -133,7 +134,7 @@
     if (!Number.isInteger(entry.durationWeeks) || entry.durationWeeks < 1) return { ok: false, id: entry.id, reason: 'duration' };
     if (!Number.isInteger(money.retainer) || money.retainer <= 0) return { ok: false, id: entry.id, reason: 'fee' };
     if (!Number.isInteger(money.success) || money.success < 0) return { ok: false, id: entry.id, reason: 'success' };
-    if (STAT_KEYS.indexOf(entry.keyStat) < 0) return { ok: false, id: entry.id, reason: 'keyStat' };
+    if (VERDICT_STATS.indexOf(entry.keyStat) < 0) return { ok: false, id: entry.id, reason: 'keyStat' };
     if (!Array.isArray(entry.tasks) || entry.tasks.length < 1) return { ok: false, id: entry.id, reason: 'tasks' };
     var tasks = [];
     for (var i = 0; i < entry.tasks.length; i++) {
@@ -634,6 +635,8 @@
     OPENING_CASH: OPENING_CASH,
     GREAT_REPUTATION: GREAT_REPUTATION,
     GREAT_REVENUE: GREAT_REVENUE,
+    T2_REPUTATION: T2_REPUTATION,
+    T3_REPUTATION: T3_REPUTATION,
     RENT: RENT,
     isGreatFirm: isGreatFirm,
     TIER_NAME: TIER_NAME,
