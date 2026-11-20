@@ -1,14 +1,32 @@
-name: Godot Tests
+name: CI
 
 on:
   pull_request:
   push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
+  node:
+    name: Node tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Game tests
+        run: cd game && node --test tests/*.test.js
+
   test:
+    name: Godot tests
+    # 이전 트리거만 유지한다. pull_request, main push, 수동 실행.
+    if: github.event_name != 'push' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
