@@ -241,3 +241,41 @@ test('11주에 폐업해도 엔딩 화면으로 간다', () => {
   assert.match(doc.nodes.app.innerHTML, /data-week="11"/);
   assert.deepEqual(desk.state(), engine);
 });
+
+test('대표·사무소·결산·엔딩의 표시와 수치 툴팁 형식이 같다', () => {
+  const { doc } = mounted(SEED);
+  const html = () => doc.nodes.app.innerHTML;
+
+  function assertTips() {
+    const tips = [...html().matchAll(/data-tip="([^"]*)"/g)];
+    assert.ok(tips.length > 0);
+    for (const [, tip] of tips) {
+      assert.match(tip, /^&lt;b&gt;.+?&lt;\/b&gt;(?:&lt;span&gt;[^&]*\d[^&]*&lt;\/span&gt;){1,2}$/);
+      assert.doesNotMatch(tip, /습니다|세요|&lt;em/);
+    }
+  }
+
+  assertTips();
+  clickRendered(doc, 'start');
+  assert.match(html(), /<small>주차<\/small><b>1주차<\/b>/);
+  assert.match(html(), /<small>현금<\/small><b>1,000만<\/b>/);
+  assert.match(html(), /<small>매출<\/small><b>0만<\/b>/);
+  assert.match(html(), /위대한 로펌 기준 1억 1,000만/);
+  assert.match(html(), /성공 \d+% · 부분 성공 \d+% · 실패 \d+%/);
+  assert.match(html(), />\d+%<\/td>/);
+  assertTips();
+
+  clickRendered(doc, 'endWeek');
+  assert.match(html(), /굴림 \d+&lt;\/span&gt;&lt;span&gt;성공 확률 \d+%/);
+  assert.match(html(), /<small>주차<\/small><b>1주차<\/b>/);
+  assertTips();
+
+  for (let week = 2; week <= Loop.WEEKS; week++) {
+    clickRendered(doc, 'next');
+    assertTips();
+    clickRendered(doc, 'endWeek');
+    assertTips();
+  }
+  assert.match(html(), /종료 12주차/);
+  assert.match(html(), /<small>주차<\/small><b>12주차<\/b>/);
+});
