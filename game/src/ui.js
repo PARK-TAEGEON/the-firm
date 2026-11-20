@@ -23,6 +23,8 @@
     return '보통';
   }
 
+  var DEFAULT_NAME = '한서진';
+  var STAT_HELP = { 분석: '기록 검토, 증거 정리', 변론: '법정 주장, 신문', 협상: '합의, 고객 응대', 영업: '의뢰 수, 착수금' };
   var RESULT = { success: '성공', partial: '부분', fail: '실패' };
   var OUTCOME = { win: '승', partial: '조정', lose: '패' };
 
@@ -33,6 +35,7 @@
     var stats = {};
     Loop.STAT_KEYS.forEach(function (key) { stats[key] = 5; });
     var screen = 'setup';
+    var partnerName = '';
     var run = null;
     var acceptsDirty = false;
     var assignsDirty = false;
@@ -80,11 +83,17 @@
 
     function handle(act, data, value) {
       data = data || {};
+      if (act === 'name' && screen === 'setup' && typeof value === 'string') {
+        partnerName = value;
+        return true;
+      }
       if (act === 'stat') {
         if (screen !== 'setup') return false;
         var key = data.key;
         if (Loop.STAT_KEYS.indexOf(key) < 0) return false;
-        var next = stats[key] + Number(data.dir);
+        var direction = Number(data.dir);
+        if (direction !== -1 && direction !== 1) return false;
+        var next = stats[key] + direction;
         if (next < 1 || next > 10) return false;
         stats[key] = next;
         return true;
@@ -93,6 +102,7 @@
         if (screen !== 'setup' || sum() !== 20) return false;
         try { run = Loop.createRun({ seed: seed, cases: cases, stats: copyStats() }); }
         catch (error) { return false; }
+        partnerName = partnerName.trim() || DEFAULT_NAME;
         bootWeek();
         return true;
       }
@@ -129,6 +139,7 @@
       if (act === 'again') {
         screen = 'setup';
         run = null;
+        partnerName = '';
         Loop.STAT_KEYS.forEach(function (name) { stats[name] = 5; });
         acceptsDirty = false;
         assignsDirty = false;
@@ -223,6 +234,7 @@
 
     function frame(name, body, action, attrs) {
       return '<header class="top desk-top"><span class="brand">THE FIRM</span><div class="top-right">' +
+        (name === 'setup' ? '' : '<span class="partner-signature">' + esc(partnerName) + ' 대표</span>') +
         (action || '') + '<span class="seed"' + tip('플레이 시드', '시드 값 ' + format(seed)) + '>시드 ' + format(seed) + '</span></div></header>' +
         '<main class="scene scene-desk" data-screen="' + name + '" data-seed="' + seed + '"' + (attrs || '') + '>' + body + '</main>';
     }
@@ -231,18 +243,29 @@
       return '<button type="button" class="btn' + (primary ? ' primary' : '') + '" data-act="' + act + '"' + (disabled ? ' disabled' : '') + '>' + label + '</button>';
     }
 
+    function statButton(key, dir, disabled) {
+      return '<button type="button" class="stat-step" data-act="stat" data-key="' + key +
+        '" data-dir="' + dir + '" id="step-' + key + '-' + dir + '" aria-label="' + key +
+        (dir > 0 ? ' 증가' : ' 감소') + '"' + (disabled ? ' disabled' : '') + '>' + (dir > 0 ? '+' : '−') + '</button>';
+    }
+
     function setupHtml() {
-      var total = sum();
+      var remaining = 20 - sum();
       var rows = Loop.STAT_KEYS.map(function (key) {
-        return '<tr><th>' + esc(key) + '</th>' +
-          '<td><button type="button" class="step" data-act="stat" data-key="' + esc(key) + '" data-dir="-1"' + (stats[key] <= 1 ? ' disabled' : '') + '>−</button></td>' +
-          '<td class="num">' + format(stats[key]) + '</td>' +
-          '<td><button type="button" class="step" data-act="stat" data-key="' + esc(key) + '" data-dir="1"' + (stats[key] >= 10 ? ' disabled' : '') + '>+</button></td></tr>';
+        var value = stats[key];
+        var bar = '<i class="filled"></i>'.repeat(value) + '<i></i>'.repeat(10 - value);
+        return '<div class="stat-row"><div class="stat-reading" role="meter" tabindex="0" aria-label="' + key +
+          '" aria-valuemin="1" aria-valuemax="10" aria-valuenow="' + value + '" aria-describedby="help-' + key + '">' +
+          '<span class="stat-name">' + key + '</span><span class="stat-bar" aria-hidden="true">' + bar + '</span>' +
+          '<span class="stat-value">' + format(value) + '</span><span class="stat-help" role="tooltip" id="help-' + key + '">' +
+          STAT_HELP[key] + '</span></div>' + statButton(key, -1, value <= 1) + statButton(key, 1, value >= 10) + '</div>';
       }).join('');
-      return frame('setup',
-        '<table class="fm setup"><caption>대표</caption><tbody>' + rows +
-        '<tr class="' + (total === 20 ? 'ok' : 'bad') + '"><th>합</th><td></td><td class="num">' + format(total) + '</td><td></td></tr>' +
-        '</tbody></table><div class="desk-actions">' + button('start', '시작', true, total !== 20) + '</div>');
+      return frame('setup', '<section class="registration" aria-labelledby="registration-title">' +
+        '<h1 id="registration-title">대표 등록</h1><label class="partner-field">대표 이름' +
+        '<input id="partner-name" type="text" placeholder="' + DEFAULT_NAME + '" value="' + esc(partnerName) + '"></label>' +
+        '<div class="stat-list">' + rows + '</div><div class="registration-footer"><span class="points' +
+        (remaining < 0 ? ' over' : '') + '">남은 점수 <b>' + format(remaining) + '/' + format(20) + '</b></span>' +
+        button('start', '개업', true, remaining !== 0) + '</div></section>');
     }
 
     function offerRows() {
@@ -466,12 +489,22 @@
       app.innerHTML = desk.html();
       if (view && view.scrollTo) view.scrollTo(0, y);
     }
+    doc.addEventListener('input', function (event) {
+      if (event.target.id === 'partner-name') desk.handle('name', {}, event.target.value);
+    });
     doc.addEventListener('click', function (event) {
       var el = event.target && event.target.closest && event.target.closest('[data-act]');
       if (!el || el.disabled) return;
       var act = el.dataset.act;
       if (act === 'toggle' || act === 'assign') return;
-      if (desk.handle(act, el.dataset)) draw();
+      if (desk.handle(act, el.dataset)) {
+        draw();
+        if (act === 'stat' && el.id) {
+          var step = doc.getElementById(el.id);
+          if (step.disabled) step = doc.getElementById('step-' + el.dataset.key + '-' + (-Number(el.dataset.dir)));
+          step.focus({ preventScroll: true });
+        }
+      }
     });
     doc.addEventListener('change', function (event) {
       var el = event.target && event.target.closest && event.target.closest('[data-act]');

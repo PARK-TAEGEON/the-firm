@@ -279,3 +279,42 @@ test('대표·사무소·결산·엔딩의 표시와 수치 툴팁 형식이 같
   assert.match(html(), /종료 12주차/);
   assert.match(html(), /<small>주차<\/small><b>12주차<\/b>/);
 });
+
+test('등록 막대는 기본 5칸이고 1~10만 허용하며 남은 점수가 0일 때 개업한다', () => {
+  const { desk } = mounted(SEED);
+  const initial = desk.html();
+  assert.equal((initial.match(/aria-valuenow="5"/g) || []).length, 4);
+  assert.equal((initial.match(/class="filled"/g) || []).length, 20);
+  for (const text of ['기록 검토, 증거 정리', '법정 주장, 신문', '합의, 고객 응대', '의뢰 수, 착수금']) {
+    assert.ok(initial.includes(text));
+  }
+  assert.match(initial, /남은 점수 <b>0\/20/);
+  assert.match(initial, /data-act="start">개업/);
+  for (let i = 0; i < 4; i++) assert.ok(desk.handle('stat', { key: '분석', dir: -1 }));
+  assert.equal(desk.handle('stat', { key: '분석', dir: -1 }), false);
+  assert.match(desk.html(), /남은 점수 <b>4\/20/);
+  assert.equal(desk.handle('start'), false);
+  for (let i = 0; i < 5; i++) assert.ok(desk.handle('stat', { key: '협상', dir: 1 }));
+  assert.equal(desk.handle('stat', { key: '협상', dir: 1 }), false);
+  assert.match(desk.html(), /남은 점수 <b>-1\/20/);
+  assert.equal(desk.handle('start'), false);
+  desk.handle('stat', { key: '변론', dir: -1 });
+  assert.ok(desk.handle('start'));
+  assert.deepEqual(desk.state().stats, { 분석: 1, 변론: 4, 협상: 10, 영업: 5 });
+});
+
+test('대표 이름은 재배분 뒤에도 남고 빈 이름은 기본 이름으로 개업한다', () => {
+  for (const [input, expected] of [['  서하  ', '서하'], ['   ', '한서진'], ['', '한서진'], ['<대표>', '&lt;대표&gt;']]) {
+    const { desk } = mounted(SEED);
+    desk.handle('name', {}, input);
+    desk.handle('stat', { key: '분석', dir: -1 });
+    desk.handle('stat', { key: '변론', dir: 1 });
+    assert.ok(desk.html().includes('value="' + (input === '<대표>' ? expected : input) + '"'));
+    assert.ok(desk.handle('start'));
+    assert.ok(desk.html().includes(expected + ' 대표</span>'));
+    assert.ok(desk.handle('endWeek'));
+    assert.ok(desk.html().includes(expected + ' 대표</span>'));
+    desk.handle('again');
+    assert.match(desk.html(), /id="partner-name"[^>]*value=""/);
+  }
+});
