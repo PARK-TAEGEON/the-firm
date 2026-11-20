@@ -1,25 +1,32 @@
-# THE FIRM — 한 주, 그리고 한 번의 재판
+# THE FIRM — 12주
 
-사무소에서 누구에게 무엇을 맡겼는지가 법정에서 쥘 자료를 정하는, 10~15분짜리 한 판.
+대표 능력치 20점을 나누고, 수임과 배정을 확인한 뒤 주를 넘긴다. 12주가 끝나면 위대한 로펌, 보통, 폐업 중 하나로 끝난다. 그 전에 현금이 끊겨도 엔딩으로 간다.
 
 ## 실행
-`game/index.html`을 브라우저로 연다. 설치·서버·네트워크가 필요 없다. 정적 호스팅에는 `game/` 폴더를 그대로 올리면 된다.
+
+`game/`을 정적 서버로 연다. 시드는 주소의 `?seed=`다. 파일을 직접 열면 `data/cases.json`을 읽지 못한다.
+
+```
+cd game && python3 -m http.server 4173
+```
+
+`http://127.0.0.1:4173/?seed=7`
 
 ## 구조
+
 ```
-vendor/firm/engine.js        사무소 5일 엔진 (원본 그대로)
-vendor/court/…               공판 엔진·사건 데이터·한국 법체계 팩 (원본 그대로)
-src/bridge.js                두 엔진을 잇는 순수 함수 (준비 횟수, 성공보수)
-src/session.js               한 판의 상태 · 명령 · 저장 복원
-src/ui.js · style.css        화면 (판정·경제 계산 없음)
-src/glossary.js · audio.js   용어 설명 · 합성 효과음 (표시 전용)
+data/cases.json          사건
+src/loop.js              12주 위임. 수식과 난수 순서의 기준
+src/ui.js                대표 · 사무소 · 결산 · 엔딩. 조회와 입력만
+src/style.css            화면
 ```
-DATA → SIMULATION → SERVICES → UI 순서를 지킨다. UI는 `session`의 `command`/`view`만 쓴다. 무작위가 없어 같은 선택은 같은 판결을 만든다.
+
+화면은 `openWeek`로 그 주 후보를 보고, `settleWeek`로 고른 수임·배정을 확정한다. 손대지 않으면 엔진의 자동 정책과 같다.
 
 ## 검증
+
 ```
-node --test tests/game.test.js      # 연결 규칙 · 결정성 · 원자성 · 저장 복원 · 경계
-python3 tests/browser_play.py       # 브라우저에서 한 판 전체 (playwright 필요)
+cd game && node --test tests/*.test.js
 ```
 
-규칙은 [RULES.md](RULES.md), 점검 결과와 한계는 [REPORT.md](REPORT.md), 엔진 출처는 [vendor/PROVENANCE.json](vendor/PROVENANCE.json), 자산 출처는 [assets/CREDITS.md](assets/CREDITS.md).
+규칙은 [RULES.md](RULES.md). 12주 수치의 기록은 [reports/LOOP-001-endings.md](reports/LOOP-001-endings.md).

@@ -1,145 +1,200 @@
 'use strict';
-// PORTFOLIO-001 핵심 검증: 연결 규칙, 결정성, 원자성, 저장 복원. node --test tests/
+// PORTFOLIO-002 핵심 검증: 연결 규칙, 계획 → 자동 공판, 개입, 결정성, 원자성, 저장 복원, 경계. node --test tests/
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const Firm = require('../vendor/firm/engine.js');
 const Case = require('../vendor/court/data/demo-separated-moments.js');
 const Bridge = require('../src/bridge.js');
+const Plan = require('../src/plan.js');
 const Game = require('../src/session.js');
 
-const trial = (g, action, payload) => g.command('court', { action: 'trial', payload: { action, payload: payload || {} } });
 function must(res) { assert.equal(res.ok, true, res.error); }
 
-function playWeek(g, { accept = false, assign = {} } = {}) {
-  must(g.command('newGame')); must(g.command('finishIntro'));
+function playWeek(g, { accept = false, assign = {}, seed = 2 } = {}) {
+  must(g.command('newGame', { seed })); must(g.command('finishIntro'));
   must(g.command('firm', { action: { type: accept ? 'ACCEPT_INTAKE' : 'DECLINE_INTAKE' } }));
   for (const [taskId, staffId] of Object.entries(assign)) must(g.command('firm', { action: { type: 'ASSIGN_TASK', taskId, staffId } }));
   while (g.view().scene === 'office') must(g.command('firm', { action: { type: 'ADVANCE_DAY' } }));
+  must(g.command('beginPlan'));
 }
-
-// 공판을 정해진 방침으로 끝까지 진행한다(자료가 있는 접근법을 모두 쓰고 한정 결론만 요구).
-function playTrial(g, { prosecutorId = 'novice', consult = 'ADV_SIG_REVISE', objectTo = [] } = {}) {
-  must(g.command('beginPrep', { prosecutorId }));
-  if (consult) must(g.command('court', { action: 'consult', payload: { adviceId: consult } }));
-  for (const inv of g.view().court.trial.investigations) {
-    if (g.view().court.trial.projection.budgetLeft < 1) break;
-    must(trial(g, 'investigate', { id: inv.id }));
-  }
-  for (const c of g.view().court.trial.cards) if (c.filing === 'required') must(trial(g, 'fileEvidence', { id: c.id, status: 'filed' }));
-  must(trial(g, 'finishPrep'));
-  must(trial(g, 'open', { focusId: 'F_SIG_CAUSE', stanceId: 'S_SIG_RESERVE' }));
-  const ex = g.view().court.trial.exhibits;
-  must(trial(g, 'evidenceOpinions', { opinions: Object.fromEntries(ex.map(x => [x.id, x.witnessId ? 'disagree' : 'agree'])) }));
-  for (let i = 0; i < 200 && g.view().scene === 'court'; i++) {
-    const t = g.view().court.trial, st = t.state;
-    if (st.pending) { must(st.pending.type === 'objection' ? trial(g, 'objection', { object: objectTo.includes(st.pending.stepId) }) : trial(g, 'rebut', { use: true })); continue; }
-    if (t.actions.closing) { must(trial(g, 'closingArgument', { id: 'FINAL_SIG_CAUSE' })); continue; }
-    if (t.actions.verdict) { must(trial(g, 'verdict')); continue; }
-    if (st.cursor.part === 'cross') {
-      const a = t.actions.approaches.find(x => x.available && x.cards.length);
-      const p = t.actions.presses.find(x => x.available && x.kind === 'limited');
-      must(a ? trial(g, 'approach', { id: a.id }) : p ? trial(g, 'press', { id: p.id }) : trial(g, 'endCross'));
-      continue;
-    }
-    must(trial(g, 'continue'));
-  }
+// 계획을 날인하고, 묻는 순간마다 같은 답을 준다.
+function playTrial(g, { object = true } = {}) {
+  must(g.command('sealPlan'));
+  let asks = 0;
+  while (g.view().scene === 'court') { asks += 1; must(g.command('decide', { object })); }
   assert.equal(g.view().scene, 'result');
+  return asks;
 }
+const ON_TIME = { 'jung-organize': 'park' };
 
-test('연결 규칙: 기록 검토 완료 시점이 공판 준비 횟수를 정한다', () => {
-  assert.equal(Bridge.tierFor(3, 3).budget, 4);
-  assert.equal(Bridge.tierFor(4, 3).budget, 3);
-  assert.equal(Bridge.tierFor(null, 3).budget, 2);
+test('연결 규칙: 기록 검토 시점과 기록 분석이 확인 항목 수를 정한다', () => {
+  assert.equal(Bridge.tierFor(3, 3).budget, 3);
+  assert.equal(Bridge.tierFor(4, 3).budget, 2);
+  assert.equal(Bridge.tierFor(null, 3).budget, 1);
+  assert.equal(Plan.checkSlots('on_time', 'kim'), 4);
+  assert.equal(Plan.checkSlots('on_time', 'lee'), 3);
+  assert.equal(Plan.checkSlots('late', 'kim'), 3);
+  assert.equal(Plan.checkSlots('unfinished', 'park'), 1);
 });
 
-test('세 단계 모두 실제 한 주 플레이로 도달할 수 있다', () => {
-  // 담당자 조합을 전부 돌려 도달 가능한 단계를 모은다(수임 여부 포함). 무작위 없음.
-  const reached = {};
+test('세 단계 모두 실제 한 주 플레이로 도달하고, 기본 배정은 기한을 넘긴다', () => {
+  const reached = new Set();
   const lawyers = ['lee', 'kim', 'park'], anyone = ['lee', 'kim', 'park', 'han'];
-  for (const accept of [false, true]) for (const org of anyone) for (const rev of lawyers) for (const memo of lawyers) for (const gr of lawyers) {
-    const g = Game.createGame();
-    playWeek(g, { accept, assign: { 'jung-organize': org, 'jung-review': rev, 'go-memo': memo, 'go-review': gr } });
-    const prep = g.view().prep;
-    reached[prep.tierId] = reached[prep.tierId] || { accept, org, rev, memo, gr };
+  for (const accept of [false, true]) for (const org of anyone) for (const rev of lawyers) for (const memo of lawyers) {
+    const g = Game.createGame(); playWeek(g, { accept, assign: { 'jung-organize': org, 'jung-review': rev, 'go-memo': memo } });
+    reached.add(g.view().plan.tierId);
   }
-  assert.deepEqual(Object.keys(reached).sort(), ['late', 'on_time', 'unfinished']);
-  // 기본 배정(아무것도 바꾸지 않음)은 기한을 넘긴다: 플레이어의 조정이 의미를 가진다.
+  assert.deepEqual([...reached].sort(), ['late', 'on_time', 'unfinished']);
   const g = Game.createGame(); playWeek(g);
-  assert.equal(g.view().prep.tierId, 'late');
+  assert.equal(g.view().plan.tierId, 'late');
 });
 
-test('사건 정의 원본은 바뀌지 않는다', () => {
+test('초안: 담당 변호사에 따라 확인 항목·합의 조언이 달라진다', () => {
+  const kim = Plan.draft('late', 'kim'), park = Plan.draft('late', 'park');
+  assert.equal(kim.checks.length, 3); assert.equal(kim.checks.includes('INV_SIG_SETTLE'), false); assert.equal(kim.advice, 'ADV_SIG_AS_IS');
+  assert.equal(park.checks.length, 2); assert.equal(park.checks.includes('INV_SIG_SETTLE'), true); assert.equal(park.advice, 'ADV_SIG_REVISE');
+  assert.throws(() => Plan.edit(kim, 'late', { field: 'check', value: 'INV_SIG_LAYOUT' }), /가득/);
+  const swapped = Plan.edit(Plan.edit(kim, 'late', { field: 'check', value: 'INV_SIG_STATEMENT' }), 'late', { field: 'check', value: 'INV_SIG_LAYOUT' });
+  assert.deepEqual(swapped.checks, ['INV_SIG_SEQUENCE', 'INV_SIG_MEDICAL', 'INV_SIG_LAYOUT']);
+  assert.deepEqual(swapped.edited, ['checks']);
+  assert.deepEqual(kim.checks, ['INV_SIG_SEQUENCE', 'INV_SIG_MEDICAL', 'INV_SIG_STATEMENT'], '원본 계획은 그대로');
+});
+
+test('사건 정의 원본은 바뀌지 않고, 신문 능력치만 사본의 질문 수를 늘린다', () => {
   const before = JSON.stringify(Case);
-  const copy = Bridge.caseForTrial(Case, 2);
-  assert.equal(copy.variants.novice.prep.budget, 2);
+  const lee = Plan.trialCase(Plan.draft('late', 'lee')), kim = Plan.trialCase(Plan.draft('late', 'kim'));
+  const t = (c, f, w) => c.variants.novice.opening.focus.find(x => x.id === f).time[w];
+  assert.equal(t(lee, 'F_SIG_CAUSE', 'W_SIG_INVESTIGATOR'), t(kim, 'F_SIG_CAUSE', 'W_SIG_INVESTIGATOR') + 1);
+  assert.equal(kim.variants.novice.prep.budget, 3);
   assert.equal(JSON.stringify(Case), before);
-  assert.throws(() => Bridge.caseForTrial(Case, 5));
 });
 
-test('한 판 전체: 한 주 → 공판 → 결산이 이어지고, 준비 횟수가 공판에 반영된다', () => {
-  const g = Game.createGame();
-  playWeek(g, { assign: { 'jung-organize': 'park' } });
-  const prep = g.view().prep;
+test('확률 판정: 능력치가 확률을 정하고, 같은 시드는 같은 굴림을 만든다', () => {
+  assert.equal(Plan.chance(10), 55); assert.equal(Plan.chance(15), 85); assert.equal(Plan.chance(30), 92); assert.equal(Plan.chance(0), 15);
+  assert.equal(Plan.rollValue(7, 'ap:x'), Plan.rollValue(7, 'ap:x'));
+  const counts = Array(10).fill(0); for (let i = 0; i < 5000; i++) counts[Math.floor(Plan.rollValue(i, 'k') / 10)] += 1;
+  counts.forEach(n => assert.ok(n > 400 && n < 600, '굴림 값이 고르게 퍼진다 ' + counts));
+  assert.notEqual(Plan.nextSeed(2), 2);
+});
+
+test('개입: 변호사가 유도신문 이의 굴림에 실패했을 때만 플레이어에게 묻는다', () => {
+  let total = { kim: 0, lee: 0 };
+  for (const lawyerId of ['kim', 'lee']) for (let seed = 1; seed <= 12; seed++) {
+    const g = Game.createGame(); playWeek(g, { seed });
+    if (lawyerId !== 'kim') must(g.command('editPlan', { field: 'lawyer', value: lawyerId }));
+    assert.equal(g.view().plan.asks, 2);
+    const asks = playTrial(g), rolls = g.view().rolls;
+    assert.equal(asks, rolls.filter(r => r.key.startsWith('obj:') && !r.ok).length, lawyerId + ' ' + seed);
+    rolls.forEach(r => assert.ok(Number.isInteger(r.at) && r.pct >= 15 && r.pct <= 92));
+    total[lawyerId] += asks;
+  }
+  const court = id => Plan.LAWYERS[id].stats.court;
+  if (court('lee') > court('kim')) assert.ok(total.lee <= total.kim, JSON.stringify(total));
+});
+
+test('한 판 전체(시드 2): 기본 초안은 폭행 유죄, 합의 상담을 넣고 문구를 고쳐 다시 하면 공소기각', () => {
+  const g = Game.createGame(); playWeek(g);
+  playTrial(g);
+  assert.equal(g.view().court.outcome.key, 'assault');
+  const seedBefore = g.exportSave().seed;
+  must(g.command('retryTrial'));
+  assert.notEqual(g.exportSave().seed, seedBefore);
+  assert.deepEqual(g.exportSave().rolls, []);
+  must(g.command('editPlan', { field: 'check', value: 'INV_SIG_STATEMENT' }));
+  must(g.command('editPlan', { field: 'check', value: 'INV_SIG_SETTLE' }));
+  must(g.command('editPlan', { field: 'advice', value: 'ADV_SIG_REVISE' }));
   playTrial(g);
   const v = g.view();
-  assert.equal(v.court.trial.definition.prep.budget, prep.budget);
-  assert.ok(Bridge.OUTCOME_ORDER.includes(v.court.outcome.key));
-  assert.equal(v.settlement.successFee, Bridge.SUCCESS_FEE[v.court.outcome.key]);
-  assert.equal(v.settlement.finalCash, v.summary.cash + v.settlement.successFee);
+  assert.equal(v.court.outcome.key, 'dismissal');
+  assert.equal(v.settlement.courtFee, 45000 * 8);
+  assert.equal(v.settlement.finalCash, v.summary.cash + v.settlement.successFee - v.settlement.courtFee);
+  assert.equal(v.runs, 2);
 });
 
-test('결정성: 같은 선택은 같은 기록과 같은 판결을 만든다', () => {
-  const run = () => { const g = Game.createGame(); playWeek(g, { accept: true }); playTrial(g, { prosecutorId: 'veteran' }); return g.view(); };
-  const a = run(), b = run();
+test('개입의 답이 판결을 바꾼다(시드 2): 유도신문을 그냥 두면 상해 유죄', () => {
+  const g = Game.createGame(); playWeek(g);
+  assert.ok(playTrial(g, { object: false }) > 0);
+  assert.equal(g.view().court.outcome.key, 'injury');
+});
+
+test('결정성과 확률: 같은 시드는 같은 판결, 시드가 다르면 결과가 갈릴 수 있다', () => {
+  const run = seed => { const g = Game.createGame(); playWeek(g, { accept: true, assign: ON_TIME, seed }); must(g.command('editPlan', { field: 'lawyer', value: 'park' })); playTrial(g); return g.view(); };
+  const a = run(5), b = run(5);
   assert.deepEqual(a.court.trial.records, b.court.trial.records);
+  assert.deepEqual(a.rolls, b.rolls);
   assert.deepEqual(a.settlement, b.settlement);
-});
-
-test('준비가 결과를 바꾼다: 같은 법정 방침이라도 준비 횟수에 따라 판결이 달라진다', () => {
-  const outcome = assign => { const g = Game.createGame(); playWeek(g, { assign }); playTrial(g, { objectTo: ['OBJ_SIG_OBSERVER_VALID', 'OBJ_SIG_INVESTIGATOR_VALID'] }); return { key: g.view().court.outcome.key, budget: g.view().prep.budget }; };
-  const full = outcome({ 'jung-organize': 'park' }), short = outcome({});
-  assert.equal(full.budget, 4); assert.equal(short.budget, 3);
-  assert.ok(Bridge.OUTCOME_ORDER.indexOf(full.key) >= Bridge.OUTCOME_ORDER.indexOf(short.key));
+  const keys = new Set([1, 2, 3, 4, 5, 6, 7, 8].map(s => run(s).court.outcome.key));
+  assert.ok(keys.size >= 2, [...keys].join());
 });
 
 test('원자성: 실패한 명령은 상태와 저장 기록을 바꾸지 않는다', () => {
   const g = Game.createGame(); playWeek(g);
   const before = JSON.stringify(g.exportSave());
-  assert.equal(g.command('firm', { action: { type: 'ADVANCE_DAY' } }).ok, false);
-  assert.equal(g.command('court', { action: 'trial', payload: { action: 'continue' } }).ok, false);
-  assert.equal(g.command('beginPrep', { prosecutorId: 'nobody' }).ok, false);
+  for (const [a, p] of [['firm', { action: { type: 'ADVANCE_DAY' } }], ['decide', { object: true }], ['editPlan', { field: 'lawyer', value: 'nobody' }], ['editPlan', { field: 'stance', value: 'S_NOPE' }], ['editPlan', { field: 'check', value: 'INV_SIG_LAYOUT' }], ['retryTrial', {}]]) {
+    assert.equal(g.command(a, p).ok, false, a);
+  }
   assert.equal(JSON.stringify(g.exportSave()), before);
-  must(g.command('beginPrep', { prosecutorId: 'novice' }));
+  must(g.command('sealPlan'));
+  assert.equal(g.view().scene, 'court');
   const mid = JSON.stringify(g.exportSave());
-  assert.equal(trial(g, 'investigate', { id: 'NOPE' }).ok, false);
-  assert.equal(trial(g, 'verdict').ok, false);
+  assert.equal(g.command('decide', { object: 'yes' }).ok, false);
+  assert.equal(g.command('editPlan', { field: 'focus', value: 'F_SIG_ACT' }).ok, false);
   assert.equal(JSON.stringify(g.exportSave()), mid);
 });
 
-test('저장 복원: 공판 도중 저장을 다시 읽으면 같은 화면 상태가 된다', () => {
-  const g = Game.createGame(); playWeek(g, { assign: { 'jung-organize': 'park' } });
-  must(g.command('beginPrep', { prosecutorId: 'novice' }));
-  must(trial(g, 'investigate', { id: 'INV_SIG_SEQUENCE' }));
-  must(trial(g, 'finishPrep')); must(trial(g, 'open', { focusId: 'F_SIG_BALANCED', stanceId: 'S_SIG_RESERVE' }));
+test('저장 복원: 결정 대기 중 저장을 다시 읽으면 같은 화면 상태가 된다', () => {
+  const g = Game.createGame(); playWeek(g, { assign: ON_TIME });
+  must(g.command('sealPlan'));
   const save = JSON.parse(JSON.stringify(g.exportSave()));
   const h = Game.createGame(save);
   assert.deepEqual(h.view(), g.view());
-  assert.equal(Game.createGame().load({ v: 99 }).ok, false);
+  must(h.command('decide', { object: true })); must(g.command('decide', { object: true }));
+  assert.deepEqual(h.view(), g.view());
+  assert.equal(Game.createGame().load({ v: 1 }).ok, false);
   const broken = JSON.parse(JSON.stringify(save)); broken.courtLog.push({ action: 'trial', payload: { action: 'verdict' } });
   const k = Game.createGame(); assert.equal(k.load(broken).ok, false); assert.equal(k.view().scene, 'title');
+  const forged = JSON.parse(JSON.stringify(save)); forged.plan.slots = 2;
+  assert.equal(Game.createGame().load(forged).ok, false);
 });
 
-test('경계: 엔진 원본과 UI에 사건 판정 로직이 섞이지 않는다', () => {
+test('경계: 엔진 원본과 UI에 판정 로직이 섞이지 않는다', () => {
   const src = f => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
-  // vendor 원본은 PROVENANCE.json의 해시와 같아야 한다(수정 금지).
   const prov = JSON.parse(src('vendor/PROVENANCE.json'));
   const crypto = require('node:crypto');
   for (const f of prov.files) assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(__dirname, '..', f.path))).digest('hex'), f.sha256, f.path);
-  // UI는 엔진을 직접 부르지 않고 session 서비스만 쓴다. 무작위도 쓰지 않는다.
   const ui = src('src/ui.js');
-  for (const banned of ['FirmEngine', 'FirmDemoSession', 'FirmTrial', 'Math.random']) assert.equal(ui.includes(banned), false, 'ui.js must not use ' + banned);
-  assert.equal(src('src/bridge.js').includes('Math.random'), false);
-  assert.equal(src('src/session.js').includes('Math.random'), false);
+  for (const banned of ['FirmEngine', 'FirmDemoSession', 'FirmTrial', 'FirmPlan', 'Math.random']) assert.equal(ui.includes(banned), false, 'ui.js must not use ' + banned);
+  for (const f of ['src/bridge.js', 'src/session.js', 'src/plan.js', 'src/case-sheet.js']) assert.equal(src(f).includes('Math.random'), false, f);
+});
+
+test('위임/조정: 줄을 맡기면 초안으로 돌아가고, 되돌리기는 직전 계획을 복원한다', () => {
+  const g = Game.createGame(); playWeek(g);
+  const draft = g.view().plan.plan;
+  must(g.command('editPlan', { field: 'stance', value: 'S_SIG_DENY' === draft.stance ? 'S_SIG_ADMIT' : g.view().plan.stances.find(s => s.id !== draft.stance).id }));
+  must(g.command('editPlan', { field: 'check', value: g.view().plan.plan.checks[0] }));
+  assert.ok(g.view().plan.canUndo);
+  must(g.command('undoPlan'));
+  assert.deepEqual(g.view().plan.plan.checks, draft.checks);
+  assert.notEqual(g.view().plan.plan.stance, draft.stance);
+  must(g.command('editPlan', { field: 'reset', value: 'stance' }));
+  assert.equal(g.view().plan.plan.stance, draft.stance);
+  assert.ok(!g.view().plan.plan.edited.includes('stance'));
+  must(g.command('editPlan', { field: 'check', value: g.view().plan.plan.checks[0] }));
+  must(g.command('editPlan', { field: 'reset', value: 'all' }));
+  assert.deepEqual(g.view().plan.plan, draft);
+  assert.equal(g.command('editPlan', { field: 'reset', value: 'lawyerId' }).ok, false);
+  must(g.command('sealPlan'));
+  assert.equal(g.command('undoPlan').ok, false);
+});
+
+test('받은 편지함: 새 의뢰는 결정 전까지 응답 필요, 하루가 지나면 보고가 맨 위에 온다', () => {
+  const g = Game.createGame(); must(g.command('newGame')); must(g.command('finishIntro'));
+  let box = g.view().inbox;
+  assert.equal(box.filter(m => m.must).length, 1);
+  must(g.command('firm', { action: { type: 'DECLINE_INTAKE' } }));
+  must(g.command('firm', { action: { type: 'ADVANCE_DAY' } }));
+  box = g.view().inbox;
+  assert.equal(box.filter(m => m.must).length, 0);
+  assert.equal(box[0].tag, 'report'); assert.equal(box[0].id, 'report-0');
 });

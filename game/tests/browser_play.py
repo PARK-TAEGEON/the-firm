@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """브라우저에서 한 판을 처음부터 끝까지 자동으로 플레이한다(file:// 로 직접 연다).
 사용: python3 tests/browser_play.py [--shots DIR]   · 환경변수 FIRM_CHROMIUM 으로 실행 파일 지정 가능.
-검사: 장면 전환, 콘솔 오류 0, 가로 넘침 없음(1440·390), 새로고침 뒤 이어하기, 용어 설명 중첩."""
+검사: 장면 전환, 계획서 수정·날인, 자동 공판과 개입, 콘솔 오류 0, 가로 넘침 없음(1440·1366·390), 새로고침 뒤 이어하기, 용어 설명 중첩."""
 import asyncio, os, sys, pathlib
 from playwright.async_api import async_playwright
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-URL = (ROOT / 'index.html').as_uri()
+URL = (ROOT / 'index.html').as_uri() + '?seed=2'  # 확률 판정을 고정해 같은 판을 재현한다
 SHOTS = pathlib.Path(sys.argv[sys.argv.index('--shots') + 1]) if '--shots' in sys.argv else None
 checks = fails = 0
 
@@ -45,70 +45,84 @@ async def play(page, tag, width, improve):
     await shot(page, tag + '-03-memo'); await act(page, 'finishIntro')
     check(await scene(page) == 'office', tag + ' office'); await shot(page, tag + '-04-office'); await no_overflow(page, tag + ' office')
     check(await page.locator('[data-act="advance"]').is_disabled(), tag + ' advance blocked until intake decided')
+    check(await page.locator('.msg.sel.must').count() == 1, tag + ' must-respond message opens first')
+    check(await page.locator('.strip .cell').count() == 5, tag + ' summary strip has 5 cells')
+    check(await page.locator('.wk .wk-p').count() == 4, tag + ' week grid has 4 people')
+    if tag == 'desk':
+        await act(page, 'theme'); await shot(page, tag + '-04b-office-cool'); await act(page, 'theme')
     await act(page, 'decline')
+    check(await page.locator('[data-act="advance"]').is_enabled(), tag + ' advance enabled after intake decided')
     if improve:
         await page.locator('[data-act="assign"][data-id="jung-organize"]').click()
         await shot(page, tag + '-05-assign')
         await page.locator('[data-act="doAssign"][data-staff="park"]').click()
-        check('4' in await page.locator('.outlook .big b').inner_text(), tag + ' outlook shows 4 after reassignment')
+        check('3' in await page.locator('.strip [data-cell="budget"] b').inner_text(), tag + ' strip shows 3 checks after reassignment')
     for day in range(5):
         await act(page, 'advance')
-        if day == 0: await shot(page, tag + '-06-report')
-        await act(page, 'closeModal')
+        if day == 0:
+            check('업무 보고' in await page.locator('.msg.sel').inner_text(), tag + ' new report lands in the inbox')
+            await shot(page, tag + '-06-report')
     check(await scene(page) == 'weekend', tag + ' weekend'); await shot(page, tag + '-07-weekend')
-    await act(page, 'beginPrep')
-    check(await scene(page) == 'prep', tag + ' prep')
+    await act(page, 'beginPlan')
+    check(await scene(page) == 'plan', tag + ' plan board')
+    await page.wait_for_timeout(300); await shot(page, tag + '-08-plan'); await no_overflow(page, tag + ' plan')
     # 새로고침 뒤 이어하기: 같은 장면으로 돌아와야 한다.
     await page.reload(); check(await scene(page) == 'title', tag + ' reload shows title')
-    await act(page, 'resume'); check(await scene(page) == 'prep', tag + ' resume restores prep')
-    await page.locator('[data-act="consult"]').nth(1).click()
-    while await page.locator('[data-act="investigate"]:not([disabled])').count():
-        await page.locator('[data-act="investigate"][data-id="INV_SIG_SEQUENCE"]:not([disabled]), [data-act="investigate"][data-id="INV_SIG_MEDICAL"]:not([disabled]), [data-act="investigate"][data-id="INV_SIG_LAYOUT"]:not([disabled]), [data-act="investigate"]:not([disabled])').first.click()
-    while await page.locator('[data-act="file"][data-status="filed"]:not([disabled])').count():
-        await page.locator('[data-act="file"][data-status="filed"]:not([disabled])').first.click()
-    await shot(page, tag + '-08-prep'); await no_overflow(page, tag + ' prep')
-    # 용어 설명: 열고, 설명 안의 용어를 다시 연다(중첩).
+    await act(page, 'resume'); check(await scene(page) == 'plan', tag + ' resume restores plan')
+    if improve:
+        # 펜으로 고친다: 목격자 최초 진술을 빼고 합의 상담을 넣고, 문구를 고치는 조건을 붙인다.
+        check(await page.locator('[data-act="toggleCheck"]').count() == 0, tag + ' delegated rows are read-only')
+        await page.locator('[data-act="control"][data-f="checks"]').click()
+        await page.locator('[data-act="toggleCheck"][data-id="INV_SIG_STATEMENT"]').click()
+        await page.locator('[data-act="toggleCheck"][data-id="INV_SIG_SETTLE"]').click()
+        check(await page.locator('[data-act="setStance"], .prow .wits').count() == 0, tag + ' stance/focus/witness rows folded by default')
+        check(await page.locator('.odds li').count() == 3, tag + ' plan shows 3 roll chances')
+        await act(page, 'planMore')
+        check(await page.locator('.pmore.open .prow').count() >= 4, tag + ' details unfold')
+        await page.locator('[data-act="control"][data-f="advice"]').click()
+        await page.locator('[data-act="advice"][data-id="ADV_SIG_REVISE"]').click()
+        await act(page, 'undoPlan')
+        check(await page.locator('.wchip.on[data-id="ADV_SIG_REVISE"]').count() == 0, tag + ' undo reverts the last edit')
+        await page.locator('[data-act="advice"][data-id="ADV_SIG_REVISE"]').click()
+        check(await page.locator('.wchip.mine').count() >= 1, tag + ' player edit shown in pen')
+        await shot(page, tag + '-09-plan-edited')
+        if tag == 'desk':
+            await act(page, 'theme'); await shot(page, tag + '-09c-plan-cool'); await act(page, 'theme')
+        await act(page, 'lawyers'); check(await page.locator('.lp').count() == 3, tag + ' lawyer compare opens')
+        await shot(page, tag + '-10-lawyers'); await act(page, 'closeModal')
     if width > 700:
-        await page.locator('.term[data-term="합의"]').first.click()
-        check(await page.locator('.pop').count() == 1, tag + ' glossary opens')
-        inner = page.locator('.pop .term')
-        if await inner.count():
-            await inner.first.click(); check(await page.locator('.pop').count() == 2, tag + ' glossary nests')
-        await shot(page, tag + '-09-glossary'); await page.keyboard.press('Escape')
-        check(await page.locator('.pop').count() == 0, tag + ' glossary closes on Escape')
-    await act(page, 'finishPrep')
-    check(await scene(page) == 'court', tag + ' court (opening)')
-    await page.locator('[data-act="pickOpen"][data-id="F_SIG_CAUSE"]').click(); await page.locator('[data-act="pickOpen"][data-id="S_SIG_RESERVE"]').click()
-    await shot(page, tag + '-10-opening'); await act(page, 'open')
-    for row in await page.locator('.row-evi').all():
-        text = await row.inner_text()
-        await row.locator('[data-v="%s"]' % ('disagree' if '조서' in text or '보고서' in text else 'agree')).click()
-    await shot(page, tag + '-11-evidence'); await act(page, 'opinions')
-    shots = set()
-    for _ in range(120):
-        if await scene(page) != 'court': break
-        if await page.locator('[data-act="object"]').count():
-            if 'obj' not in shots: shots.add('obj'); await shot(page, tag + '-12-objection')
-            await page.locator('[data-act="object"][data-v="%s"]' % ('1' if _ % 2 == 0 and improve else '0')).click(); continue
-        if await page.locator('[data-act="rebut"]').count():
-            await page.locator('[data-act="rebut"][data-v="1"]').click(); continue
-        if await page.locator('[data-act="approach"]').count():
-            if 'cross' not in shots: shots.add('cross'); await shot(page, tag + '-13-cross'); await no_overflow(page, tag + ' cross')
-            ok = page.locator('[data-act="approach"]:not([disabled])')
-            if await ok.count(): await ok.first.click(); continue
-            lim = page.locator('.press.limited:not([disabled])')
-            if await lim.count(): await lim.first.click(); continue
-            await act(page, 'endCross'); continue
-        if await page.locator('[data-act="closing"]').count():
-            await shot(page, tag + '-14-closing'); await page.locator('[data-act="closing"]').nth(1).click(); continue
-        if await page.locator('[data-act="verdict"]').count(): await act(page, 'verdict'); continue
-        await act(page, 'continue')
+        # 단어만 보이고, 올리면 자세한 설명이 뜬다.
+        await page.locator('.lawyer-card .stat-i').first.hover(); await page.wait_for_timeout(350)
+        check(await page.locator('.tip').count() == 1, tag + ' tooltip on hover')
+        await shot(page, tag + '-09b-tip')
+        await page.mouse.move(2, 2); await page.wait_for_timeout(300)
+        check(await page.locator('.tip').count() == 0, tag + ' tooltip hides on leave')
+        visible = await page.evaluate("document.querySelector('main').innerText.length")
+        check(visible < 700, tag + ' plan screen text is short (%d chars)' % visible)
+    await act(page, 'seal')
+    check(await scene(page) == 'court', tag + ' court (auto)')
+    await page.locator('[data-act="speed"][data-v="fast"]').click()
+    await page.wait_for_timeout(2600); await shot(page, tag + '-11-court-auto'); await no_overflow(page, tag + ' court')
+    asks = 0
+    for _ in range(40):
+        if await page.locator('[data-act="toResult"]').count(): break
+        if await page.locator('[data-act="decide"]').count():
+            asks += 1
+            if asks == 1: await shot(page, tag + '-12-ask')
+            await page.locator('[data-act="decide"][data-v="1"]').click(); continue
+        if await page.locator('[data-act="skipAhead"]').count():
+            await act(page, 'skipAhead'); continue
+        await page.wait_for_timeout(300)
+    check(asks == 2, tag + ' seed 2: kim misses both leading questions (got %d)' % asks)
+    check(await page.locator('.roll').count() >= 4, tag + ' roll stamps appear in the transcript')
+    check(await page.locator('[data-act="toResult"]').count() == 1, tag + ' trial plays to the end')
+    await act(page, 'toResult')
     check(await scene(page) == 'result', tag + ' result reached')
     await page.wait_for_timeout(1300); await shot(page, tag + '-15-result'); await no_overflow(page, tag + ' result')
     if SHOTS: await page.screenshot(path=str(SHOTS / (tag + '-16-result-full.png')), full_page=True)
     headline = await page.locator('.verdict h1').inner_text()
     await act(page, 'records'); check(await page.locator('.modal .rec').count() > 10, tag + ' full record opens'); await act(page, 'closeModal')
-    await act(page, 'retry'); check(await scene(page) == 'weekend', tag + ' retry returns to prosecutor choice')
+    await act(page, 'retry'); check(await scene(page) == 'plan', tag + ' retry returns to the plan')
     check(not errors, tag + ' console errors: ' + '; '.join(errors[:3]))
     return headline
 

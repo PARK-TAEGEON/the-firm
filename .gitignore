@@ -1,3 +1,4 @@
 *.zip
 .godot/
 *.tmp
+/game/test-results.log
