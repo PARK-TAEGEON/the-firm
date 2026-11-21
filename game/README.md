@@ -18,7 +18,8 @@ cd game && python3 -m http.server 4173
 data/cases.json          사건
 src/loop.js              12주 위임. 수식과 난수 순서의 기준
 src/ui.js                대표 · 사무소 · 결산 · 엔딩. 조회와 입력만
-src/style.css            화면
+src/tokens.css           디자인 토큰. 색·간격·테두리·그림자·글꼴의 값은 여기에만
+src/style.css            화면. tokens.css의 변수만 쓴다
 ```
 
 화면은 `openWeek`로 그 주 후보를 보고, `settleWeek`로 고른 수임·배정을 확정한다. 손대지 않으면 엔진의 자동 정책과 같다.
@@ -29,4 +30,4 @@ src/style.css            화면
 cd game && node --test tests/*.test.js
 ```
 
-규칙은 [RULES.md](RULES.md). 12주 수치의 기록은 [reports/LOOP-001-endings.md](reports/LOOP-001-endings.md).
+규칙은 [RULES.md](RULES.md). 토큰 목록과 쓰임은 [TOKENS.md](TOKENS.md). 12주 수치의 기록은 [reports/LOOP-001-endings.md](reports/LOOP-001-endings.md).
