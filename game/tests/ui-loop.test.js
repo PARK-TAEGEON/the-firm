@@ -344,3 +344,30 @@ test('대표 이름은 한서진으로 시작하고 재배분 뒤에도 남으�
     assert.match(desk.html(), /id="partner-name"[^>]*value="한서진"/);
   }
 });
+
+test('사무실 책상 클릭으로 현금·빈자리·직원 얼굴·해제가 반영되고 사건 배정 선택은 유지된다', () => {
+  const { doc, desk } = mounted(8);
+  const html = () => doc.nodes.app.innerHTML;
+  const button = number => html().match(new RegExp('<button[^>]*id="workstation-' + number + '"[^>]*>[\\s\\S]*?</button>'))[0];
+  const deskClick = (number, act) => {
+    assert.ok(button(number).includes('data-act="' + act + '" data-desk="' + number + '"'));
+    doc.click(act, { desk: String(number) });
+  };
+  clickRendered(doc, 'start');
+  clickRendered(doc, 'panel', { id: 'cases' });
+  const table = () => html().match(/<section class="office-detail" id="detail-cases"[\s\S]*?<\/section>/)[0];
+  const before = table();
+  assert.match(button(2), /잠김/);
+  deskClick(2, 'unlockDesk');
+  assert.match(html(), /<span>자금<\/span><strong>900만<\/strong>/);
+  assert.match(button(2), /빈자리/);
+  deskClick(2, 'chooseDesk');
+  assert.match(html(), /data-act="seatStaff" data-desk="2" data-staff="kim"/);
+  doc.click('seatStaff', { desk: '2', staff: 'kim' });
+  assert.match(button(2), /staff-kim\.jpg.*김 사무원/);
+  deskClick(2, 'clearDesk');
+  assert.match(button(2), /빈자리/);
+  assert.doesNotMatch(button(2), /<img/);
+  assert.deepEqual(desk.state().desks.assignments, {});
+  assert.equal(table(), before);
+});

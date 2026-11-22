@@ -145,9 +145,48 @@ button[data-tip] { cursor: pointer; }
 .office-cover {
   position: relative; isolation: isolate; min-height: var(--height-cover); padding: var(--space-cover);
   display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start;
-  background: var(--color-surface-2) url('../assets/art/office_lounge.jpg') center 54% / cover;
+  overflow: hidden; background: var(--color-surface-2);
 }
-.office-cover::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--color-image-scrim); }
+.office-cover::before, .office-cover::after { content: ''; position: absolute; inset: var(--radius-0); }
+.office-cover::before { z-index: var(--office-scrim-layer); background: var(--color-image-scrim); }
+.office-cover::after {
+  z-index: var(--office-photo-layer); background: var(--office-photo);
+  transform: var(--office-view-t3); transform-origin: var(--office-photo-anchor);
+}
+.office-cover[data-tier="1"]::after { transform: var(--office-view-t1); }
+.office-cover[data-tier="2"]::after { transform: var(--office-view-t2); }
+.office-tier { margin-top: var(--space-4); color: var(--color-on-image-muted); font-size: var(--text-lg); }
+.office-layout {
+  padding: var(--space-7) var(--space-cover) var(--space-9);
+  background: var(--color-surface-2); border: var(--line);
+}
+.layout-heading, .seat-choices { display: flex; align-items: center; gap: var(--space-6); flex-wrap: wrap; }
+.layout-heading { justify-content: space-between; }
+.layout-heading h2 { margin: var(--radius-0); font: var(--text-lg) var(--font-heading); color: var(--color-text-strong); }
+.layout-heading span, .seat-choices span { color: var(--color-text); font-size: var(--text-sm); }
+.workstations { display: flex; flex-wrap: wrap; gap: var(--space-9); padding-top: var(--space-10); }
+.workstation {
+  position: relative; width: var(--workstation-width); min-height: var(--workstation-height);
+  padding: var(--space-4) var(--space-6); display: grid; align-content: center; justify-items: start;
+  color: var(--color-ink); background: var(--workstation-open); border: var(--line-paper);
+  border-bottom: var(--space-2) solid var(--workstation-edge); text-align: left; font-family: var(--font-body);
+}
+.workstation::before {
+  content: ''; position: absolute; top: var(--workstation-chair-offset); left: var(--workstation-chair-left);
+  width: var(--workstation-chair-width); height: var(--workstation-chair-height); background: var(--workstation-chair);
+}
+.workstation small, .workstation span { font-size: var(--text-xs); color: var(--color-ink-muted); }
+.workstation strong { font: var(--text-lg)/var(--leading-body) var(--font-body); }
+.workstation.locked { background: var(--color-surface-1); color: var(--color-text); border: var(--workstation-locked-line); }
+.workstation.locked small, .workstation.locked span { color: var(--color-text); }
+.workstation.locked::before { background: var(--color-surface-1); border: var(--workstation-locked-line); }
+.workstation:enabled:hover, .workstation[aria-expanded="true"] { outline: var(--border-mark) solid var(--color-accent-line); }
+.seat-choices { margin-top: var(--space-7); }
+.seat-choices button {
+  padding: var(--space-3) var(--space-6); min-height: var(--size-control-sm);
+  background: var(--color-surface-3); border: var(--line); font: var(--text-sm) var(--font-body);
+}
+.seat-choices button:hover { border-color: var(--color-accent); }
 .office-week { color: var(--color-accent); font-size: var(--text-base); }
 .office-week span { color: var(--color-on-image-muted); }
 .office-cover h1 { margin: var(--space-4) 0 0; color: var(--color-on-image); font-size: var(--text-cover); letter-spacing: var(--tracking-tight); }
@@ -202,6 +241,9 @@ button[data-tip] { cursor: pointer; }
   .office-top .btn { min-height: var(--size-control-sm); }
 }
 @media (max-width: 480px) {
+  .workstations { display: grid; grid-template-columns: var(--workstation-mobile); gap: var(--space-9) var(--space-6); }
+  .workstation { width: auto; }
+  .office-layout { padding-inline: var(--space-7); }
   .scene-desk[data-screen="setup"] { padding: var(--space-8) var(--space-6); }
   .registration { padding: var(--space-9) var(--space-7); }
   .stat-reading { grid-template-columns: 2.2em 1fr 1.6em; gap: var(--space-2); }

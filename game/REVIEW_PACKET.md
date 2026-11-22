@@ -64,3 +64,10 @@
 - `.gitignore`에 `game/test-results.log`를 추가하고 로그를 Git 추적에서 제거했다.
 - `tests/ui-loop.test.js`에서 초기 및 재시작 이름, 빈 이름으로 개업, 수임 툴팁의 업무 목록을 확인한다. 등급 기준 회귀 검사는 화면에 전달하는 기준값을 바꿔 두 표시 위치를 확인한다.
 - `cd game && node --test tests/*.test.js` 실행 결과 46개 통과, 실패 0, 종료 코드 0. 브라우저에서 시드 7로 [대표 등록](docs/shots/ui-merge-registration.jpg), [사무실 요약](docs/shots/ui-merge-office.jpg), [명성 상세](docs/shots/ui-merge-reputation.jpg)를 확인했다.
+
+## 사무실 책상 v1
+
+- `src/loop.js`가 구매·착석·퇴실을 처리한다. 자리 상한, 비용, 재승급을 포함한 규칙은 [RULES.md](RULES.md)에 있다. 구매 거절 시 현금과 구매 기록을 함께 보존하며 책상과 직원의 착석 관계는 일대일이다.
+- `src/ui.js`의 사무실 표지와 책상 버튼을 `src/style.css`, `src/tokens.css`, `TOKENS.md`에 연결했다. 사진 시야, 상판·의자 윤곽과 얼굴로 등급과 착석 상태를 보여 준다.
+- `tests/desks.test.js`에서 구매 거절·비용, 단일 착석과 업무 독립, 주간 승강등을 검증한다. `tests/ui-loop.test.js`에는 클릭 뒤 DOM 확인을 추가했다. 기존 테스트의 기대값은 그대로다.
+- `cd game && node --test tests/*.test.js` 50개 통과, 실패 0, 종료 코드 0. 시드 8 화면과 등급 경계 테스트 입력은 [REPORT.md](REPORT.md)에 기록했다. 증거 7장은 `docs/shots/office-desks-*`에 있다.

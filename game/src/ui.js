@@ -37,6 +37,7 @@
     var screen = 'setup';
     var partnerName = DEFAULT_NAME;
     var officePanel = '';
+    var selectingDesk = null;
     var run = null;
     var acceptsDirty = false;
     var assignsDirty = false;
@@ -60,6 +61,7 @@
       overrides = {};
       acceptSet = new Set(Loop.previewAccepts(run));
       officePanel = '';
+      selectingDesk = null;
       screen = 'office';
     }
 
@@ -107,6 +109,22 @@
         partnerName = partnerName.trim() || DEFAULT_NAME;
         bootWeek();
         return true;
+      }
+      if (screen === 'office') {
+        var number = Number(data.desk);
+        if (act === 'unlockDesk') return Loop.unlockDesk(run.state, number);
+        if (act === 'chooseDesk') {
+          var desk = Loop.officeDesks(run.state).find(function (seat) { return seat.number === number; });
+          if (!desk || !desk.unlocked || desk.staffId) return false;
+          selectingDesk = selectingDesk === number ? null : number;
+          return true;
+        }
+        if (act === 'seatStaff' || act === 'clearDesk') {
+          if (act === 'seatStaff' && selectingDesk !== number) return false;
+          if (!Loop.seatStaff(run.state, number, act === 'clearDesk' ? null : data.staff)) return false;
+          selectingDesk = null;
+          return true;
+        }
       }
       if (act === 'panel' && screen === 'office') {
         officePanel = officePanel === data.id ? '' : data.id;
@@ -369,6 +387,48 @@
         '</tbody></table></div>';
     }
 
+    function workstation(desk) {
+      var person = staffById(desk.staffId);
+      var status = desk.unlocked ? '빈자리' : '잠김';
+      var action = 'chooseDesk';
+      var label = '직원 배치';
+      var disabled = false;
+      var expanded = '';
+      if (!desk.unlocked) {
+        action = 'unlockDesk';
+        disabled = !desk.next || !desk.affordable;
+        label = format(desk.cost, 'money') + (desk.next && !desk.affordable ? ' · 잔액 부족' : ' 해금');
+        if (!desk.next) label = (desk.number - 1) + '번 해금 후';
+      } else if (person) {
+        status = person.name + ' ' + person.role;
+        action = 'clearDesk';
+        label = '배치 해제';
+      } else {
+        expanded = ' aria-expanded="' + (selectingDesk === desk.number) + '"';
+      }
+      return '<button type="button" class="workstation ' + (desk.unlocked ? 'available' : 'locked') +
+        '" id="workstation-' + desk.number + '" data-act="' + action + '" data-desk="' + desk.number + '"' +
+        expanded + (disabled ? ' disabled' : '') + '><small>책상 ' + desk.number + '</small><strong>' +
+        (person ? face(person.id) : '') + esc(status) + '</strong><span>' + label + '</span></button>';
+    }
+
+    function layoutHtml(state) {
+      var seats = Loop.officeDesks(state);
+      var chooser = '';
+      if (selectingDesk !== null) {
+        chooser = '<div class="seat-choices" role="group" aria-label="책상 ' + selectingDesk + ' 직원 선택">' +
+          '<span>책상 ' + selectingDesk + ' 배치</span>' + state.staff.map(function (person) {
+            var previous = seats.find(function (seat) { return seat.staffId === person.id; });
+            return '<button type="button" data-act="seatStaff" data-desk="' + selectingDesk + '" data-staff="' +
+              esc(person.id) + '">' + face(person.id) + esc(person.name + ' ' + person.role) +
+              (previous ? ' · ' + previous.number + '번에서 이동' : '') + '</button>';
+          }).join('') + '</div>';
+      }
+      return '<section class="office-layout" aria-label="책상 배치"><div class="layout-heading"><h2>책상 배치</h2>' +
+        '<span>해금 ' + seats.filter(function (seat) { return seat.unlocked; }).length + ' / ' + seats.length +
+        '</span></div><div class="workstations">' + seats.map(workstation).join('') + '</div>' + chooser + '</section>';
+    }
+
     function officeHtml() {
       var state = run.state;
       var rows = taskRows();
@@ -388,15 +448,15 @@
       if (tired) staffStatus = '피로 ' + format(tired) + '명';
       if (excess) staffStatus = '초과 ' + format(excess) + '칸';
 
-      var title = '<div class="office-cover"><div class="office-week"' +
+      var title = '<div class="office-cover" data-tier="' + state.tier + '"><div class="office-week"' +
         tip('주차', '완료 ' + format(state.weeksPlayed, 'duration'), '시드 ' + format(seed)) + '>' +
-        format(state.week, 'week') + ' <span>/ ' + format(Loop.WEEKS, 'duration') + '</span></div><h1>주간 사무실</h1></div>';
+        format(state.week, 'week') + ' <span>/ ' + format(Loop.WEEKS, 'duration') + '</span></div><h1>주간 사무실</h1><div class="office-tier">' + esc(Loop.TIER_NAME[state.tier]) + '</div></div>';
       var metrics = '<div class="office-metrics">' +
         officeMetric('cash', '자금', format(state.cash, 'money'), state.cash < 0) +
         officeMetric('rep', '명성', format(state.reputation)) +
         officeMetric('cases', '이번 주 사건', format(active.length + acceptSet.size) + '건') +
         officeMetric('staff', '직원 상태', staffStatus, tired || excess) + '</div>';
-      return frame('office', title + metrics +
+      return frame('office', title + layoutHtml(state) + metrics +
         officeDetail('cash', facts([
           ['보유 자금', format(state.cash, 'money')], ['누적 매출', format(state.revenue, 'money')],
           ['주간 임대료', format(Loop.RENT[state.tier], 'money')], ['주간 급여', format(salary(), 'money')]
@@ -553,7 +613,7 @@
       var act = el.dataset.act;
       if (act === 'toggle' || act === 'assign') return;
       if (desk.handle(act, el.dataset)) {
-        draw(act === 'stat' ? undefined : el.id);
+        draw(act === 'seatStaff' ? 'workstation-' + el.dataset.desk : act === 'stat' ? undefined : el.id);
         if (act === 'stat' && el.id) {
           var step = doc.getElementById(el.id);
           if (step.disabled) step = doc.getElementById('step-' + el.dataset.key + '-' + (-Number(el.dataset.dir)));
