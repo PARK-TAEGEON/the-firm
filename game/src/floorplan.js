@@ -6,81 +6,208 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 
-  // All coordinates are local SVG drawing units. Shared letters survive a move.
-  var plans = {
+  // Coordinates are on the floor. Partitions are runs [x, y, dx, dy] with gaps for doors.
+  const plans = {
     1: {
-      width: 464, right: 438, entry: 298, windows: [76, 222],
-      anchors: { A: [95, 101], B: [257, 113], C: [164, 196] },
-      labels: [[70, 71, '업무실']], shelves: [[38, 173]], plants: [[403, 61]],
-      partitions: '', doors: [], tables: []
+      w: 300, d: 194, bays: [5, 3],
+      rooms: [
+        { name: '업무실', label: [32, 176], seats: { A: [60, 67], B: [160, 64], C: [132, 135] } },
+        { name: '접수', label: [256, 165] }
+      ],
+      partitions: [[209, 0, 0, 71]],
+      furniture: [['files', 31, 26], ['counter', 255, 110], ['plant', 273, 31], ['bench', 253, 39]]
     },
     2: {
-      width: 696, right: 670, entry: 280, windows: [72, 224, 486],
-      anchors: { A: [86, 99], B: [239, 99], C: [72, 195], D: [193, 196], E: [319, 190] },
-      labels: [[62, 70, '업무실'], [474, 71, '소회의 공간']],
-      shelves: [[38, 114], [634, 166]], plants: [[408, 61], [610, 67]],
-      partitions: 'M447 30V180 M447 226V284', doors: [[447, 226, -90]], tables: [[549, 140]]
+      w: 464, d: 282, bays: [7, 4],
+      rooms: [
+        { name: '업무실', label: [50, 245], seats: { A: [70, 73], B: [215, 73], C: [70, 170], D: [220, 170], E: [155, 235] } },
+        { name: '소회의실', label: [337, 132], wood: [302, 0, 162, 152] },
+        { name: '대기 공간', label: [375, 250] }
+      ],
+      partitions: [[302, 0, 0, 87], [302, 125, 0, 27], [302, 152, 104, 0]],
+      furniture: [['shelf', 95, 21], ['meeting', 383, 72], ['sofa', 387, 186], ['lowTable', 384, 217],
+        ['counter', 265, 246], ['plant', 437, 250], ['files', 30, 225]]
     },
     3: {
-      width: 940, right: 914, entry: 370, windows: [76, 228, 418, 692],
-      anchors: { A: [84, 92], B: [242, 92], C: [86, 193], D: [242, 193],
-        E: [427, 92], F: [427, 193], G: [741, 215] },
-      labels: [[62, 63, '업무실'], [436, 63, '창가'], [657, 63, '회의실'], [657, 193, '대표실']],
-      shelves: [[37, 131], [873, 190]], plants: [[566, 66], [863, 58], [865, 256]],
-      partitions: 'M610 30V92 M610 138V212 M610 258V284 M610 162H914',
-      doors: [[610, 138, -90], [610, 258, -90]], tables: [[762, 101]]
+      w: 650, d: 375, bays: [10, 6],
+      rooms: [
+        { name: '민사 송무팀', label: [70, 194], seats: { A: [64, 75], C: [125, 145], E: [163, 42] } },
+        { name: '형사팀', label: [294, 196], seats: { B: [285, 78], D: [345, 148], F: [372, 42] } },
+        { name: '회의실', label: [505, 140], wood: [440, 0, 210, 171] },
+        { name: '대기실', label: [316, 344] },
+        { name: '접수', label: [114, 341] },
+        { name: '대표실', label: [540, 341], seats: { G: [546, 253] }, wood: [440, 175, 210, 200] }
+      ],
+      partitions: [[222, 0, 0, 118], [0, 219, 112, 0], [239, 219, 100, 0], [440, 0, 0, 102],
+        [440, 145, 0, 27], [440, 173, 210, 0], [440, 177, 0, 70], [440, 305, 0, 70]],
+      furniture: [['files', 35, 147], ['shelf', 274, 18], ['meeting', 548, 75], ['shelf', 579, 190],
+        ['counter', 96, 275], ['files', 38, 268], ['sofa', 305, 256], ['bench', 373, 295],
+        ['lowTable', 310, 297], ['plant', 412, 337], ['plant', 618, 199]]
     }
   };
 
-  function groupAt(x, y, art, angle) {
-    return '<g transform="translate(' + x + ' ' + y + ') rotate(' + (angle || 0) + ')">' + art + '</g>';
+  function project(x, y, z = 0) { return [x - y, (x + y) / 2 - z]; }
+  function points(vertices) { return vertices.map(v => project(...v).join(',')).join(' '); }
+  function face(material, vertices) {
+    return '<polygon fill="var(--iso-' + material + ')" points="' + points(vertices) + '"/>';
   }
-  function windowBay(x) {
-    return groupAt(x, 30, '<rect class="plan-glass" x="0" y="-4" width="104" height="8"/>' +
-      '<path class="plan-line" d="M0 0h104 M52 -4v8"/>');
+  function surface(x, y, w, d, z) {
+    return [[x, y, z], [x + w, y, z], [x + w, y + d, z], [x, y + d, z]];
   }
-  function door(x, y, angle) {
-    return groupAt(x, y, '<path class="plan-swing" d="M0 -46 A46 46 0 0 1 46 0"/>' +
-      '<path class="plan-line" d="M0 0v-46"/>', angle);
+  function block(material, x, y, z, w, d, h) {
+    const top = surface(x, y, w, d, z + h);
+    const base = surface(x, y, w, d, z);
+    return face(material + '-left', [top[3], top[2], base[2], base[3]]) +
+      face(material + '-right', [top[1], top[2], base[2], base[1]]) + face(material + '-top', top);
   }
-  function shelves(x, y) {
-    return groupAt(x, y, '<rect class="plan-wood" width="18" height="74"/>' +
-      '<path class="plan-line" d="M4 3v68 M4 12h12 M4 19h12 M4 29l12 -3 M4 40h12 M4 47h12 M4 59h12 M4 65h12"/>');
+  function at(x, y, body) {
+    return '<g transform="translate(' + project(x, y).join(' ') + ')">' + body + '</g>';
   }
-  function plant(x, y) {
-    return groupAt(x, y, '<rect class="plan-wood" x="-8" y="-8" width="16" height="16"/>' +
-      '<path class="plan-leaf" d="M0 1Q-23 -1 -17 -17Q-4 -15 0 1 M1 0Q2 -22 17 -18Q15 -4 1 0 M0 0Q19 1 18 15Q3 16 0 0 M0 0Q-2 19 -17 16Q-18 3 0 0"/>');
+  function escape(value) {
+    return String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   }
-  function meetingTable(x, y) {
-    return groupAt(x, y, '<g class="plan-chair"><rect x="-35" y="-31" width="21" height="16"/>' +
-      '<rect x="13" y="-31" width="21" height="16"/><rect x="-35" y="14" width="21" height="16"/>' +
-      '<rect x="13" y="14" width="21" height="16"/></g><rect class="plan-wood" x="-53" y="-19" width="106" height="38"/>' +
-      '<path class="plan-line" d="M-50 -14h100"/><rect class="plan-sheet" x="13" y="-9" width="18" height="12"/>');
+
+  function windows(axis, length, bays) {
+    const frame = axis === 'x' ? 'matrix(1 .5 0 -1 0 0)' : 'matrix(-1 .5 0 -1 0 0)';
+    const heights = [24, 38, 31, 43, 26, 35, 29];
+    let skyline = '', mullions = '';
+    for (let i = 0; i < bays * 3; i++) {
+      const step = length / (bays * 3);
+      const h = heights[(i + (axis === 'x' ? 0 : 3)) % heights.length];
+      skyline += '<rect x="' + (i * step) + '" y="9" width="' + (step - 2) + '" height="' + h + '"/>';
+    }
+    for (let i = 0; i <= bays; i++) {
+      mullions += '<path d="M' + (i * length / bays) + ' 6v62"/>';
+    }
+    return '<g transform="' + frame + '"><rect class="iso-window" width="' + length + '" height="70"/>' +
+      '<g class="iso-skyline">' + skyline + '</g><g class="iso-frame">' + mullions +
+      '<path d="M0 15h' + length + ' M0 57h' + length + '"/></g></g>';
   }
-  function render(tier, anchorButton) {
-    var plan = plans[tier];
-    var w = plan.right;
-    var entry = plan.entry;
-    var walls = 'M' + entry + ' 284H28V30H' + w + 'V284H' + (entry + 46);
-    var art = '<defs><pattern id="floor-boards" patternUnits="userSpaceOnUse" width="120" height="48">' +
-      '<path class="plan-joint" d="M0 0h120 M0 24h120 M35 0v24 M92 24v24"/></pattern></defs>' +
-      '<g aria-hidden="true"><rect class="plan-floor" x="28" y="30" width="' + (w - 28) + '" height="254"/>' +
-      '<rect fill="url(#floor-boards)" x="28" y="30" width="' + (w - 28) + '" height="254"/>' +
-      '<path class="plan-wall" d="' + walls + ' ' + plan.partitions + '"/>' +
-      plan.windows.map(windowBay).join('') + door(entry, 284, 0) +
-      plan.doors.map(function (d) { return door(d[0], d[1], d[2]); }).join('') +
-      plan.shelves.map(function (p) { return shelves(p[0], p[1]); }).join('') +
-      plan.plants.map(function (p) { return plant(p[0], p[1]); }).join('') +
-      plan.tables.map(function (p) { return meetingTable(p[0], p[1]); }).join('') +
-      plan.labels.map(function (p) { return '<text class="plan-room" x="' + p[0] + '" y="' + p[1] + '">' + p[2] + '</text>'; }).join('') +
-      '<text class="plan-entry" x="' + (entry + 11) + '" y="307">입구</text></g>';
-    var anchors = Object.entries(plan.anchors).map(function (item) {
-      var id = item[0], pt = item[1];
-      return '<foreignObject x="' + pt[0] + '" y="' + pt[1] + '" width="92" height="68">' +
-        anchorButton(id) + '</foreignObject>';
-    }).join('');
-    return '<svg class="floorplan" width="' + plan.width + '" height="322" viewBox="0 0 ' + plan.width +
-      ' 322" role="group" aria-label="사무실 평면도">' + art + anchors + '</svg>';
+  function curtainWall(plan) {
+    const { w, d, bays } = plan;
+    return windows('x', w, bays[0]) + windows('y', d, bays[1]) +
+      block('frame', -3, -3, 68, w + 6, 4, 4) + block('frame', -3, 0, 68, 4, d + 3, 4) +
+      block('frame', -3, -3, 0, 5, 5, 72) + block('frame', 0, 0, 0, w, 4, 8) +
+      block('frame', 0, 0, 0, 4, d, 8) + block('frame', w - 3, 0, 0, 5, 5, 72) +
+      block('frame', 0, d - 3, 0, 5, 5, 72);
   }
-  return { render: render };
+  function glassPanel(dx, dy) {
+    const pane = [[0, 0, 3], [dx, dy, 3], [dx, dy, 43], [0, 0, 43]];
+    return '<polygon class="iso-partition" points="' + points(pane) + '"/>' +
+      block('metal', 0, 0, 42, dx || 2, dy || 2, 2) +
+      block('metal', 0, 0, 0, 2, 2, 44) + block('metal', dx, dy, 0, 2, 2, 44);
+  }
+
+  function chair(x, y) {
+    return at(x, y, block('dark', -7, -6, 0, 14, 13, 2) + block('metal', -2, -2, 2, 4, 4, 9) +
+      block('dark', -8, -7, 11, 16, 14, 4) + block('dark', -8, -8, 15, 16, 3, 14) +
+      block('metal', -6, -5, 24, 12, 1, 1));
+  }
+  function table(x, y, w, d, h, material) {
+    let legs = '';
+    for (const dx of [2, w - 5]) for (const dy of [2, d - 5]) legs += block('metal', x + dx, y + dy, 0, 3, 3, h);
+    return legs + block(material, x, y, h, w, d, 3);
+  }
+  function desk(occupied) {
+    let person = '';
+    if (occupied) {
+      person = block('suit', -7, -19, 14, 14, 10, 14) +
+        face('portrait', [[-4,-17,29], [3,-17,29], [4,-13,32], [3,-12,38], [-3,-13,39], [-5,-16,36]]) +
+        block('dark', -4, -18, 37, 7, 6, 3);
+    }
+    return chair(0, -15) + person + table(-22, -6, 44, 22, 18, 'white') +
+      block('metal', -4, 4, 21, 9, 4, 1) + block('dark', 0, 5, 22, 2, 2, 5) +
+      block('dark', -9, 6, 26, 21, 2, 12) +
+      face('screen', [[-7,8,27], [10,8,27], [10,8,36], [-7,8,36]]) +
+      face('keypad', surface(-7,-3,15,5,21.2)) + face('paper', surface(14, 7, 5, 7, 21.2));
+  }
+  function cabinet(tall) {
+    if (!tall) return block('metal', -13,-9,0,26,18,27) +
+      [7,16,25].map(z => block('dark', -7,9,z,14,1,1)).join('');
+    let books = '';
+    for (const z of [7, 25]) {
+      for (let i = 0; i < 7; i++) books += block(i % 3 ? 'stone' : 'dark', -17 + i * 5, 0, z, 3.5, 6, 9 + i % 4);
+    }
+    return block('wood', -21,-7,0,42,6,46) + block('wood', -22,-6,0,3,15,45) +
+      books + [4,22,44].map(z => block('wood', -22,-7,z,45,16,2)).join('');
+  }
+  function sofa(w) {
+    return block('dark', -w/2+3,-9,0,w-6,18,5) + block('fabric', -w/2,-12,5,w,24,9) +
+      block('fabric', -w/2,-13,14,w,5,13) + block('fabric', -w/2,-8,14,5,20,8) +
+      block('fabric', w/2-5,-8,14,5,20,8) +
+      block('fabric', -w/2+6,-6,14,w/2-7,17,2) + block('fabric', 1,-6,14,w/2-7,17,2);
+  }
+  function plant() {
+    let leaves = '';
+    for (const [x,y,z] of [[-14,-3,32],[0,-14,40],[11,-8,34],[-10,11,39],[9,10,43],[14,3,29],[-4,14,30]]) {
+      leaves += face('leaf-left', [[0,0,15],[x-4,y,z-6],[x,y,z]]) +
+        face('leaf-top', [[0,0,15],[x,y,z],[x+4,y,z-7]]);
+    }
+    return block('stone', -8,-8,0,16,16,18) + face('soil', surface(-6,-6,12,12,18.2)) + leaves;
+  }
+  const fixtures = {
+    shelf: () => cabinet(true), files: () => cabinet(false), plant: plant,
+    counter: () => block('wood', -27,-10,0,54,20,25) + block('stone', -29,-12,25,58,24,3) + block('dark', 4,-3,28,13,2,7),
+    sofa: () => sofa(60), bench: () => sofa(36),
+    lowTable: () => table(-16,-8,32,16,9,'wood'),
+    meeting: () => chair(-19,-18) + chair(19,-18) + table(-38,-14,76,28,20,'wood') +
+      face('paper', surface(-22,-4,9,7,23.2)) + face('keypad', surface(13,0,10,5,23.2)) + chair(-19,20) + chair(19,20)
+  };
+
+  const footprint = points(surface(-30,-23,60,46,0));
+  function anchor(id, status, onWood) {
+    const { placed, full, person, selected, lockLabel } = status;
+    const disabled = !placed && full;
+    const label = id + ' 자리 · ' + (placed ? person || '빈 책상' : disabled ? lockLabel : '책상 놓기');
+    return '<g id="anchor-' + id + '" class="iso-anchor' + (onWood ? ' on-wood' : '') + '" role="button" tabindex="' + (disabled ? -1 : 0) +
+      '" data-act="' + (placed ? 'chooseDesk' : 'placeDesk') + '" data-anchor="' + id + '" aria-label="' + escape(label) + '"' +
+      (disabled ? ' aria-disabled="true"' : '') + (placed ? ' aria-expanded="' + selected + '"' : '') + '>' +
+      '<polygon class="iso-hit ' + (placed ? 'installed' : 'empty') + '" points="' + footprint + '"/>' +
+      (placed ? desk(person) : '<text class="iso-letter" y="' + (disabled ? -1 : 4) + '">' + id + '</text>' +
+        (disabled ? '<text class="iso-cost" y="12">' + escape(lockLabel) + '</text>' : '')) + '</g>';
+  }
+
+  function nameplate(id, name) {
+    return '<g class="iso-nameplate" data-seat="' + id + '" transform="translate(8 -46)">' +
+      '<path d="M-29 -17h58v20H3L0 7l-3 -4h-26Z"/><text y="-3">' + escape(name) + '</text></g>';
+  }
+  function plaque(d, owner) {
+    const [x,y] = project(12,d, -1);
+    const name = owner + ' 법률사무소';
+    return '<g class="iso-plaque" transform="matrix(1 .5 0 1 ' + x + ' ' + y + ')"><rect width="119" height="16"/>' +
+      '<text x="59.5" y="12"' + (name.length > 13 ? ' textLength="112" lengthAdjust="spacingAndGlyphs"' : '') + '>' + escape(name) + '</text></g>';
+  }
+  function render(tier, readSeat, owner) {
+    const plan = plans[tier], { w,d } = plan;
+    const width = w + d + 36, height = (w+d)/2 + 113;
+    let floor = block('slab',0,0,-20,w,d,20) + face('stone-top', surface(0,0,w,d,0));
+    let labels = '', tags = '';
+    const objects = [];
+    function add(kind,x,y,body) { objects.push({ kind, depth: x+y, art: at(x,y,body) }); }
+    for (const room of plan.rooms) {
+      if (room.wood) floor += face('wood-top', surface(...room.wood,0));
+      labels += at(...room.label, '<text class="iso-room' + (room.wood ? ' on-wood' : '') +
+        '" transform="matrix(1 .5 -.42 .8 0 0)">' + room.name + '</text>');
+      for (const [id,[x,y]] of Object.entries(room.seats || {})) {
+        const status = readSeat(id);
+        add('anchor', x,y, anchor(id,status,room.wood));
+        if (status.person) tags += at(x,y,nameplate(id,status.person));
+      }
+    }
+    for (const [kind,x,y] of plan.furniture) add(kind,x,y,fixtures[kind]());
+    for (const [x,y,dx,dy] of plan.partitions) {
+      const count = Math.ceil((dx+dy)/45);
+      for (let i=0; i<count; i++) {
+        const sx = dx/count, sy = dy/count;
+        const xx=x+sx*i, yy=y+sy*i;
+        objects.push({kind:'glass', depth:xx+yy+(sx+sy)/2, art:at(xx,yy,glassPanel(sx,sy))});
+      }
+    }
+    objects.sort((a,b) => a.depth-b.depth);
+    const scene = objects.map(o => '<g data-fixture="' + o.kind + '" data-depth="' + o.depth + '">' + o.art + '</g>').join('');
+    return '<svg class="office-iso" width="' + width + '" viewBox="' + (-d-18) + ' -84 ' + width + ' ' + height +
+      '" role="group" aria-label="사무실 배치도">' + floor + labels + curtainWall(plan) + scene +
+      block('frame',0,d,0,w,2,2) + block('frame',w,0,0,2,d,2) + plaque(d,owner) + tags + '</svg>';
+  }
+  return { project, render };
 });

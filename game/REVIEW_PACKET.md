@@ -78,3 +78,10 @@
 - `src/floorplan.js`와 `index.html`, `src/ui.js`가 각 등급의 SVG 도면·현장 버튼·책상 관리 메뉴를 연결한다. `src/style.css`, `src/tokens.css`, `TOKENS.md`에 평면도 표현을 반영했다.
 - 기존 `tests/desks.test.js`와 `tests/ui-loop.test.js`에서 구매 직후 자동 설치를 전제하던 입력을 구매·자리 선택으로 나눴다. 비용·사건 배정 독립·중복 착석·재승급 조건은 계속 검증한다. `tests/floorplan.test.js`는 설치 한도·회수, 무효 자리, 세 도면의 구성, 강등 회수 순서를 추가 검증한다.
 - 54개 통과, 실패 0, 종료 코드 0. 실행 명령과 브라우저 증거는 [REPORT.md](REPORT.md), 배치 규칙은 [RULES.md](RULES.md)에 있다.
+
+## 아이소메트릭 사무실
+
+- `src/floorplan.js`에 등급별 방·앵커·가구·창 배치와 2:1 SVG 투영을 담았다. `src/ui.js`는 기존 자리 동작과 키보드 입력을 연결한다. `src/style.css`, `src/tokens.css`, `TOKENS.md`에 화면 크기와 재질을 정의했다.
+- `tests/floorplan.test.js`의 방 목록을 교체하고 중심 좌표·비중첩, 깊이 순서, 자리 상태와 문패 이스케이프 검사를 추가했다. `tests/ui-loop.test.js`는 직원 배치·해제 시 해당 SVG 이름표의 생성·제거를 검사한다.
+- `cd game && node --test tests/*.test.js` 결과 57개 통과, 실패 0, 종료 코드 0. 단위 테스트의 등급·좌석 상태는 지정 입력이며 브라우저 증거 7장은 시드 8의 실제 진행 화면이다. 촬영 시점과 파일 구분은 [REPORT.md](REPORT.md)에 기록했다.
+- T3의 선택 공간인 휴게실과 자료실은 생략했다. 시뮬레이션 규칙 변경은 없다.

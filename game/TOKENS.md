@@ -101,11 +101,19 @@
 | `--width-page` / `-office` / `-office-bar` / `-setup` | 1280 / 1240 / 1200 / 640px | 화면 최대 폭 |
 | `--width-tip` | 420px | 툴팁 최대 폭 |
 | `--width-cell-name` / `-sm` | 240px / 140px | 표의 사건명 칸 말줄임 폭 |
-| `--height-cover` / `-sm` | 116px / 100px | 사무실 표지 높이 |
 
-### 사무실 평면도
+### 아이소메트릭 사무실
 
-`--plan-*`은 SVG의 도면 바탕, 벽·바닥 줄눈, 유리창·목재·화분, 실제 클릭 영역을 정한다. 점선은 설치 자리, 상판과 의자는 놓인 책상, 황동 상판은 선택한 책상을 뜻한다. 넓은 층은 좁은 화면에서 평면도 안을 가로로 스크롤한다. 기존 사진은 짧은 배너에만 쓴다.
+| 토큰 | 용도 |
+|---|---|
+| `--iso-{stone,slab,white,metal,frame,dark,fabric,wood,suit}-{top,left,right}` | 석재, 층 단면, 책상, 프레임, 의자, 소파, 호두나무와 정장의 세 면 음영 |
+| `--iso-window`, `--iso-skyline`, `--iso-glass` | 통유리 창과 창밖 건물, 반투명 칸막이 |
+| `--iso-keypad`, `--iso-screen`, `--iso-paper`, `--iso-soil`, `--iso-leaf-{top,left}`, `--iso-portrait` | 책상 소품, 화분과 착석자 실루엣 |
+| `--iso-floor-ink`, `--iso-ink-light`, `--iso-label-bg` | 바닥의 방 이름, 어두운 목재 위 글자와 직원 이름표 |
+| `--iso-brass`, `--iso-ring`, `--iso-dash`, `--iso-focus-width` | 문패, 선택·호버·키보드 포커스, 빈 자리 점선 |
+| `--iso-hit`, `--iso-lock` | 투영된 클릭 영역과 설치 불가 자리의 불투명도 |
+| `--iso-full`, `--iso-height` | 같은 시점으로 층 전체를 축소하는 화면 한계 |
+| `--iso-{plaque-text,room-size,cost-size,tag-size}` | 문패, 방 이름, 해금 비용과 이름표의 Firm Batang 크기 |
 
 ## 테두리·모서리·그림자·움직임
 

@@ -394,24 +394,6 @@
         '</tbody></table></div>';
     }
 
-    function anchorButton(id, state, capacity) {
-      var placed = Loop.hasDesk(state, id);
-      var staff = staffById(state.desks.placements[id]);
-      var full = capacity.placed >= capacity.usable;
-      var label = id + ' 자리 · ' + (placed ? (staff ? staff.name + ' ' + staff.role : '빈 책상') :
-        (full ? '빈 자리 · 여유 책상 없음' : '책상 놓기'));
-      var furniture = '<svg class="seat-drawing" viewBox="0 0 92 68" aria-hidden="true">' +
-        '<rect class="plan-chair" x="34" y="4" width="24" height="16"/>' +
-        '<rect class="plan-wood" x="5" y="16" width="82" height="45"/>' +
-        '<path class="plan-line" d="M7 56h78 M15 21h18v3H15z"/>' +
-        '<rect class="plan-sheet" x="64" y="22" width="13" height="9"/></svg>';
-      return '<button type="button" id="anchor-' + id + '" class="plan-anchor ' + (placed ? 'placed' : 'vacant') +
-        '" data-act="' + (placed ? 'chooseDesk' : 'placeDesk') + '" data-anchor="' + id + '" aria-label="' + esc(label) +
-        '"' + (placed ? ' aria-expanded="' + (selectingDesk === id) + '"' : full ? ' disabled' : '') + '>' +
-        (placed ? furniture + '<span class="seat-name">' + (staff ? face(staff.id) + esc(staff.name) : id) + '</span>' :
-          '<span class="anchor-mark">+ ' + id + '</span>') + '</button>';
-    }
-
     function deskActions(state) {
       var id = selectingDesk;
       if (!id || !Loop.hasDesk(state, id)) return '';
@@ -433,10 +415,17 @@
       var purchase = cost === null ? '' : '<button id="buy-desk" data-act="unlockDesk" data-number="' + (capacity.usable + 1) +
         '"' + (state.cash < cost ? ' disabled' : '') + '>책상 1개 해금 · ' + format(cost, 'money') +
         (state.cash < cost ? ' · 잔액 부족' : '') + '</button>';
-      return '<section class="office-layout" aria-label="책상 배치"><div class="layout-heading"><h2>사무실 평면도</h2>' +
+      var illustration = Floorplan.render(state.tier, function (id) {
+        var person = staffById(state.desks.placements[id]);
+        return {
+          placed: Loop.hasDesk(state, id), full: capacity.placed >= capacity.usable,
+          selected: selectingDesk === id, person: person && person.name + ' ' + person.role,
+          lockLabel: cost === null ? '보유 한도' : format(cost, 'money') + ' 해금'
+        };
+      }, partnerName);
+      return '<section class="office-layout" aria-label="책상 배치"><div class="layout-heading"><h2>책상 배치</h2>' +
         '<span>배치 ' + capacity.placed + ' · 보유 ' + capacity.usable + ' / ' + capacity.cap + '</span>' + purchase +
-        '</div><div id="plan-viewport" class="plan-viewport" role="region" aria-label="책상 자리" tabindex="0">' + Floorplan.render(state.tier, function (id) { return anchorButton(id, state, capacity); }) +
-        '</div>' + deskActions(state) + '</section>';
+        '</div><div class="iso-stage">' + illustration + '</div>' + deskActions(state) + '</section>';
     }
 
     function officeHtml() {
@@ -609,11 +598,7 @@
     function draw(focusId) {
       var view = doc.defaultView;
       var y = view && view.scrollY || 0;
-      var previousPlan = doc.getElementById('plan-viewport');
-      var planScroll = previousPlan && previousPlan.scrollLeft;
       app.innerHTML = desk.html();
-      var plan = doc.getElementById('plan-viewport');
-      if (plan && planScroll) plan.scrollLeft = planScroll;
       var control = focusId && doc.getElementById(focusId);
       if (control) control.focus({ preventScroll: true });
       if (view && view.scrollTo) view.scrollTo(0, y);
@@ -621,9 +606,15 @@
     doc.addEventListener('input', function (event) {
       if (event.target.id === 'partner-name') desk.handle('name', {}, event.target.value);
     });
+    doc.addEventListener('keydown', function (event) {
+      var anchor = event.target.closest && event.target.closest('.iso-anchor');
+      if (!anchor || (event.key !== 'Enter' && event.key !== ' ')) return;
+      event.preventDefault();
+      if (!event.repeat && anchor.getAttribute('aria-disabled') !== 'true' && desk.handle(anchor.dataset.act, anchor.dataset)) draw(anchor.id);
+    });
     doc.addEventListener('click', function (event) {
       var el = event.target && event.target.closest && event.target.closest('[data-act]');
-      if (!el || el.disabled) return;
+      if (!el || el.disabled || (el.getAttribute && el.getAttribute('aria-disabled') === 'true')) return;
       var act = el.dataset.act;
       if (act === 'toggle' || act === 'assign') return;
       if (desk.handle(act, el.dataset)) {

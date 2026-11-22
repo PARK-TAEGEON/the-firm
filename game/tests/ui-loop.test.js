@@ -345,7 +345,7 @@ test('대표 이름은 한서진으로 시작하고 재배분 뒤에도 남으�
   }
 });
 
-test('사무실 책상 클릭으로 현금·빈자리·직원 얼굴·해제가 반영되고 사건 배정 선택은 유지된다', () => {
+test('사무실 책상 클릭으로 현금·빈자리·직원 이름표·해제가 반영되고 사건 배정 선택은 유지된다', () => {
   const { doc, desk } = mounted(8);
   const html = () => doc.nodes.app.innerHTML;
   const act = (name, anchor, staff) => {
@@ -365,8 +365,9 @@ test('사무실 책상 클릭으로 현금·빈자리·직원 얼굴·해제가 
   assert.doesNotMatch(html(), /aria-label="C 책상 관리"/);
   act('chooseDesk', 'C');
   act('seatStaff', 'C', 'kim');
-  assert.match(html(), /id="anchor-C"[^>]*aria-label="C 자리 · 김 사무원"[\s\S]*?staff-kim\.jpg/);
+  assert.match(html(), /class="iso-nameplate" data-seat="C"[^>]*>[\s\S]*?<text[^>]*>김 사무원<\/text>/);
   act('clearDesk', 'C');
+  assert.doesNotMatch(html(), /class="iso-nameplate" data-seat="C"/);
   assert.equal(desk.state().desks.placements.C, null);
   act('seatStaff', 'C', 'park');
   act('removeDesk', 'C');
