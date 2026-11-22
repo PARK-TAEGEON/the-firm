@@ -1,10 +1,11 @@
 (function (root, factory) {
   'use strict';
   var isNode = typeof module === 'object' && module.exports;
-  var api = factory(isNode ? require('./format.js') : root.FirmFormat);
+  var api = factory(isNode ? require('./format.js') : root.FirmFormat,
+    isNode ? require('./floorplan.js') : root.FirmFloorplan);
   if (isNode) module.exports = api;
   if (typeof document !== 'undefined' && document.getElementById('app') && root.FirmLoop) api.mount(document, root.FirmLoop);
-})(typeof globalThis !== 'undefined' ? globalThis : this, function (format) {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (format, Floorplan) {
   'use strict';
   // 12주 위임 화면. 판정은 FirmLoop만 한다. 화면은 조회와 입력만 보낸다.
 
@@ -111,19 +112,25 @@
         return true;
       }
       if (screen === 'office') {
-        var number = Number(data.desk);
-        if (act === 'unlockDesk') return Loop.unlockDesk(run.state, number);
-        if (act === 'chooseDesk') {
-          var desk = Loop.officeDesks(run.state).find(function (seat) { return seat.number === number; });
-          if (!desk || !desk.unlocked || desk.staffId) return false;
-          selectingDesk = selectingDesk === number ? null : number;
+        var state = run.state;
+        var anchor = data.anchor;
+        if (act === 'unlockDesk') return Loop.unlockDesk(state, Number(data.number));
+        if (act === 'placeDesk') {
+          if (!Loop.placeDesk(state, anchor)) return false;
+          selectingDesk = anchor;
           return true;
         }
-        if (act === 'seatStaff' || act === 'clearDesk') {
-          if (act === 'seatStaff' && selectingDesk !== number) return false;
-          if (!Loop.seatStaff(run.state, number, act === 'clearDesk' ? null : data.staff)) return false;
-          selectingDesk = null;
+        if (act === 'chooseDesk' && Loop.hasDesk(state, anchor)) {
+          selectingDesk = selectingDesk === anchor ? null : anchor;
           return true;
+        }
+        if (selectingDesk && selectingDesk === anchor) {
+          if (act === 'seatStaff') return Loop.seatStaff(state, anchor, data.staff);
+          if (act === 'clearDesk') return Loop.seatStaff(state, anchor, null);
+          if (act === 'removeDesk' && Loop.removeDesk(state, anchor)) {
+            selectingDesk = null;
+            return true;
+          }
         }
       }
       if (act === 'panel' && screen === 'office') {
@@ -387,46 +394,49 @@
         '</tbody></table></div>';
     }
 
-    function workstation(desk) {
-      var person = staffById(desk.staffId);
-      var status = desk.unlocked ? '빈자리' : '잠김';
-      var action = 'chooseDesk';
-      var label = '직원 배치';
-      var disabled = false;
-      var expanded = '';
-      if (!desk.unlocked) {
-        action = 'unlockDesk';
-        disabled = !desk.next || !desk.affordable;
-        label = format(desk.cost, 'money') + (desk.next && !desk.affordable ? ' · 잔액 부족' : ' 해금');
-        if (!desk.next) label = (desk.number - 1) + '번 해금 후';
-      } else if (person) {
-        status = person.name + ' ' + person.role;
-        action = 'clearDesk';
-        label = '배치 해제';
-      } else {
-        expanded = ' aria-expanded="' + (selectingDesk === desk.number) + '"';
-      }
-      return '<button type="button" class="workstation ' + (desk.unlocked ? 'available' : 'locked') +
-        '" id="workstation-' + desk.number + '" data-act="' + action + '" data-desk="' + desk.number + '"' +
-        expanded + (disabled ? ' disabled' : '') + '><small>책상 ' + desk.number + '</small><strong>' +
-        (person ? face(person.id) : '') + esc(status) + '</strong><span>' + label + '</span></button>';
+    function anchorButton(id, state, capacity) {
+      var placed = Loop.hasDesk(state, id);
+      var staff = staffById(state.desks.placements[id]);
+      var full = capacity.placed >= capacity.usable;
+      var label = id + ' 자리 · ' + (placed ? (staff ? staff.name + ' ' + staff.role : '빈 책상') :
+        (full ? '빈 자리 · 여유 책상 없음' : '책상 놓기'));
+      var furniture = '<svg class="seat-drawing" viewBox="0 0 92 68" aria-hidden="true">' +
+        '<rect class="plan-chair" x="34" y="4" width="24" height="16"/>' +
+        '<rect class="plan-wood" x="5" y="16" width="82" height="45"/>' +
+        '<path class="plan-line" d="M7 56h78 M15 21h18v3H15z"/>' +
+        '<rect class="plan-sheet" x="64" y="22" width="13" height="9"/></svg>';
+      return '<button type="button" id="anchor-' + id + '" class="plan-anchor ' + (placed ? 'placed' : 'vacant') +
+        '" data-act="' + (placed ? 'chooseDesk' : 'placeDesk') + '" data-anchor="' + id + '" aria-label="' + esc(label) +
+        '"' + (placed ? ' aria-expanded="' + (selectingDesk === id) + '"' : full ? ' disabled' : '') + '>' +
+        (placed ? furniture + '<span class="seat-name">' + (staff ? face(staff.id) + esc(staff.name) : id) + '</span>' :
+          '<span class="anchor-mark">+ ' + id + '</span>') + '</button>';
+    }
+
+    function deskActions(state) {
+      var id = selectingDesk;
+      if (!id || !Loop.hasDesk(state, id)) return '';
+      var occupant = staffById(state.desks.placements[id]);
+      var controls = occupant ? '<button data-act="clearDesk" data-anchor="' + id + '">배치 해제</button>' :
+        state.staff.map(function (person) {
+          var previous = Object.keys(state.desks.placements).find(function (key) { return state.desks.placements[key] === person.id; });
+          return '<button data-act="seatStaff" data-anchor="' + id + '" data-staff="' + esc(person.id) + '">' +
+            face(person.id) + esc(person.name + ' ' + person.role) + (previous ? ' · ' + previous + '에서 이동' : ' 배치') + '</button>';
+        }).join('');
+      return '<div class="seat-choices" role="group" aria-label="' + id + ' 책상 관리"><span>' + id + ' 책상 · ' +
+        (occupant ? esc(occupant.name + ' ' + occupant.role) : '빈자리') + '</span>' + controls +
+        '<button data-act="removeDesk" data-anchor="' + id + '">책상 빼기</button></div>';
     }
 
     function layoutHtml(state) {
-      var seats = Loop.officeDesks(state);
-      var chooser = '';
-      if (selectingDesk !== null) {
-        chooser = '<div class="seat-choices" role="group" aria-label="책상 ' + selectingDesk + ' 직원 선택">' +
-          '<span>책상 ' + selectingDesk + ' 배치</span>' + state.staff.map(function (person) {
-            var previous = seats.find(function (seat) { return seat.staffId === person.id; });
-            return '<button type="button" data-act="seatStaff" data-desk="' + selectingDesk + '" data-staff="' +
-              esc(person.id) + '">' + face(person.id) + esc(person.name + ' ' + person.role) +
-              (previous ? ' · ' + previous.number + '번에서 이동' : '') + '</button>';
-          }).join('') + '</div>';
-      }
-      return '<section class="office-layout" aria-label="책상 배치"><div class="layout-heading"><h2>책상 배치</h2>' +
-        '<span>해금 ' + seats.filter(function (seat) { return seat.unlocked; }).length + ' / ' + seats.length +
-        '</span></div><div class="workstations">' + seats.map(workstation).join('') + '</div>' + chooser + '</section>';
+      var capacity = Loop.deskCapacity(state);
+      var cost = capacity.nextCost;
+      var purchase = cost === null ? '' : '<button id="buy-desk" data-act="unlockDesk" data-number="' + (capacity.usable + 1) +
+        '"' + (state.cash < cost ? ' disabled' : '') + '>책상 1개 해금 · ' + format(cost, 'money') +
+        (state.cash < cost ? ' · 잔액 부족' : '') + '</button>';
+      return '<section class="office-layout" aria-label="책상 배치"><div class="layout-heading"><h2>사무실 평면도</h2>' +
+        '<span>배치 ' + capacity.placed + ' · 보유 ' + capacity.usable + ' / ' + capacity.cap + '</span>' + purchase +
+        '</div><div id="plan-viewport" class="plan-viewport" role="region" aria-label="책상 자리" tabindex="0">' + Floorplan.render(state.tier, function (id) { return anchorButton(id, state, capacity); }) +
+        '</div>' + deskActions(state) + '</section>';
     }
 
     function officeHtml() {
@@ -599,7 +609,11 @@
     function draw(focusId) {
       var view = doc.defaultView;
       var y = view && view.scrollY || 0;
+      var previousPlan = doc.getElementById('plan-viewport');
+      var planScroll = previousPlan && previousPlan.scrollLeft;
       app.innerHTML = desk.html();
+      var plan = doc.getElementById('plan-viewport');
+      if (plan && planScroll) plan.scrollLeft = planScroll;
       var control = focusId && doc.getElementById(focusId);
       if (control) control.focus({ preventScroll: true });
       if (view && view.scrollTo) view.scrollTo(0, y);
@@ -613,7 +627,8 @@
       var act = el.dataset.act;
       if (act === 'toggle' || act === 'assign') return;
       if (desk.handle(act, el.dataset)) {
-        draw(act === 'seatStaff' ? 'workstation-' + el.dataset.desk : act === 'stat' ? undefined : el.id);
+        var focusId = el.dataset.anchor ? 'anchor-' + el.dataset.anchor : el.id;
+        draw(act === 'stat' ? undefined : focusId);
         if (act === 'stat' && el.id) {
           var step = doc.getElementById(el.id);
           if (step.disabled) step = doc.getElementById('step-' + el.dataset.key + '-' + (-Number(el.dataset.dir)));

@@ -348,26 +348,29 @@ test('대표 이름은 한서진으로 시작하고 재배분 뒤에도 남으�
 test('사무실 책상 클릭으로 현금·빈자리·직원 얼굴·해제가 반영되고 사건 배정 선택은 유지된다', () => {
   const { doc, desk } = mounted(8);
   const html = () => doc.nodes.app.innerHTML;
-  const button = number => html().match(new RegExp('<button[^>]*id="workstation-' + number + '"[^>]*>[\\s\\S]*?</button>'))[0];
-  const deskClick = (number, act) => {
-    assert.ok(button(number).includes('data-act="' + act + '" data-desk="' + number + '"'));
-    doc.click(act, { desk: String(number) });
+  const act = (name, anchor, staff) => {
+    const attrs = 'data-act="' + name + '" data-anchor="' + anchor + '"' + (staff ? ' data-staff="' + staff + '"' : '');
+    assert.ok(html().includes(attrs), attrs);
+    doc.click(name, { anchor, staff });
   };
   clickRendered(doc, 'start');
   clickRendered(doc, 'panel', { id: 'cases' });
   const table = () => html().match(/<section class="office-detail" id="detail-cases"[\s\S]*?<\/section>/)[0];
   const before = table();
-  assert.match(button(2), /잠김/);
-  deskClick(2, 'unlockDesk');
+  assert.match(html(), /id="anchor-B"[^>]*disabled/);
+  clickRendered(doc, 'unlockDesk', { number: '2' });
   assert.match(html(), /<span>자금<\/span><strong>900만<\/strong>/);
-  assert.match(button(2), /빈자리/);
-  deskClick(2, 'chooseDesk');
-  assert.match(html(), /data-act="seatStaff" data-desk="2" data-staff="kim"/);
-  doc.click('seatStaff', { desk: '2', staff: 'kim' });
-  assert.match(button(2), /staff-kim\.jpg.*김 사무원/);
-  deskClick(2, 'clearDesk');
-  assert.match(button(2), /빈자리/);
-  assert.doesNotMatch(button(2), /<img/);
-  assert.deepEqual(desk.state().desks.assignments, {});
+  act('placeDesk', 'C');
+  act('chooseDesk', 'C');
+  assert.doesNotMatch(html(), /aria-label="C 책상 관리"/);
+  act('chooseDesk', 'C');
+  act('seatStaff', 'C', 'kim');
+  assert.match(html(), /id="anchor-C"[^>]*aria-label="C 자리 · 김 사무원"[\s\S]*?staff-kim\.jpg/);
+  act('clearDesk', 'C');
+  assert.equal(desk.state().desks.placements.C, null);
+  act('seatStaff', 'C', 'park');
+  act('removeDesk', 'C');
+  assert.deepEqual(desk.state().desks.placements, { A: null });
+  assert.match(html(), /id="anchor-C"[^>]*data-act="placeDesk"[^>]*책상 놓기/);
   assert.equal(table(), before);
 });

@@ -6,7 +6,7 @@ const cases = require('../data/cases.json');
 
 test('개업 시 첫 책상만 열리고 잔액 부족·등급 상한·중복 구매는 원자적으로 거절한다', () => {
   const { state } = Loop.createRun({ seed: 8 });
-  assert.deepEqual(Loop.officeDesks(state).map(s => s.unlocked), [true, false]);
+  assert.deepEqual(Loop.deskCapacity(state), { cap: 2, usable: 1, placed: 1, nextCost: 1000000 });
   state.cash = 999999;
   const before = structuredClone(state);
   assert.equal(Loop.unlockDesk(state, 2), false);
@@ -27,19 +27,20 @@ test('직원은 빈 해금 책상에만 앉거나 이동하며 사건 업무와 
   const accepts = Loop.previewAccepts(run);
   const work = Loop.previewAssignments(run, accepts);
   const staff = structuredClone(state.staff);
-  assert.equal(Loop.seatStaff(state, 2, 'kim'), false);
+  assert.equal(Loop.seatStaff(state, 'B', 'kim'), false);
   Loop.unlockDesk(state, 2);
-  assert.equal(Loop.seatStaff(state, 1, 'kim'), true);
-  assert.equal(Loop.seatStaff(state, 2, 'park'), true);
+  assert.ok(Loop.placeDesk(state, 'B'));
+  assert.equal(Loop.seatStaff(state, 'A', 'kim'), true);
+  assert.equal(Loop.seatStaff(state, 'B', 'park'), true);
   const occupied = structuredClone(state.desks);
-  assert.equal(Loop.seatStaff(state, 2, 'kim'), false);
+  assert.equal(Loop.seatStaff(state, 'B', 'kim'), false);
   assert.deepEqual(state.desks, occupied);
-  assert.equal(Loop.seatStaff(state, 2, null), true);
-  assert.equal(Loop.seatStaff(state, 2, 'han'), false);
-  assert.equal(Loop.seatStaff(state, 2, 'kim'), true);
-  assert.deepEqual(state.desks.assignments, { 2: 'kim' });
-  assert.equal(Loop.seatStaff(state, 2, null), true);
-  assert.deepEqual(state.desks.assignments, {});
+  assert.equal(Loop.seatStaff(state, 'B', null), true);
+  assert.equal(Loop.seatStaff(state, 'B', 'han'), false);
+  assert.equal(Loop.seatStaff(state, 'B', 'kim'), true);
+  assert.deepEqual(state.desks.placements, { A: null, B: 'kim' });
+  assert.equal(Loop.seatStaff(state, 'B', null), true);
+  assert.deepEqual(state.desks.placements, { A: null, B: null });
   assert.deepEqual(state.staff, staff);
   assert.deepEqual(Loop.previewAssignments(run, accepts), work);
 });
@@ -56,7 +57,7 @@ test('주간 승강등은 2·3·5자리 상한을 적용하고 재승급 때 구
     Loop.advanceWeek(run);
     assert.equal(state.cash, before - rent - 1700000);
     assert.equal(state.tier, tier);
-    assert.equal(Loop.officeDesks(state).length, cap);
+    assert.equal(Loop.deskCapacity(state).cap, cap);
   };
   const buy = (number, cost) => {
     const before = state.cash;
@@ -69,16 +70,17 @@ test('주간 승강등은 2·3·5자리 상한을 적용하고 재승급 때 구
   week(35, 40000000, 3, 5);
   assert.equal(Loop.unlockDesk(state, 5), false);
   buy(4, 3000000);
-  Loop.seatStaff(state, 3, 'kim');
-  Loop.seatStaff(state, 4, 'park');
+  for (const id of ['B', 'C', 'D']) assert.ok(Loop.placeDesk(state, id));
+  Loop.seatStaff(state, 'C', 'kim');
+  Loop.seatStaff(state, 'D', 'park');
   week(14, 40000000, 2, 3);
-  assert.deepEqual(state.desks.assignments, { 3: 'kim' });
-  assert.equal(Loop.seatStaff(state, 4, 'park'), false);
+  assert.deepEqual(state.desks.placements, { A: null, B: null, C: 'kim' });
+  assert.equal(Loop.seatStaff(state, 'D', 'park'), false);
   week(14, 40000000, 1, 2);
-  assert.deepEqual(state.desks.assignments, {});
+  assert.deepEqual(state.desks.placements, { A: null, B: null });
   week(35, 40000000, 3, 5);
-  assert.deepEqual(Loop.officeDesks(state).map(s => [s.unlocked, s.staffId]), [
-    [true, null], [true, null], [true, null], [true, null], [false, null]
-  ]);
+  assert.deepEqual(Loop.deskCapacity(state), { cap: 5, usable: 4, placed: 2, nextCost: 4000000 });
+  assert.ok(Loop.placeDesk(state, 'F'));
+  assert.equal(state.desks.placements.F, null);
   buy(5, 4000000);
 });
