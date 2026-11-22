@@ -42,46 +42,57 @@
   var RENT = { 1: 5000000, 2: 7500000, 3: 12500000 };
   var TIER_NAME = { 1: 'T1 개인 사무소', 2: 'T2 동네 법률사무소', 3: 'T3 중견 로펌' };
 
-  // 지유 확인 전 임시값: 등급별 자리 상한, 시작 책상 한 개, 추가 책상별 해금 비용.
   var DESK_CAP = { 1: 2, 2: 3, 3: 5 };
   var DESK_COST = [0, 1000000, 2000000, 3000000, 4000000];
+  var ANCHORS = { 1: 'ABC', 2: 'ABCDE', 3: 'ABCDEFG' };
 
-  function officeDesks(state) {
-    var desks = state.desks;
-    return DESK_COST.slice(0, DESK_CAP[state.tier]).map(function (cost, index) {
-      var number = index + 1;
-      return {
-        number: number, cost: cost, unlocked: number <= desks.unlocked,
-        next: number === desks.unlocked + 1, affordable: state.cash >= cost,
-        staffId: desks.assignments[number] || null
-      };
-    });
+  function deskCapacity(state) {
+    var cap = DESK_CAP[state.tier];
+    var usable = Math.min(state.desks.unlocked, cap);
+    return { cap: cap, usable: usable, placed: Object.keys(state.desks.placements).length,
+      nextCost: usable < cap ? DESK_COST[usable] : null };
   }
 
   function unlockDesk(state, number) {
-    if (!Number.isInteger(number) || state.ending) return false;
-    var desk = officeDesks(state)[number - 1];
-    if (!desk || !desk.next || !desk.affordable) return false;
-    state.cash -= desk.cost;
+    var capacity = deskCapacity(state);
+    if (state.ending || number !== capacity.usable + 1 ||
+        capacity.nextCost === null || state.cash < capacity.nextCost) return false;
+    state.cash -= capacity.nextCost;
     state.desks.unlocked = number;
     return true;
   }
 
-  function seatStaff(state, number, staffId) {
-    if (!Number.isInteger(number) || state.ending) return false;
-    var desk = officeDesks(state)[number - 1];
-    if (!desk || !desk.unlocked) return false;
-    var seats = state.desks.assignments;
+  function hasDesk(state, anchor) {
+    return typeof anchor === 'string' && Object.hasOwn(state.desks.placements, anchor);
+  }
+
+  function placeDesk(state, anchor) {
+    var capacity = deskCapacity(state);
+    if (state.ending || typeof anchor !== 'string' || anchor.length !== 1 ||
+        !ANCHORS[state.tier].includes(anchor) || hasDesk(state, anchor) ||
+        capacity.placed >= capacity.usable) return false;
+    state.desks.placements[anchor] = null;
+    return true;
+  }
+
+  function removeDesk(state, anchor) {
+    if (state.ending || !hasDesk(state, anchor)) return false;
+    delete state.desks.placements[anchor];
+    return true;
+  }
+
+  function seatStaff(state, anchor, staffId) {
+    if (state.ending || !hasDesk(state, anchor)) return false;
+    var seats = state.desks.placements;
     if (staffId === null) {
-      if (!desk.staffId) return false;
-      delete seats[number];
-      return true;
+      if (!seats[anchor]) return false;
+    } else {
+      if (seats[anchor] || !state.staff.some(function (person) { return person.id === staffId; })) return false;
+      Object.keys(seats).forEach(function (previous) {
+        if (seats[previous] === staffId) seats[previous] = null;
+      });
     }
-    if (desk.staffId || !state.staff.some(function (person) { return person.id === staffId; })) return false;
-    Object.keys(seats).forEach(function (previous) {
-      if (seats[previous] === staffId) delete seats[previous];
-    });
-    seats[number] = staffId;
+    seats[anchor] = staffId;
     return true;
   }
 
@@ -381,9 +392,12 @@
     else if (state.tier === 2 && state.reputation < T2_REPUTATION) state.tier -= 1;
     else if (state.reputation >= T3_REPUTATION && state.revenue >= T3_REVENUE) state.tier = 3;
     else if (state.reputation >= T2_REPUTATION) state.tier = Math.max(state.tier, 2);
-    var seats = state.desks.assignments;
-    Object.keys(seats).forEach(function (number) {
-      if (Number(number) > DESK_CAP[state.tier]) delete seats[number];
+    // 축소 후에도 존재하는 자리 중 A부터 보유 한도까지 남긴다.
+    var seats = state.desks.placements;
+    var surviving = ANCHORS[state.tier].split('').filter(function (id) { return hasDesk(state, id); })
+      .slice(0, Math.min(state.desks.unlocked, DESK_CAP[state.tier]));
+    Object.keys(seats).forEach(function (id) {
+      if (!surviving.includes(id)) delete seats[id];
     });
     return state.tier;
   }
@@ -424,7 +438,7 @@
         negativeStreak: 0,
         stats: normalizeStats(opts.stats),
         staff: startingStaff(),
-        desks: { unlocked: 1, assignments: {} },
+        desks: { unlocked: 1, placements: { A: null } },
         pool: loaded.pool,
         excluded: loaded.excluded,
         matters: [],
@@ -696,7 +710,10 @@
     STAT_KEYS: STAT_KEYS,
     autoPolicy: autoPolicy,
     createRun: createRun,
-    officeDesks: officeDesks,
+    deskCapacity: deskCapacity,
+    placeDesk: placeDesk,
+    removeDesk: removeDesk,
+    hasDesk: hasDesk,
     unlockDesk: unlockDesk,
     seatStaff: seatStaff,
     openWeek: openWeek,
