@@ -137,6 +137,26 @@
   --height-cover: clamp(220px, 30vh, 340px);
   --height-cover-sm: 180px;
 
+  /* 사무실 사진의 시야와 평면 배치의 책상·의자 */
+  --office-photo: url('../assets/art/office_lounge.jpg') center 54% / cover;
+  --office-view-t1: scale(1.85);
+  --office-view-t2: scale(1.35);
+  --office-view-t3: scale(1);
+  --office-photo-anchor: 68% center;
+  --office-photo-layer: -2;
+  --office-scrim-layer: -1;
+  --workstation-width: clamp(128px, 14vw, 184px);
+  --workstation-height: 92px;
+  --workstation-chair-width: 36%;
+  --workstation-chair-height: 10px;
+  --workstation-chair-left: 32%;
+  --workstation-chair-offset: -11px;
+  --workstation-open: var(--paper-200);
+  --workstation-chair: var(--bone-500);
+  --workstation-edge: var(--paper-400);
+  --workstation-locked-line: var(--border-hair) dashed var(--color-text-faint);
+  --workstation-mobile: repeat(2, minmax(0, 1fr));
+
   /* 테두리 */
   --border-hair: 1px;
   --border-mark: 2px;      /* 선택 행 왼쪽 표시, 지표 묶음 윗선 */

@@ -42,6 +42,49 @@
   var RENT = { 1: 5000000, 2: 7500000, 3: 12500000 };
   var TIER_NAME = { 1: 'T1 개인 사무소', 2: 'T2 동네 법률사무소', 3: 'T3 중견 로펌' };
 
+  // 지유 확인 전 임시값: 등급별 자리 상한, 시작 책상 한 개, 추가 책상별 해금 비용.
+  var DESK_CAP = { 1: 2, 2: 3, 3: 5 };
+  var DESK_COST = [0, 1000000, 2000000, 3000000, 4000000];
+
+  function officeDesks(state) {
+    var desks = state.desks;
+    return DESK_COST.slice(0, DESK_CAP[state.tier]).map(function (cost, index) {
+      var number = index + 1;
+      return {
+        number: number, cost: cost, unlocked: number <= desks.unlocked,
+        next: number === desks.unlocked + 1, affordable: state.cash >= cost,
+        staffId: desks.assignments[number] || null
+      };
+    });
+  }
+
+  function unlockDesk(state, number) {
+    if (!Number.isInteger(number) || state.ending) return false;
+    var desk = officeDesks(state)[number - 1];
+    if (!desk || !desk.next || !desk.affordable) return false;
+    state.cash -= desk.cost;
+    state.desks.unlocked = number;
+    return true;
+  }
+
+  function seatStaff(state, number, staffId) {
+    if (!Number.isInteger(number) || state.ending) return false;
+    var desk = officeDesks(state)[number - 1];
+    if (!desk || !desk.unlocked) return false;
+    var seats = state.desks.assignments;
+    if (staffId === null) {
+      if (!desk.staffId) return false;
+      delete seats[number];
+      return true;
+    }
+    if (desk.staffId || !state.staff.some(function (person) { return person.id === staffId; })) return false;
+    Object.keys(seats).forEach(function (previous) {
+      if (seats[previous] === staffId) delete seats[previous];
+    });
+    seats[number] = staffId;
+    return true;
+  }
+
   function clone(value) { return JSON.parse(JSON.stringify(value)); }
   function clamp(value, lo, hi) { return Math.max(lo, Math.min(hi, value)); }
   function cmp(a, b) { return a < b ? -1 : a > b ? 1 : 0; }
@@ -338,6 +381,10 @@
     else if (state.tier === 2 && state.reputation < T2_REPUTATION) state.tier -= 1;
     else if (state.reputation >= T3_REPUTATION && state.revenue >= T3_REVENUE) state.tier = 3;
     else if (state.reputation >= T2_REPUTATION) state.tier = Math.max(state.tier, 2);
+    var seats = state.desks.assignments;
+    Object.keys(seats).forEach(function (number) {
+      if (Number(number) > DESK_CAP[state.tier]) delete seats[number];
+    });
     return state.tier;
   }
 
@@ -377,6 +424,7 @@
         negativeStreak: 0,
         stats: normalizeStats(opts.stats),
         staff: startingStaff(),
+        desks: { unlocked: 1, assignments: {} },
         pool: loaded.pool,
         excluded: loaded.excluded,
         matters: [],
@@ -648,6 +696,9 @@
     STAT_KEYS: STAT_KEYS,
     autoPolicy: autoPolicy,
     createRun: createRun,
+    officeDesks: officeDesks,
+    unlockDesk: unlockDesk,
+    seatStaff: seatStaff,
     openWeek: openWeek,
     previewAccepts: previewAccepts,
     previewAssignments: previewAssignments,
