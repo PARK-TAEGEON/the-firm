@@ -128,8 +128,8 @@
     for (const z of [7, 25]) {
       for (let i = 0; i < 7; i++) books += block(i % 3 ? 'stone' : 'dark', -17 + i * 5, 0, z, 3.5, 6, 9 + i % 4);
     }
-    return block('wood', -21,-7,0,42,6,46) + block('wood', -22,-6,0,3,15,45) +
-      books + [4,22,44].map(z => block('wood', -22,-7,z,45,16,2)).join('');
+    return block('frame', -21,-7,0,42,6,46) + block('frame', -22,-6,0,3,15,45) +
+      books + [4,22,44].map(z => block('frame', -22,-7,z,45,16,2)).join('');
   }
   function sofa(w) {
     return block('dark', -w/2+3,-9,0,w-6,18,5) + block('fabric', -w/2,-12,5,w,24,9) +
@@ -147,9 +147,9 @@
   }
   const fixtures = {
     shelf: () => cabinet(true), files: () => cabinet(false), plant: plant,
-    counter: () => block('wood', -27,-10,0,54,20,25) + block('stone', -29,-12,25,58,24,3) + block('dark', 4,-3,28,13,2,7),
+    counter: () => block('frame', -27,-10,0,54,20,25) + block('stone', -29,-12,25,58,24,3) + block('dark', 4,-3,28,13,2,7),
     sofa: () => sofa(60), bench: () => sofa(36),
-    lowTable: () => table(-16,-8,32,16,9,'wood'),
+    lowTable: () => table(-16,-8,32,16,9,'white'),
     meeting: () => chair(-19,-18) + chair(19,-18) + table(-38,-14,76,28,20,'wood') +
       face('paper', surface(-22,-4,9,7,23.2)) + face('keypad', surface(13,0,10,5,23.2)) + chair(-19,20) + chair(19,20)
   };

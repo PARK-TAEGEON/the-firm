@@ -126,6 +126,12 @@
         }
         if (selectingDesk && selectingDesk === anchor) {
           if (act === 'seatStaff') return Loop.seatStaff(state, anchor, data.staff);
+          if (act === 'moveStaff') {
+            var seated = state.desks.placements[anchor];
+            if (!seated || !Loop.seatStaff(state, data.to, seated)) return false;
+            selectingDesk = data.to;
+            return true;
+          }
           if (act === 'clearDesk') return Loop.seatStaff(state, anchor, null);
           if (act === 'removeDesk' && Loop.removeDesk(state, anchor)) {
             selectingDesk = null;
@@ -398,11 +404,13 @@
       var id = selectingDesk;
       if (!id || !Loop.hasDesk(state, id)) return '';
       var occupant = staffById(state.desks.placements[id]);
-      var controls = occupant ? '<button data-act="clearDesk" data-anchor="' + id + '">배치 해제</button>' :
+      var destinations = Object.keys(state.desks.placements).filter(function (key) { return !state.desks.placements[key]; });
+      var controls = occupant ? destinations.map(function (to) {
+        return '<button data-act="moveStaff" data-anchor="' + id + '" data-to="' + to + '">' + to + ' 책상으로 이동</button>';
+      }).join('') + '<button data-act="clearDesk" data-anchor="' + id + '">배치 해제</button>' :
         state.staff.map(function (person) {
-          var previous = Object.keys(state.desks.placements).find(function (key) { return state.desks.placements[key] === person.id; });
           return '<button data-act="seatStaff" data-anchor="' + id + '" data-staff="' + esc(person.id) + '">' +
-            face(person.id) + esc(person.name + ' ' + person.role) + (previous ? ' · ' + previous + '에서 이동' : ' 배치') + '</button>';
+            face(person.id) + esc(person.name + ' ' + person.role) + ' 배치' + '</button>';
         }).join('');
       return '<div class="seat-choices" role="group" aria-label="' + id + ' 책상 관리"><span>' + id + ' 책상 · ' +
         (occupant ? esc(occupant.name + ' ' + occupant.role) : '빈자리') + '</span>' + controls +
@@ -618,7 +626,8 @@
       var act = el.dataset.act;
       if (act === 'toggle' || act === 'assign') return;
       if (desk.handle(act, el.dataset)) {
-        var focusId = el.dataset.anchor ? 'anchor-' + el.dataset.anchor : el.id;
+        var targetAnchor = el.dataset.to || el.dataset.anchor;
+        var focusId = targetAnchor ? 'anchor-' + targetAnchor : el.id;
         draw(act === 'stat' ? undefined : focusId);
         if (act === 'stat' && el.id) {
           var step = doc.getElementById(el.id);
