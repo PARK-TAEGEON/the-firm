@@ -35,6 +35,7 @@ markmap:
 - Godot 조사 슬라이스 VS-001 ~ VS-006
 
 ## 10월 말 판정
+- [ ] 10/8 후속: [사건 딜레마·법률 안내·준비/비용 검증](docs/DESIGN-NOTES-2026-10-08_CASE_FIRST_AND_FEES.md) — [날짜 기반 slice 계획 PR #9](https://github.com/PARK-TAEGEON/the-firm/pull/9) 단계 0 보강
 - 외부 3~5명 "한 판 더?" → 2월 진행 / 아니면 6월로
 
 ## 11월
